@@ -51,7 +51,7 @@
   <mvc:annotation-driven />
   <context:annotation-config />
   <context:component-scan
-    base-package="eu.openanalytics.rsb.components" />
+    base-package="eu.openanalytics.rsb.component" />
     
   <!-- CXF -->
   <import

@@ -19,7 +19,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.openanalytics.rsb.components;
+package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
 import java.util.UUID;
