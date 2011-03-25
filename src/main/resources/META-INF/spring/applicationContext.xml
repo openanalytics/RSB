@@ -46,8 +46,13 @@
     http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
     http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"
 >
+  <!-- Configuration -->
+  <lang:groovy
+  id="configuration"
+  script-source="classpath:RsbConfiguration.groovy"
+  refresh-check-delay="3000" />
 
-  <!-- Spring MVC -->
+  <!-- Spring beans -->
   <mvc:annotation-driven />
   <context:annotation-config />
   <context:component-scan
