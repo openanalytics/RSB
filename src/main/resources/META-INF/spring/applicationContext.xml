@@ -46,26 +46,59 @@
     http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
     http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"
 >
-  <!-- Configuration -->
-  <lang:groovy
-  id="configuration"
-  script-source="classpath:RsbConfiguration.groovy"
-  refresh-check-delay="3000" />
+  <!-- External configuration -->
+  <lang:groovy id="configuration"
+               script-source="classpath:RsbConfiguration.groovy"
+               refresh-check-delay="3000" />
 
-  <!-- Spring beans -->
+  <!-- Spring components -->
   <mvc:annotation-driven />
   <context:annotation-config />
-  <context:component-scan
-    base-package="eu.openanalytics.rsb.component" />
+  <context:component-scan base-package="eu.openanalytics.rsb.component" />
     
   <!-- CXF -->
-  <import
-    resource="classpath:META-INF/cxf/cxf.xml" />
-  <import
-    resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-  <import
-    resource="classpath:META-INF/cxf/cxf-servlet.xml" />
-  <jaxws:endpoint
-    implementor="#MtomJobProcessor"
-    address="/mtom-jobs" />
+  <import resource="classpath:META-INF/cxf/cxf.xml" />
+  <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+  <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+  <jaxws:endpoint implementor="#MtomJobProcessor" address="/mtom-jobs" />
+    
+  <!-- ActiveMQ -->
+  <bean name="amqDeadLetterStrategy"
+        class="org.apache.activemq.broker.region.policy.IndividualDeadLetterStrategy"
+        p:queuePrefix="DLQ." />
+               
+  <bean name="amqDefaultPolicyEntry"
+        class="org.apache.activemq.broker.region.policy.PolicyEntry"
+        p:queue="r.*"
+        p:deadLetterStrategy-ref="amqDeadLetterStrategy" />
+               
+  <bean name="amqPolicyMap"
+        class="org.apache.activemq.broker.region.policy.PolicyMap"
+        p:defaultEntry-ref="amqDefaultPolicyEntry" />
+  
+  <bean name="amqBroker"
+        class="org.apache.activemq.broker.BrokerService"
+        p:brokerName="rsb-amq-broker"
+        p:persistent="true"
+        p:dataDirectoryFile="#{configuration.activeMqWorkDirectory}"
+        p:useJmx="true"
+        p:useShutdownHook="false"
+        p:destinationPolicy-ref="amqPolicyMap"
+        init-method="start"
+        destroy-method="stop" />
+               
+  <bean name="amqRedeliveryPolicy"
+        class="org.apache.activemq.RedeliveryPolicy"
+        p:useExponentialBackOff="true" />
+               
+  <bean name="amqPrefetchPolicy"
+        class="org.apache.activemq.ActiveMQPrefetchPolicy"
+        p:all="1" />
+  
+  <bean name="amqConnectionFactory"
+        class="org.apache.activemq.spring.ActiveMQConnectionFactory"
+        p:brokerURL="vm://rsb-amq-broker"
+        p:redeliveryPolicy-ref="amqRedeliveryPolicy"
+        p:prefetchPolicy-ref="amqPrefetchPolicy"
+        depends-on="amqBroker" />
 </beans>

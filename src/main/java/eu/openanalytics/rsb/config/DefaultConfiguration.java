@@ -40,7 +40,7 @@ public abstract class DefaultConfiguration implements Configuration {
 
     public DefaultConfiguration() throws URISyntaxException {
         userHomeDirectory = new File(System.getProperty("user.home"));
-        rsbHomeDirectory = new File(userHomeDirectory, "rsb");
+        rsbHomeDirectory = new File(userHomeDirectory, ".rsb");
         rsbResultsDirectory = new File(rsbHomeDirectory, "results");
         activeMqWorkDirectory = new File(rsbHomeDirectory, "activemq");
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
