@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * @author rsb.development@openanalytics.eu
  */
-public abstract class DefaultConfiguration implements Configuration {
+public abstract class AbstractDefaultConfiguration implements Configuration {
     protected final File userHomeDirectory;
     private final File rsbHomeDirectory;
     private final File rsbResultsDirectory;
@@ -38,7 +38,7 @@ public abstract class DefaultConfiguration implements Configuration {
     private final Map<String, URI> applicationSpecificRserviPoolUris;
     private final int jobTimeOut;
 
-    public DefaultConfiguration() throws URISyntaxException {
+    public AbstractDefaultConfiguration() throws URISyntaxException {
         userHomeDirectory = new File(System.getProperty("user.home"));
         rsbHomeDirectory = new File(userHomeDirectory, ".rsb");
         rsbResultsDirectory = new File(rsbHomeDirectory, "results");

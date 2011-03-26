@@ -1,4 +1,2 @@
-import eu.openanalytics.rsb.config.DefaultConfiguration
-
-class RsbConfiguration extends DefaultConfiguration {
+class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
 }

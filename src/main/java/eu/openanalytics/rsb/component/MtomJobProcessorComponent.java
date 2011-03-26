@@ -43,7 +43,7 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("MtomJobProcessor")
-public class MtomJobProcessorComponent implements MtomJobProcessor {
+public class MtomJobProcessorComponent extends AbstractConfigurable implements MtomJobProcessor {
     private static final String JSON_SERVICE_CALL_JOB_CONTENT_TYPE = "application/vnd.rsb+json";
     private static final String XML_SERVICE_CALL_JOB_CONTENT_TYPE = "application/vnd.rsb+xml";
     private static final String APPLICATION_ZIP_CONTENT_TYPE = "application/zip";
@@ -57,7 +57,7 @@ public class MtomJobProcessorComponent implements MtomJobProcessor {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
-        // TODO implement
+        // TODO implement :)
         final ResultType response = new ResultType();
         response.setApplicationName(applicationName);
         response.setJobId(UUID.randomUUID().toString());
