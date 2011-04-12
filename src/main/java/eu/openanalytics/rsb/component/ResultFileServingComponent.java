@@ -24,15 +24,21 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.cxf.common.util.Base64Utility;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
@@ -40,17 +46,16 @@ import org.springframework.util.FileCopyUtils;
  * @author rsb.development@openanalytics.eu
  */
 @Component("resultFileServer")
-@Path("/result")
+@Path("/result/{applicationName}/{resultFileName}")
 public class ResultFileServingComponent extends AbstractConfigurable {
     @GET
-    @Path("/{applicationName}/{result}")
-    public StreamingOutput getResult(@PathParam("applicationName") final String applicationName, @PathParam("result") final String result) {
+    public StreamingOutput getResult(@PathParam("applicationName") final String applicationName,
+            @PathParam("resultFileName") final String resultFileName, @Context final HttpServletResponse httpServletResponse)
+            throws IOException {
 
-        final File resultFile = new File(new File(getConfiguration().getRsbResultsDirectory(), applicationName), result);
+        final File resultFile = getResultFile(applicationName, resultFileName);
 
-        if (!resultFile.exists()) {
-            throw new WebApplicationException(Response.status(Status.NOT_FOUND).build());
-        }
+        addEtagHeader(applicationName, resultFileName, httpServletResponse);
 
         return new StreamingOutput() {
             @Override
@@ -58,5 +63,36 @@ public class ResultFileServingComponent extends AbstractConfigurable {
                 FileCopyUtils.copy(new FileInputStream(resultFile), output);
             }
         };
+    }
+
+    private void addEtagHeader(final String applicationName, final String resultFileName, final HttpServletResponse httpServletResponse) {
+        httpServletResponse.addHeader(HttpHeaders.ETAG, getEtag(applicationName, resultFileName));
+    }
+
+    @HEAD
+    public void getResultMeta(@PathParam("applicationName") final String applicationName,
+            @PathParam("resultFileName") final String resultFileName, @Context final HttpServletResponse httpServletResponse) {
+
+        final File resultFile = getResultFile(applicationName, resultFileName);
+        addContentLengthHeader(httpServletResponse, resultFile);
+        addEtagHeader(applicationName, resultFileName, httpServletResponse);
+    }
+
+    private void addContentLengthHeader(final HttpServletResponse httpServletResponse, final File resultFile) {
+        httpServletResponse.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(resultFile.length()));
+    }
+
+    private File getResultFile(final String applicationName, final String resultFileName) {
+        final File resultFile = new File(new File(getConfiguration().getRsbResultsDirectory(), applicationName), resultFileName);
+
+        if (!resultFile.exists()) {
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND).build());
+        }
+
+        return resultFile;
+    }
+
+    private String getEtag(final String applicationName, final String resultFileName) {
+        return Base64Utility.encode((applicationName + "/" + resultFileName).getBytes(Charset.defaultCharset()));
     }
 }
