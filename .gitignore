@@ -6,4 +6,4 @@
 target
 *.log
 rsb/conf/rsb.properties
-
+.fbprefs

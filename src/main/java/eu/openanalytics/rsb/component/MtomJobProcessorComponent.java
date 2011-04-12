@@ -38,6 +38,8 @@ import eu.openanalytics.rsb.soap.types.PayloadType;
 import eu.openanalytics.rsb.soap.types.ResultType;
 
 /**
+ * Handles R job processing requests.
+ * 
  * @author rsb.development@openanalytics.eu
  */
 @MTOM
@@ -50,6 +52,9 @@ public class MtomJobProcessorComponent extends AbstractConfigurable implements M
 
     private final static Pattern APP_NAME_VALIDATOR = Pattern.compile("\\w+");
 
+    /**
+     * Process a single R job.
+     */
     public ResultType process(final JobType job) {
         final String applicationName = job.getApplicationName();
 
