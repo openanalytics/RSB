@@ -25,20 +25,37 @@ import java.net.URI;
 import java.util.Map;
 
 /**
+ * Defines the configuration of RSB, which is injected in all components in order to support runtime
+ * changes via a hit-reloadable Groovy concrete implementation.
+ * 
+ * @see AbstractDefaultConfiguration
+ * 
  * @author rsb.development@openanalytics.eu
  */
 public interface Configuration {
 
+    /**
+     * Directory where result files are written.
+     */
     File getRsbResultsDirectory();
 
+    /**
+     * Directory where ActiveMQ stores its persisted data.
+     */
     File getActiveMqWorkDirectory();
 
+    /**
+     * URI of the RServi RMI pool.
+     */
     URI getDefaultRserviPoolUri();
 
+    /**
+     * Optional mapping of application names and RServi RMI pool URIs.
+     */
     Map<String, URI> getApplicationSpecificRserviPoolUris();
 
     /**
-     * @return time-out in milliseconds.
+     * Maximum time a job request can be pending its response (in milliseconds).
      */
     int getJobTimeOut();
 }

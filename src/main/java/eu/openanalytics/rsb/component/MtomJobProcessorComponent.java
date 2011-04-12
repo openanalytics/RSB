@@ -53,7 +53,7 @@ public class MtomJobProcessorComponent extends AbstractConfigurable implements M
     private final static Pattern APP_NAME_VALIDATOR = Pattern.compile("\\w+");
 
     /**
-     * Process a single R job.
+     * Processes a single R job.
      */
     public ResultType process(final JobType job) {
         final String applicationName = job.getApplicationName();

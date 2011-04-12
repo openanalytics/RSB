@@ -24,13 +24,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -43,11 +43,25 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
 /**
+ * Serves R job process result files.<br/>
+ * <i>NB. Could very well be replaced with a static file serving context on a frontal web
+ * server.</i>
+ * 
  * @author rsb.development@openanalytics.eu
  */
 @Component("resultFileServer")
+@Produces("application/octet-stream")
 @Path("/result/{applicationName}/{resultFileName}")
 public class ResultFileServingComponent extends AbstractConfigurable {
+    /**
+     * Serves a single result file.
+     * 
+     * @param applicationName
+     * @param resultFileName
+     * @param httpServletResponse
+     * @return
+     * @throws IOException
+     */
     @GET
     public StreamingOutput getResult(@PathParam("applicationName") final String applicationName,
             @PathParam("resultFileName") final String resultFileName, @Context final HttpServletResponse httpServletResponse)
@@ -58,17 +72,19 @@ public class ResultFileServingComponent extends AbstractConfigurable {
         addEtagHeader(applicationName, resultFileName, httpServletResponse);
 
         return new StreamingOutput() {
-            @Override
             public void write(final OutputStream output) throws IOException, WebApplicationException {
                 FileCopyUtils.copy(new FileInputStream(resultFile), output);
             }
         };
     }
 
-    private void addEtagHeader(final String applicationName, final String resultFileName, final HttpServletResponse httpServletResponse) {
-        httpServletResponse.addHeader(HttpHeaders.ETAG, getEtag(applicationName, resultFileName));
-    }
-
+    /**
+     * Provides meta-information only for a single result file.
+     * 
+     * @param applicationName
+     * @param resultFileName
+     * @param httpServletResponse
+     */
     @HEAD
     public void getResultMeta(@PathParam("applicationName") final String applicationName,
             @PathParam("resultFileName") final String resultFileName, @Context final HttpServletResponse httpServletResponse) {
@@ -76,6 +92,10 @@ public class ResultFileServingComponent extends AbstractConfigurable {
         final File resultFile = getResultFile(applicationName, resultFileName);
         addContentLengthHeader(httpServletResponse, resultFile);
         addEtagHeader(applicationName, resultFileName, httpServletResponse);
+    }
+
+    private void addEtagHeader(final String applicationName, final String resultFileName, final HttpServletResponse httpServletResponse) {
+        httpServletResponse.addHeader(HttpHeaders.ETAG, getEtag(applicationName, resultFileName));
     }
 
     private void addContentLengthHeader(final HttpServletResponse httpServletResponse, final File resultFile) {
@@ -92,7 +112,7 @@ public class ResultFileServingComponent extends AbstractConfigurable {
         return resultFile;
     }
 
-    private String getEtag(final String applicationName, final String resultFileName) {
-        return Base64Utility.encode((applicationName + "/" + resultFileName).getBytes(Charset.defaultCharset()));
+    static String getEtag(final String applicationName, final String resultFileName) {
+        return Base64Utility.encode((applicationName + "/" + resultFileName).getBytes());
     }
 }

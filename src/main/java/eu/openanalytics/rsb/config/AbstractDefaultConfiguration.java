@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
+ * Provides default configuration values: it is strongly suggested that all concrete implementations
+ * of {@link Configuration} extend this abstract class.
+ * 
  * @author rsb.development@openanalytics.eu
  */
 public abstract class AbstractDefaultConfiguration implements Configuration {
