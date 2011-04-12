@@ -24,57 +24,46 @@
 <document
     xmlns="http://maven.apache.org/XDOC/2.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd"
->
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
     <properties>
         <title>Architecture</title>
         <author
-            email="rsb.development@openanalytics.eu"
-        >RSB Development</author>
+            email="rsb.development@openanalytics.eu">RSB Development</author>
     </properties>
     <body>
         <section
-            name="Overview"
-        >
+            name="Overview">
             <img
                 src="images/rsb-architecture.png" />
             <p>TBD</p>
         </section>
         <section
-            name="Job Acceptors"
-        >
+            name="Job Acceptors">
             <p>TBD</p>
         </section>
         <section
-            name="Job Workers"
-        >
+            name="Job Workers">
             <subsection
-                name="Default configuration: No Application Bias"
-            >
+                name="Default configuration: No Application Bias">
                 <p>TBD</p>
             </subsection>
             <subsection
-                name="Optional configuration: Application Dedicated Pools"
-            >
+                name="Optional configuration: Application Dedicated Pools">
                 <p>TBD</p>
             </subsection>
             <subsection
-                name="Optional configuration: Application Dedicated RServi Instance"
-            >
+                name="Optional configuration: Application Dedicated RServi Instance">
                 <p>TBD</p>
             </subsection>
         </section>
         <section
-            name="Job Error Handling"
-        >
+            name="Job Error Handling">
             <subsection
-                name="RServi Node Starvation"
-            >
+                name="RServi Node Starvation">
                 <p>TBD</p>
             </subsection>
             <subsection
-                name="Faulty Job"
-            >
+                name="Faulty Job">
                 <p>TBD</p>
             </subsection>
         </section>

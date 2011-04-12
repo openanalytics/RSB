@@ -24,8 +24,7 @@
 <project>
     <body>
         <menu
-            name="Technical Guide"
-        >
+            name="Technical Guide">
             <item
                 name="Architecture"
                 href="architecture.html" />
@@ -43,8 +42,7 @@
                 href="stats.html" />
         </menu>
         <menu
-            name="Usage"
-        >
+            name="Usage">
             <item
                 name="API &amp; Clients"
                 href="wsdocs/index.html" />

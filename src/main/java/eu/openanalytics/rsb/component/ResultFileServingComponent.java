@@ -22,38 +22,41 @@ package eu.openanalytics.rsb.component;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.context.request.WebRequest;
 
 /**
  * @author rsb.development@openanalytics.eu
  */
-@Component
-@RequestMapping(value = "/result")
+@Component("resultFileServer")
+@Path("/result")
 public class ResultFileServingComponent extends AbstractConfigurable {
-    @RequestMapping(value = "/{applicationName}/{resultFile:.+}", method = RequestMethod.GET)
-    public void getResult(@PathVariable final String applicationName, @PathVariable final String resultFile,
-            final OutputStream responseStream) throws FileNotFoundException, IOException {
-        FileCopyUtils.copy(
-                new FileInputStream(new File(new File(getConfiguration().getRsbResultsDirectory(), applicationName), resultFile)),
-                responseStream);
-    }
+    @GET
+    @Path("/{applicationName}/{result}")
+    public StreamingOutput getResult(@PathParam("applicationName") final String applicationName, @PathParam("result") final String result) {
 
-    @ExceptionHandler(FileNotFoundException.class)
-    public void handleFileNotFoundException(final FileNotFoundException fnf, final WebRequest request, final HttpServletResponse response)
-            throws IOException {
-        response.sendError(HttpStatus.NOT_FOUND.value(), fnf.getMessage());
+        final File resultFile = new File(new File(getConfiguration().getRsbResultsDirectory(), applicationName), result);
+
+        if (!resultFile.exists()) {
+            throw new WebApplicationException(Response.status(Status.NOT_FOUND).build());
+        }
+
+        return new StreamingOutput() {
+            @Override
+            public void write(final OutputStream output) throws IOException, WebApplicationException {
+                FileCopyUtils.copy(new FileInputStream(resultFile), output);
+            }
+        };
     }
 }

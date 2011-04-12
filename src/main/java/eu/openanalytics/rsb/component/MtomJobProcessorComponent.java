@@ -44,7 +44,7 @@ import eu.openanalytics.rsb.soap.types.ResultType;
  */
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
-@Component("MtomJobProcessor")
+@Component("mtomJobProcessor")
 public class MtomJobProcessorComponent extends AbstractConfigurable implements MtomJobProcessor {
     private static final String JSON_SERVICE_CALL_JOB_CONTENT_TYPE = "application/vnd.rsb+json";
     private static final String XML_SERVICE_CALL_JOB_CONTENT_TYPE = "application/vnd.rsb+xml";

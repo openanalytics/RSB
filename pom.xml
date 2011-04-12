@@ -24,8 +24,7 @@
 <project
     xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
->
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.openanalytics</groupId>
@@ -144,6 +143,11 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <version>${cxf.version}</version>
         </dependency>
         <dependency>
@@ -272,8 +276,7 @@
                     <useTestClasspath>true</useTestClasspath>
                     <connectors>
                         <connector
-                            implementation="org.eclipse.jetty.server.nio.SelectChannelConnector"
-                        >
+                            implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>8888</port>
                             <maxIdleTime>0</maxIdleTime>
                         </connector>

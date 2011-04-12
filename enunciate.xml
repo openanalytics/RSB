@@ -21,21 +21,27 @@
     
   @author rsb.development@openanalytics.eu
 -->
-<enunciate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.20.xsd">
-  
-  <api-import pattern="eu.openanalytics.rsb.component.MtomJobProcessorComponent" />
-  
-  <namespaces>
-  	<namespace id="soap" uri="http://soap.rsb.openanalytics.eu/jobs" />
-    <namespace id="data" uri="http://soap.rsb.openanalytics.eu/types/" />
-  </namespaces>
-  
-  <modules>
-  	<docs docsDir="wsdocs"
-  		  splashPackage="eu.openanalytics.rsb.component"
-  		  title="R Service Bus API" 
-  		  copyright="OpenAnalytics BVBA, 2010-2011"
-          />
-  </modules>
+<enunciate
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.20.xsd">
+
+    <api-import
+        pattern="eu.openanalytics.rsb.component.MtomJobProcessorComponent" />
+
+    <namespaces>
+        <namespace
+            id="soap"
+            uri="http://soap.rsb.openanalytics.eu/jobs" />
+        <namespace
+            id="data"
+            uri="http://soap.rsb.openanalytics.eu/types/" />
+    </namespaces>
+
+    <modules>
+        <docs
+            docsDir="wsdocs"
+            splashPackage="eu.openanalytics.rsb.component"
+            title="R Service Bus API"
+            copyright="OpenAnalytics BVBA, 2010-2011" />
+    </modules>
 </enunciate>
