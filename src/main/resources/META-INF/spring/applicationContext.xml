@@ -24,8 +24,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
     xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
     xmlns:lang="http://www.springframework.org/schema/lang" xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task" xmlns:si="http://www.springframework.org/schema/integration"
-    xmlns:http="http://www.springframework.org/schema/integration/http"
+    xmlns:task="http://www.springframework.org/schema/task" xmlns:jms="http://www.springframework.org/schema/jms"
+    xmlns:si="http://www.springframework.org/schema/integration" xmlns:http="http://www.springframework.org/schema/integration/http"
     xmlns:file="http://www.springframework.org/schema/integration/file"
     xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,6 +36,7 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
     http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
     http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+    http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
     http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
     http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
     http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
@@ -104,4 +105,15 @@
     <bean name="amqConnectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory"
         p:brokerURL="vm://rsb-amq-broker" p:redeliveryPolicy-ref="amqRedeliveryPolicy"
         p:prefetchPolicy-ref="amqPrefetchPolicy" depends-on="amqBroker" />
+        
+    <!-- Spring JMS -->
+    <bean name="jmsTemplate" class="org.springframework.jms.core.JmsTemplate"
+        p:connectionFactory-ref="amqConnectionFactory" p:explicitQosEnabled="true"
+        p:deliveryPersistent="true" p:sessionTransacted="true" />
+
+    <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
+        prefetch="1">
+        <jms:listener destination="r.jobs.>" ref="jobProcessor" method="process" />
+    </jms:listener-container>
 </beans>

@@ -25,6 +25,11 @@ import java.io.IOException;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.jitr.Jitr;
+import org.jitr.annotation.BaseUri;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.xml.sax.SAXException;
 
 import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
@@ -53,14 +58,27 @@ import com.meterware.httpunit.WebRequest;
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
+@RunWith(Jitr.class)
 public class RestITCase extends XMLTestCase {
-    public void testJobsBadMethod() throws Exception {
-        doTestBadMethod(TestSupport.RSB_REST_JOBS_URI);
+    @BaseUri
+    private String baseUri;
+
+    private String restJobsUri;
+
+    @Before
+    public void before() {
+        restJobsUri = baseUri + "api/rest/jobs";
     }
 
+    @Test
+    public void testJobsBadMethod() throws Exception {
+        doTestUnsupportedHeadMethod(restJobsUri);
+    }
+
+    @Test
     public void testJobsBadApplicationName() throws Exception {
         final WebConversation wc = createNewWebConversation();
-        final WebRequest request = new PostMethodWebRequest(TestSupport.RSB_REST_JOBS_URI, new ByteArrayInputStream("ignored".getBytes()),
+        final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
                 Constants.XML_JOB_CONTENT_TYPE);
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
@@ -72,9 +90,10 @@ public class RestITCase extends XMLTestCase {
         }
     }
 
+    @Test
     public void testJobsBadContentType() throws Exception {
         final WebConversation wc = createNewWebConversation();
-        final WebRequest request = new PostMethodWebRequest(TestSupport.RSB_REST_JOBS_URI, new ByteArrayInputStream("ignored".getBytes()),
+        final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
                 "application/unsupported");
         request.setHeaderField("X-RSB-Application-Name", "myApp");
 
@@ -444,7 +463,7 @@ public class RestITCase extends XMLTestCase {
      * this.contentType = contentType; } }
      */
 
-    private void doTestBadMethod(final String requestUri) throws IOException, SAXException {
+    private void doTestUnsupportedHeadMethod(final String requestUri) throws IOException, SAXException {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new HeadMethodWebRequest(requestUri);
         try {
@@ -459,9 +478,9 @@ public class RestITCase extends XMLTestCase {
         final WebClient webClient = new WebClient();
         webClient.setJavaScriptEnabled(false);
 
-        if (StringUtils.isNotBlank(TestSupport.RSB_USERNAME)) {
+        if (StringUtils.isNotBlank(ITSupport.RSB_USERNAME)) {
             final DefaultCredentialsProvider dcp = new DefaultCredentialsProvider();
-            dcp.addCredentials(TestSupport.RSB_USERNAME, TestSupport.RSB_PASSWORD);
+            dcp.addCredentials(ITSupport.RSB_USERNAME, ITSupport.RSB_PASSWORD);
             webClient.setCredentialsProvider(dcp);
         }
 
@@ -472,11 +491,11 @@ public class RestITCase extends XMLTestCase {
     private WebConversation createNewWebConversation() {
         final WebConversation wc = new WebConversation();
 
-        if (StringUtils.isNotBlank(TestSupport.RSB_USERNAME)) {
+        if (StringUtils.isNotBlank(ITSupport.RSB_USERNAME)) {
             // the non-deprecated methods fails miserably when authenticating POST methods
             // wc.setAuthentication(TestSupport.RSB_REALM, TestSupport.RSB_USERNAME,
             // TestSupport.RSB_PASSWORD);
-            wc.setAuthorization(TestSupport.RSB_USERNAME, TestSupport.RSB_PASSWORD);
+            wc.setAuthorization(ITSupport.RSB_USERNAME, ITSupport.RSB_PASSWORD);
         }
 
         return wc;

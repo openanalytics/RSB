@@ -58,4 +58,11 @@ public interface Configuration {
      * Maximum time a job request can be pending its response (in milliseconds).
      */
     int getJobTimeOut();
+
+    /**
+     * Number of concurrent job workers per queue, which must be computed based on the number of
+     * nodes in the RServi pool and the number of job queues (one global plus one per "boosted"
+     * application).
+     */
+    int getNumberOfConcurrentJobWorkersPerQueue();
 }

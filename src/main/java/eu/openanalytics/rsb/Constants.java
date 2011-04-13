@@ -28,6 +28,7 @@ package eu.openanalytics.rsb;
 public class Constants {
     public static final String URI_OVERRIDE_HTTP_HEADER = "X-Base-Uri";
     public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
+    public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
 
     public static final String JSON_JOB_CONTENT_TYPE = "application/vnd.rsb+json";
     public static final String XML_JOB_CONTENT_TYPE = "application/vnd.rsb+xml";

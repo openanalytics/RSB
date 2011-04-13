@@ -40,6 +40,7 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
     private final URI defaultRserviPoolUri;
     private final Map<String, URI> applicationSpecificRserviPoolUris;
     private final int jobTimeOut;
+    private final int numberOfConcurrentJobWorkersPerQueue;
 
     public AbstractDefaultConfiguration() throws URISyntaxException {
         userHomeDirectory = new File(System.getProperty("user.home"));
@@ -49,6 +50,7 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
         applicationSpecificRserviPoolUris = Collections.emptyMap();
         jobTimeOut = 600000; // 10 minutes
+        numberOfConcurrentJobWorkersPerQueue = 5;
     }
 
     protected File getUserHomeDirectory() {
@@ -73,5 +75,9 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
 
     public int getJobTimeOut() {
         return jobTimeOut;
+    }
+
+    public int getNumberOfConcurrentJobWorkersPerQueue() {
+        return numberOfConcurrentJobWorkersPerQueue;
     }
 }

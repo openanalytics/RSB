@@ -34,7 +34,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class TestSupport {
+public abstract class ITSupport {
     public final static String RSB_BASE_URI;
 
     static {
@@ -64,7 +64,7 @@ public abstract class TestSupport {
                         StringUtils.repeat("*", StringUtils.length(RSB_PASSWORD)), RSB_REALM);
     }
 
-    private TestSupport() {
+    private ITSupport() {
         throw new UnsupportedOperationException("do not instantiate");
     }
 

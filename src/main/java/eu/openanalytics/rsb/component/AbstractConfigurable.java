@@ -20,6 +20,8 @@
  */
 package eu.openanalytics.rsb.component;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.openanalytics.rsb.config.Configuration;
@@ -28,14 +30,16 @@ import eu.openanalytics.rsb.config.Configuration;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public abstract class AbstractConfigurable {
-    private Configuration configuration;
+    private final Log logger = LogFactory.getLog(getClass());
 
     @Autowired
-    public void setConfiguration(final Configuration configuration) {
-        this.configuration = configuration;
-    }
+    private Configuration configuration;
 
     protected Configuration getConfiguration() {
         return configuration;
+    }
+
+    protected Log getLogger() {
+        return logger;
     }
 }
