@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu
+-->
+<xsd:schema xmlns="http://soap.rsb.openanalytics.eu/types"
+    targetNamespace="http://soap.rsb.openanalytics.eu/types"
+    attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0"
+    xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <xsd:complexType name="PayloadType">
+        <xsd:sequence>
+            <xsd:element name="data" type="xsd:base64Binary"
+                xmime:expectedContentTypes="application/octet-stream" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required" />
+        <xsd:attribute name="contentType" type="xsd:string" use="required" />
+    </xsd:complexType>
+
+    <xsd:simpleType name="ApplicationNameType">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="\w+" />
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:element name="job" type="JobType" />
+    <xsd:complexType name="JobType">
+        <xsd:sequence>
+            <xsd:element name="applicationName" type="ApplicationNameType" />
+            <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:attribute name="name" type="xsd:string"
+                        use="required" />
+                    <xsd:attribute name="value" type="xsd:string"
+                        use="required" />
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="payload" type="PayloadType"
+                maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="result" type="ResultType" />
+    <xsd:complexType name="ResultType">
+        <xsd:sequence>
+            <xsd:element name="applicationName" type="ApplicationNameType" />
+            <xsd:element name="jobId" type="xsd:string" />
+            <xsd:element name="payload" type="PayloadType"
+                maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

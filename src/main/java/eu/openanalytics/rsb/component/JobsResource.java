@@ -20,6 +20,8 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 import javax.ws.rs.Consumes;
@@ -33,13 +35,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.rest.types.JobToken;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
-import eu.openanalytics.rsb.rest.types.RJobAccepted;
 
 /**
  * Handles asynchronous R job processing requests.
@@ -51,7 +56,6 @@ import eu.openanalytics.rsb.rest.types.RJobAccepted;
 public class JobsResource extends AbstractConfigurable {
     // FIXME unit test
     // FIXME integration test
-    // FIXME support application/vnd.rsb+json
     // FIXME support application/zip application/x-zip application/x-zip-compressed
     // FIXME support multipart/form-data
     private final static ObjectFactory restOF = new ObjectFactory();
@@ -76,20 +80,47 @@ public class JobsResource extends AbstractConfigurable {
         }
     };
 
+    /**
+     * Handles a function call job.
+     * 
+     * @param argument
+     *            Argument passed to the function called on RServi.
+     * @param httpHeaders
+     * @return
+     * @throws URISyntaxException
+     * @throws IllegalArgumentException
+     */
     @POST
-    @Consumes(Constants.XML_JOB_CONTENT_TYPE)
-    @Produces(Constants.XML_JOB_CONTENT_TYPE)
-    public RJobAccepted handleXmlJob(@Context final HttpHeaders httpHeaders) {
+    @Consumes({ Constants.XML_JOB_CONTENT_TYPE, Constants.JSON_JOB_CONTENT_TYPE })
+    @Produces({ Constants.XML_JOB_CONTENT_TYPE, Constants.JSON_JOB_CONTENT_TYPE })
+    public JobToken handleFunctionCallJob(final String argument, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
+            throws URISyntaxException {
+
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
         if (!Util.isValidApplicationName(applicationName)) {
             throw new WebApplicationException(Response.status(new InvalidApplicationNameStatus(applicationName)).build());
         }
 
+        // FIXME extract X-RSB-Meta- headers
+
         final String jobId = UUID.randomUUID().toString();
-        final RJobAccepted rJobAccepted = restOF.createRJobAccepted();
-        rJobAccepted.setAppName(applicationName);
-        rJobAccepted.setJobId(jobId);
-        // FIXME set resultUri, taking X-Base-Uri in account
-        return rJobAccepted;
+        final JobToken jobToken = restOF.createJobToken();
+        jobToken.setApplicationName(applicationName);
+        jobToken.setJobId(jobId);
+
+        final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path("results").path(applicationName);
+
+        final String uriOverride = Util.getSingleHeader(httpHeaders, Constants.URI_OVERRIDE_HTTP_HEADER);
+        if (StringUtils.isNotBlank(uriOverride)) {
+            final URI override = new URI(uriOverride);
+            uriBuilder.scheme(override.getScheme());
+            uriBuilder.host(override.getHost());
+            uriBuilder.port(override.getPort());
+        }
+
+        jobToken.setApplicationResultsUri(uriBuilder.build().toString());
+        jobToken.setResultUri(uriBuilder.path(jobId).build().toString());
+
+        return jobToken;
     }
 }

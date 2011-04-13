@@ -21,19 +21,13 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<beans
-    xmlns="http://www.springframework.org/schema/beans"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:mvc="http://www.springframework.org/schema/mvc"
-    xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:lang="http://www.springframework.org/schema/lang"
-    xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xmlns:si="http://www.springframework.org/schema/integration"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:lang="http://www.springframework.org/schema/lang" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task" xmlns:si="http://www.springframework.org/schema/integration"
     xmlns:http="http://www.springframework.org/schema/integration/http"
     xmlns:file="http://www.springframework.org/schema/integration/file"
-    xmlns:jaxws="http://cxf.apache.org/jaxws"
-    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -47,86 +41,67 @@
     http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
     http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
     http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
-  <!-- External configuration -->
-    <lang:groovy
-        id="configuration"
-        script-source="classpath:RsbConfiguration.groovy"
+    
+    <!-- External configuration -->
+    <lang:groovy id="configuration" script-source="classpath:RsbConfiguration.groovy"
         refresh-check-delay="3000" />
 
-  <!-- Spring components -->
+    <!-- Spring components -->
     <mvc:annotation-driven />
     <context:annotation-config />
-    <context:component-scan
-        base-package="eu.openanalytics.rsb.component" />
+    <context:component-scan base-package="eu.openanalytics.rsb.component" />
     
-  <!-- CXF -->
-    <import
-        resource="classpath:META-INF/cxf/cxf.xml" />
-    <import
-        resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-    <import
-        resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
-    <import
-        resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    <!-- CXF -->
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-    <jaxws:endpoint
-        implementor="#mtomJobHandler"
-        address="/soap/mtom-jobs" />
-        
-    <jaxrs:server
-        address="/rest">
+    <jaxws:endpoint implementor="#mtomJobHandler" address="/soap/mtom-jobs" />
+
+    <util:list id="jsonRsbTypes">
+        <value>#{T(eu.openanalytics.rsb.Constants).JSON_JOB_CONTENT_TYPE}
+        </value>
+    </util:list>
+
+    <bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.JSONProvider"
+        p:consumeMediaTypes-ref="jsonRsbTypes" p:produceMediaTypes-ref="jsonRsbTypes"
+        p:ignoreNamespaces="true" p:attributesToElements="true" />
+
+    <jaxrs:server address="/rest">
         <jaxrs:serviceBeans>
-            <ref
-                bean="jobsResource" />
-            <ref
-                bean="resultResource" />
+            <ref bean="jobsResource" />
+            <ref bean="resultResource" />
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jsonProvider" />
+        </jaxrs:providers>
     </jaxrs:server>
   
-  <!-- ActiveMQ -->
-    <bean
-        name="amqDeadLetterStrategy"
+    <!-- ActiveMQ -->
+    <bean name="amqDeadLetterStrategy"
         class="org.apache.activemq.broker.region.policy.IndividualDeadLetterStrategy"
         p:queuePrefix="DLQ." />
 
-    <bean
-        name="amqDefaultPolicyEntry"
-        class="org.apache.activemq.broker.region.policy.PolicyEntry"
-        p:queue="r.*"
-        p:deadLetterStrategy-ref="amqDeadLetterStrategy" />
+    <bean name="amqDefaultPolicyEntry" class="org.apache.activemq.broker.region.policy.PolicyEntry"
+        p:queue="r.*" p:deadLetterStrategy-ref="amqDeadLetterStrategy" />
 
-    <bean
-        name="amqPolicyMap"
-        class="org.apache.activemq.broker.region.policy.PolicyMap"
+    <bean name="amqPolicyMap" class="org.apache.activemq.broker.region.policy.PolicyMap"
         p:defaultEntry-ref="amqDefaultPolicyEntry" />
 
-    <bean
-        name="amqBroker"
-        class="org.apache.activemq.broker.BrokerService"
-        p:brokerName="rsb-amq-broker"
-        p:persistent="true"
-        p:dataDirectoryFile="#{configuration.activeMqWorkDirectory}"
-        p:useJmx="true"
-        p:useShutdownHook="false"
-        p:destinationPolicy-ref="amqPolicyMap"
-        init-method="start"
-        destroy-method="stop" />
+    <bean name="amqBroker" class="org.apache.activemq.broker.BrokerService"
+        p:brokerName="rsb-amq-broker" p:persistent="true"
+        p:dataDirectoryFile="#{configuration.activeMqWorkDirectory}" p:useJmx="true"
+        p:useShutdownHook="false" p:destinationPolicy-ref="amqPolicyMap"
+        init-method="start" destroy-method="stop" />
 
-    <bean
-        name="amqRedeliveryPolicy"
-        class="org.apache.activemq.RedeliveryPolicy"
+    <bean name="amqRedeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy"
         p:useExponentialBackOff="true" />
 
-    <bean
-        name="amqPrefetchPolicy"
-        class="org.apache.activemq.ActiveMQPrefetchPolicy"
+    <bean name="amqPrefetchPolicy" class="org.apache.activemq.ActiveMQPrefetchPolicy"
         p:all="1" />
 
-    <bean
-        name="amqConnectionFactory"
-        class="org.apache.activemq.spring.ActiveMQConnectionFactory"
-        p:brokerURL="vm://rsb-amq-broker"
-        p:redeliveryPolicy-ref="amqRedeliveryPolicy"
-        p:prefetchPolicy-ref="amqPrefetchPolicy"
-        depends-on="amqBroker" />
+    <bean name="amqConnectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory"
+        p:brokerURL="vm://rsb-amq-broker" p:redeliveryPolicy-ref="amqRedeliveryPolicy"
+        p:prefetchPolicy-ref="amqPrefetchPolicy" depends-on="amqBroker" />
 </beans>

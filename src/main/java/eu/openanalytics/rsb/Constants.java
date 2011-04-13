@@ -17,7 +17,8 @@
  *
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */package eu.openanalytics.rsb;
+ */
+package eu.openanalytics.rsb;
 
 /**
  * Useful constants.
@@ -25,6 +26,7 @@
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public class Constants {
+    public static final String URI_OVERRIDE_HTTP_HEADER = "X-Base-Uri";
     public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
 
     public static final String JSON_JOB_CONTENT_TYPE = "application/vnd.rsb+json";

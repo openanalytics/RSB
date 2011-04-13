@@ -22,91 +22,49 @@
     @author rsb.development@openanalytics.eu
 -->
 <definitions name="RsbMtomJobs" targetNamespace="http://soap.rsb.openanalytics.eu/jobs"
-  xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://soap.rsb.openanalytics.eu/jobs"
-  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xsd1="http://soap.rsb.openanalytics.eu/types/"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xmime="http://www.w3.org/2005/05/xmlmime">
+    xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:jobs="http://soap.rsb.openanalytics.eu/jobs"
+    xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:types="http://soap.rsb.openanalytics.eu/types"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <types>
-    <schema targetNamespace="http://soap.rsb.openanalytics.eu/types/"
-      xmlns="http://www.w3.org/2001/XMLSchema">
-      
-      <complexType name="PayloadType">
-        <sequence>
-          <element name="data" type="xsd:base64Binary"
-            xmime:expectedContentTypes="application/octet-stream" />
-          </sequence>
-        <attribute name="name" type="xsd:string" use="required" />
-        <attribute name="contentType" type="xsd:string" use="required" />
-      </complexType>
-      
-      <complexType name="JobType">
-        <sequence>
-          <element name="applicationName">
-            <simpleType>
-              <restriction base="xsd:string">
-                <pattern value="\w+" />
-              </restriction>
-            </simpleType>
-          </element>
-          <element name="parameter" minOccurs="0" maxOccurs="unbounded">
-            <complexType>
-              <attribute name="name" type="xsd:string" use="required" />
-              <attribute name="value" type="xsd:string" use="required" />
-            </complexType>
-          </element>
-          <element name="payload" type="xsd1:PayloadType" maxOccurs="unbounded" />
-        </sequence>
-      </complexType>
-      <element name="job" type="xsd1:JobType" />
+    <types>
+        <schema targetNamespace="http://soap.rsb.openanalytics.eu/jobs"
+            xmlns="http://www.w3.org/2001/XMLSchema">
+            <import namespace="http://soap.rsb.openanalytics.eu/types"
+                schemaLocation="../schemas/soap-jobs-and-results.xsd" />
+        </schema>
+    </types>
 
-      <complexType name="ResultType">
-        <sequence>
-          <element name="applicationName">
-            <simpleType>
-              <restriction base="xsd:string">
-                <pattern value="\w+" />
-              </restriction>
-            </simpleType>
-          </element>
-          <element name="jobId" type="xsd:string" />
-          <element name="payload" type="xsd1:PayloadType" maxOccurs="unbounded" />
-        </sequence>
-      </complexType>
-      <element name="result" type="xsd1:ResultType" />
-    </schema>
-  </types>
+    <message name="JobRequest">
+        <part name="job" element="types:job" />
+    </message>
+    <message name="JobResponse">
+        <part name="result" element="types:result" />
+    </message>
 
-  <message name="JobRequest">
-    <part name="job" element="xsd1:job" />
-  </message>
-  <message name="JobResponse">
-    <part name="result" element="xsd1:result" />
-  </message>
+    <portType name="MtomJobProcessor">
+        <operation name="Process">
+            <input message="jobs:JobRequest" name="JobRequest" />
+            <output message="jobs:JobResponse" name="JobResponse" />
+        </operation>
+    </portType>
 
-  <portType name="MtomJobProcessor">
-    <operation name="Process">
-      <input message="tns:JobRequest" name="JobRequest" />
-      <output message="tns:JobResponse" name="JobResponse" />
-    </operation>
-  </portType>
+    <binding name="MtomJobProcessorSoapBinding" type="jobs:MtomJobProcessor">
+        <soap12:binding style="document"
+            transport="http://schemas.xmlsoap.org/soap/http" />
+        <operation name="Process">
+            <soap12:operation soapAction="" style="document" />
+            <input name="JobRequest">
+                <soap12:body use="literal" />
+            </input>
+            <output name="JobResponse">
+                <soap12:body use="literal" />
+            </output>
+        </operation>
+    </binding>
 
-  <binding name="MtomJobProcessorSoapBinding" type="tns:MtomJobProcessor">
-    <soap12:binding style="document"
-      transport="http://schemas.xmlsoap.org/soap/http" />
-    <operation name="Process">
-      <soap12:operation soapAction="" style="document" />
-      <input name="JobRequest">
-        <soap12:body use="literal" />
-      </input>
-      <output name="JobResponse">
-        <soap12:body use="literal" />
-      </output>
-    </operation>
-  </binding>
-
-  <service name="MtomJobService">
-    <port name="MtomJobProcessorPort" binding="tns:MtomJobProcessorSoapBinding">
-      <soap12:address location="http://provided_by_mule" />
-    </port>
-  </service>
+    <service name="MtomJobService">
+        <port name="MtomJobProcessorPort" binding="jobs:MtomJobProcessorSoapBinding">
+            <soap12:address location="http://provided_by_mule" />
+        </port>
+    </service>
 </definitions>

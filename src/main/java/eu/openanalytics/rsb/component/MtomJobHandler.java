@@ -47,6 +47,7 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("mtomJobHandler")
 public class MtomJobHandler extends AbstractConfigurable implements MtomJobProcessor {
+    // TODO use @WebFault to generate meaningful errors
     private final static ObjectFactory soapOF = new ObjectFactory();
 
     /**
@@ -59,7 +60,7 @@ public class MtomJobHandler extends AbstractConfigurable implements MtomJobProce
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
-        // TODO implement :)
+        // FIXME implement :)
         final ResultType response = soapOF.createResultType();
         response.setApplicationName(applicationName);
         response.setJobId(UUID.randomUUID().toString());

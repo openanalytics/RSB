@@ -86,6 +86,8 @@ public class RestITCase extends XMLTestCase {
         }
     }
 
+    // FIXME test X-Base-Uri support
+
     /*
      * public void testResultsBadMethod() throws Exception {
      * doTestBadMethod(TestSupport.RSB_REST_RESULTS_URI); }
