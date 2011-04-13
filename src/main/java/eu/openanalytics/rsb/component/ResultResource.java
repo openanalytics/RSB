@@ -47,12 +47,12 @@ import org.springframework.util.FileCopyUtils;
  * <i>NB. Could very well be replaced with a static file serving context on a frontal web
  * server.</i>
  * 
- * @author rsb.development@openanalytics.eu
+ * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-@Component("resultFileServer")
+@Component("resultResource")
 @Produces("application/octet-stream")
 @Path("/result/{applicationName}/{resultFileName}")
-public class ResultFileServingComponent extends AbstractConfigurable {
+public class ResultResource extends AbstractConfigurable {
     /**
      * Serves a single result file.
      * 

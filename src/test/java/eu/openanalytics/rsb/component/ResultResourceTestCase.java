@@ -1,3 +1,23 @@
+/*
+ *   R Service Bus
+ *   
+ *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ *
+ *   ===========================================================================
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -25,12 +45,15 @@ import org.springframework.util.FileCopyUtils;
 
 import eu.openanalytics.rsb.config.Configuration;
 
-public class ResultFileServingComponentTestCase {
-
+/**
+ * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ */
+public class ResultResourceTestCase {
+    // FIXME integration test
     private static final String MISSING_RSB_RESULT = "_missing_rsb_result_";
 
     private HttpServletResponse httpServletResponse;
-    private ResultFileServingComponent component;
+    private ResultResource resource;
     private File tempDir;
     private String testApplicationName;
     private String testResult;
@@ -46,43 +69,43 @@ public class ResultFileServingComponentTestCase {
         final Configuration configuration = mock(Configuration.class);
         when(configuration.getRsbResultsDirectory()).thenReturn(tempDir.getParentFile());
 
-        component = new ResultFileServingComponent();
-        component.setConfiguration(configuration);
+        resource = new ResultResource();
+        resource.setConfiguration(configuration);
 
         httpServletResponse = mock(HttpServletResponse.class);
     }
 
     @Test(expected = WebApplicationException.class)
     public void getResultNotFound() throws IOException {
-        component.getResult(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
+        resource.getResult(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
     }
 
     @Test
     public void getResult() throws IOException {
         createTestResultFile();
 
-        final StreamingOutput result = component.getResult(testApplicationName, testResult, httpServletResponse);
+        final StreamingOutput result = resource.getResult(testApplicationName, testResult, httpServletResponse);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         result.write(baos);
 
         assertThat(baos.toByteArray(), is(testResultPayload.getBytes()));
 
-        verify(httpServletResponse).addHeader(HttpHeaders.ETAG, ResultFileServingComponent.getEtag(testApplicationName, testResult));
+        verify(httpServletResponse).addHeader(HttpHeaders.ETAG, ResultResource.getEtag(testApplicationName, testResult));
     }
 
     @Test(expected = WebApplicationException.class)
     public void getResultMetaNotFound() {
-        component.getResultMeta(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
+        resource.getResultMeta(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
     }
 
     @Test
     public void getResultMeta() throws IOException {
         final File testResultFile = createTestResultFile();
 
-        component.getResultMeta(testApplicationName, testResult, httpServletResponse);
+        resource.getResultMeta(testApplicationName, testResult, httpServletResponse);
 
         verify(httpServletResponse).addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(testResultFile.length()));
-        verify(httpServletResponse).addHeader(HttpHeaders.ETAG, ResultFileServingComponent.getEtag(testApplicationName, testResult));
+        verify(httpServletResponse).addHeader(HttpHeaders.ETAG, ResultResource.getEtag(testApplicationName, testResult));
     }
 
     private File createTestResultFile() throws IOException {

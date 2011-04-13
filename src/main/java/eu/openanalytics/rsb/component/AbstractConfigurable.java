@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author rsb.development@openanalytics.eu
+ * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public abstract class AbstractConfigurable {
     private Configuration configuration;

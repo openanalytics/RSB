@@ -70,14 +70,16 @@
         resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
     <jaxws:endpoint
-        implementor="#mtomJobProcessor"
+        implementor="#mtomJobHandler"
         address="/soap/mtom-jobs" />
         
     <jaxrs:server
         address="/rest">
         <jaxrs:serviceBeans>
             <ref
-                bean="resultFileServer" />
+                bean="jobsResource" />
+            <ref
+                bean="resultResource" />
         </jaxrs:serviceBeans>
     </jaxrs:server>
   

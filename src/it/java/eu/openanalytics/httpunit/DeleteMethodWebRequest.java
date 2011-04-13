@@ -18,9 +18,18 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+package eu.openanalytics.httpunit;
+
+import com.meterware.httpunit.HeaderOnlyWebRequest;
+
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
+public class DeleteMethodWebRequest extends HeaderOnlyWebRequest {
+    public DeleteMethodWebRequest(final String urlString) {
+        super(urlString);
+        this.setMethod("DELETE");
+    }
+
 }

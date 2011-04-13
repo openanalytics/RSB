@@ -22,35 +22,32 @@ package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.soap.MTOM;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
+import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.soap.jobs.MtomJobProcessor;
 import eu.openanalytics.rsb.soap.types.JobType;
+import eu.openanalytics.rsb.soap.types.ObjectFactory;
 import eu.openanalytics.rsb.soap.types.PayloadType;
 import eu.openanalytics.rsb.soap.types.ResultType;
 
 /**
- * Handles R job processing requests.
+ * Handles synchronous SOAP/MTOM R job processing requests.
  * 
- * @author rsb.development@openanalytics.eu
+ * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
-@Component("mtomJobProcessor")
-public class MtomJobProcessorComponent extends AbstractConfigurable implements MtomJobProcessor {
-    private static final String JSON_SERVICE_CALL_JOB_CONTENT_TYPE = "application/vnd.rsb+json";
-    private static final String XML_SERVICE_CALL_JOB_CONTENT_TYPE = "application/vnd.rsb+xml";
-    private static final String APPLICATION_ZIP_CONTENT_TYPE = "application/zip";
-
-    private final static Pattern APP_NAME_VALIDATOR = Pattern.compile("\\w+");
+@Component("mtomJobHandler")
+public class MtomJobHandler extends AbstractConfigurable implements MtomJobProcessor {
+    private final static ObjectFactory soapOF = new ObjectFactory();
 
     /**
      * Processes a single R job.
@@ -58,19 +55,19 @@ public class MtomJobProcessorComponent extends AbstractConfigurable implements M
     public ResultType process(final JobType job) {
         final String applicationName = job.getApplicationName();
 
-        if (StringUtils.isBlank(applicationName) || !APP_NAME_VALIDATOR.matcher(applicationName).matches()) {
+        if (Util.isValidApplicationName(applicationName)) {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
         // TODO implement :)
-        final ResultType response = new ResultType();
+        final ResultType response = soapOF.createResultType();
         response.setApplicationName(applicationName);
         response.setJobId(UUID.randomUUID().toString());
-        final PayloadType payload = new PayloadType();
-        payload.setContentType(XML_SERVICE_CALL_JOB_CONTENT_TYPE);
+        final PayloadType payload = soapOF.createPayloadType();
+        payload.setContentType(Constants.XML_JOB_CONTENT_TYPE);
         payload.setName("result");
         try {
-            payload.setData(new DataHandler(new ByteArrayDataSource("<fake_result />", XML_SERVICE_CALL_JOB_CONTENT_TYPE)));
+            payload.setData(new DataHandler(new ByteArrayDataSource("<fake_result />", Constants.XML_JOB_CONTENT_TYPE)));
         } catch (final IOException ioe) {
             throw new RuntimeException(ioe);
         }

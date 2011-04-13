@@ -17,10 +17,23 @@
  *
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
- 
+ */package eu.openanalytics.rsb;
+
 /**
+ * Useful constants.
+ * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
+public class Constants {
+    public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
+
+    public static final String JSON_JOB_CONTENT_TYPE = "application/vnd.rsb+json";
+    public static final String XML_JOB_CONTENT_TYPE = "application/vnd.rsb+xml";
+    public static final String APPLICATION_ZIP_CONTENT_TYPE = "application/zip";
+    public static final String[] ALL_APPLICATION_ZIP_CONTENT_TYPES = { APPLICATION_ZIP_CONTENT_TYPE, "application/x-zip",
+            "application/x-zip-compressed" };
+
+    private Constants() {
+        throw new UnsupportedOperationException("do not instantiate");
+    }
 }
