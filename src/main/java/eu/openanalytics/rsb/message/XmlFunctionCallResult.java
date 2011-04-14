@@ -1,7 +1,3 @@
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /*
  *   R Service Bus
  *   
@@ -22,14 +18,20 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+package eu.openanalytics.rsb.message;
+
+import java.util.Calendar;
+
 /**
+ * Represents the result of a {@link XmlFunctionCallJob}.
+ * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
-    
-    // Demonstrates how to send statistics to Redis
-//    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
-//        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)
-//    }
+public class XmlFunctionCallResult extends AbstractFunctionCallResult {
+    private static final long serialVersionUID = 1L;
+
+    public XmlFunctionCallResult(final String applicationName, final String jobId, final Calendar submissionTime, final boolean success,
+            final String result) {
+        super(applicationName, jobId, submissionTime, success, result);
+    }
 }

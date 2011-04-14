@@ -39,6 +39,14 @@ public abstract class Util {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
+    public static String getJobsQueueName(final String applicationName) {
+        return "r.jobs." + applicationName;
+    }
+
+    public static String getResultsQueueName(final String applicationName) {
+        return "r.results." + applicationName;
+    }
+
     public static boolean isValidApplicationName(final String name) {
         return StringUtils.isNotBlank(name) && APPLICATION_NAME_VALIDATOR.matcher(name).matches();
     }

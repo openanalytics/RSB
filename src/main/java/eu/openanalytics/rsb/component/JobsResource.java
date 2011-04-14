@@ -53,7 +53,8 @@ import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
-import eu.openanalytics.rsb.message.FunctionCallJob;
+import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.AbstractJob.Type;
 import eu.openanalytics.rsb.rest.types.JobToken;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
@@ -64,7 +65,7 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
  */
 @Component("jobsResource")
 @Path("/jobs")
-public class JobsResource extends AbstractConfigurable {
+public class JobsResource extends AbstractComponent {
     // FIXME unit test
     // FIXME integration test
     // FIXME support application/zip application/x-zip application/x-zip-compressed
@@ -95,19 +96,42 @@ public class JobsResource extends AbstractConfigurable {
     private JmsTemplate jmsTemplate;
 
     /**
-     * Handles a function call job.
+     * Handles a function call job with a JSON payload.
      * 
-     * @param argument
+     * @param jsonArgument
      *            Argument passed to the function called on RServi.
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
-     * @throws IllegalArgumentException
      */
     @POST
-    @Consumes({ Constants.XML_JOB_CONTENT_TYPE, Constants.JSON_JOB_CONTENT_TYPE })
-    @Produces({ Constants.XML_JOB_CONTENT_TYPE, Constants.JSON_JOB_CONTENT_TYPE })
-    public JobToken handleFunctionCallJob(final String argument, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
+    @Consumes({ Constants.JSON_JOB_CONTENT_TYPE })
+    @Produces({ Constants.JSON_JOB_CONTENT_TYPE })
+    public JobToken handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
+            @Context final UriInfo uriInfo) throws URISyntaxException {
+
+        return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, Type.JSON_FUNCTION_CALL);
+    }
+
+    /**
+     * Handles a function call job with a XML payload.
+     * 
+     * @param xmlArgument
+     *            Argument passed to the function called on RServi.
+     * @param httpHeaders
+     * @return
+     * @throws URISyntaxException
+     */
+    @POST
+    @Consumes({ Constants.XML_JOB_CONTENT_TYPE })
+    @Produces({ Constants.XML_JOB_CONTENT_TYPE })
+    public JobToken handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
+            @Context final UriInfo uriInfo) throws URISyntaxException {
+
+        return handleFunctionCallJob(xmlArgument, httpHeaders, uriInfo, Type.XML_FUNCTION_CALL);
+    }
+
+    private JobToken handleFunctionCallJob(final String argument, final HttpHeaders httpHeaders, final UriInfo uriInfo, final Type jobType)
             throws URISyntaxException {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
@@ -118,12 +142,11 @@ public class JobsResource extends AbstractConfigurable {
 
         final String jobId = UUID.randomUUID().toString();
 
-        final FunctionCallJob functionCallJob = new FunctionCallJob(applicationName, jobId, httpHeaders.getMediaType(), argument,
-                getJobMeta(httpHeaders));
+        final AbstractJob job = jobType.build(applicationName, jobId, argument, getJobMeta(httpHeaders));
 
-        jmsTemplate.send("r.jobs." + applicationName, new MessageCreator() {
+        jmsTemplate.send(Util.getJobsQueueName(applicationName), new MessageCreator() {
             public Message createMessage(final Session session) throws JMSException {
-                return session.createObjectMessage(functionCallJob);
+                return session.createObjectMessage(job);
             }
         });
 

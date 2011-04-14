@@ -23,8 +23,9 @@ package eu.openanalytics.rsb.config;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.Map;
+
+import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
  * Provides default configuration values: it is strongly suggested that all concrete implementations
@@ -38,7 +39,6 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
     private final File rsbResultsDirectory;
     private final File activeMqWorkDirectory;
     private final URI defaultRserviPoolUri;
-    private final Map<String, URI> applicationSpecificRserviPoolUris;
     private final int jobTimeOut;
     private final int numberOfConcurrentJobWorkersPerQueue;
 
@@ -48,7 +48,6 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
         rsbResultsDirectory = new File(rsbHomeDirectory, "results");
         activeMqWorkDirectory = new File(rsbHomeDirectory, "activemq");
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
-        applicationSpecificRserviPoolUris = Collections.emptyMap();
         jobTimeOut = 600000; // 10 minutes
         numberOfConcurrentJobWorkersPerQueue = 5;
     }
@@ -70,7 +69,7 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
     }
 
     public Map<String, URI> getApplicationSpecificRserviPoolUris() {
-        return applicationSpecificRserviPoolUris;
+        return null;
     }
 
     public int getJobTimeOut() {
@@ -79,5 +78,9 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
 
     public int getNumberOfConcurrentJobWorkersPerQueue() {
         return numberOfConcurrentJobWorkersPerQueue;
+    }
+
+    public JobStatisticsHandler getJobStatisticsHandler() {
+        return null;
     }
 }

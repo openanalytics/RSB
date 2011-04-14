@@ -24,6 +24,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
+import eu.openanalytics.rsb.stats.JobStatisticsHandler;
+
 /**
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
  * changes via a hit-reloadable Groovy concrete implementation.
@@ -65,4 +67,9 @@ public interface Configuration {
      * application).
      */
     int getNumberOfConcurrentJobWorkersPerQueue();
+
+    /**
+     * Optional RSB job statistics handler.
+     */
+    JobStatisticsHandler getJobStatisticsHandler();
 }

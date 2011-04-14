@@ -1,7 +1,3 @@
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /*
  *   R Service Bus
  *   
@@ -22,14 +18,36 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+package eu.openanalytics.rsb.message;
+
+import java.util.Calendar;
+import java.util.Map;
+
 /**
+ * Represents a RSB job that consists in calling a 1-arity function on R.
+ * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
-    
-    // Demonstrates how to send statistics to Redis
-//    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
-//        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)
-//    }
+public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResult> extends AbstractJob {
+    private static final long serialVersionUID = 1L;
+
+    private String argument;
+
+    public AbstractFunctionCallJob(final String applicationName, final String jobId, final Calendar submissionTime, final String argument,
+            final Map<String, String> meta) {
+        super(applicationName, jobId, submissionTime, meta);
+        this.argument = argument;
+    }
+
+    public abstract String getFunctionName();
+
+    public abstract R buildResult(boolean success, String result);
+
+    public String getArgument() {
+        return argument;
+    }
+
+    public void setArgument(final String argument) {
+        this.argument = argument;
+    }
 }

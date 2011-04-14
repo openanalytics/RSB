@@ -1,7 +1,3 @@
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /*
  *   R Service Bus
  *   
@@ -22,14 +18,41 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+package eu.openanalytics.rsb.message;
+
+import java.util.Calendar;
+
 /**
+ * Represents the result of a {@link AbstractFunctionCallJob}.
+ * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
-    
-    // Demonstrates how to send statistics to Redis
-//    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
-//        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)
-//    }
+public abstract class AbstractFunctionCallResult extends AbstractJobContext {
+    private static final long serialVersionUID = 1L;
+
+    private boolean success;
+    private String result;
+
+    public AbstractFunctionCallResult(final String applicationName, final String jobId, final Calendar submissionTime,
+            final boolean success, final String result) {
+        super(applicationName, jobId, submissionTime);
+        this.success = success;
+        this.result = result;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(final String result) {
+        this.result = result;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(final boolean success) {
+        this.success = success;
+    }
 }

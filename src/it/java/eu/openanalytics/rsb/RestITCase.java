@@ -64,10 +64,14 @@ public class RestITCase extends XMLTestCase {
     private String baseUri;
 
     private String restJobsUri;
+    private String rsbUserName;
+    private String rsbPassword;
 
     @Before
     public void before() {
         restJobsUri = baseUri + "api/rest/jobs";
+        rsbUserName = null;
+        rsbPassword = null;
     }
 
     @Test
@@ -478,9 +482,9 @@ public class RestITCase extends XMLTestCase {
         final WebClient webClient = new WebClient();
         webClient.setJavaScriptEnabled(false);
 
-        if (StringUtils.isNotBlank(ITSupport.RSB_USERNAME)) {
+        if (StringUtils.isNotBlank(rsbUserName)) {
             final DefaultCredentialsProvider dcp = new DefaultCredentialsProvider();
-            dcp.addCredentials(ITSupport.RSB_USERNAME, ITSupport.RSB_PASSWORD);
+            dcp.addCredentials(rsbUserName, rsbPassword);
             webClient.setCredentialsProvider(dcp);
         }
 
@@ -491,11 +495,11 @@ public class RestITCase extends XMLTestCase {
     private WebConversation createNewWebConversation() {
         final WebConversation wc = new WebConversation();
 
-        if (StringUtils.isNotBlank(ITSupport.RSB_USERNAME)) {
+        if (StringUtils.isNotBlank(rsbUserName)) {
             // the non-deprecated methods fails miserably when authenticating POST methods
             // wc.setAuthentication(TestSupport.RSB_REALM, TestSupport.RSB_USERNAME,
             // TestSupport.RSB_PASSWORD);
-            wc.setAuthorization(ITSupport.RSB_USERNAME, ITSupport.RSB_PASSWORD);
+            wc.setAuthorization(rsbUserName, rsbPassword);
         }
 
         return wc;

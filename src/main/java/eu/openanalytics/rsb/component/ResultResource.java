@@ -52,7 +52,7 @@ import org.springframework.util.FileCopyUtils;
 @Component("resultResource")
 @Produces("application/octet-stream")
 @Path("/result/{applicationName}/{resultFileName}")
-public class ResultResource extends AbstractConfigurable {
+public class ResultResource extends AbstractComponent {
     /**
      * Serves a single result file.
      * 
@@ -112,6 +112,7 @@ public class ResultResource extends AbstractConfigurable {
         return resultFile;
     }
 
+    // exposed for unit testing
     static String getEtag(final String applicationName, final String resultFileName) {
         return Base64Utility.encode((applicationName + "/" + resultFileName).getBytes());
     }

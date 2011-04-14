@@ -1,7 +1,3 @@
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /*
  *   R Service Bus
  *   
@@ -22,14 +18,19 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+package eu.openanalytics.rsb.stats;
+
+import java.util.Calendar;
+
 /**
+ * Defines a handler for RSB job statistics.
+ * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
-    
-    // Demonstrates how to send statistics to Redis
-//    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
-//        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)
-//    }
+public interface JobStatisticsHandler {
+    void storeJobStatistics(String applicationName, String jobId, Calendar jobCompletionTime, long millisecondsSpentProcessing,
+            String rServiAddress);
+
+    void destroy();
 }

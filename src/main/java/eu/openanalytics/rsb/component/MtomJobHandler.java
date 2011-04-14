@@ -46,7 +46,7 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("mtomJobHandler")
-public class MtomJobHandler extends AbstractConfigurable implements MtomJobProcessor {
+public class MtomJobHandler extends AbstractComponent implements MtomJobProcessor {
     // TODO use @WebFault to generate meaningful errors
     private final static ObjectFactory soapOF = new ObjectFactory();
 

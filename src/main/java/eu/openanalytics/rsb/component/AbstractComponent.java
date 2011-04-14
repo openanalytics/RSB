@@ -1,7 +1,3 @@
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /*
  *   R Service Bus
  *   
@@ -22,14 +18,33 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+package eu.openanalytics.rsb.component;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import eu.openanalytics.rsb.config.Configuration;
+
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
-    
-    // Demonstrates how to send statistics to Redis
-//    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
-//        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)
-//    }
+public abstract class AbstractComponent {
+    private final Log logger = LogFactory.getLog(getClass());
+
+    @Autowired
+    private Configuration configuration;
+
+    // exposed for unit testing
+    void setConfiguration(final Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    protected Configuration getConfiguration() {
+        return configuration;
+    }
+
+    protected Log getLogger() {
+        return logger;
+    }
 }

@@ -18,28 +18,20 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package eu.openanalytics.rsb.component;
+package eu.openanalytics.rsb.message;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import eu.openanalytics.rsb.config.Configuration;
+import java.util.Calendar;
 
 /**
+ * Represents the result of a {@link JsonFunctionCallJob}.
+ * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractConfigurable {
-    private final Log logger = LogFactory.getLog(getClass());
+public class JsonFunctionCallResult extends AbstractFunctionCallResult {
+    private static final long serialVersionUID = 1L;
 
-    @Autowired
-    private Configuration configuration;
-
-    protected Configuration getConfiguration() {
-        return configuration;
-    }
-
-    protected Log getLogger() {
-        return logger;
+    public JsonFunctionCallResult(final String applicationName, final String jobId, final Calendar submissionTime, final boolean success,
+            final String result) {
+        super(applicationName, jobId, submissionTime, success, result);
     }
 }
