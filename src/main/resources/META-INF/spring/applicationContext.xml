@@ -114,6 +114,13 @@
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
         prefetch="1">
-        <jms:listener destination="r.jobs.>" ref="jobProcessor" method="process" />
+        <jms:listener destination="r.jobs.>" ref="jobProcessor"
+            method="process" />
+    </jms:listener-container>
+
+    <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted">
+        <jms:listener destination="DLQ.r.jobs.*" ref="dlqHandler"
+            method="handle" />
     </jms:listener-container>
 </beans>

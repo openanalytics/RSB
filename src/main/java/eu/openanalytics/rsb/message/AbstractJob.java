@@ -29,7 +29,7 @@ import java.util.Map;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractJob extends AbstractJobContext {
+public abstract class AbstractJob extends AbstractWorkItem {
     public enum Type {
         JSON_FUNCTION_CALL {
             @Override

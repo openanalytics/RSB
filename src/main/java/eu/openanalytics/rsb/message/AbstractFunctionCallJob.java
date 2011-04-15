@@ -39,6 +39,11 @@ public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResu
         this.argument = argument;
     }
 
+    @Override
+    protected void releaseResources() {
+        // NOOP
+    }
+
     public abstract String getFunctionName();
 
     public abstract R buildResult(boolean success, String result);

@@ -23,26 +23,42 @@ package eu.openanalytics.rsb.message;
 import java.io.Serializable;
 import java.util.Calendar;
 
+import javax.security.auth.DestroyFailedException;
+import javax.security.auth.Destroyable;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Represents a generic job context message.
+ * Parent of all the work item messages.
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractJobContext implements Serializable {
+public abstract class AbstractWorkItem implements Serializable, Destroyable {
     private static final long serialVersionUID = 1L;
 
+    private boolean destroyed;
     private String applicationName;
     private String jobId;
     private Calendar submissionTime;
 
-    public AbstractJobContext(final String applicationName, final String jobId, final Calendar submissionTime) {
+    public AbstractWorkItem(final String applicationName, final String jobId, final Calendar submissionTime) {
+        this.destroyed = false;
         this.applicationName = applicationName;
         this.jobId = jobId;
         this.submissionTime = submissionTime;
     }
+
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
+    public void destroy() throws DestroyFailedException {
+        releaseResources();
+        destroyed = true;
+    }
+
+    protected abstract void releaseResources();
 
     @Override
     public String toString() {

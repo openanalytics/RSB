@@ -23,31 +23,25 @@ package eu.openanalytics.rsb.message;
 import java.util.Calendar;
 
 /**
- * Represents the result of a {@link AbstractFunctionCallJob}.
+ * Represents the result of a {@link AbstractJob}.
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractFunctionCallResult extends AbstractResult {
+public abstract class AbstractResult extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;
 
-    private String result;
+    private boolean success;
 
-    public AbstractFunctionCallResult(final String applicationName, final String jobId, final Calendar submissionTime,
-            final boolean success, final String result) {
-        super(applicationName, jobId, submissionTime, success);
-        this.result = result;
+    public AbstractResult(final String applicationName, final String jobId, final Calendar submissionTime, final boolean success) {
+        super(applicationName, jobId, submissionTime);
+        this.success = success;
     }
 
-    @Override
-    protected void releaseResources() {
-        // NOOP
+    public boolean isSuccess() {
+        return success;
     }
 
-    public String getResult() {
-        return result;
-    }
-
-    public void setResult(final String result) {
-        this.result = result;
+    public void setSuccess(final boolean success) {
+        this.success = success;
     }
 }
