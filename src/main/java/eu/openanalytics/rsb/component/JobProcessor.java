@@ -41,11 +41,11 @@ import org.springframework.stereotype.Component;
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RObject;
 import de.walware.rj.servi.RServi;
-import de.walware.rj.servi.RServiUtil;
 import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
+import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
 
@@ -56,9 +56,11 @@ import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
  */
 @Component("jobProcessor")
 public class JobProcessor extends AbstractComponent {
-    // FIXME unit test
     @Autowired
     private JmsTemplate jmsTemplate;
+
+    @Autowired
+    private RServiInstanceProvider rServiInstanceProvider;
 
     private final String rServiClientId;
 
@@ -82,7 +84,8 @@ public class JobProcessor extends AbstractComponent {
         final URI rserviPoolAddress = getRServiPoolUri(functionCallJob.getApplicationName());
 
         // don't catch RServi pool here so the error is propagated and the job can be retried
-        final RServi rServi = RServiUtil.getRServi(rserviPoolAddress.toString(), rServiClientId);
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), rServiClientId);
+
         try {
             final String resultPayload = callFunctionOnR(rServi, functionCallJob.getFunctionName(), functionCallJob.getArgument());
             result = functionCallJob.buildResult(true, resultPayload);
@@ -104,19 +107,30 @@ public class JobProcessor extends AbstractComponent {
             result = functionCallJob.buildResult(false, t.getMessage());
         } finally {
             rServi.close();
-        }
 
-        if (result != null) {
-            final AbstractFunctionCallResult finalResult = result;
-            jmsTemplate.send(Util.getResultsQueueName(functionCallJob.getApplicationName()), new MessageCreator() {
-                public Message createMessage(final Session session) throws JMSException {
-                    return session.createObjectMessage(finalResult);
-                }
-            });
+            if (result != null) {
+                final AbstractFunctionCallResult finalResult = result;
+                jmsTemplate.send(Util.getResultsQueueName(functionCallJob.getApplicationName()), new MessageCreator() {
+                    public Message createMessage(final Session session) throws JMSException {
+                        return session.createObjectMessage(finalResult);
+                    }
+                });
+            }
+
+            functionCallJob.destroy();
         }
     }
 
-    private URI getRServiPoolUri(final String applicationName) {
+    // exposed for unit testing
+    void setJmsTemplate(final JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
+    }
+
+    void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider) {
+        this.rServiInstanceProvider = rServiInstanceProvider;
+    }
+
+    URI getRServiPoolUri(final String applicationName) {
         final Map<String, URI> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
 
         if (applicationSpecificRserviPoolUris == null) {
@@ -132,7 +146,6 @@ public class JobProcessor extends AbstractComponent {
         final FunctionCall functionCall = rServi.createFunctionCall(functionName);
         functionCall.addChar(argument);
         final RObject result = functionCall.evalData(null);
-
         if (!RDataUtil.isSingleString(result)) {
             throw new RuntimeException("Unexpected return value for function: " + functionName);
         }

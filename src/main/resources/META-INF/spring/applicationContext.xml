@@ -45,12 +45,15 @@
     
     <!-- External configuration -->
     <lang:groovy id="configuration" script-source="classpath:RsbConfiguration.groovy"
-        refresh-check-delay="3000" />
+        refresh-check-delay="3000" init-method="validate" />
 
     <!-- Spring components -->
     <mvc:annotation-driven />
     <context:annotation-config />
     <context:component-scan base-package="eu.openanalytics.rsb.component" />
+    
+    <!-- RServi -->
+    <bean name="rServiInstanceProvider" class="eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider" />
     
     <!-- CXF -->
     <import resource="classpath:META-INF/cxf/cxf.xml" />

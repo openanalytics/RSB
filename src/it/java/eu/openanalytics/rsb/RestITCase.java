@@ -60,6 +60,8 @@ import com.meterware.httpunit.WebRequest;
  */
 @RunWith(Jitr.class)
 public class RestITCase extends XMLTestCase {
+    // FIXME reactivate integration test
+
     @BaseUri
     private String baseUri;
 

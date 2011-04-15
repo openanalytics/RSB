@@ -20,40 +20,35 @@
  */
 package eu.openanalytics.rsb.component;
 
-import org.springframework.stereotype.Component;
+import static org.mockito.Mockito.mock;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
-import eu.openanalytics.rsb.message.AbstractWorkItem;
 
 /**
- * Handles messages that end up in the dead letter queue.
- * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-@Component("dlqHandler")
-public class DlqHandler extends AbstractComponent {
-    /**
-     * Handles a job whose processing has failed repetitively.
-     * 
-     * @param job
-     */
-    public void handle(final AbstractJob job) {
-        logAndAlertFailure(job);
-        // FIXME build a response and send to response queue
+public class DlqHandlerTestCase {
+
+    private DlqHandler dlqHandler;
+
+    @Before
+    public void prepareTest() {
+        dlqHandler = new DlqHandler();
     }
 
-    /**
-     * Handles a result whose delivery has failed repetitively.
-     * 
-     * @param result
-     */
-    public void handle(final AbstractResult result) {
-        logAndAlertFailure(result);
+    @Test
+    public void handleAbstractJob() {
+        final AbstractJob job = mock(AbstractJob.class);
+        dlqHandler.handle(job);
     }
 
-    private void logAndAlertFailure(final AbstractWorkItem workItem) {
-        getLogger().error("Abandonning processing of: " + workItem);
-        // FIXME email rsb admin
+    @Test
+    public void handleAbstractResult() {
+        final AbstractResult result = mock(AbstractResult.class);
+        dlqHandler.handle(result);
     }
 }

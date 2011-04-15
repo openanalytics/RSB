@@ -53,14 +53,14 @@ public class ResultResourceTestCase {
     private static final String MISSING_RSB_RESULT = "_missing_rsb_result_";
 
     private HttpServletResponse httpServletResponse;
-    private ResultResource resource;
+    private ResultResource resultResource;
     private File tempDir;
     private String testApplicationName;
     private String testResult;
     private String testResultPayload;
 
     @Before
-    public void initialize() {
+    public void prepareTest() {
         tempDir = new File(System.getProperty("java.io.tmpdir"));
         testApplicationName = tempDir.getName();
         testResult = "rsb-" + UUID.randomUUID().toString() + ".tst";
@@ -69,22 +69,22 @@ public class ResultResourceTestCase {
         final Configuration configuration = mock(Configuration.class);
         when(configuration.getRsbResultsDirectory()).thenReturn(tempDir.getParentFile());
 
-        resource = new ResultResource();
-        resource.setConfiguration(configuration);
+        resultResource = new ResultResource();
+        resultResource.setConfiguration(configuration);
 
         httpServletResponse = mock(HttpServletResponse.class);
     }
 
     @Test(expected = WebApplicationException.class)
     public void getResultNotFound() throws IOException {
-        resource.getResult(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
+        resultResource.getResult(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
     }
 
     @Test
     public void getResult() throws IOException {
         createTestResultFile();
 
-        final StreamingOutput result = resource.getResult(testApplicationName, testResult, httpServletResponse);
+        final StreamingOutput result = resultResource.getResult(testApplicationName, testResult, httpServletResponse);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         result.write(baos);
 
@@ -95,14 +95,14 @@ public class ResultResourceTestCase {
 
     @Test(expected = WebApplicationException.class)
     public void getResultMetaNotFound() {
-        resource.getResultMeta(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
+        resultResource.getResultMeta(testApplicationName, MISSING_RSB_RESULT, httpServletResponse);
     }
 
     @Test
     public void getResultMeta() throws IOException {
         final File testResultFile = createTestResultFile();
 
-        resource.getResultMeta(testApplicationName, testResult, httpServletResponse);
+        resultResource.getResultMeta(testApplicationName, testResult, httpServletResponse);
 
         verify(httpServletResponse).addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(testResultFile.length()));
         verify(httpServletResponse).addHeader(HttpHeaders.ETAG, ResultResource.getEtag(testApplicationName, testResult));

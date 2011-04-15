@@ -37,6 +37,11 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 public interface Configuration {
 
     /**
+     * Validates the configuration, throwing runtime exceptions in case of problems.
+     */
+    void validate();
+
+    /**
      * Directory where result files are written.
      */
     File getRsbResultsDirectory();

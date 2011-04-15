@@ -67,7 +67,6 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
 @Path("/jobs")
 public class JobsResource extends AbstractComponent {
     // FIXME unit test
-    // FIXME integration test
     // FIXME support application/zip application/x-zip application/x-zip-compressed
     // FIXME support multipart/form-data
     private final static ObjectFactory restOF = new ObjectFactory();

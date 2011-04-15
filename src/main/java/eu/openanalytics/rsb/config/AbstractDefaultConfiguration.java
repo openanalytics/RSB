@@ -25,6 +25,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
@@ -50,6 +52,13 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
         jobTimeOut = 600000; // 10 minutes
         numberOfConcurrentJobWorkersPerQueue = 5;
+    }
+
+    public void validate() {
+        Validate.notNull(getUserHomeDirectory(), "userHomeDirectory can't be null");
+        Validate.notNull(getRsbResultsDirectory(), "rsbResultsDirectory can't be null");
+        Validate.notNull(getActiveMqWorkDirectory(), "activeMqWorkDirectory can't be null");
+        Validate.notNull(getDefaultRserviPoolUri(), "defaultRserviPoolUri can't be null");
     }
 
     protected File getUserHomeDirectory() {

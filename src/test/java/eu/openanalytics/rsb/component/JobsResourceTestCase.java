@@ -20,40 +20,23 @@
  */
 package eu.openanalytics.rsb.component;
 
-import org.springframework.stereotype.Component;
+import static org.junit.Assert.fail;
 
-import eu.openanalytics.rsb.message.AbstractJob;
-import eu.openanalytics.rsb.message.AbstractResult;
-import eu.openanalytics.rsb.message.AbstractWorkItem;
+import org.junit.Test;
 
 /**
- * Handles messages that end up in the dead letter queue.
- * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-@Component("dlqHandler")
-public class DlqHandler extends AbstractComponent {
-    /**
-     * Handles a job whose processing has failed repetitively.
-     * 
-     * @param job
-     */
-    public void handle(final AbstractJob job) {
-        logAndAlertFailure(job);
-        // FIXME build a response and send to response queue
+public class JobsResourceTestCase {
+
+    @Test
+    public void testHandleJsonFunctionCallJob() {
+        fail("Not yet implemented");
     }
 
-    /**
-     * Handles a result whose delivery has failed repetitively.
-     * 
-     * @param result
-     */
-    public void handle(final AbstractResult result) {
-        logAndAlertFailure(result);
+    @Test
+    public void testHandleXmlFunctionCallJob() {
+        fail("Not yet implemented");
     }
 
-    private void logAndAlertFailure(final AbstractWorkItem workItem) {
-        getLogger().error("Abandonning processing of: " + workItem);
-        // FIXME email rsb admin
-    }
 }

@@ -23,9 +23,6 @@ package eu.openanalytics.rsb.message;
 import java.io.Serializable;
 import java.util.Calendar;
 
-import javax.security.auth.DestroyFailedException;
-import javax.security.auth.Destroyable;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -34,7 +31,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractWorkItem implements Serializable, Destroyable {
+public abstract class AbstractWorkItem implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean destroyed;
@@ -53,7 +50,7 @@ public abstract class AbstractWorkItem implements Serializable, Destroyable {
         return destroyed;
     }
 
-    public void destroy() throws DestroyFailedException {
+    public void destroy() {
         releaseResources();
         destroyed = true;
     }
