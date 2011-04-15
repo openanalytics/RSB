@@ -22,6 +22,7 @@
 package eu.openanalytics.rsb.stats;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
@@ -33,7 +34,7 @@ public class NoopJobStatisticsHandler implements JobStatisticsHandler {
         // NOOP
     }
 
-    public void storeJobStatistics(final String applicationName, final String jobId, final Calendar jobCompletionTime,
+    public void storeJobStatistics(final String applicationName, final UUID jobId, final Calendar jobCompletionTime,
             final long millisecondsSpentProcessing, final String rServiAddress) {
         // NOOP
     }

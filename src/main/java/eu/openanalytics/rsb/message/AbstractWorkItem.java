@@ -22,6 +22,7 @@ package eu.openanalytics.rsb.message;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.UUID;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -36,10 +37,10 @@ public abstract class AbstractWorkItem implements Serializable {
 
     private boolean destroyed;
     private String applicationName;
-    private String jobId;
+    private UUID jobId;
     private Calendar submissionTime;
 
-    public AbstractWorkItem(final String applicationName, final String jobId, final Calendar submissionTime) {
+    public AbstractWorkItem(final String applicationName, final UUID jobId, final Calendar submissionTime) {
         this.destroyed = false;
         this.applicationName = applicationName;
         this.jobId = jobId;
@@ -70,11 +71,11 @@ public abstract class AbstractWorkItem implements Serializable {
         this.applicationName = applicationName;
     }
 
-    public String getJobId() {
+    public UUID getJobId() {
         return jobId;
     }
 
-    public void setJobId(final String jobId) {
+    public void setJobId(final UUID jobId) {
         this.jobId = jobId;
     }
 

@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.message;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 /**
  * Represents the result of a {@link JsonFunctionCallJob}.
@@ -30,7 +31,7 @@ import java.util.Calendar;
 public class JsonFunctionCallResult extends AbstractFunctionCallResult {
     private static final long serialVersionUID = 1L;
 
-    public JsonFunctionCallResult(final String applicationName, final String jobId, final Calendar submissionTime, final boolean success,
+    public JsonFunctionCallResult(final String applicationName, final UUID jobId, final Calendar submissionTime, final boolean success,
             final String result) {
         super(applicationName, jobId, submissionTime, success, result);
     }

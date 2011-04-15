@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
@@ -78,7 +79,7 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler {
         pool.destroy();
     }
 
-    public void storeJobStatistics(final String applicationName, final String jobId, final Calendar jobCompletionTime,
+    public void storeJobStatistics(final String applicationName, final UUID jobId, final Calendar jobCompletionTime,
             final long millisecondsSpentProcessing, final String rServiAddress) {
 
         runWithJedis(new RedisAction() {
@@ -94,7 +95,7 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler {
                 // create persisted statistics JSON structure and store it in monthstamp list
                 final Map<String, Object> statsMap = new HashMap<String, Object>(5);
                 statsMap.put("application_name", applicationName);
-                statsMap.put("job_id", jobId);
+                statsMap.put("job_id", jobId.toString());
                 statsMap.put("utc_timestamp", jobCompletionTime.getTimeInMillis());
                 statsMap.put("time_spent", millisecondsSpentProcessing);
                 statsMap.put("r_servi_address", rServiAddress);

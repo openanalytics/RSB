@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.message;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 /**
  * Represents the result of a {@link AbstractFunctionCallJob}.
@@ -32,8 +33,8 @@ public abstract class AbstractFunctionCallResult extends AbstractResult {
 
     private String result;
 
-    public AbstractFunctionCallResult(final String applicationName, final String jobId, final Calendar submissionTime,
-            final boolean success, final String result) {
+    public AbstractFunctionCallResult(final String applicationName, final UUID jobId, final Calendar submissionTime, final boolean success,
+            final String result) {
         super(applicationName, jobId, submissionTime, success);
         this.result = result;
     }

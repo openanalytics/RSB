@@ -22,6 +22,7 @@
 package eu.openanalytics.rsb.stats;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 /**
  * Defines a handler for RSB job statistics.
@@ -29,7 +30,7 @@ import java.util.Calendar;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public interface JobStatisticsHandler {
-    void storeJobStatistics(String applicationName, String jobId, Calendar jobCompletionTime, long millisecondsSpentProcessing,
+    void storeJobStatistics(String applicationName, UUID jobId, Calendar jobCompletionTime, long millisecondsSpentProcessing,
             String rServiAddress);
 
     void destroy();

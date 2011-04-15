@@ -22,6 +22,8 @@ package eu.openanalytics.rsb.component;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,8 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
-import eu.openanalytics.rsb.message.AbstractJob.Type;
+import eu.openanalytics.rsb.message.JsonFunctionCallJob;
+import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 import eu.openanalytics.rsb.rest.types.JobToken;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
@@ -66,9 +69,12 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
 @Component("jobsResource")
 @Path("/jobs")
 public class JobsResource extends AbstractComponent {
-    // FIXME unit test
     // FIXME support application/zip application/x-zip application/x-zip-compressed
     // FIXME support multipart/form-data
+    private interface JobBuilder {
+        AbstractJob build(final String applicationName, final UUID jobId, final Calendar submissionTime, final String payload);
+    }
+
     private final static ObjectFactory restOF = new ObjectFactory();
 
     private final static class BadRequestStatus implements StatusType {
@@ -94,6 +100,11 @@ public class JobsResource extends AbstractComponent {
     @Autowired
     private JmsTemplate jmsTemplate;
 
+    // exposed for unit testing
+    void setJmsTemplate(final JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
+    }
+
     /**
      * Handles a function call job with a JSON payload.
      * 
@@ -108,8 +119,11 @@ public class JobsResource extends AbstractComponent {
     @Produces({ Constants.JSON_JOB_CONTENT_TYPE })
     public JobToken handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
-
-        return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, Type.JSON_FUNCTION_CALL);
+        return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, new JobBuilder() {
+            public AbstractJob build(final String applicationName, final UUID jobId, final Calendar submissionTime, final String argument) {
+                return new JsonFunctionCallJob(applicationName, jobId, submissionTime, argument);
+            }
+        });
     }
 
     /**
@@ -127,11 +141,15 @@ public class JobsResource extends AbstractComponent {
     public JobToken handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
 
-        return handleFunctionCallJob(xmlArgument, httpHeaders, uriInfo, Type.XML_FUNCTION_CALL);
+        return handleFunctionCallJob(xmlArgument, httpHeaders, uriInfo, new JobBuilder() {
+            public AbstractJob build(final String applicationName, final UUID jobId, final Calendar submissionTime, final String argument) {
+                return new XmlFunctionCallJob(applicationName, jobId, submissionTime, argument);
+            }
+        });
     }
 
-    private JobToken handleFunctionCallJob(final String argument, final HttpHeaders httpHeaders, final UriInfo uriInfo, final Type jobType)
-            throws URISyntaxException {
+    private JobToken handleFunctionCallJob(final String argument, final HttpHeaders httpHeaders, final UriInfo uriInfo,
+            final JobBuilder jobBuilder) throws URISyntaxException {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
         if (!Util.isValidApplicationName(applicationName)) {
@@ -139,9 +157,8 @@ public class JobsResource extends AbstractComponent {
                     new BadRequestStatus("Bad request - Invalid application name: " + applicationName)).build());
         }
 
-        final String jobId = UUID.randomUUID().toString();
-
-        final AbstractJob job = jobType.build(applicationName, jobId, argument, getJobMeta(httpHeaders));
+        final UUID jobId = UUID.randomUUID();
+        final AbstractJob job = jobBuilder.build(applicationName, jobId, GregorianCalendar.getInstance(), argument);
 
         jmsTemplate.send(Util.getJobsQueueName(applicationName), new MessageCreator() {
             public Message createMessage(final Session session) throws JMSException {
@@ -171,15 +188,17 @@ public class JobsResource extends AbstractComponent {
         return meta;
     }
 
-    private JobToken buildResponse(final UriInfo uriInfo, final HttpHeaders httpHeaders, final String applicationName, final String jobId)
+    private JobToken buildResponse(final UriInfo uriInfo, final HttpHeaders httpHeaders, final String applicationName, final UUID jobId)
             throws URISyntaxException {
         final JobToken jobToken = restOF.createJobToken();
         jobToken.setApplicationName(applicationName);
-        jobToken.setJobId(jobId);
+        final String jobIdAsString = jobId.toString();
+        jobToken.setJobId(jobIdAsString);
 
         final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path("results").path(applicationName);
 
         final String uriOverride = Util.getSingleHeader(httpHeaders, Constants.URI_OVERRIDE_HTTP_HEADER);
+
         if (StringUtils.isNotBlank(uriOverride)) {
             final URI override = new URI(uriOverride);
             uriBuilder.scheme(override.getScheme());
@@ -188,7 +207,7 @@ public class JobsResource extends AbstractComponent {
         }
 
         jobToken.setApplicationResultsUri(uriBuilder.build().toString());
-        jobToken.setResultUri(uriBuilder.path(jobId).build().toString());
+        jobToken.setResultUri(uriBuilder.path(jobId.toString()).build().toString());
         return jobToken;
     }
 }

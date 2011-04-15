@@ -21,7 +21,7 @@
 package eu.openanalytics.rsb.message;
 
 import java.util.Calendar;
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * Represents a RSB job that consists in calling the RSBJsonService function on R.
@@ -31,14 +31,8 @@ import java.util.Map;
 public class JsonFunctionCallJob extends AbstractFunctionCallJob<JsonFunctionCallResult> {
     private static final long serialVersionUID = 1L;
 
-    public JsonFunctionCallJob(final String applicationName, final String jobId, final Calendar submissionTime, final String argument,
-            final Map<String, String> meta) {
-        super(applicationName, jobId, submissionTime, argument, meta);
-    }
-
-    @Override
-    public Type getType() {
-        return Type.JSON_FUNCTION_CALL;
+    public JsonFunctionCallJob(final String applicationName, final UUID jobId, final Calendar submissionTime, final String argument) {
+        super(applicationName, jobId, submissionTime, argument);
     }
 
     @Override

@@ -21,21 +21,29 @@
 package eu.openanalytics.rsb.message;
 
 import java.util.Calendar;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Represents a generic RSB job.
+ * Represents a RSB job that has meta information attached to it.
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractJob extends AbstractWorkItem {
+public abstract class AbstractJobWithMeta extends AbstractJob {
     private static final long serialVersionUID = 1L;
 
-    public AbstractJob(final String applicationName, final UUID jobId, final Calendar submissionTime) {
+    private Map<String, String> meta;
+
+    public AbstractJobWithMeta(final String applicationName, final UUID jobId, final Calendar submissionTime, final Map<String, String> meta) {
         super(applicationName, jobId, submissionTime);
+        this.meta = meta;
     }
 
-    public String getType() {
-        return getClass().getSimpleName();
+    public Map<String, String> getMeta() {
+        return meta;
+    }
+
+    public void setMeta(final Map<String, String> meta) {
+        this.meta = meta;
     }
 }

@@ -41,6 +41,9 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.util.FileCopyUtils;
 
 import eu.openanalytics.rsb.config.Configuration;
@@ -48,16 +51,17 @@ import eu.openanalytics.rsb.config.Configuration;
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ResultResourceTestCase {
-    // FIXME integration test
     private static final String MISSING_RSB_RESULT = "_missing_rsb_result_";
-
-    private HttpServletResponse httpServletResponse;
     private ResultResource resultResource;
     private File tempDir;
     private String testApplicationName;
     private String testResult;
     private String testResultPayload;
+
+    @Mock
+    private HttpServletResponse httpServletResponse;
 
     @Before
     public void prepareTest() {
@@ -71,8 +75,6 @@ public class ResultResourceTestCase {
 
         resultResource = new ResultResource();
         resultResource.setConfiguration(configuration);
-
-        httpServletResponse = mock(HttpServletResponse.class);
     }
 
     @Test(expected = WebApplicationException.class)

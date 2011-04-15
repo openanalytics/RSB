@@ -26,6 +26,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,9 +36,13 @@ import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
@@ -55,18 +60,18 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
+@RunWith(MockitoJUnitRunner.class)
 public class JobProcessorTestCase {
-    private Configuration configuration;
-    private JmsTemplate jmsTemplate;
-    private RServiInstanceProvider rServiInstanceProvider;
     private JobProcessor jobProcessor;
+    @Mock
+    private Configuration configuration;
+    @Mock
+    private JmsTemplate jmsTemplate;
+    @Mock
+    private RServiInstanceProvider rServiInstanceProvider;
 
     @Before
     public void prepareTest() throws UnknownHostException {
-        configuration = mock(Configuration.class);
-        jmsTemplate = mock(JmsTemplate.class);
-        rServiInstanceProvider = mock(RServiInstanceProvider.class);
-
         jobProcessor = new JobProcessor();
         jobProcessor.setConfiguration(configuration);
         jobProcessor.setJmsTemplate(jmsTemplate);
@@ -130,7 +135,7 @@ public class JobProcessorTestCase {
 
         jobProcessor.process(functionCallJob);
 
-        verify(jmsTemplate).send(anyString(), any(MessageCreator.class));
+        verify(jmsTemplate).send(matches("r\\.results\\..*"), any(MessageCreator.class));
     }
 
     @Test
@@ -152,8 +157,8 @@ public class JobProcessorTestCase {
 
         jobProcessor.process(functionCallJob);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), anyString(), any(Calendar.class), anyLong(),
+        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
                 eq(defaultPoolUri.toString()));
-        verify(jmsTemplate).send(anyString(), any(MessageCreator.class));
+        verify(jmsTemplate).send(matches("r\\.results\\..*"), any(MessageCreator.class));
     }
 }

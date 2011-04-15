@@ -21,7 +21,7 @@
 package eu.openanalytics.rsb.message;
 
 import java.util.Calendar;
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * Represents a RSB job that consists in calling a 1-arity function on R.
@@ -33,9 +33,8 @@ public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResu
 
     private String argument;
 
-    public AbstractFunctionCallJob(final String applicationName, final String jobId, final Calendar submissionTime, final String argument,
-            final Map<String, String> meta) {
-        super(applicationName, jobId, submissionTime, meta);
+    public AbstractFunctionCallJob(final String applicationName, final UUID jobId, final Calendar submissionTime, final String argument) {
+        super(applicationName, jobId, submissionTime);
         this.argument = argument;
     }
 
