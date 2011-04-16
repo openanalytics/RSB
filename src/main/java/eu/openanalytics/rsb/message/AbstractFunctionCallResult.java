@@ -20,7 +20,7 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 /**
@@ -33,8 +33,8 @@ public abstract class AbstractFunctionCallResult extends AbstractResult {
 
     private String result;
 
-    public AbstractFunctionCallResult(final String applicationName, final UUID jobId, final Calendar submissionTime, final boolean success,
-            final String result) {
+    public AbstractFunctionCallResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final boolean success, final String result) {
         super(applicationName, jobId, submissionTime, success);
         this.result = result;
     }

@@ -44,10 +44,11 @@ import org.mockito.Mock;
 import org.mockito.internal.matchers.StartsWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.core.MessagePostProcessor;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.rest.types.JobToken;
 
 /**
@@ -118,7 +119,9 @@ public class JobsResourceTestCase {
         assertThat(jobToken, notNullValue());
         assertThat(jobToken.getApplicationName(), is(TEST_APP_NAME));
         assertThat(jobToken.getJobId(), notNullValue());
+        assertThat(jobToken.getSubmissionTime(), notNullValue());
         assertThat(jobToken.getResultUri(), notNullValue());
-        verify(jmsTemplate).send(matches("r\\.jobs\\..*"), any(MessageCreator.class));
+        assertThat(jobToken.getApplicationResultsUri(), notNullValue());
+        verify(jmsTemplate).convertAndSend(matches("r\\.jobs\\..*"), any(AbstractJob.class), any(MessagePostProcessor.class));
     }
 }

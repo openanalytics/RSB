@@ -122,8 +122,22 @@
     </jms:listener-container>
 
     <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
+        prefetch="1">
+        <jms:listener destination="r.results.>" ref="resultProcessor"
+            method="process"
+            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_JMS_HEADER} NOT LIKE 'rsb.%'" />
+    </jms:listener-container>
+
+    <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
         <jms:listener destination="DLQ.r.jobs.*" ref="dlqHandler"
             method="handle" />
     </jms:listener-container>
+    
+      <!-- Spring Integration -->
+    <si:channel id="resultFilesChannel" />
+
+    <file:outbound-channel-adapter channel="resultFilesChannel"
+        directory="#{configuration.rsbResultsDirectory}" auto-create-directory="true" />
 </beans>

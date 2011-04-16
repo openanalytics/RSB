@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.core.MessagePostProcessor;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
@@ -54,6 +54,7 @@ import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
+import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
@@ -127,15 +128,16 @@ public class JobProcessorTestCase {
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
-        when(rServi.createFunctionCall(anyString())).thenThrow(new RuntimeException("simulated RServi issue"));
+        final RuntimeException exception = new RuntimeException("simulated RServi issue");
+        when(rServi.createFunctionCall(anyString())).thenThrow(exception);
         @SuppressWarnings("unchecked")
         final AbstractFunctionCallJob<AbstractFunctionCallResult> functionCallJob = mock(AbstractFunctionCallJob.class);
         final AbstractFunctionCallResult functionCallResult = mock(AbstractFunctionCallResult.class);
-        when(functionCallJob.buildResult(false, "simulated RServi issue")).thenReturn(functionCallResult);
+        when(functionCallJob.buildErrorResult(exception)).thenReturn(functionCallResult);
 
         jobProcessor.process(functionCallJob);
 
-        verify(jmsTemplate).send(matches("r\\.results\\..*"), any(MessageCreator.class));
+        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), any(AbstractResult.class), any(MessagePostProcessor.class));
     }
 
     @Test
@@ -151,7 +153,7 @@ public class JobProcessorTestCase {
         final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(new String[] { "fake_result" }));
         when(functionCall.evalData(null)).thenReturn(rObject);
         final AbstractFunctionCallResult functionCallResult = mock(AbstractFunctionCallResult.class);
-        when(functionCallJob.buildResult(true, "fake_result")).thenReturn(functionCallResult);
+        when(functionCallJob.buildSuccessResult("fake_result")).thenReturn(functionCallResult);
         final JobStatisticsHandler jobStatisticsHandler = mock(JobStatisticsHandler.class);
         when(configuration.getJobStatisticsHandler()).thenReturn(jobStatisticsHandler);
 
@@ -159,6 +161,6 @@ public class JobProcessorTestCase {
 
         verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
                 eq(defaultPoolUri.toString()));
-        verify(jmsTemplate).send(matches("r\\.results\\..*"), any(MessageCreator.class));
+        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), any(AbstractResult.class), any(MessagePostProcessor.class));
     }
 }

@@ -20,8 +20,12 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
+
+import javax.activation.MimeType;
+
+import eu.openanalytics.rsb.Constants;
 
 /**
  * Represents the result of a {@link XmlFunctionCallJob}.
@@ -31,8 +35,13 @@ import java.util.UUID;
 public class XmlFunctionCallResult extends AbstractFunctionCallResult {
     private static final long serialVersionUID = 1L;
 
-    public XmlFunctionCallResult(final String applicationName, final UUID jobId, final Calendar submissionTime, final boolean success,
-            final String result) {
+    public XmlFunctionCallResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final boolean success, final String result) {
         super(applicationName, jobId, submissionTime, success, result);
+    }
+
+    @Override
+    public MimeType getMimeType() {
+        return Constants.XML_MIME_TYPE;
     }
 }

@@ -20,8 +20,10 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
+
+import eu.openanalytics.rsb.Util;
 
 /**
  * Represents a RSB job that consists in calling the RSBXmlService function on R.
@@ -31,7 +33,7 @@ import java.util.UUID;
 public class XmlFunctionCallJob extends AbstractFunctionCallJob<XmlFunctionCallResult> {
     private static final long serialVersionUID = 1L;
 
-    public XmlFunctionCallJob(final String applicationName, final UUID jobId, final Calendar submissionTime, final String argument) {
+    public XmlFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String argument) {
         super(applicationName, jobId, submissionTime, argument);
     }
 
@@ -41,7 +43,16 @@ public class XmlFunctionCallJob extends AbstractFunctionCallJob<XmlFunctionCallR
     }
 
     @Override
-    public XmlFunctionCallResult buildResult(final boolean success, final String result) {
+    public XmlFunctionCallResult buildSuccessResult(final String result) {
+        return buildResult(true, result);
+    }
+
+    @Override
+    public XmlFunctionCallResult buildErrorResult(final Throwable error) {
+        return buildResult(false, Util.toXml(Util.buildJobProcessingErrorResult(this, error)));
+    }
+
+    private XmlFunctionCallResult buildResult(final boolean success, final String result) {
         return new XmlFunctionCallResult(getApplicationName(), getJobId(), getSubmissionTime(), success, result);
     }
 }

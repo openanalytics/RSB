@@ -32,10 +32,10 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.codehaus.jettison.json.JSONObject;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import eu.openanalytics.rsb.Util;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
@@ -95,11 +95,11 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler {
                 // create persisted statistics JSON structure and store it in monthstamp list
                 final Map<String, Object> statsMap = new HashMap<String, Object>(5);
                 statsMap.put("application_name", applicationName);
-                statsMap.put("job_id", jobId.toString());
+                statsMap.put("job_id", jobId);
                 statsMap.put("utc_timestamp", jobCompletionTime.getTimeInMillis());
                 statsMap.put("time_spent", millisecondsSpentProcessing);
                 statsMap.put("r_servi_address", rServiAddress);
-                final String statsJson = new JSONObject(statsMap).toString();
+                final String statsJson = Util.toJson(statsMap);
                 jedis.lpush(RSB_STATS_KEY_PREFIX + applicationName + ":" + monthStamp, statsJson);
             }
         });

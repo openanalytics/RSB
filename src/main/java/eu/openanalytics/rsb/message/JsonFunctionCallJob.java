@@ -20,8 +20,10 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
+
+import eu.openanalytics.rsb.Util;
 
 /**
  * Represents a RSB job that consists in calling the RSBJsonService function on R.
@@ -31,7 +33,7 @@ import java.util.UUID;
 public class JsonFunctionCallJob extends AbstractFunctionCallJob<JsonFunctionCallResult> {
     private static final long serialVersionUID = 1L;
 
-    public JsonFunctionCallJob(final String applicationName, final UUID jobId, final Calendar submissionTime, final String argument) {
+    public JsonFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String argument) {
         super(applicationName, jobId, submissionTime, argument);
     }
 
@@ -41,7 +43,16 @@ public class JsonFunctionCallJob extends AbstractFunctionCallJob<JsonFunctionCal
     }
 
     @Override
-    public JsonFunctionCallResult buildResult(final boolean success, final String result) {
+    public JsonFunctionCallResult buildSuccessResult(final String result) {
+        return buildResult(true, result);
+    }
+
+    @Override
+    public JsonFunctionCallResult buildErrorResult(final Throwable error) {
+        return buildResult(false, Util.toJson(Util.buildJobProcessingErrorResult(this, error)));
+    }
+
+    private JsonFunctionCallResult buildResult(final boolean success, final String result) {
         return new JsonFunctionCallResult(getApplicationName(), getJobId(), getSubmissionTime(), success, result);
     }
 }

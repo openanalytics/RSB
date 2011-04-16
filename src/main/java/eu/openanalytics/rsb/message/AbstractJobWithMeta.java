@@ -20,7 +20,7 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,7 +34,8 @@ public abstract class AbstractJobWithMeta extends AbstractJob {
 
     private Map<String, String> meta;
 
-    public AbstractJobWithMeta(final String applicationName, final UUID jobId, final Calendar submissionTime, final Map<String, String> meta) {
+    public AbstractJobWithMeta(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final Map<String, String> meta) {
         super(applicationName, jobId, submissionTime);
         this.meta = meta;
     }

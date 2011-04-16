@@ -20,7 +20,7 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 /**
@@ -31,7 +31,7 @@ import java.util.UUID;
 public abstract class AbstractJob extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;
 
-    public AbstractJob(final String applicationName, final UUID jobId, final Calendar submissionTime) {
+    public AbstractJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
         super(applicationName, jobId, submissionTime);
     }
 

@@ -27,15 +27,11 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 
 import javax.annotation.PreDestroy;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
+import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
 
 import org.eclipse.core.runtime.CoreException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.data.RDataUtil;
@@ -56,10 +52,10 @@ import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
  */
 @Component("jobProcessor")
 public class JobProcessor extends AbstractComponent {
-    @Autowired
+    @Resource
     private JmsTemplate jmsTemplate;
 
-    @Autowired
+    @Resource
     private RServiInstanceProvider rServiInstanceProvider;
 
     private final String rServiClientId;
@@ -78,7 +74,7 @@ public class JobProcessor extends AbstractComponent {
                 .getJobStatisticsHandler();
     }
 
-    public void process(final AbstractFunctionCallJob<AbstractFunctionCallResult> functionCallJob) throws LoginException, CoreException {
+    public void process(final AbstractFunctionCallJob<?> functionCallJob) throws LoginException, CoreException {
         AbstractFunctionCallResult result = null;
         final long startTime = System.currentTimeMillis();
         final URI rserviPoolAddress = getRServiPoolUri(functionCallJob.getApplicationName());
@@ -88,7 +84,7 @@ public class JobProcessor extends AbstractComponent {
 
         try {
             final String resultPayload = callFunctionOnR(rServi, functionCallJob.getFunctionName(), functionCallJob.getArgument());
-            result = functionCallJob.buildResult(true, resultPayload);
+            result = functionCallJob.buildSuccessResult(resultPayload);
 
             final long processTime = System.currentTimeMillis() - startTime;
 
@@ -104,17 +100,12 @@ public class JobProcessor extends AbstractComponent {
             getLogger().error(
                     String.format("Failed to process %s %s on %s in %dms", functionCallJob.getType(), functionCallJob.getJobId(),
                             rserviPoolAddress, processTime), t);
-            result = functionCallJob.buildResult(false, t.getMessage());
+            result = functionCallJob.buildErrorResult(t);
         } finally {
             rServi.close();
 
             if (result != null) {
-                final AbstractFunctionCallResult finalResult = result;
-                jmsTemplate.send(Util.getResultsQueueName(functionCallJob.getApplicationName()), new MessageCreator() {
-                    public Message createMessage(final Session session) throws JMSException {
-                        return session.createObjectMessage(finalResult);
-                    }
-                });
+                Util.dispatch(result, jmsTemplate);
             }
 
             functionCallJob.destroy();

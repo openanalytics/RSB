@@ -20,12 +20,34 @@
  */
 package eu.openanalytics.rsb;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.ws.rs.core.HttpHeaders;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessagePostProcessor;
+
+import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.AbstractResult;
+import eu.openanalytics.rsb.message.AbstractWorkItem;
+import eu.openanalytics.rsb.rest.types.ErrorResult;
+import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
 /**
  * Shared utilities.
@@ -33,24 +55,69 @@ import org.apache.commons.lang.StringUtils;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public abstract class Util {
+    private static final class WorkItemMessagePostProcessor implements MessagePostProcessor {
+        private final AbstractWorkItem workItem;
+
+        private WorkItemMessagePostProcessor(final AbstractWorkItem workItem) {
+            this.workItem = workItem;
+        }
+
+        public Message postProcessMessage(final Message message) throws JMSException {
+            message.setStringProperty(Constants.APPLICATION_NAME_JMS_HEADER, workItem.getApplicationName());
+            message.setStringProperty(Constants.JOB_ID_JMS_HEADER, workItem.getJobId().toString());
+            return message;
+        }
+    }
+
+    private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
+
+    private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
+
+    static {
+        try {
+            ERROR_RESULT_JAXB_CONTEXT = JAXBContext.newInstance(ErrorResult.class);
+        } catch (final JAXBException je) {
+            throw new IllegalStateException(je);
+        }
+    }
 
     private Util() {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
-    public static String getJobsQueueName(final String applicationName) {
-        return "r.jobs." + applicationName;
-    }
-
-    public static String getResultsQueueName(final String applicationName) {
-        return "r.results." + applicationName;
-    }
-
+    /**
+     * Validates that the passed string is a valid application name.
+     * 
+     * @param name
+     * @return
+     */
     public static boolean isValidApplicationName(final String name) {
         return StringUtils.isNotBlank(name) && APPLICATION_NAME_VALIDATOR.matcher(name).matches();
     }
 
+    /**
+     * Converts a {@link GregorianCalendar} into a {@link XMLGregorianCalendar}
+     * 
+     * @param calendar
+     * @return
+     */
+    public static XMLGregorianCalendar convert(final GregorianCalendar calendar) {
+        try {
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
+        } catch (final DatatypeConfigurationException dce) {
+            throw new IllegalStateException(dce);
+        }
+    }
+
+    /**
+     * Gets the first header of multiple HTTP headers, returning null if no header is found for the
+     * name.
+     * 
+     * @param httpHeaders
+     * @param headerName
+     * @return
+     */
     public static String getSingleHeader(final HttpHeaders httpHeaders, final String headerName) {
         final List<String> headers = httpHeaders.getRequestHeader(headerName);
 
@@ -59,5 +126,83 @@ public abstract class Util {
         }
 
         return headers.get(0);
+    }
+
+    /**
+     * Builds an {@link ErrorResult} for a job whose processing has failed.
+     * 
+     * @param job
+     * @param error
+     * @return
+     */
+    public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job, final Throwable error) {
+        final ObjectFactory restOf = new ObjectFactory();
+        final ErrorResult errorResult = restOf.createErrorResult();
+        errorResult.setApplicationName(job.getApplicationName());
+        errorResult.setJobId(job.getJobId().toString());
+        errorResult.setSubmissionTime(Util.convert(job.getSubmissionTime()));
+        errorResult.setErrorMessage(error.getMessage());
+        return errorResult;
+    }
+
+    /**
+     * Marshals an {@link ErrorResult} to XML.
+     * 
+     * @param errorResult
+     * @return
+     */
+    public static String toXml(final ErrorResult errorResult) {
+        try {
+            final Marshaller marshaller = ERROR_RESULT_JAXB_CONTEXT.createMarshaller();
+            final StringWriter sw = new StringWriter();
+            marshaller.marshal(errorResult, sw);
+            return sw.toString();
+        } catch (final JAXBException je) {
+            final String objectAsString = ToStringBuilder.reflectionToString(errorResult, ToStringStyle.SHORT_PREFIX_STYLE);
+            throw new RuntimeException("Failed to XML marshall: " + objectAsString, je);
+        }
+    }
+
+    /**
+     * Marshals an {@link Object} to JSON.
+     * 
+     * @param o
+     * @return
+     */
+    public static String toJson(final Object o) {
+        try {
+            return JSON_OBJECT_MAPPER.writeValueAsString(o);
+        } catch (final IOException ioe) {
+            final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
+            throw new RuntimeException("Failed to JSON marshall: " + objectAsString, ioe);
+        }
+    }
+
+    /**
+     * Dispatches an {@link AbstractJob} over JMS.
+     * 
+     * @param job
+     * @param jmsTemplate
+     */
+    public static void dispatch(final AbstractJob job, final JmsTemplate jmsTemplate) {
+        jmsTemplate.convertAndSend(getQueueName(job), job, new WorkItemMessagePostProcessor(job));
+    }
+
+    /**
+     * Dispatches an {@link AbstractResult} over JMS.
+     * 
+     * @param result
+     * @param jmsTemplate
+     */
+    public static void dispatch(final AbstractResult result, final JmsTemplate jmsTemplate) {
+        jmsTemplate.convertAndSend(getQueueName(result), result, new WorkItemMessagePostProcessor(result));
+    }
+
+    private static String getQueueName(final AbstractJob job) {
+        return "r.jobs." + job.getApplicationName();
+    }
+
+    private static String getQueueName(final AbstractResult result) {
+        return "r.results." + result.getApplicationName();
     }
 }

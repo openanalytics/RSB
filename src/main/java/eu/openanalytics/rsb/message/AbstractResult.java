@@ -20,8 +20,10 @@
  */
 package eu.openanalytics.rsb.message;
 
-import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.UUID;
+
+import javax.activation.MimeType;
 
 /**
  * Represents the result of a {@link AbstractJob}.
@@ -33,7 +35,7 @@ public abstract class AbstractResult extends AbstractWorkItem {
 
     private boolean success;
 
-    public AbstractResult(final String applicationName, final UUID jobId, final Calendar submissionTime, final boolean success) {
+    public AbstractResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final boolean success) {
         super(applicationName, jobId, submissionTime);
         this.success = success;
     }
@@ -45,4 +47,6 @@ public abstract class AbstractResult extends AbstractWorkItem {
     public void setSuccess(final boolean success) {
         this.success = success;
     }
+
+    public abstract MimeType getMimeType();
 }

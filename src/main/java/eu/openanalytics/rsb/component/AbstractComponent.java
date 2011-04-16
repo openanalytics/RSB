@@ -20,9 +20,10 @@
  */
 package eu.openanalytics.rsb.component;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.openanalytics.rsb.config.Configuration;
 
@@ -32,7 +33,7 @@ import eu.openanalytics.rsb.config.Configuration;
 public abstract class AbstractComponent {
     private final Log logger = LogFactory.getLog(getClass());
 
-    @Autowired
+    @Resource
     private Configuration configuration;
 
     // exposed for unit testing
