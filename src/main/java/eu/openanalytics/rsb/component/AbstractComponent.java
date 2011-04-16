@@ -20,6 +20,8 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.io.File;
+
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
@@ -47,5 +49,9 @@ public abstract class AbstractComponent {
 
     protected Log getLogger() {
         return logger;
+    }
+
+    protected File getApplicationResultDirectory(final String applicationName) {
+        return new File(getConfiguration().getRsbResultsDirectory(), applicationName);
     }
 }

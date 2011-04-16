@@ -42,6 +42,8 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
+import eu.openanalytics.rsb.Util;
+
 /**
  * Serves R job process result files.<br/>
  * <i>NB. Could very well be replaced with a static file serving context on a frontal web
@@ -79,7 +81,7 @@ public class ResultResource extends AbstractComponent {
     }
 
     /**
-     * Provides meta-information only for a single result file.
+     * Provides HTTP meta-information only for a single result file.
      * 
      * @param applicationName
      * @param resultFileName
@@ -103,7 +105,11 @@ public class ResultResource extends AbstractComponent {
     }
 
     private File getResultFile(final String applicationName, final String resultFileName) {
-        final File resultFile = new File(new File(getConfiguration().getRsbResultsDirectory(), applicationName), resultFileName);
+        if (!Util.isValidApplicationName(applicationName)) {
+            Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
+        }
+
+        final File resultFile = new File(getApplicationResultDirectory(applicationName), resultFileName);
 
         if (!resultFile.exists()) {
             throw new WebApplicationException(Response.status(Status.NOT_FOUND).build());

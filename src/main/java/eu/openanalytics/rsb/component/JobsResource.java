@@ -34,13 +34,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.Status.Family;
-import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -54,7 +49,6 @@ import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 import eu.openanalytics.rsb.rest.types.JobToken;
-import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
 /**
  * Handles asynchronous R job processing requests.
@@ -70,28 +64,6 @@ public class JobsResource extends AbstractComponent {
     private interface JobBuilder {
         AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String payload);
     }
-
-    private final static ObjectFactory restOF = new ObjectFactory();
-
-    private final static class BadRequestStatus implements StatusType {
-        private final String reasonPhrase;
-
-        private BadRequestStatus(final String reasonPhrase) {
-            this.reasonPhrase = reasonPhrase;
-        }
-
-        public int getStatusCode() {
-            return Status.BAD_REQUEST.getStatusCode();
-        }
-
-        public Family getFamily() {
-            return Status.BAD_REQUEST.getFamily();
-        }
-
-        public String getReasonPhrase() {
-            return reasonPhrase;
-        }
-    };
 
     @Resource
     private JmsTemplate jmsTemplate;
@@ -111,8 +83,8 @@ public class JobsResource extends AbstractComponent {
      * @throws URISyntaxException
      */
     @POST
-    @Consumes({ Constants.JSON_JOB_CONTENT_TYPE })
-    @Produces({ Constants.JSON_JOB_CONTENT_TYPE })
+    @Consumes({ Constants.RSB_JSON_CONTENT_TYPE })
+    @Produces({ Constants.RSB_JSON_CONTENT_TYPE })
     public JobToken handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
         return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, new JobBuilder() {
@@ -133,8 +105,8 @@ public class JobsResource extends AbstractComponent {
      * @throws URISyntaxException
      */
     @POST
-    @Consumes({ Constants.XML_JOB_CONTENT_TYPE })
-    @Produces({ Constants.XML_JOB_CONTENT_TYPE })
+    @Consumes({ Constants.RSB_XML_CONTENT_TYPE })
+    @Produces({ Constants.RSB_XML_CONTENT_TYPE })
     public JobToken handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
 
@@ -151,8 +123,7 @@ public class JobsResource extends AbstractComponent {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
         if (!Util.isValidApplicationName(applicationName)) {
-            throw new WebApplicationException(Response.status(
-                    new BadRequestStatus("Bad request - Invalid application name: " + applicationName)).build());
+            Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
         }
 
         final UUID jobId = UUID.randomUUID();
@@ -172,8 +143,7 @@ public class JobsResource extends AbstractComponent {
             }
 
             if (multiValues.getValue().size() > 1) {
-                throw new WebApplicationException(Response.status(
-                        new BadRequestStatus("Bad request - Multiple values found for header: " + multiValues.getKey())).build());
+                Util.throwCustomBadRequestException("Multiple values found for header: " + multiValues.getKey());
             }
 
             meta.put(multiValues.getKey(), multiValues.getValue().get(0));
@@ -183,7 +153,7 @@ public class JobsResource extends AbstractComponent {
     }
 
     private JobToken buildJobToken(final UriInfo uriInfo, final HttpHeaders httpHeaders, final AbstractJob job) throws URISyntaxException {
-        final JobToken jobToken = restOF.createJobToken();
+        final JobToken jobToken = Util.REST_OBJECT_FACTORY.createJobToken();
         jobToken.setApplicationName(job.getApplicationName());
         jobToken.setSubmissionTime(Util.convert(job.getSubmissionTime()));
 

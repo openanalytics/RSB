@@ -52,8 +52,8 @@ public class Constants {
         }
     }
 
-    public static final String JSON_JOB_CONTENT_TYPE = "application/vnd.rsb+json";
-    public static final String XML_JOB_CONTENT_TYPE = "application/vnd.rsb+xml";
+    public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
+    public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";
     public static final String ZIP_CONTENT_TYPE = "application/zip";
     public static final String[] ALL_ZIP_CONTENT_TYPES = { ZIP_CONTENT_TYPE, "application/x-zip", "application/x-zip-compressed" };
 

@@ -61,6 +61,7 @@ import com.meterware.httpunit.WebRequest;
 @RunWith(Jitr.class)
 public class RestITCase extends XMLTestCase {
     // FIXME reactivate integration test
+    // TODO test json rendering of app results
 
     @BaseUri
     private String baseUri;
@@ -85,7 +86,7 @@ public class RestITCase extends XMLTestCase {
     public void testJobsBadApplicationName() throws Exception {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
-                Constants.XML_JOB_CONTENT_TYPE);
+                Constants.RSB_XML_CONTENT_TYPE);
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
         try {

@@ -28,7 +28,12 @@ import java.util.regex.Pattern;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.Status.Family;
+import javax.ws.rs.core.Response.StatusType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -69,10 +74,32 @@ public abstract class Util {
         }
     }
 
+    private final static class BadRequestStatus implements StatusType {
+        private final String reasonPhrase;
+
+        private BadRequestStatus(final String reasonPhrase) {
+            this.reasonPhrase = reasonPhrase;
+        }
+
+        public int getStatusCode() {
+            return Status.BAD_REQUEST.getStatusCode();
+        }
+
+        public Family getFamily() {
+            return Status.BAD_REQUEST.getFamily();
+        }
+
+        public String getReasonPhrase() {
+            return reasonPhrase;
+        }
+    };
+
     private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
 
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
+
+    public final static ObjectFactory REST_OBJECT_FACTORY = new ObjectFactory();
 
     static {
         try {
@@ -94,6 +121,17 @@ public abstract class Util {
      */
     public static boolean isValidApplicationName(final String name) {
         return StringUtils.isNotBlank(name) && APPLICATION_NAME_VALIDATOR.matcher(name).matches();
+    }
+
+    /**
+     * Throws an exception that will yield a 400 HTTP error.
+     * 
+     * @param badRequestMessage
+     * @return
+     * @throws WebApplicationException
+     */
+    public static void throwCustomBadRequestException(final String badRequestMessage) throws WebApplicationException {
+        throw new WebApplicationException(Response.status(new BadRequestStatus("Bad request - " + badRequestMessage)).build());
     }
 
     /**
@@ -136,8 +174,7 @@ public abstract class Util {
      * @return
      */
     public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job, final Throwable error) {
-        final ObjectFactory restOf = new ObjectFactory();
-        final ErrorResult errorResult = restOf.createErrorResult();
+        final ErrorResult errorResult = REST_OBJECT_FACTORY.createErrorResult();
         errorResult.setApplicationName(job.getApplicationName());
         errorResult.setJobId(job.getJobId().toString());
         errorResult.setSubmissionTime(Util.convert(job.getSubmissionTime()));

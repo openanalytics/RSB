@@ -65,10 +65,10 @@ public class MtomJobHandler extends AbstractComponent implements MtomJobProcesso
         response.setApplicationName(applicationName);
         response.setJobId(UUID.randomUUID().toString());
         final PayloadType payload = soapOF.createPayloadType();
-        payload.setContentType(Constants.XML_JOB_CONTENT_TYPE);
+        payload.setContentType(Constants.RSB_XML_CONTENT_TYPE);
         payload.setName("result");
         try {
-            payload.setData(new DataHandler(new ByteArrayDataSource("<fake_result />", Constants.XML_JOB_CONTENT_TYPE)));
+            payload.setData(new DataHandler(new ByteArrayDataSource("<fake_result />", Constants.RSB_XML_CONTENT_TYPE)));
         } catch (final IOException ioe) {
             throw new RuntimeException(ioe);
         }

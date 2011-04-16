@@ -113,7 +113,6 @@ public class JobProcessorTestCase {
         assertThat(jobProcessor.getRServiPoolUri("appname"), is(appSpecificPoolUri));
     }
 
-    @SuppressWarnings("unchecked")
     @Test(expected = RuntimeException.class)
     public void processFunctionCallJobRserviProviderError() throws Exception {
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenThrow(
