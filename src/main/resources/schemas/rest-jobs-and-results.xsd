@@ -30,7 +30,8 @@
 
     <xsd:annotation>
         <xsd:documentation>
-        Definition of the data structure for the application/vnd.rsb+xml and application/vnd.rsb+json media types.
+            Definition of the data structure for the application/vnd.rsb+xml and
+            application/vnd.rsb+json media types.
         </xsd:documentation>
         <xsd:appinfo>
             <jaxb:globalBindings>
@@ -70,10 +71,16 @@
     <xsd:complexType name="resultsType">
         <xsd:sequence>
             <xsd:element name="result" type="resultType" minOccurs="0"
-                maxOccurs="unbounded" />
+                maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:appinfo>
+                        <jaxb:property name="Contents" />
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:element name="result" type="resultType" />
     <xsd:complexType name="resultType">
         <xsd:attribute name="jobId" type="xsd:string" use="required" />
@@ -81,8 +88,6 @@
             use="required" />
         <xsd:attribute name="success" type="xsd:boolean" use="required" />
         <xsd:attribute name="type" type="xsd:string" use="required" />
-        <xsd:attribute name="applicationResultsUri" type="xsd:anyURI"
-            use="required" />
         <xsd:attribute name="selfUri" type="xsd:anyURI" use="required" />
         <xsd:attribute name="dataUri" type="xsd:anyURI" use="required" />
     </xsd:complexType>

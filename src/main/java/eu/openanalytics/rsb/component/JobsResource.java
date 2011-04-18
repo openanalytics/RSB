@@ -36,7 +36,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
@@ -56,7 +55,7 @@ import eu.openanalytics.rsb.rest.types.JobToken;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 @Component("jobsResource")
-@Path("/jobs")
+@Path("/" + Constants.JOBS_PATH)
 @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 public class JobsResource extends AbstractComponent {
     // FIXME support application/zip application/x-zip application/x-zip-compressed
@@ -159,19 +158,9 @@ public class JobsResource extends AbstractComponent {
         final String jobIdAsString = job.getJobId().toString();
         jobToken.setJobId(jobIdAsString);
 
-        final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path("results").path(job.getApplicationName());
-
-        final String uriOverride = Util.getSingleHeader(httpHeaders, Constants.URI_OVERRIDE_HTTP_HEADER);
-        if (StringUtils.isNotBlank(uriOverride)) {
-            final URI override = new URI(uriOverride);
-            uriBuilder.scheme(override.getScheme());
-            uriBuilder.host(override.getHost());
-            uriBuilder.port(override.getPort());
-        }
-
-        jobToken.setApplicationResultsUri(uriBuilder.build().toString());
-        jobToken.setResultUri(uriBuilder.path(jobIdAsString).build().toString());
-
+        final URI uriBuilder = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULTS_PATH).path(job.getApplicationName()).build();
+        jobToken.setApplicationResultsUri(uriBuilder.toString());
+        jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders, uriInfo).toString());
         return jobToken;
     }
 }

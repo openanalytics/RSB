@@ -42,6 +42,7 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
+import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 
 /**
@@ -53,7 +54,7 @@ import eu.openanalytics.rsb.Util;
  */
 @Component("resultResource")
 @Produces("application/octet-stream")
-@Path("/result/{applicationName}/{resultFileName}")
+@Path("/" + Constants.RESULT_PATH + "/{applicationName}/{resultFileName}")
 public class ResultResource extends AbstractComponent {
     /**
      * Serves a single result file.

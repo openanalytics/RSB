@@ -22,6 +22,8 @@ package eu.openanalytics.rsb;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -34,6 +36,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -114,6 +118,11 @@ public abstract class Util {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
+    public static URI buildResultUri(final String applicationName, final String jobId, final HttpHeaders httpHeaders, final UriInfo uriInfo)
+            throws URISyntaxException {
+        return getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULTS_PATH).path(applicationName).path(jobId).build();
+    }
+
     /**
      * Validates that the passed string is a valid application name.
      * 
@@ -133,6 +142,29 @@ public abstract class Util {
      */
     public static void throwCustomBadRequestException(final String badRequestMessage) throws WebApplicationException {
         throw new WebApplicationException(Response.status(new BadRequestStatus("Bad request - " + badRequestMessage)).build());
+    }
+
+    /**
+     * Extracts an UriBuilder for the current request, taking into account the possibility of
+     * header-based URI override.
+     * 
+     * @param uriInfo
+     * @param httpHeaders
+     * @return
+     * @throws URISyntaxException
+     */
+    public static UriBuilder getUriBuilder(final UriInfo uriInfo, final HttpHeaders httpHeaders) throws URISyntaxException {
+        final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder();
+
+        final String uriOverride = Util.getSingleHeader(httpHeaders, Constants.URI_OVERRIDE_HTTP_HEADER);
+        if (StringUtils.isNotBlank(uriOverride)) {
+            final URI override = new URI(uriOverride);
+            uriBuilder.scheme(override.getScheme());
+            uriBuilder.host(override.getHost());
+            uriBuilder.port(override.getPort());
+        }
+
+        return uriBuilder;
     }
 
     /**

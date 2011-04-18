@@ -33,6 +33,10 @@ public class Constants {
     public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
     public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
 
+    public final static String JOBS_PATH = "jobs";
+    public final static String RESULTS_PATH = "results";
+    public final static String RESULT_PATH = "result";
+
     public static final String APPLICATION_NAME_JMS_HEADER = "applicationName";
     public static final String JOB_ID_JMS_HEADER = "jobId";
 

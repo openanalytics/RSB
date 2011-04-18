@@ -46,6 +46,9 @@
             <item
                 name="API &amp; Clients"
                 href="wsdocs/index.html" />
+            <item
+                name="XSDs &amp; WSDL"
+                href="api-specs" />
         </menu>
         <menu
             ref="reports" />
