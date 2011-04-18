@@ -44,6 +44,7 @@ public class JsonFunctionCallJob extends AbstractFunctionCallJob<JsonFunctionCal
 
     @Override
     public JsonFunctionCallResult buildSuccessResult(final String result) {
+        // R response is JSON already, no conversion needed
         return buildResult(true, result);
     }
 

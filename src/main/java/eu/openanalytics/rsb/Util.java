@@ -44,6 +44,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
@@ -94,12 +95,12 @@ public abstract class Util {
         }
     };
 
-    private static final ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
+    private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
-
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
 
     public final static ObjectFactory REST_OBJECT_FACTORY = new ObjectFactory();
+    public final static eu.openanalytics.rsb.soap.types.ObjectFactory SOAP_OBJECT_FACTORY = new eu.openanalytics.rsb.soap.types.ObjectFactory();
 
     static {
         try {
@@ -201,7 +202,7 @@ public abstract class Util {
     }
 
     /**
-     * Marshals an {@link Object} to JSON.
+     * Marshals an {@link Object} to a JSON string.
      * 
      * @param o
      * @return
@@ -212,6 +213,20 @@ public abstract class Util {
         } catch (final IOException ioe) {
             final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
             throw new RuntimeException("Failed to JSON marshall: " + objectAsString, ioe);
+        }
+    }
+
+    /**
+     * Unmarshals a JSON string to a {@link JsonNode}.
+     * 
+     * @param s
+     * @return
+     */
+    public static JsonNode fromJson(final String s) {
+        try {
+            return JSON_OBJECT_MAPPER.readTree(s);
+        } catch (final IOException ioe) {
+            throw new RuntimeException("Failed to JSON unmarshall: " + s, ioe);
         }
     }
 

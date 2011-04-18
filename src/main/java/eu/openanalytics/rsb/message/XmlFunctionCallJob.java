@@ -44,6 +44,7 @@ public class XmlFunctionCallJob extends AbstractFunctionCallJob<XmlFunctionCallR
 
     @Override
     public XmlFunctionCallResult buildSuccessResult(final String result) {
+        // R response is JSON already, no conversion needed
         return buildResult(true, result);
     }
 

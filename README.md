@@ -20,7 +20,9 @@ To produce rsb.war, run:
 
 ### Integration tests
 
-Run:
+RServi must be running locally before starting the integration tests.
+
+If that is the case, then run:
 
     mvn -Pit verify
 
