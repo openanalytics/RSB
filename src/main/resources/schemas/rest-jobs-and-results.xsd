@@ -29,6 +29,9 @@
     jaxb:extensionBindingPrefixes="xjc">
 
     <xsd:annotation>
+        <xsd:documentation>
+        Definition of the data structure for the application/vnd.rsb+xml and application/vnd.rsb+json media types.
+        </xsd:documentation>
         <xsd:appinfo>
             <jaxb:globalBindings>
                 <xjc:simple />

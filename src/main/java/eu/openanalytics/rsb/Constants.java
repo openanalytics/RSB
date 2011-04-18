@@ -36,6 +36,15 @@ public class Constants {
     public static final String APPLICATION_NAME_JMS_HEADER = "applicationName";
     public static final String JOB_ID_JMS_HEADER = "jobId";
 
+    public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
+    public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";
+
+    public static final String JSON_CONTENT_TYPE = "application/json";
+    public static final String XML_CONTENT_TYPE = "application/xml";
+    public static final String TEXT_CONTENT_TYPE = "text/plain";
+    public static final String ZIP_CONTENT_TYPE = "application/zip";
+    public static final String[] ALL_ZIP_CONTENT_TYPES = { ZIP_CONTENT_TYPE, "application/x-zip", "application/x-zip-compressed" };
+
     public static final MimeType JSON_MIME_TYPE;
     public static final MimeType XML_MIME_TYPE;
     public static final MimeType TEXT_MIME_TYPE;
@@ -43,19 +52,14 @@ public class Constants {
 
     static {
         try {
-            JSON_MIME_TYPE = new MimeType("application", "json");
-            XML_MIME_TYPE = new MimeType("application", "xml");
-            TEXT_MIME_TYPE = new MimeType("text", "plain");
-            ZIP_MIME_TYPE = new MimeType("application", "zip");
+            JSON_MIME_TYPE = new MimeType(JSON_CONTENT_TYPE);
+            XML_MIME_TYPE = new MimeType(XML_CONTENT_TYPE);
+            TEXT_MIME_TYPE = new MimeType(TEXT_CONTENT_TYPE);
+            ZIP_MIME_TYPE = new MimeType(ZIP_CONTENT_TYPE);
         } catch (final MimeTypeParseException mtpe) {
             throw new IllegalStateException(mtpe);
         }
     }
-
-    public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
-    public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";
-    public static final String ZIP_CONTENT_TYPE = "application/zip";
-    public static final String[] ALL_ZIP_CONTENT_TYPES = { ZIP_CONTENT_TYPE, "application/x-zip", "application/x-zip-compressed" };
 
     private Constants() {
         throw new UnsupportedOperationException("do not instantiate");

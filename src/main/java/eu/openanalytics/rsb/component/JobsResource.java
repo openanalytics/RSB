@@ -57,6 +57,7 @@ import eu.openanalytics.rsb.rest.types.JobToken;
  */
 @Component("jobsResource")
 @Path("/jobs")
+@Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 public class JobsResource extends AbstractComponent {
     // FIXME support application/zip application/x-zip application/x-zip-compressed
     // FIXME support multipart/form-data
@@ -83,8 +84,7 @@ public class JobsResource extends AbstractComponent {
      * @throws URISyntaxException
      */
     @POST
-    @Consumes({ Constants.RSB_JSON_CONTENT_TYPE })
-    @Produces({ Constants.RSB_JSON_CONTENT_TYPE })
+    @Consumes(Constants.JSON_CONTENT_TYPE)
     public JobToken handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
         return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, new JobBuilder() {
@@ -105,8 +105,7 @@ public class JobsResource extends AbstractComponent {
      * @throws URISyntaxException
      */
     @POST
-    @Consumes({ Constants.RSB_XML_CONTENT_TYPE })
-    @Produces({ Constants.RSB_XML_CONTENT_TYPE })
+    @Consumes(Constants.XML_CONTENT_TYPE)
     public JobToken handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
 

@@ -86,7 +86,7 @@ public class RestITCase extends XMLTestCase {
     public void testJobsBadApplicationName() throws Exception {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
-                Constants.RSB_XML_CONTENT_TYPE);
+                Constants.XML_CONTENT_TYPE);
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
         try {
