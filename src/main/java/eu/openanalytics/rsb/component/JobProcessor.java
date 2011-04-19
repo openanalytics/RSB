@@ -41,6 +41,7 @@ import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
+import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
@@ -110,6 +111,13 @@ public class JobProcessor extends AbstractComponent {
 
             functionCallJob.destroy();
         }
+    }
+
+    public void process(final MultiFilesJob multiFilesJob) {
+        // FIXME implement processing of multi-files jobs
+        getLogger().warn("Can't process (yet): " + multiFilesJob);
+
+        multiFilesJob.destroy();
     }
 
     // exposed for unit testing

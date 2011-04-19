@@ -40,6 +40,8 @@ public class Constants {
     public static final String APPLICATION_NAME_JMS_HEADER = "applicationName";
     public static final String JOB_ID_JMS_HEADER = "jobId";
 
+    public static final String MULTIPLE_FILES_JOB_CONFIGURATION = "configuration.txt";
+
     public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
     public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";
 
@@ -47,7 +49,8 @@ public class Constants {
     public static final String XML_CONTENT_TYPE = "application/xml";
     public static final String TEXT_CONTENT_TYPE = "text/plain";
     public static final String ZIP_CONTENT_TYPE = "application/zip";
-    public static final String[] ALL_ZIP_CONTENT_TYPES = { ZIP_CONTENT_TYPE, "application/x-zip", "application/x-zip-compressed" };
+    public static final String ZIP_CONTENT_TYPE2 = "application/x-zip";
+    public static final String ZIP_CONTENT_TYPE3 = "application/x-zip-compressed";
 
     public static final MimeType JSON_MIME_TYPE;
     public static final MimeType XML_MIME_TYPE;

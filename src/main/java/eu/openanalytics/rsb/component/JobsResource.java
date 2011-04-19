@@ -20,6 +20,10 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
@@ -27,7 +31,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
@@ -40,6 +47,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -49,6 +58,7 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
+import eu.openanalytics.rsb.message.ZipJob;
 import eu.openanalytics.rsb.rest.types.JobToken;
 
 /**
@@ -60,11 +70,10 @@ import eu.openanalytics.rsb.rest.types.JobToken;
 @Path("/" + Constants.JOBS_PATH)
 @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 public class JobsResource extends AbstractComponent {
-    // FIXME support application/zip application/x-zip application/x-zip-compressed
     // FIXME support multipart/form-data
 
     private interface JobBuilder {
-        AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String payload);
+        AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) throws IOException;
     }
 
     @Resource
@@ -83,15 +92,15 @@ public class JobsResource extends AbstractComponent {
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
+     * @throws IOException
      */
     @POST
     @Consumes(Constants.JSON_CONTENT_TYPE)
     public Response handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
-            @Context final UriInfo uriInfo) throws URISyntaxException {
-        return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, new JobBuilder() {
-            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-                    final String argument) {
-                return new JsonFunctionCallJob(applicationName, jobId, submissionTime, argument);
+            @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+        return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
+            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
+                return new JsonFunctionCallJob(applicationName, jobId, submissionTime, jsonArgument);
             }
         });
     }
@@ -104,22 +113,74 @@ public class JobsResource extends AbstractComponent {
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
+     * @throws IOException
      */
     @POST
     @Consumes(Constants.XML_CONTENT_TYPE)
     public Response handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
-            @Context final UriInfo uriInfo) throws URISyntaxException {
+            @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
-        return handleFunctionCallJob(xmlArgument, httpHeaders, uriInfo, new JobBuilder() {
-            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-                    final String argument) {
-                return new XmlFunctionCallJob(applicationName, jobId, submissionTime, argument);
+        return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
+            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
+                return new XmlFunctionCallJob(applicationName, jobId, submissionTime, xmlArgument);
             }
         });
     }
 
-    private Response handleFunctionCallJob(final String argument, final HttpHeaders httpHeaders, final UriInfo uriInfo,
-            final JobBuilder jobBuilder) throws URISyntaxException {
+    /**
+     * Handles a function call job with a ZIP payload.
+     * 
+     * @param xmlArgument
+     *            Argument passed to the function called on RServi.
+     * @param httpHeaders
+     * @return
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+    // TODO unit test
+    @POST
+    @Consumes({ Constants.ZIP_CONTENT_TYPE, Constants.ZIP_CONTENT_TYPE2, Constants.ZIP_CONTENT_TYPE3 })
+    public Response handleZipJob(final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
+            throws URISyntaxException, IOException {
+
+        final File filesDirectory = Util.createTemporaryDirectory("job");
+        final ZipInputStream zis = new ZipInputStream(in);
+        ZipEntry ze = null;
+        final Properties jobConfiguration = new Properties();
+
+        while ((ze = zis.getNextEntry()) != null) {
+            if (ze.isDirectory()) {
+                FileUtils.deleteQuietly(filesDirectory);
+                Util.throwCustomBadRequestException("Invalid zip archive: nested directories are not supported");
+            }
+            if (Constants.MULTIPLE_FILES_JOB_CONFIGURATION.equals(ze.getName())) {
+                jobConfiguration.load(zis);
+            } else {
+                final FileOutputStream fos = new FileOutputStream(new File(filesDirectory, ze.getName()));
+                IOUtils.copy(zis, fos);
+                IOUtils.closeQuietly(fos);
+            }
+            zis.closeEntry();
+        }
+
+        IOUtils.closeQuietly(zis);
+
+        final Map<String, String> jobMeta = new HashMap<String, String>();
+        for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
+            jobMeta.put(e.getKey().toString(), e.getValue().toString());
+        }
+        jobMeta.putAll(getJobMeta(httpHeaders));
+
+        return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
+            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
+                    throws IOException {
+                return new ZipJob(applicationName, jobId, submissionTime, jobMeta, filesDirectory);
+            }
+        });
+    }
+
+    private Response handleNewJob(final HttpHeaders httpHeaders, final UriInfo uriInfo, final JobBuilder jobBuilder)
+            throws URISyntaxException, IOException {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
         if (!Util.isValidApplicationName(applicationName)) {
@@ -127,7 +188,7 @@ public class JobsResource extends AbstractComponent {
         }
 
         final UUID jobId = UUID.randomUUID();
-        final AbstractJob job = jobBuilder.build(applicationName, jobId, (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+        final AbstractJob job = jobBuilder.build(applicationName, jobId, (GregorianCalendar) GregorianCalendar.getInstance());
 
         Util.dispatch(job, jmsTemplate);
 

@@ -20,6 +20,7 @@
  */
 package eu.openanalytics.rsb;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
@@ -209,6 +210,29 @@ public abstract class Util {
         errorResult.setSubmissionTime(Util.convert(job.getSubmissionTime()));
         errorResult.setErrorMessage(error.getMessage());
         return errorResult;
+    }
+
+    /**
+     * Creates a temporary directory. Lifted from:
+     * http://stackoverflow.com/questions/617414/create-a-temporary-directory-in-java/617438#617438
+     * 
+     * @return
+     * @throws IOException
+     */
+    public static File createTemporaryDirectory(final String type) throws IOException {
+        final File temp;
+
+        temp = File.createTempFile("rsb_", type);
+
+        if (!(temp.delete())) {
+            throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
+        }
+
+        if (!(temp.mkdir())) {
+            throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+        }
+
+        return (temp);
     }
 
     /**

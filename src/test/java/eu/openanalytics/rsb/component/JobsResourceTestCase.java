@@ -28,7 +28,6 @@ import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 
@@ -79,27 +78,27 @@ public class JobsResourceTestCase {
     }
 
     @Test
-    public void testHandleJsonFunctionCallJob() throws URISyntaxException {
+    public void testHandleJsonFunctionCallJob() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         assertSuccessfullHandling(jobsResource.handleJsonFunctionCallJob("fake_json", httpHeaders, uriInfo));
     }
 
     @Test
-    public void testHandleXmlFunctionCallJob() throws URISyntaxException {
+    public void testHandleXmlFunctionCallJob() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
     }
 
     @Test(expected = WebApplicationException.class)
-    public void testHandleBadApplicationName() throws URISyntaxException {
+    public void testHandleBadApplicationName() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList("_bad:app!$name"));
         jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
     }
 
     @Test
-    public void testHandleJobWithUriOverride() throws URISyntaxException {
+    public void testHandleJobWithUriOverride() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
         when(httpHeaders.getRequestHeader(Constants.URI_OVERRIDE_HTTP_HEADER)).thenReturn(Collections.singletonList("foo://bar"));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());

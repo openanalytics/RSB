@@ -268,7 +268,6 @@ public class RestITCase extends XMLTestCase {
     }
 
     // FIXME test X-Base-Uri support
-    // FIXME test json rendering of app results
     // FIXME reactivate integration tests
     /*
      * @SuppressWarnings("unchecked") public void testSubmitValidZipJobAndRetrieveByAppName() throws
