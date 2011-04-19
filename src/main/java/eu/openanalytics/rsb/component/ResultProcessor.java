@@ -41,10 +41,13 @@ import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
  */
 @Component("resultProcessor")
 public class ResultProcessor extends AbstractComponent {
-    // TODO unit test
-
     @Resource(name = "resultFilesChannel")
     private MessageChannel resultFilesChannel;
+
+    // exposed for unit tests
+    void setResultFilesChannel(final MessageChannel resultFilesChannel) {
+        this.resultFilesChannel = resultFilesChannel;
+    }
 
     public void process(final AbstractFunctionCallResult functionCallResult) throws IOException {
         final File applicationResultDir = new File(getConfiguration().getRsbResultsDirectory(), functionCallResult.getApplicationName());
@@ -60,7 +63,7 @@ public class ResultProcessor extends AbstractComponent {
         functionCallResult.destroy();
     }
 
-    public String getResultFileName(final AbstractFunctionCallResult functionCallResult) {
+    private String getResultFileName(final AbstractFunctionCallResult functionCallResult) {
         return functionCallResult.getApplicationName() + File.separator + functionCallResult.getJobId() + "."
                 + getResultFileExtension(functionCallResult);
     }
@@ -70,7 +73,7 @@ public class ResultProcessor extends AbstractComponent {
         return (result.isSuccess() ? "" : "err.") + result.getMimeType().getSubType();
     }
 
-    public String getResultPayload(final AbstractFunctionCallResult functionCallResult) {
+    private String getResultPayload(final AbstractFunctionCallResult functionCallResult) {
         return functionCallResult.getResult();
     }
 }

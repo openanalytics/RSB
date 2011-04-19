@@ -25,16 +25,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
@@ -61,24 +60,23 @@ public class ResultResource extends AbstractComponent {
      * 
      * @param applicationName
      * @param resultFileName
-     * @param httpServletResponse
      * @return
      * @throws IOException
      */
     @GET
-    public StreamingOutput getResult(@PathParam("applicationName") final String applicationName,
-            @PathParam("resultFileName") final String resultFileName, @Context final HttpServletResponse httpServletResponse)
-            throws IOException {
+    public Response getResult(@PathParam("applicationName") final String applicationName,
+            @PathParam("resultFileName") final String resultFileName) throws IOException {
 
-        final File resultFile = getResultFile(applicationName, resultFileName);
+        final File resultFile = getResultFileOrDie(applicationName, resultFileName);
 
-        addEtagHeader(applicationName, resultFileName, httpServletResponse);
-
-        return new StreamingOutput() {
+        final ResponseBuilder rb = Response.ok();
+        addEtagHeader(applicationName, resultFileName, rb);
+        rb.entity(new StreamingOutput() {
             public void write(final OutputStream output) throws IOException, WebApplicationException {
                 FileCopyUtils.copy(new FileInputStream(resultFile), output);
             }
-        };
+        });
+        return rb.build();
     }
 
     /**
@@ -86,26 +84,28 @@ public class ResultResource extends AbstractComponent {
      * 
      * @param applicationName
      * @param resultFileName
-     * @param httpServletResponse
+     * @return
      */
     @HEAD
-    public void getResultMeta(@PathParam("applicationName") final String applicationName,
-            @PathParam("resultFileName") final String resultFileName, @Context final HttpServletResponse httpServletResponse) {
+    public Response getResultMeta(@PathParam("applicationName") final String applicationName,
+            @PathParam("resultFileName") final String resultFileName) {
 
-        final File resultFile = getResultFile(applicationName, resultFileName);
-        addContentLengthHeader(httpServletResponse, resultFile);
-        addEtagHeader(applicationName, resultFileName, httpServletResponse);
+        final File resultFile = getResultFileOrDie(applicationName, resultFileName);
+        final ResponseBuilder rb = Response.noContent();
+        addContentLengthHeader(resultFile, rb);
+        addEtagHeader(applicationName, resultFileName, rb);
+        return rb.build();
     }
 
-    private void addEtagHeader(final String applicationName, final String resultFileName, final HttpServletResponse httpServletResponse) {
-        httpServletResponse.addHeader(HttpHeaders.ETAG, getEtag(applicationName, resultFileName));
+    private void addEtagHeader(final String applicationName, final String resultFileName, final ResponseBuilder rb) {
+        rb.header(HttpHeaders.ETAG, getEtag(applicationName, resultFileName));
     }
 
-    private void addContentLengthHeader(final HttpServletResponse httpServletResponse, final File resultFile) {
-        httpServletResponse.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(resultFile.length()));
+    private void addContentLengthHeader(final File resultFile, final ResponseBuilder rb) {
+        rb.header(HttpHeaders.CONTENT_LENGTH, Long.toString(resultFile.length()));
     }
 
-    private File getResultFile(final String applicationName, final String resultFileName) {
+    private File getResultFileOrDie(final String applicationName, final String resultFileName) {
         if (!Util.isValidApplicationName(applicationName)) {
             Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
         }

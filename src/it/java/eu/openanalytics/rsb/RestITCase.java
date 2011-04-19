@@ -564,7 +564,6 @@ public class RestITCase extends XMLTestCase {
         return webClient;
     }
 
-    @SuppressWarnings("deprecation")
     private WebConversation createNewWebConversation() {
         return new WebConversation();
     }
