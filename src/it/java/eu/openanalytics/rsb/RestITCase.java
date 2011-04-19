@@ -21,69 +21,69 @@
 package eu.openanalytics.rsb;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.activemq.util.ByteArrayInputStream;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.RandomStringUtils;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.jitr.Jitr;
 import org.jitr.annotation.BaseUri;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.util.FileCopyUtils;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.gargoylesoftware.htmlunit.DefaultCredentialsProvider;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.meterware.httpunit.HeadMethodWebRequest;
+import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpException;
 import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
+import com.meterware.httpunit.WebResponse;
 
-/*
- import org.apache.commons.lang.RandomStringUtils;
- import org.custommonkey.xmlunit.XMLUnit;
- import org.custommonkey.xmlunit.exceptions.XpathException;
- import org.w3c.dom.Document;
- import com.gargoylesoftware.htmlunit.ElementNotFoundException;
- import com.gargoylesoftware.htmlunit.Page;
- import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
- import com.gargoylesoftware.htmlunit.html.HtmlForm;
- import com.gargoylesoftware.htmlunit.html.HtmlInput;
- import com.gargoylesoftware.htmlunit.html.HtmlPage;
- import com.meterware.httpunit.GetMethodWebRequest;
- import com.meterware.httpunit.WebResponse;
- import eu.openanalytics.httpunit.DeleteMethodWebRequest;
- */
+import eu.openanalytics.httpunit.DeleteMethodWebRequest;
+
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(Jitr.class)
 public class RestITCase extends XMLTestCase {
-    // FIXME reactivate integration test
-    // TODO test json rendering of app results
-
     @BaseUri
     private String baseUri;
 
     private String restJobsUri;
-    private String rsbUserName;
-    private String rsbPassword;
+    private String restResultsUri;
 
     @Before
     public void before() {
         restJobsUri = baseUri + "api/rest/jobs";
-        rsbUserName = null;
-        rsbPassword = null;
+        restResultsUri = baseUri + "api/rest/results";
+
+        final Map<String, String> m = new HashMap<String, String>();
+        m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
+
+        final NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XMLUnit.setXpathNamespaceContext(ctx);
     }
 
     @Test
-    public void testJobsBadMethod() throws Exception {
-        doTestUnsupportedHeadMethod(restJobsUri);
+    public void jobsBadMethod() throws Exception {
+        doTestUnsupportedDeleteMethod(restJobsUri);
     }
 
     @Test
-    public void testJobsBadApplicationName() throws Exception {
+    public void jobsBadApplicationName() throws Exception {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
                 Constants.XML_CONTENT_TYPE);
@@ -98,7 +98,7 @@ public class RestITCase extends XMLTestCase {
     }
 
     @Test
-    public void testJobsBadContentType() throws Exception {
+    public void jobsBadContentType() throws Exception {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
                 "application/unsupported");
@@ -112,63 +112,165 @@ public class RestITCase extends XMLTestCase {
         }
     }
 
-    // FIXME test X-Base-Uri support
+    @Test
+    public void noResultForApplication() throws Exception {
+        final WebConversation wc = createNewWebConversation();
+        final WebResponse res = wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName"));
+        assertEquals(200, res.getResponseCode());
+        assertEquals(Constants.RSB_XML_CONTENT_TYPE, res.getHeaderField("Content-Type"));
 
+        final String xml = res.getText();
+        assertXpathExists("/rsb:results", xml);
+        assertXpathNotExists("/rsb:results/rsb:result", res.getText());
+    }
+
+    @Test
+    public void noResultForApplicationAsJson() throws Exception {
+        final WebConversation wc = createNewWebConversation();
+        final GetMethodWebRequest request = new GetMethodWebRequest(restResultsUri + "/fooAppName");
+        request.setHeaderField("Accept", Constants.RSB_JSON_CONTENT_TYPE);
+        final WebResponse res = wc.sendRequest(request);
+        assertEquals(200, res.getResponseCode());
+        assertEquals(Constants.RSB_JSON_CONTENT_TYPE, res.getHeaderField("Content-Type"));
+        assertEquals("{\"results\":\"\"}", res.getText());
+    }
+
+    @Test
+    public void resultNotFound() throws Exception {
+        final WebConversation wc = createNewWebConversation();
+
+        try {
+            wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName/fooJobId"));
+            fail("an exception should have been raised");
+        } catch (final HttpException he) {
+            assertEquals(404, he.getResponseCode());
+        }
+    }
+
+    @Test
+    public void submitValidXmlJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        doTestSubmitValidXmlJob(applicationName);
+        final String resultUri = restResultsUri + "/" + applicationName;
+        ponderUntilResultAvailable(resultUri);
+        retrieveAndValidateXmlResult(resultUri);
+    }
+
+    @Test
+    public void submitValidXmlJobAndRetrieveByResultUri() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final String resultUri = doTestSubmitValidXmlJob(applicationName);
+        ponderUntilResultAvailable(resultUri);
+        retrieveAndValidateXmlResult(resultUri);
+    }
+
+    @Test
+    public void deleteResult() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final String resultUri = doTestSubmitValidXmlJob(applicationName);
+        ponderUntilResultAvailable(resultUri);
+
+        final WebConversation wc = createNewWebConversation();
+        final WebResponse response = wc.sendRequest(new DeleteMethodWebRequest(resultUri));
+        assertEquals(204, response.getResponseCode());
+
+        try {
+            wc.sendRequest(new GetMethodWebRequest(resultUri));
+            fail("an exception should have been raised");
+        } catch (final HttpException he) {
+            assertEquals(404, he.getResponseCode());
+        }
+    }
+
+    @Test
+    public void submitInvalidXmlJobAndRetrieveErrorResult() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document responseDocument = doTestSubmitInvalidXmlJob(applicationName);
+        final String resultUri = getResultUri(responseDocument);
+        final String jobId = XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@jobId", responseDocument);
+        ponderUntilResultAvailable(resultUri);
+        retrieveAndValidateXmlError(resultUri, jobId);
+    }
+
+    @Test
+    public void submitValidJsonJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        doTestSubmitValidJsonJob(applicationName);
+        final String resultUri = restResultsUri + "/" + applicationName;
+        ponderUntilResultAvailable(resultUri);
+        retrieveAndValidateJsonResult(resultUri);
+    }
+
+    @Test
+    public void submitInvalidJsonJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        doTestSubmitInvalidJsonJob(applicationName);
+        final String resultUri = restResultsUri + "/" + applicationName;
+        ponderUntilResultAvailable(resultUri);
+        retrieveAndValidateJsonError(resultUri);
+    }
+
+    private void retrieveAndValidateXmlResult(final String resultUri) throws Exception {
+        final String dataUri = doTestResultAvailability(resultUri, "xml");
+        final String result = getStringResponse(dataUri);
+        final Document resultDocument = XMLUnit.buildTestDocument(result);
+        assertXpathEvaluatesTo("provideMeansAndPlotPerDosageGroup", "/statDataPackage/statHeader/RFunction/text()", resultDocument);
+    }
+
+    private void retrieveAndValidateXmlError(final String resultUri, final String jobId) throws Exception {
+        final String dataUri = doTestResultAvailability(resultUri, "xml");
+        final String result = getStringResponse(dataUri);
+        final Document resultDocument = XMLUnit.buildTestDocument(result);
+        assertXpathEvaluatesTo(jobId, "/rsb:errorResult/@jobId", resultDocument);
+    }
+
+    private void retrieveAndValidateJsonResult(final String resultUri) throws Exception {
+        final String dataUri = doTestResultAvailability(resultUri, "json");
+        final String result = getStringResponse(dataUri);
+        assertNotNull(Util.fromJson(result, List.class));
+    }
+
+    private void retrieveAndValidateJsonError(final String resultUri) throws Exception {
+        final String dataUri = doTestResultAvailability(resultUri, "json");
+        final String result = getStringResponse(dataUri);
+
+        final Map<?, ?> jsonResult = Util.fromJson(result, Map.class);
+        assertNotNull(jsonResult);
+        assertNotNull(jsonResult.get("errorMessage"));
+    }
+
+    private String doTestSubmitValidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
+        final Document result = doTestSubmitXmlJob(applicationName, getTestStream("data/r-job-sample.xml"));
+
+        return getResultUri(result);
+    }
+
+    private String doTestSubmitValidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
+        final Map<?, ?> jsonResult = doTestSubmitJobWithJsonAck(applicationName, getTestStream("data/r-job-sample.json"));
+
+        return jsonResult.get("resultUri").toString();
+    }
+
+    private String doTestSubmitInvalidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
+        final Map<?, ?> jsonResult = doTestSubmitJobWithJsonAck(applicationName, new ByteArrayInputStream("not json".getBytes()));
+
+        return jsonResult.get("resultUri").toString();
+    }
+
+    private Document doTestSubmitInvalidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
+        return doTestSubmitXmlJob(applicationName, new ByteArrayInputStream("<bad/>".getBytes()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private Document doTestSubmitXmlJob(final String applicationName, final InputStream xmlJob) throws IOException, SAXException,
+            XpathException {
+        return doTestSubmitJobWithXmlAck(applicationName, xmlJob, Collections.EMPTY_MAP);
+    }
+
+    // FIXME test X-Base-Uri support
+    // FIXME test json rendering of app results
+    // FIXME reactivate integration tests
     /*
-     * public void testResultsBadMethod() throws Exception {
-     * doTestBadMethod(TestSupport.RSB_REST_RESULTS_URI); }
-     * 
-     * public void testNoResultForApplication() throws Exception { final WebConversation wc =
-     * createNewWebConversation(); final WebResponse res = wc.sendRequest(new
-     * GetMethodWebRequest(TestSupport.RSB_REST_RESULTS_URI + "/fooAppName")); assertEquals(200,
-     * res.getResponseCode()); assertEquals("<r-results />", res.getText()); }
-     * 
-     * public void testResultNotFound() throws Exception { final WebConversation wc =
-     * createNewWebConversation();
-     * 
-     * try { wc.sendRequest(new GetMethodWebRequest(TestSupport.RSB_REST_RESULTS_URI +
-     * "/fooAppName/fooJobId")); fail("an exception should have been raised"); } catch (final
-     * HttpException he) { assertEquals(404, he.getResponseCode()); } }
-     * 
-     * public void testSubmitValidXmlJobAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitValidXmlJob(applicationName); final
-     * String resultUri = TestSupport.RSB_REST_RESULTS_URI + "/" + applicationName;
-     * ponderUntilResultAvailable(resultUri); retrieveAndValidateXmlResult(resultUri); }
-     * 
-     * public void testSubmitValidXmlJobAndRetrieveByResultUri() throws Exception { final String
-     * applicationName = newTestApplicationName(); final String resultUri =
-     * doTestSubmitValidXmlJob(applicationName); ponderUntilResultAvailable(resultUri);
-     * retrieveAndValidateXmlResult(resultUri); }
-     * 
-     * public void testDeleteResult() throws Exception { final String applicationName =
-     * newTestApplicationName(); final String resultUri = doTestSubmitValidXmlJob(applicationName);
-     * ponderUntilResultAvailable(resultUri);
-     * 
-     * final WebConversation wc = createNewWebConversation(); final WebResponse response =
-     * wc.sendRequest(new DeleteMethodWebRequest(resultUri)); assertEquals(200,
-     * response.getResponseCode());
-     * 
-     * try { wc.sendRequest(new GetMethodWebRequest(resultUri));
-     * fail("an exception should have been raised"); } catch (final HttpException he) {
-     * assertEquals(404, he.getResponseCode()); } }
-     * 
-     * public void testSubmitInvalidXmlJobAndRetrieveErrorResult() throws Exception { final String
-     * applicationName = newTestApplicationName(); final Document responseDocument =
-     * doTestSubmitInvalidXmlJob(applicationName); final String resultUri =
-     * getResultUri(responseDocument); final String jobId =
-     * XMLUnit.newXpathEngine().evaluate("/r-job-accepted/@jobId", responseDocument);
-     * ponderUntilResultAvailable(resultUri); retrieveAndValidateXmlError(resultUri, jobId); }
-     * 
-     * public void testSubmitValidJsonJobAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitValidJsonJob(applicationName); final
-     * String resultUri = TestSupport.RSB_REST_RESULTS_URI + "/" + applicationName;
-     * ponderUntilResultAvailable(resultUri); retrieveAndValidateJsonResult(resultUri); }
-     * 
-     * public void testSubmitInvalidJsonJobAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitInvalidJsonJob(applicationName);
-     * final String resultUri = TestSupport.RSB_REST_RESULTS_URI + "/" + applicationName;
-     * ponderUntilResultAvailable(resultUri); retrieveAndValidateJsonError(resultUri); }
-     * 
      * @SuppressWarnings("unchecked") public void testSubmitValidZipJobAndRetrieveByAppName() throws
      * Exception { final String applicationName = newTestApplicationName();
      * doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT,
@@ -181,7 +283,7 @@ public class RestITCase extends XMLTestCase {
      * doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.JOB_SCRIPT,
      * Collections.EMPTY_MAP);
      * 
-     * final String resultUri = TestSupport.RSB_REST_RESULTS_URI + "/" + applicationName;
+     * final String resultUri = restResultsUri + "/" + applicationName;
      * ponderUntilResultAvailable(resultUri); retrieveAndValidateZipError(resultUri); }
      * 
      * @SuppressWarnings("unchecked") public void
@@ -249,36 +351,8 @@ public class RestITCase extends XMLTestCase {
      * ponderRetrieveAndValidateZipResult(applicationName); }
      * 
      * private void ponderRetrieveAndValidateZipResult(final String applicationName) throws
-     * Exception { final String resultUri = TestSupport.RSB_REST_RESULTS_URI + "/" +
-     * applicationName; ponderUntilResultAvailable(resultUri);
-     * retrieveAndValidateZipResult(resultUri); }
-     * 
-     * private String getResultUri(final Document responseDocument) throws XpathException { return
-     * XMLUnit.newXpathEngine().evaluate("/r-job-accepted/@resultUri", responseDocument); }
-     * 
-     * private void retrieveAndValidateXmlResult(final String resultUri) throws Exception { final
-     * String dataUri = doTestResultAvailability(resultUri, "xml"); final String result =
-     * getStringResponse(dataUri); final Document resultDocument =
-     * XMLUnit.buildTestDocument(result);
-     * assertXpathEvaluatesTo("provideMeansAndPlotPerDosageGroup",
-     * "/statDataPackage/statHeader/RFunction/text()", resultDocument); }
-     * 
-     * private void retrieveAndValidateXmlError(final String resultUri, final String jobId) throws
-     * Exception { final String dataUri = doTestResultAvailability(resultUri, "xml"); final String
-     * result = getStringResponse(dataUri); final Document resultDocument =
-     * XMLUnit.buildTestDocument(result); assertXpathEvaluatesTo(jobId, "/error/@jobId",
-     * resultDocument); }
-     * 
-     * private void retrieveAndValidateJsonResult(final String resultUri) throws Exception { final
-     * String dataUri = doTestResultAvailability(resultUri, "json"); final String result =
-     * getStringResponse(dataUri); assertNotNull(JSON.parse(result)); }
-     * 
-     * private void retrieveAndValidateJsonError(final String resultUri) throws Exception { final
-     * String dataUri = doTestResultAvailability(resultUri, "json"); final String result =
-     * getStringResponse(dataUri);
-     * 
-     * final Map<?, ?> jsonResult = (Map<?, ?>) JSON.parse(result); assertNotNull(jsonResult);
-     * assertNotNull(jsonResult.get("errorMessage")); }
+     * Exception { final String resultUri = restResultsUri + "/" + applicationName;
+     * ponderUntilResultAvailable(resultUri); retrieveAndValidateZipResult(resultUri); }
      * 
      * private void retrieveAndValidateZipResult(final String resultUri) throws Exception { final
      * String dataUri = doTestResultAvailability(resultUri, "zip");
@@ -288,85 +362,16 @@ public class RestITCase extends XMLTestCase {
      * String dataUri = doTestResultAvailability(resultUri, "txt");
      * TestSupport.validateErrorResult(getStreamResponse(dataUri)); }
      * 
-     * private String doTestSubmitValidXmlJob(final String applicationName) throws IOException,
-     * SAXException, XpathException { final Document result = doTestSubmitXmlJob(applicationName,
-     * AbstractRsbFunctionalTestCase.getTestStream("data/r-job-sample.xml"));
-     * 
-     * return getResultUri(result); }
-     * 
-     * private String doTestSubmitValidJsonJob(final String applicationName) throws IOException,
-     * SAXException, XpathException { final Map<?, ?> jsonResult =
-     * doTestSubmitJobWithJsonAck(applicationName,
-     * AbstractRsbFunctionalTestCase.getTestStream("data/r-job-sample.json"),
-     * JSON_JOB_CONTENT_TYPE);
-     * 
-     * return jsonResult.get("resultUri").toString(); }
-     * 
-     * private String doTestSubmitInvalidJsonJob(final String applicationName) throws IOException,
-     * SAXException, XpathException { final Map<?, ?> jsonResult =
-     * doTestSubmitJobWithJsonAck(applicationName, new ByteArrayInputStream("not json".getBytes()),
-     * JSON_JOB_CONTENT_TYPE);
-     * 
-     * return jsonResult.get("resultUri").toString(); }
-     * 
-     * private Document doTestSubmitInvalidXmlJob(final String applicationName) throws IOException,
-     * SAXException, XpathException { return doTestSubmitXmlJob(applicationName, new
-     * ByteArrayInputStream("<bad/>".getBytes())); }
-     * 
-     * @SuppressWarnings("unchecked") private Document doTestSubmitXmlJob(final String
-     * applicationName, final InputStream xmlJob) throws IOException, SAXException, XpathException {
-     * return doTestSubmitJobWithXmlAck(applicationName, xmlJob, XML_RSB_CONTENT_TYPE,
-     * Collections.EMPTY_MAP); }
-     * 
      * private String doTestSubmitZipJob(final String applicationName, final String zipJobFileName,
      * final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
-     * final Document result = doTestSubmitZipJob(applicationName,
-     * AbstractRsbFunctionalTestCase.getTestStream(zipJobFileName), extraHeaders);
+     * final Document result = doTestSubmitZipJob(applicationName, getTestStream(zipJobFileName),
+     * extraHeaders);
      * 
      * return getResultUri(result); }
      * 
      * private Document doTestSubmitZipJob(final String applicationName, final InputStream job,
      * final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
      * return doTestSubmitJobWithXmlAck(applicationName, job, ZIP_JOB_CONTENT_TYPE, extraHeaders); }
-     * 
-     * private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream
-     * job, final String contentType, final Map<String, String> extraHeaders) throws IOException,
-     * SAXException, XpathException { final WebConversation wc = createNewWebConversation(); final
-     * PostMethodWebRequest request = new PostMethodWebRequest(TestSupport.RSB_REST_JOBS_URI, job,
-     * contentType); request.setHeaderField("X-RSB-Application-Name", applicationName);
-     * 
-     * for (final Entry<String, String> extraHeader : extraHeaders.entrySet()) {
-     * request.setHeaderField(extraHeader.getKey(), extraHeader.getValue()); }
-     * 
-     * final WebResponse response = wc.sendRequest(request);
-     * 
-     * return parseJobSubmissionXmlAckResponse(applicationName, response.getResponseCode(),
-     * response.getHeaderField("Content-Type"), response.getText()); }
-     * 
-     * private Document parseJobSubmissionXmlAckResponse(final String applicationName, final int
-     * statusCode, final String contentType, final String entity) throws SAXException, IOException,
-     * XpathException { assertEquals(202, statusCode); assertEquals(XML_CONTENT_TYPE, contentType);
-     * 
-     * final Document responseDocument = XMLUnit.buildTestDocument(entity);
-     * assertXpathEvaluatesTo(applicationName, "/r-job-accepted/@appName", responseDocument);
-     * assertXpathExists("/r-job-accepted/@jobId", responseDocument);
-     * assertXpathExists("/r-job-accepted/@resultUri", responseDocument); return responseDocument; }
-     * 
-     * private Map<?, ?> doTestSubmitJobWithJsonAck(final String applicationName, final InputStream
-     * job, final String contentType) throws IOException, SAXException, XpathException { final
-     * WebConversation wc = createNewWebConversation(); final WebRequest request = new
-     * PostMethodWebRequest(TestSupport.RSB_REST_JOBS_URI, job, contentType);
-     * request.setHeaderField("X-RSB-Application-Name", applicationName);
-     * 
-     * final WebResponse response = wc.sendRequest(request);
-     * 
-     * assertEquals(202, response.getResponseCode()); assertEquals(JSON_ACK_CONTENT_TYPE,
-     * response.getHeaderField("Content-Type"));
-     * 
-     * final Map<?, ?> jsonResult = (Map<?, ?>) JSON.parse(response.getText());
-     * assertEquals(applicationName, jsonResult.get("appName"));
-     * assertNotNull(jsonResult.get("jobId")); assertNotNull(jsonResult.get("resultUri")); return
-     * jsonResult; }
      * 
      * private Document doTestSubmitMultipartValidZipJob(final String applicationName, final
      * List<UploadedFile> jobFiles, final Map<String, String> extraFields) throws Exception { //
@@ -418,61 +423,133 @@ public class RestITCase extends XMLTestCase {
      * .name).getPath());
      * 
      * if (uploadedFile.contentType != null) fileInput.setContentType(uploadedFile.contentType); }
-     * 
-     * private void ponderUntilResultAvailable(final String resultUri) throws Exception { for (int
-     * attemptCount = 0; attemptCount < 60; attemptCount++) {
-     * 
-     * Thread.sleep(500);
-     * 
-     * final WebConversation wc = createNewWebConversation(); final WebRequest request = new
-     * GetMethodWebRequest(resultUri); try { final WebResponse response = wc.sendRequest(request);
-     * if (!("<r-results />".equals(response.getText()))) return; } catch (final Exception e) { //
-     * ignore exceptions due to 404 } }
-     * 
-     * fail("Result didn't come on time at URI: " + resultUri); }
-     * 
-     * private String doTestResultAvailability(final String resultUri, final String expectedType)
-     * throws Exception { final WebConversation wc = createNewWebConversation(); final WebResponse
-     * response = wc.sendRequest(new GetMethodWebRequest(resultUri)); assertEquals(200,
-     * response.getResponseCode()); assertEquals(XML_CONTENT_TYPE,
-     * response.getHeaderField("Content-Type"));
-     * 
-     * final String responseText = response.getText(); final Document responseDocument =
-     * XMLUnit.buildTestDocument(responseText); assertXpathExists("//r-result/@selfUri",
-     * responseDocument); assertXpathExists("//r-result/@jobId", responseDocument);
-     * assertXpathExists("//r-result/@appName", responseDocument);
-     * assertXpathExists("//r-result/@dataUri", responseDocument);
-     * assertXpathExists("//r-result/@timestamp", responseDocument);
-     * assertXpathExists("//r-result/@type", responseDocument); assertXpathEvaluatesTo(expectedType,
-     * "//r-result/@type", responseDocument);
-     * 
-     * return XMLUnit.newXpathEngine().evaluate("//r-result/@dataUri", responseDocument); }
-     * 
-     * private String getStringResponse(final String resultUri) throws IOException, SAXException {
-     * return getResponse(resultUri).getText(); }
-     * 
-     * private InputStream getStreamResponse(final String resultUri) throws IOException,
-     * SAXException { return getResponse(resultUri).getInputStream(); }
-     * 
-     * private WebResponse getResponse(final String resultUri) throws IOException, SAXException {
-     * final WebConversation wc = createNewWebConversation(); final WebRequest request = new
-     * GetMethodWebRequest(resultUri); final WebResponse response = wc.sendRequest(request); return
-     * response; }
-     * 
-     * private String newTestApplicationName() { return "rsb_it_" +
-     * RandomStringUtils.randomAlphanumeric(20); }
-     * 
-     * private static class UploadedFile { String name; String contentType;
-     * 
-     * UploadedFile(final String name) { this(name, null); }
-     * 
-     * UploadedFile(final String name, final String contentType) { this.name = name;
-     * this.contentType = contentType; } }
      */
 
-    private void doTestUnsupportedHeadMethod(final String requestUri) throws IOException, SAXException {
+    private void ponderUntilResultAvailable(final String resultUri) throws Exception {
+        for (int attemptCount = 0; attemptCount < 60; attemptCount++) {
+
+            Thread.sleep(500);
+
+            final WebConversation wc = createNewWebConversation();
+            final WebRequest request = new GetMethodWebRequest(resultUri);
+            try {
+                final WebResponse response = wc.sendRequest(request);
+                if (!("<r-results />".equals(response.getText())))
+                    return;
+            } catch (final Exception e) {
+                // ignore exceptions final due to 404
+            }
+        }
+        fail("Result didn't come on time at URI: " + resultUri);
+    }
+
+    private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream job, final Map<String, String> extraHeaders)
+            throws IOException, SAXException, XpathException {
         final WebConversation wc = createNewWebConversation();
-        final WebRequest request = new HeadMethodWebRequest(requestUri);
+        final PostMethodWebRequest request = new PostMethodWebRequest(restJobsUri, job, Constants.XML_CONTENT_TYPE);
+        request.setHeaderField("X-RSB-Application-Name", applicationName);
+
+        for (final Entry<String, String> extraHeader : extraHeaders.entrySet()) {
+            request.setHeaderField(extraHeader.getKey(), extraHeader.getValue());
+        }
+
+        final WebResponse response = wc.sendRequest(request);
+
+        return parseJobSubmissionXmlAckResponse(applicationName, response.getResponseCode(), response.getHeaderField("Content-Type"),
+                response.getText());
+    }
+
+    private Document parseJobSubmissionXmlAckResponse(final String applicationName, final int statusCode, final String contentType,
+            final String entity) throws SAXException, IOException, XpathException {
+        assertEquals(202, statusCode);
+        assertEquals(Constants.RSB_XML_CONTENT_TYPE, contentType);
+
+        final Document responseDocument = XMLUnit.buildTestDocument(entity);
+        assertXpathEvaluatesTo(applicationName, "/rsb:jobToken/@applicationName", responseDocument);
+        assertXpathExists("/rsb:jobToken/@jobId", responseDocument);
+        assertXpathExists("/rsb:jobToken/@resultUri", responseDocument);
+        return responseDocument;
+    }
+
+    private Map<?, ?> doTestSubmitJobWithJsonAck(final String applicationName, final InputStream job) throws IOException, SAXException,
+            XpathException {
+        final WebConversation wc = createNewWebConversation();
+        final WebRequest request = new PostMethodWebRequest(restJobsUri, job, Constants.JSON_CONTENT_TYPE);
+        request.setHeaderField("X-RSB-Application-Name", applicationName);
+        request.setHeaderField("Accept", Constants.RSB_JSON_CONTENT_TYPE);
+
+        final WebResponse response = wc.sendRequest(request);
+
+        assertEquals(202, response.getResponseCode());
+        assertEquals(Constants.RSB_JSON_CONTENT_TYPE, response.getHeaderField("Content-Type"));
+
+        final Map<?, ?> jsonResult = (Map<?, ?>) Util.fromJson(response.getText(), Map.class).get("jobToken");
+        assertEquals(applicationName, jsonResult.get("applicationName"));
+        assertNotNull(jsonResult.get("jobId"));
+        assertNotNull(jsonResult.get("resultUri"));
+        return jsonResult;
+    }
+
+    private String doTestResultAvailability(final String resultUri, final String expectedType) throws Exception {
+        final WebConversation wc = createNewWebConversation();
+        final WebResponse response = wc.sendRequest(new GetMethodWebRequest(resultUri));
+        assertEquals(200, response.getResponseCode());
+        assertEquals(Constants.RSB_XML_CONTENT_TYPE, response.getHeaderField("Content-Type"));
+
+        final String responseText = response.getText();
+        final Document responseDocument = XMLUnit.buildTestDocument(responseText);
+        assertXpathExists("//rsb:result/@jobId", responseDocument);
+        assertXpathExists("//rsb:result/@applicationName", responseDocument);
+        assertXpathExists("//rsb:result/@resultTime", responseDocument);
+        assertXpathExists("//rsb:result/@selfUri", responseDocument);
+
+        assertXpathExists("//rsb:result/@type", responseDocument);
+        assertXpathEvaluatesTo(expectedType, "//rsb:result/@type", responseDocument);
+
+        assertXpathExists("//rsb:result/@dataUri", responseDocument);
+        return XMLUnit.newXpathEngine().evaluate("//rsb:result/@dataUri", responseDocument);
+    }
+
+    private String getStringResponse(final String resultUri) throws IOException, SAXException {
+        return getResponse(resultUri).getText();
+    }
+
+    private InputStream getStreamResponse(final String resultUri) throws IOException, SAXException {
+        return getResponse(resultUri).getInputStream();
+    }
+
+    private WebResponse getResponse(final String resultUri) throws IOException, SAXException {
+        final WebConversation wc = createNewWebConversation();
+        final WebRequest request = new GetMethodWebRequest(resultUri);
+        final WebResponse response = wc.sendRequest(request);
+        return response;
+    }
+
+    private String getResultUri(final Document responseDocument) throws XpathException {
+        return XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@resultUri", responseDocument);
+    }
+
+    private String newTestApplicationName() {
+        return "rsb_it_" + RandomStringUtils.randomAlphanumeric(20);
+    }
+
+    private static class UploadedFile {
+        String name;
+        String contentType;
+
+        UploadedFile(final String name) {
+            this(name, null);
+        }
+
+        UploadedFile(final String name, final String contentType) {
+            this.name = name;
+            this.contentType = contentType;
+        }
+    }
+
+    private void doTestUnsupportedDeleteMethod(final String requestUri) throws IOException, SAXException {
+        final WebConversation wc = createNewWebConversation();
+        final WebRequest request = new DeleteMethodWebRequest(requestUri);
         try {
             wc.sendRequest(request);
             fail("an exception should have been raised");
@@ -484,28 +561,23 @@ public class RestITCase extends XMLTestCase {
     private WebClient createNewWebClient() {
         final WebClient webClient = new WebClient();
         webClient.setJavaScriptEnabled(false);
-
-        if (StringUtils.isNotBlank(rsbUserName)) {
-            final DefaultCredentialsProvider dcp = new DefaultCredentialsProvider();
-            dcp.addCredentials(rsbUserName, rsbPassword);
-            webClient.setCredentialsProvider(dcp);
-        }
-
         return webClient;
     }
 
     @SuppressWarnings("deprecation")
     private WebConversation createNewWebConversation() {
-        final WebConversation wc = new WebConversation();
-
-        if (StringUtils.isNotBlank(rsbUserName)) {
-            // the non-deprecated methods fails miserably when authenticating POST methods
-            // wc.setAuthentication(TestSupport.RSB_REALM, TestSupport.RSB_USERNAME,
-            // TestSupport.RSB_PASSWORD);
-            wc.setAuthorization(rsbUserName, rsbPassword);
-        }
-
-        return wc;
+        return new WebConversation();
     }
 
+    private static InputStream getTestStream(final String payloadResourceFile) {
+        return new ByteArrayInputStream(getTestBytes(payloadResourceFile));
+    }
+
+    private static byte[] getTestBytes(final String payloadResourceFile) {
+        try {
+            return FileCopyUtils.copyToByteArray(Thread.currentThread().getContextClassLoader().getResourceAsStream(payloadResourceFile));
+        } catch (final IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+    }
 }

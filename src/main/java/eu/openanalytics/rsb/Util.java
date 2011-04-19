@@ -41,14 +41,12 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
@@ -102,17 +100,19 @@ public abstract class Util {
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
-
-    public final static ObjectFactory REST_OBJECT_FACTORY = new ObjectFactory();
-    public final static eu.openanalytics.rsb.soap.types.ObjectFactory SOAP_OBJECT_FACTORY = new eu.openanalytics.rsb.soap.types.ObjectFactory();
+    private final static DatatypeFactory XML_DATATYPE_FACTORY;
 
     static {
         try {
             ERROR_RESULT_JAXB_CONTEXT = JAXBContext.newInstance(ErrorResult.class);
-        } catch (final JAXBException je) {
-            throw new IllegalStateException(je);
+            XML_DATATYPE_FACTORY = DatatypeFactory.newInstance();
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
         }
     }
+
+    public final static ObjectFactory REST_OBJECT_FACTORY = new ObjectFactory();
+    public final static eu.openanalytics.rsb.soap.types.ObjectFactory SOAP_OBJECT_FACTORY = new eu.openanalytics.rsb.soap.types.ObjectFactory();
 
     private Util() {
         throw new UnsupportedOperationException("do not instantiate");
@@ -174,11 +174,7 @@ public abstract class Util {
      * @return
      */
     public static XMLGregorianCalendar convert(final GregorianCalendar calendar) {
-        try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
-        } catch (final DatatypeConfigurationException dce) {
-            throw new IllegalStateException(dce);
-        }
+        return XML_DATATYPE_FACTORY.newXMLGregorianCalendar(calendar);
     }
 
     /**
@@ -249,14 +245,14 @@ public abstract class Util {
     }
 
     /**
-     * Unmarshals a JSON string to a {@link JsonNode}.
+     * Unmarshals a JSON string to a desired type.
      * 
      * @param s
      * @return
      */
-    public static JsonNode fromJson(final String s) {
+    public static <T> T fromJson(final String s, final Class<T> clazz) {
         try {
-            return JSON_OBJECT_MAPPER.readTree(s);
+            return JSON_OBJECT_MAPPER.readValue(s, clazz);
         } catch (final IOException ioe) {
             throw new RuntimeException("Failed to JSON unmarshall: " + s, ioe);
         }

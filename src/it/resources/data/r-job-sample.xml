@@ -1,0 +1,37 @@
+<statDataPackage version="1.0">
+    <statHeader>
+        <RFunction>provideMeansAndPlotPerDosageGroup</RFunction>
+        <Fparams>
+            <key>plotColor</key><value>blue</value>
+            <key>nrOfDimensions</key><value>2</value>
+        </Fparams>
+
+    </statHeader>
+
+    <statBody>
+        <MAAS>
+
+            <sampleResults R-Function="hdzeidvb" >
+                <dosageGroup code="VC">
+                    <animal nr="102" sex="M">
+                        <RETs>20.000</RETs>         <!-- bone sample: PCEs -->
+                        <MN-RETs>26</MN-RETs>       <!-- bone sample: MN-PCEs -->
+                        <NCEs>654487</NCEs>         <!-- bone sample: NCEs -->
+                        <MN-NCEs>578</MN-NCEs>      <!-- bone sample: /MN-NCEs -->
+                    </animal>
+                    <animal nr="103">
+                    <!-- ... -->
+                    </animal>
+                    <!-- ... -->
+                </dosageGroup>
+
+                <dosageGroup code="L">
+                <!-- ... -->
+                </dosageGroup>
+                <!-- ... -->
+            </sampleResults>
+        </MAAS>
+
+    </statBody>
+
+</statDataPackage>

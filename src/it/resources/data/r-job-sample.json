@@ -1,0 +1,5 @@
+{
+ "RFunction": "allPossibleCombinations",
+   "n":      5,
+   "m":      2 
+}

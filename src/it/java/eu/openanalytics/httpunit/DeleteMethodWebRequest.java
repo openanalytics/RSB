@@ -31,5 +31,4 @@ public class DeleteMethodWebRequest extends HeaderOnlyWebRequest {
         super(urlString);
         this.setMethod("DELETE");
     }
-
 }

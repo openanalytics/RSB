@@ -36,6 +36,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
@@ -84,7 +86,7 @@ public class JobsResource extends AbstractComponent {
      */
     @POST
     @Consumes(Constants.JSON_CONTENT_TYPE)
-    public JobToken handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
+    public Response handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
         return handleFunctionCallJob(jsonArgument, httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
@@ -105,7 +107,7 @@ public class JobsResource extends AbstractComponent {
      */
     @POST
     @Consumes(Constants.XML_CONTENT_TYPE)
-    public JobToken handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
+    public Response handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
 
         return handleFunctionCallJob(xmlArgument, httpHeaders, uriInfo, new JobBuilder() {
@@ -116,7 +118,7 @@ public class JobsResource extends AbstractComponent {
         });
     }
 
-    private JobToken handleFunctionCallJob(final String argument, final HttpHeaders httpHeaders, final UriInfo uriInfo,
+    private Response handleFunctionCallJob(final String argument, final HttpHeaders httpHeaders, final UriInfo uriInfo,
             final JobBuilder jobBuilder) throws URISyntaxException {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
@@ -129,7 +131,9 @@ public class JobsResource extends AbstractComponent {
 
         Util.dispatch(job, jmsTemplate);
 
-        return buildJobToken(uriInfo, httpHeaders, job);
+        final JobToken jobToken = buildJobToken(uriInfo, httpHeaders, job);
+
+        return Response.status(Status.ACCEPTED).entity(jobToken).build();
     }
 
     private Map<String, String> getJobMeta(final HttpHeaders httpHeaders) {

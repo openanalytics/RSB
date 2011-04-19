@@ -25,6 +25,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.GregorianCalendar;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -62,6 +63,6 @@ public class JsonFunctionCallJobTestCase {
         final JsonFunctionCallResult xmlFunctionCallResult = jsonFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"));
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(false));
-        assertThat(Util.fromJson(xmlFunctionCallResult.getResult()), notNullValue());
+        assertThat(Util.fromJson(xmlFunctionCallResult.getResult(), Map.class), notNullValue());
     }
 }

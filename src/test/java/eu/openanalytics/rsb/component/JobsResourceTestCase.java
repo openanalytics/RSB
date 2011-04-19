@@ -34,6 +34,8 @@ import java.util.Collections;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
@@ -80,26 +82,19 @@ public class JobsResourceTestCase {
     public void testHandleJsonFunctionCallJob() throws URISyntaxException {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-
-        final JobToken jobToken = jobsResource.handleJsonFunctionCallJob("fake_json", httpHeaders, uriInfo);
-
-        assertSuccessfullHandling(jobToken);
+        assertSuccessfullHandling(jobsResource.handleJsonFunctionCallJob("fake_json", httpHeaders, uriInfo));
     }
 
     @Test
     public void testHandleXmlFunctionCallJob() throws URISyntaxException {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-
-        final JobToken jobToken = jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
-
-        assertSuccessfullHandling(jobToken);
+        assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
     }
 
     @Test(expected = WebApplicationException.class)
     public void testHandleBadApplicationName() throws URISyntaxException {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList("_bad:app!$name"));
-
         jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
     }
 
@@ -109,13 +104,14 @@ public class JobsResourceTestCase {
         when(httpHeaders.getRequestHeader(Constants.URI_OVERRIDE_HTTP_HEADER)).thenReturn(Collections.singletonList("foo://bar"));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 
-        final JobToken jobToken = jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
-
-        assertSuccessfullHandling(jobToken);
+        final JobToken jobToken = assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
         assertThat(jobToken.getResultUri(), is(new StartsWith("foo://bar")));
     }
 
-    private void assertSuccessfullHandling(final JobToken jobToken) {
+    private JobToken assertSuccessfullHandling(final Response response) {
+        assertThat(response.getStatus(), is(Status.ACCEPTED.getStatusCode()));
+
+        final JobToken jobToken = (JobToken) response.getEntity();
         assertThat(jobToken, notNullValue());
         assertThat(jobToken.getApplicationName(), is(TEST_APP_NAME));
         assertThat(jobToken.getJobId(), notNullValue());
@@ -123,5 +119,6 @@ public class JobsResourceTestCase {
         assertThat(jobToken.getResultUri(), notNullValue());
         assertThat(jobToken.getApplicationResultsUri(), notNullValue());
         verify(jmsTemplate).convertAndSend(matches("r\\.jobs\\..*"), any(AbstractJob.class), any(MessagePostProcessor.class));
+        return jobToken;
     }
 }

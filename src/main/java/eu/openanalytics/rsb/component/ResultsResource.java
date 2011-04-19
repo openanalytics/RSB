@@ -25,6 +25,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.GregorianCalendar;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -72,10 +73,13 @@ public class ResultsResource extends AbstractComponent {
         }
 
         final Results results = Util.REST_OBJECT_FACTORY.createResults();
+        final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles();
 
-        for (final File resultFile : getApplicationResultDirectory(applicationName).listFiles()) {
-            final Result result = buildResult(applicationName, httpHeaders, uriInfo, resultFile);
-            results.getContents().add(result);
+        if (resultFiles != null) {
+            for (final File resultFile : resultFiles) {
+                final Result result = buildResult(applicationName, httpHeaders, uriInfo, resultFile);
+                results.getContents().add(result);
+            }
         }
 
         return results;
@@ -122,7 +126,7 @@ public class ResultsResource extends AbstractComponent {
             }
         });
 
-        if (resultFiles.length == 0) {
+        if ((resultFiles == null) || (resultFiles.length == 0)) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
@@ -138,6 +142,8 @@ public class ResultsResource extends AbstractComponent {
 
         final String fileName = resultFile.getName();
         final String jobId = StringUtils.substringBefore(fileName, ".");
+        final GregorianCalendar resultTime = (GregorianCalendar) GregorianCalendar.getInstance();
+        resultTime.setTimeInMillis(resultFile.lastModified());
 
         final URI selfUri = Util.buildResultUri(applicationName, jobId, httpHeaders, uriInfo);
         final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULT_PATH).path(applicationName).path(fileName)
@@ -146,6 +152,7 @@ public class ResultsResource extends AbstractComponent {
         final Result result = Util.REST_OBJECT_FACTORY.createResult();
         result.setApplicationName(applicationName);
         result.setJobId(jobId);
+        result.setResultTime(Util.convert(resultTime));
         result.setSelfUri(selfUri.toString());
         result.setDataUri(dataUri.toString());
         result.setSuccess(!StringUtils.contains(fileName, ".err."));
