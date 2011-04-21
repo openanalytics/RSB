@@ -55,15 +55,15 @@
 
     <repositories>
         <repository>
-            <id>oa-3rd-party</id>
-            <name>OpenAnalytics Third Party</name>
+            <id>oa-public</id>
+            <name>OpenAnalytics Public Repository</name>
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <url>http://81.82.205.25:8080/nexus/content/repositories/thirdparty/</url>
+            <url>http://nexus.openanalytics.eu/nexus/content/groups/public</url>
         </repository>
     </repositories>
 
