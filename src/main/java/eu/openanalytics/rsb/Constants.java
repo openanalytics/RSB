@@ -29,7 +29,11 @@ import javax.activation.MimeTypeParseException;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public class Constants {
-    public static final String URI_OVERRIDE_HTTP_HEADER = "X-Base-Uri";
+    /**
+     * This header allows support of SSL termination to happen upstream of RSB.
+     */
+    public static final String FORWARDED_PROTOCOL_HEADER = "X-Forwarded-Protocol";
+
     public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
     public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
 

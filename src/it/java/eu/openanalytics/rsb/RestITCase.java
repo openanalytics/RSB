@@ -20,6 +20,9 @@
  */
 package eu.openanalytics.rsb;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -41,6 +44,7 @@ import org.jitr.annotation.BaseUri;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.StartsWith;
 import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -87,7 +91,7 @@ public class RestITCase extends XMLTestCase {
     public void jobsBadApplicationName() throws Exception {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
-                Constants.XML_CONTENT_TYPE);
+                "application/xml");
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
         try {
@@ -118,7 +122,7 @@ public class RestITCase extends XMLTestCase {
         final WebConversation wc = createNewWebConversation();
         final WebResponse res = wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName"));
         assertEquals(200, res.getResponseCode());
-        assertEquals(Constants.RSB_XML_CONTENT_TYPE, res.getHeaderField("Content-Type"));
+        assertEquals("application/vnd.rsb+xml", res.getHeaderField("Content-Type"));
 
         final String xml = res.getText();
         assertXpathExists("/rsb:results", xml);
@@ -129,10 +133,10 @@ public class RestITCase extends XMLTestCase {
     public void noResultForApplicationAsJson() throws Exception {
         final WebConversation wc = createNewWebConversation();
         final GetMethodWebRequest request = new GetMethodWebRequest(restResultsUri + "/fooAppName");
-        request.setHeaderField("Accept", Constants.RSB_JSON_CONTENT_TYPE);
+        request.setHeaderField("Accept", "application/vnd.rsb+json");
         final WebResponse res = wc.sendRequest(request);
         assertEquals(200, res.getResponseCode());
-        assertEquals(Constants.RSB_JSON_CONTENT_TYPE, res.getHeaderField("Content-Type"));
+        assertEquals("application/vnd.rsb+json", res.getHeaderField("Content-Type"));
         assertEquals("{\"results\":\"\"}", res.getText());
     }
 
@@ -215,6 +219,16 @@ public class RestITCase extends XMLTestCase {
         retrieveAndValidateJsonError(resultUri);
     }
 
+    @Test
+    public void forwardedProtocol() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doTestSubmitJobWithXmlAck(applicationName, getTestStream("data/r-job-sample.xml"),
+                Collections.singletonMap("X-Forwarded-Protocol", "foo"));
+
+        assertThat(getApplicationResultsUri(resultDoc), is(new StartsWith("foo:/")));
+        assertThat(getResultUri(resultDoc), is(new StartsWith("foo:/")));
+    }
+
     private void retrieveAndValidateXmlResult(final String resultUri) throws Exception {
         final String dataUri = doTestResultAvailability(resultUri, "xml");
         final String result = getStringResponse(dataUri);
@@ -266,7 +280,6 @@ public class RestITCase extends XMLTestCase {
         return doTestSubmitJobWithXmlAck(applicationName, xmlJob, Collections.EMPTY_MAP);
     }
 
-    // FIXME test X-Base-Uri support
     // FIXME reactivate integration tests
     /*
      * @SuppressWarnings("unchecked") public void testSubmitValidZipJobAndRetrieveByAppName() throws
@@ -450,7 +463,7 @@ public class RestITCase extends XMLTestCase {
     private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream job, final Map<String, String> extraHeaders)
             throws IOException, SAXException, XpathException {
         final WebConversation wc = createNewWebConversation();
-        final PostMethodWebRequest request = new PostMethodWebRequest(restJobsUri, job, Constants.XML_CONTENT_TYPE);
+        final PostMethodWebRequest request = new PostMethodWebRequest(restJobsUri, job, "application/xml");
         request.setHeaderField("X-RSB-Application-Name", applicationName);
 
         for (final Entry<String, String> extraHeader : extraHeaders.entrySet()) {
@@ -466,7 +479,7 @@ public class RestITCase extends XMLTestCase {
     private Document parseJobSubmissionXmlAckResponse(final String applicationName, final int statusCode, final String contentType,
             final String entity) throws SAXException, IOException, XpathException {
         assertEquals(202, statusCode);
-        assertEquals(Constants.RSB_XML_CONTENT_TYPE, contentType);
+        assertEquals("application/vnd.rsb+xml", contentType);
 
         final Document responseDocument = XMLUnit.buildTestDocument(entity);
         assertXpathEvaluatesTo(applicationName, "/rsb:jobToken/@applicationName", responseDocument);
@@ -478,14 +491,14 @@ public class RestITCase extends XMLTestCase {
     private Map<?, ?> doTestSubmitJobWithJsonAck(final String applicationName, final InputStream job) throws IOException, SAXException,
             XpathException {
         final WebConversation wc = createNewWebConversation();
-        final WebRequest request = new PostMethodWebRequest(restJobsUri, job, Constants.JSON_CONTENT_TYPE);
+        final WebRequest request = new PostMethodWebRequest(restJobsUri, job, "application/json");
         request.setHeaderField("X-RSB-Application-Name", applicationName);
-        request.setHeaderField("Accept", Constants.RSB_JSON_CONTENT_TYPE);
+        request.setHeaderField("Accept", "application/vnd.rsb+json");
 
         final WebResponse response = wc.sendRequest(request);
 
         assertEquals(202, response.getResponseCode());
-        assertEquals(Constants.RSB_JSON_CONTENT_TYPE, response.getHeaderField("Content-Type"));
+        assertEquals("application/vnd.rsb+json", response.getHeaderField("Content-Type"));
 
         final Map<?, ?> jsonResult = (Map<?, ?>) Util.fromJson(response.getText(), Map.class).get("jobToken");
         assertEquals(applicationName, jsonResult.get("applicationName"));
@@ -498,7 +511,7 @@ public class RestITCase extends XMLTestCase {
         final WebConversation wc = createNewWebConversation();
         final WebResponse response = wc.sendRequest(new GetMethodWebRequest(resultUri));
         assertEquals(200, response.getResponseCode());
-        assertEquals(Constants.RSB_XML_CONTENT_TYPE, response.getHeaderField("Content-Type"));
+        assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
 
         final String responseText = response.getText();
         final Document responseDocument = XMLUnit.buildTestDocument(responseText);

@@ -157,12 +157,9 @@ public abstract class Util {
     public static UriBuilder getUriBuilder(final UriInfo uriInfo, final HttpHeaders httpHeaders) throws URISyntaxException {
         final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder();
 
-        final String uriOverride = Util.getSingleHeader(httpHeaders, Constants.URI_OVERRIDE_HTTP_HEADER);
-        if (StringUtils.isNotBlank(uriOverride)) {
-            final URI override = new URI(uriOverride);
-            uriBuilder.scheme(override.getScheme());
-            uriBuilder.host(override.getHost());
-            uriBuilder.port(override.getPort());
+        final String protocol = Util.getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HEADER);
+        if (StringUtils.isNotBlank(protocol)) {
+            uriBuilder.scheme(protocol);
         }
 
         return uriBuilder;

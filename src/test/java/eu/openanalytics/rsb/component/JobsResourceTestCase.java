@@ -100,11 +100,11 @@ public class JobsResourceTestCase {
     @Test
     public void testHandleJobWithUriOverride() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
-        when(httpHeaders.getRequestHeader(Constants.URI_OVERRIDE_HTTP_HEADER)).thenReturn(Collections.singletonList("foo://bar"));
+        when(httpHeaders.getRequestHeader(Constants.FORWARDED_PROTOCOL_HEADER)).thenReturn(Collections.singletonList("foo"));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 
         final JobToken jobToken = assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
-        assertThat(jobToken.getResultUri(), is(new StartsWith("foo://bar")));
+        assertThat(jobToken.getResultUri(), is(new StartsWith("foo:/")));
     }
 
     private JobToken assertSuccessfullHandling(final Response response) {
