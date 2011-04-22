@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 import java.net.UnknownHostException;
 import java.util.Collections;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -91,7 +90,7 @@ public class JobsResourceTestCase {
         assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
     }
 
-    @Test(expected = WebApplicationException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testHandleBadApplicationName() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList("_bad:app!$name"));
         jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);

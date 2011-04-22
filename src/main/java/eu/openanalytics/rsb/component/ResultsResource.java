@@ -69,7 +69,7 @@ public class ResultsResource extends AbstractComponent {
             @Context final UriInfo uriInfo) throws URISyntaxException {
 
         if (!Util.isValidApplicationName(applicationName)) {
-            Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
+            throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
         final Results results = Util.REST_OBJECT_FACTORY.createResults();
@@ -113,11 +113,11 @@ public class ResultsResource extends AbstractComponent {
             final UriInfo uriInfo, final SingleResultFileOperation<T> operation) throws URISyntaxException, IOException {
 
         if (!Util.isValidApplicationName(applicationName)) {
-            Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
+            throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
         if (StringUtils.isEmpty(jobId)) {
-            Util.throwCustomBadRequestException("Job Id can't be empty");
+            throw new IllegalArgumentException("Job Id can't be empty");
         }
 
         final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles(new FilenameFilter() {

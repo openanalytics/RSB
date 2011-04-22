@@ -21,12 +21,24 @@
 package eu.openanalytics.rsb.message;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
+import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
 
 /**
  * Represents a RSB job that consists of multiple files.
@@ -37,11 +49,47 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     private static final long serialVersionUID = 1L;
 
     private final File filesDirectory;
+    private File rScriptFile;
 
     public MultiFilesJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, String> meta, final File filesDirectory) throws IOException {
+            final Map<String, String> meta) throws IOException {
         super(applicationName, jobId, submissionTime, meta);
-        this.filesDirectory = filesDirectory;
+        this.filesDirectory = Util.createTemporaryDirectory("job");
+    }
+
+    public void addFile(final String name, final InputStream is) throws IOException {
+        if (Constants.MULTIPLE_FILES_JOB_CONFIGURATION.equals(name)) {
+            loadJobConfiguration(is);
+        } else {
+            addJobFile(name, is);
+        }
+    }
+
+    private void addJobFile(final String name, final InputStream is) throws FileNotFoundException, IOException {
+        final File jobFile = new File(filesDirectory, name);
+
+        if (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(name), Constants.R_SCRIPT_FILE_EXTENSION)) {
+            if (rScriptFile != null) {
+                throw new IllegalArgumentException("Only one R script is allowed per job");
+            }
+            rScriptFile = jobFile;
+        }
+
+        final FileOutputStream fos = new FileOutputStream(jobFile);
+        IOUtils.copy(is, fos);
+        IOUtils.closeQuietly(fos);
+    }
+
+    private void loadJobConfiguration(final InputStream is) throws IOException {
+        final Properties jobConfiguration = new Properties();
+        jobConfiguration.load(is);
+
+        final Map<String, String> mergedMeta = new HashMap<String, String>();
+        for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
+            mergedMeta.put(e.getKey().toString(), e.getValue().toString());
+        }
+        mergedMeta.putAll(getMeta());
+        setMeta(mergedMeta);
     }
 
     @Override
@@ -51,5 +99,13 @@ public class MultiFilesJob extends AbstractJobWithMeta {
         } catch (final IOException ioe) {
             throw new RuntimeException("Can't release resources of: " + this, ioe);
         }
+    }
+
+    public File getRScriptFile() {
+        return rScriptFile;
+    }
+
+    public File[] getFiles() {
+        return filesDirectory.listFiles();
     }
 }

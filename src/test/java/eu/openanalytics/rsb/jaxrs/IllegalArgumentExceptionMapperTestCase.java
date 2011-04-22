@@ -18,23 +18,32 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package eu.openanalytics.rsb.message;
 
-import java.io.IOException;
-import java.util.GregorianCalendar;
-import java.util.Map;
-import java.util.UUID;
+package eu.openanalytics.rsb.jaxrs;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.StringContains.containsString;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.junit.Test;
+
+import eu.openanalytics.rsb.Constants;
 
 /**
- * Represents a RSB job that consists of an Zip archive of multiple files.
- * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public class ZipJob extends MultiFilesJob {
-    private static final long serialVersionUID = 1L;
+public class IllegalArgumentExceptionMapperTestCase {
+    @Test
+    public void toResponse() {
+        final IllegalArgumentExceptionMapper iaeMapper = new IllegalArgumentExceptionMapper();
 
-    public ZipJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final Map<String, String> meta)
-            throws IOException {
-        super(applicationName, jobId, submissionTime, meta);
+        final Response response = iaeMapper.toResponse(new IllegalArgumentException("test_err"));
+        assertThat(response.getStatus(), is(Status.BAD_REQUEST.getStatusCode()));
+        assertThat(response.getMetadata().get(Constants.REASON_PHRASE_HEADER).get(0).toString(), containsString("test_err"));
+        assertThat(response.getEntity(), nullValue());
     }
 }

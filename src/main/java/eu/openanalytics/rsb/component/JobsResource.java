@@ -20,8 +20,6 @@
  */
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -31,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -47,7 +44,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jms.core.JmsTemplate;
@@ -143,38 +139,26 @@ public class JobsResource extends AbstractComponent {
     public Response handleZipJob(final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
             throws URISyntaxException, IOException {
 
-        final File filesDirectory = Util.createTemporaryDirectory("job");
-        final ZipInputStream zis = new ZipInputStream(in);
-        ZipEntry ze = null;
-        final Properties jobConfiguration = new Properties();
-
-        while ((ze = zis.getNextEntry()) != null) {
-            if (ze.isDirectory()) {
-                FileUtils.deleteQuietly(filesDirectory);
-                Util.throwCustomBadRequestException("Invalid zip archive: nested directories are not supported");
-            }
-            if (Constants.MULTIPLE_FILES_JOB_CONFIGURATION.equals(ze.getName())) {
-                jobConfiguration.load(zis);
-            } else {
-                final FileOutputStream fos = new FileOutputStream(new File(filesDirectory, ze.getName()));
-                IOUtils.copy(zis, fos);
-                IOUtils.closeQuietly(fos);
-            }
-            zis.closeEntry();
-        }
-
-        IOUtils.closeQuietly(zis);
-
-        final Map<String, String> jobMeta = new HashMap<String, String>();
-        for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
-            jobMeta.put(e.getKey().toString(), e.getValue().toString());
-        }
-        jobMeta.putAll(getJobMeta(httpHeaders));
-
         return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
-                return new ZipJob(applicationName, jobId, submissionTime, jobMeta, filesDirectory);
+
+                final ZipJob zipJob = new ZipJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
+
+                final ZipInputStream zis = new ZipInputStream(in);
+                ZipEntry ze = null;
+
+                while ((ze = zis.getNextEntry()) != null) {
+                    if (ze.isDirectory()) {
+                        zipJob.destroy();
+                        throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
+                    }
+                    zipJob.addFile(ze.getName(), zis);
+                    zis.closeEntry();
+                }
+
+                IOUtils.closeQuietly(zis);
+                return zipJob;
             }
         });
     }
@@ -184,7 +168,7 @@ public class JobsResource extends AbstractComponent {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
         if (!Util.isValidApplicationName(applicationName)) {
-            Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
+            throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
         final UUID jobId = UUID.randomUUID();
@@ -206,7 +190,7 @@ public class JobsResource extends AbstractComponent {
             }
 
             if (multiValues.getValue().size() > 1) {
-                Util.throwCustomBadRequestException("Multiple values found for header: " + multiValues.getKey());
+                throw new IllegalArgumentException("Multiple values found for header: " + multiValues.getKey());
             }
 
             meta.put(multiValues.getKey(), multiValues.getValue().get(0));

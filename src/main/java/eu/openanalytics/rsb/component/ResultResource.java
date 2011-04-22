@@ -107,7 +107,7 @@ public class ResultResource extends AbstractComponent {
 
     private File getResultFileOrDie(final String applicationName, final String resultFileName) {
         if (!Util.isValidApplicationName(applicationName)) {
-            Util.throwCustomBadRequestException("Invalid application name: " + applicationName);
+            throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
         final File resultFile = new File(getApplicationResultDirectory(applicationName), resultFileName);

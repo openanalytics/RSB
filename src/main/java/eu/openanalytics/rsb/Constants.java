@@ -33,6 +33,7 @@ public class Constants {
      * This header allows support of SSL termination to happen upstream of RSB.
      */
     public static final String FORWARDED_PROTOCOL_HEADER = "X-Forwarded-Protocol";
+    public static final String REASON_PHRASE_HEADER = "X-Reason-Phrase";
 
     public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
     public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
@@ -45,6 +46,9 @@ public class Constants {
     public static final String JOB_ID_JMS_HEADER = "jobId";
 
     public static final String MULTIPLE_FILES_JOB_CONFIGURATION = "configuration.txt";
+    public static final String R_SCRIPT_FILE_EXTENSION = "R";
+    public static final String R_SCRIPT_CONFIGURATION_KEY = "rScript";
+    public static final String SWEAVE_FILE_CONFIGURATION_KEY = "sweaveFile";
 
     public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
     public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";

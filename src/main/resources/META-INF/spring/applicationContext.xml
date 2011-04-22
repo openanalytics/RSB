@@ -30,18 +30,18 @@
     xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
-    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
-    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-    http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-    http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-    http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
-    http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
-    http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
-    http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
-    http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
-    http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+        http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
     <!-- External configuration -->
     <lang:groovy id="configuration" script-source="classpath:RsbConfiguration.groovy"
@@ -70,6 +70,8 @@
     <bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.JSONProvider"
         p:consumeMediaTypes-ref="jsonRsbTypes" p:produceMediaTypes-ref="jsonRsbTypes"
         p:ignoreNamespaces="true" p:attributesToElements="true" />
+        
+    <bean id="iaeMapper" class="eu.openanalytics.rsb.jaxrs.IllegalArgumentExceptionMapper" />
 
     <jaxrs:server address="/rest">
         <jaxrs:serviceBeans>
@@ -79,6 +81,7 @@
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="jsonProvider" />
+            <ref bean="iaeMapper" />
         </jaxrs:providers>
     </jaxrs:server>
   

@@ -20,16 +20,21 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -38,6 +43,7 @@ import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RObject;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.services.FunctionCall;
+import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
@@ -114,6 +120,21 @@ public class JobProcessor extends AbstractComponent {
     }
 
     public void process(final MultiFilesJob multiFilesJob) {
+        final Set<File> filesUploadedToR = new HashSet<File>();
+        File rScriptFile = null;
+
+        // TODO get script file from catalog if rSCript meta
+
+        for (final File jobFile : multiFilesJob.getFiles()) {
+            if ((rScriptFile == null)
+                    && (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(jobFile.getName()), Constants.R_SCRIPT_FILE_EXTENSION))) {
+                // pick-up the first
+                rScriptFile = jobFile;
+            }
+        }
+
+        // TODO sweave file from catalog
+
         // FIXME implement processing of multi-files jobs
         getLogger().warn("Can't process (yet): " + multiFilesJob);
 

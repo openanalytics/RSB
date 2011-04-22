@@ -31,12 +31,7 @@ import java.util.regex.Pattern;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Response.Status.Family;
-import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
@@ -78,26 +73,6 @@ public abstract class Util {
         }
     }
 
-    private final static class BadRequestStatus implements StatusType {
-        private final String reasonPhrase;
-
-        private BadRequestStatus(final String reasonPhrase) {
-            this.reasonPhrase = reasonPhrase;
-        }
-
-        public int getStatusCode() {
-            return Status.BAD_REQUEST.getStatusCode();
-        }
-
-        public Family getFamily() {
-            return Status.BAD_REQUEST.getFamily();
-        }
-
-        public String getReasonPhrase() {
-            return reasonPhrase;
-        }
-    };
-
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
@@ -132,17 +107,6 @@ public abstract class Util {
      */
     public static boolean isValidApplicationName(final String name) {
         return StringUtils.isNotBlank(name) && APPLICATION_NAME_VALIDATOR.matcher(name).matches();
-    }
-
-    /**
-     * Throws an exception that will yield a 400 HTTP error.
-     * 
-     * @param badRequestMessage
-     * @return
-     * @throws WebApplicationException
-     */
-    public static void throwCustomBadRequestException(final String badRequestMessage) throws WebApplicationException {
-        throw new WebApplicationException(Response.status(new BadRequestStatus("Bad request - " + badRequestMessage)).build());
     }
 
     /**
