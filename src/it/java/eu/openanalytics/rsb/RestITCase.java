@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -150,25 +151,27 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void submitValidXmlJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
-        doTestSubmitValidXmlJob(applicationName);
-        final String resultUri = restResultsUri + "/" + applicationName;
-        ponderUntilResultAvailable(resultUri);
+        final Document resultDoc = doTestSubmitValidXmlJob(applicationName);
+        final String applicationResultsUri = getApplicationResultsUri(resultDoc);
+        final String resultUri = ponderUntilOneResultAvailable(applicationResultsUri);
         retrieveAndValidateXmlResult(resultUri);
     }
 
     @Test
     public void submitValidXmlJobAndRetrieveByResultUri() throws Exception {
         final String applicationName = newTestApplicationName();
-        final String resultUri = doTestSubmitValidXmlJob(applicationName);
-        ponderUntilResultAvailable(resultUri);
+        final Document resultDoc = doTestSubmitValidXmlJob(applicationName);
+        final String resultUri = getResultUri(resultDoc);
+        ponderUntilOneResultAvailable(resultUri);
         retrieveAndValidateXmlResult(resultUri);
     }
 
     @Test
     public void deleteResult() throws Exception {
         final String applicationName = newTestApplicationName();
-        final String resultUri = doTestSubmitValidXmlJob(applicationName);
-        ponderUntilResultAvailable(resultUri);
+        final Document resultDoc = doTestSubmitValidXmlJob(applicationName);
+        final String resultUri = getResultUri(resultDoc);
+        ponderUntilOneResultAvailable(resultUri);
 
         final WebConversation wc = createNewWebConversation();
         final WebResponse response = wc.sendRequest(new DeleteMethodWebRequest(resultUri));
@@ -188,25 +191,27 @@ public class RestITCase extends XMLTestCase {
         final Document responseDocument = doTestSubmitInvalidXmlJob(applicationName);
         final String resultUri = getResultUri(responseDocument);
         final String jobId = XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@jobId", responseDocument);
-        ponderUntilResultAvailable(resultUri);
+        ponderUntilOneResultAvailable(resultUri);
         retrieveAndValidateXmlError(resultUri, jobId);
     }
 
     @Test
     public void submitValidJsonJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
-        doTestSubmitValidJsonJob(applicationName);
-        final String resultUri = restResultsUri + "/" + applicationName;
-        ponderUntilResultAvailable(resultUri);
+        final Map<?, ?> responseObject = doTestSubmitValidJsonJob(applicationName);
+        final String applicationResultsUri = getApplicationResultsUri(responseObject);
+        ponderUntilOneResultAvailable(applicationResultsUri);
+        final String resultUri = getResultUri(responseObject);
         retrieveAndValidateJsonResult(resultUri);
     }
 
     @Test
     public void submitInvalidJsonJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
-        doTestSubmitInvalidJsonJob(applicationName);
-        final String resultUri = restResultsUri + "/" + applicationName;
-        ponderUntilResultAvailable(resultUri);
+        final Map<?, ?> responseObject = doTestSubmitInvalidJsonJob(applicationName);
+        final String applicationResultsUri = getApplicationResultsUri(responseObject);
+        ponderUntilOneResultAvailable(applicationResultsUri);
+        final String resultUri = getResultUri(responseObject);
         retrieveAndValidateJsonError(resultUri);
     }
 
@@ -239,22 +244,16 @@ public class RestITCase extends XMLTestCase {
         assertNotNull(jsonResult.get("errorMessage"));
     }
 
-    private String doTestSubmitValidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
-        final Document result = doTestSubmitXmlJob(applicationName, getTestStream("data/r-job-sample.xml"));
-
-        return getResultUri(result);
+    private Document doTestSubmitValidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
+        return doTestSubmitXmlJob(applicationName, getTestStream("data/r-job-sample.xml"));
     }
 
-    private String doTestSubmitValidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
-        final Map<?, ?> jsonResult = doTestSubmitJobWithJsonAck(applicationName, getTestStream("data/r-job-sample.json"));
-
-        return jsonResult.get("resultUri").toString();
+    private Map<?, ?> doTestSubmitValidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
+        return doTestSubmitJobWithJsonAck(applicationName, getTestStream("data/r-job-sample.json"));
     }
 
-    private String doTestSubmitInvalidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
-        final Map<?, ?> jsonResult = doTestSubmitJobWithJsonAck(applicationName, new ByteArrayInputStream("not json".getBytes()));
-
-        return jsonResult.get("resultUri").toString();
+    private Map<?, ?> doTestSubmitInvalidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
+        return doTestSubmitJobWithJsonAck(applicationName, new ByteArrayInputStream("not json".getBytes()));
     }
 
     private Document doTestSubmitInvalidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
@@ -424,22 +423,28 @@ public class RestITCase extends XMLTestCase {
      * if (uploadedFile.contentType != null) fileInput.setContentType(uploadedFile.contentType); }
      */
 
-    private void ponderUntilResultAvailable(final String resultUri) throws Exception {
+    private String ponderUntilOneResultAvailable(final String watchUri) throws Exception {
         for (int attemptCount = 0; attemptCount < 60; attemptCount++) {
 
             Thread.sleep(500);
 
             final WebConversation wc = createNewWebConversation();
-            final WebRequest request = new GetMethodWebRequest(resultUri);
+            final WebRequest request = new GetMethodWebRequest(watchUri);
             try {
                 final WebResponse response = wc.sendRequest(request);
-                if (!("<r-results />".equals(response.getText())))
-                    return;
+                final String responseText = response.getText();
+                final Document responseDocument = XMLUnit.buildTestDocument(responseText);
+                final String selfUri = XMLUnit.newXpathEngine().evaluate("//rsb:result/@selfUri", responseDocument);
+
+                if (StringUtils.isNotBlank(selfUri)) {
+                    return selfUri;
+                }
             } catch (final Exception e) {
                 // ignore exceptions final due to 404
             }
         }
-        fail("Result didn't come on time at URI: " + resultUri);
+        fail("Result didn't come on time at URI: " + watchUri);
+        return null;
     }
 
     private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream job, final Map<String, String> extraHeaders)
@@ -526,6 +531,18 @@ public class RestITCase extends XMLTestCase {
 
     private String getResultUri(final Document responseDocument) throws XpathException {
         return XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@resultUri", responseDocument);
+    }
+
+    private String getApplicationResultsUri(final Document responseDocument) throws XpathException {
+        return XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@applicationResultsUri", responseDocument);
+    }
+
+    private String getResultUri(final Map<?, ?> jsonResult) {
+        return jsonResult.get("resultUri").toString();
+    }
+
+    private String getApplicationResultsUri(final Map<?, ?> jsonResult) {
+        return jsonResult.get("applicationResultsUri").toString();
     }
 
     private String newTestApplicationName() {
