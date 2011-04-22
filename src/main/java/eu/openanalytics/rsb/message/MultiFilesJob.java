@@ -88,8 +88,11 @@ public class MultiFilesJob extends AbstractJobWithMeta {
         for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
             mergedMeta.put(e.getKey().toString(), e.getValue().toString());
         }
+
+        // give priority to pre-existing metas by overriding the ones from the config file
         mergedMeta.putAll(getMeta());
-        setMeta(mergedMeta);
+        getMeta().clear();
+        getMeta().putAll(mergedMeta);
     }
 
     @Override

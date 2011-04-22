@@ -32,7 +32,7 @@ import java.util.UUID;
 public abstract class AbstractJobWithMeta extends AbstractJob {
     private static final long serialVersionUID = 1L;
 
-    private Map<String, String> meta;
+    private final Map<String, String> meta;
 
     public AbstractJobWithMeta(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
             final Map<String, String> meta) {
@@ -42,9 +42,5 @@ public abstract class AbstractJobWithMeta extends AbstractJob {
 
     public Map<String, String> getMeta() {
         return meta;
-    }
-
-    public void setMeta(final Map<String, String> meta) {
-        this.meta = meta;
     }
 }

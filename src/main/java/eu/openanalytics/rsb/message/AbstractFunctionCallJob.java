@@ -31,7 +31,7 @@ import java.util.UUID;
 public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResult> extends AbstractJob {
     private static final long serialVersionUID = 1L;
 
-    private String argument;
+    private final String argument;
 
     public AbstractFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
             final String argument) {
@@ -52,9 +52,5 @@ public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResu
 
     public String getArgument() {
         return argument;
-    }
-
-    public void setArgument(final String argument) {
-        this.argument = argument;
     }
 }

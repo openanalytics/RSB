@@ -33,7 +33,7 @@ import javax.activation.MimeType;
 public abstract class AbstractResult extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;
 
-    private boolean success;
+    private final boolean success;
 
     public AbstractResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final boolean success) {
         super(applicationName, jobId, submissionTime);
@@ -42,10 +42,6 @@ public abstract class AbstractResult extends AbstractWorkItem {
 
     public boolean isSuccess() {
         return success;
-    }
-
-    public void setSuccess(final boolean success) {
-        this.success = success;
     }
 
     public abstract MimeType getMimeType();

@@ -31,7 +31,7 @@ import java.util.UUID;
 public abstract class AbstractFunctionCallResult extends AbstractResult {
     private static final long serialVersionUID = 1L;
 
-    private String result;
+    private final String result;
 
     public AbstractFunctionCallResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
             final boolean success, final String result) {
@@ -46,9 +46,5 @@ public abstract class AbstractFunctionCallResult extends AbstractResult {
 
     public String getResult() {
         return result;
-    }
-
-    public void setResult(final String result) {
-        this.result = result;
     }
 }

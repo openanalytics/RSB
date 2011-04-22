@@ -36,9 +36,9 @@ public abstract class AbstractWorkItem implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private boolean destroyed;
-    private String applicationName;
-    private UUID jobId;
-    private GregorianCalendar submissionTime;
+    private final String applicationName;
+    private final UUID jobId;
+    private final GregorianCalendar submissionTime;
 
     public AbstractWorkItem(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
         this.destroyed = false;
@@ -67,23 +67,11 @@ public abstract class AbstractWorkItem implements Serializable {
         return applicationName;
     }
 
-    public void setApplicationName(final String applicationName) {
-        this.applicationName = applicationName;
-    }
-
     public UUID getJobId() {
         return jobId;
     }
 
-    public void setJobId(final UUID jobId) {
-        this.jobId = jobId;
-    }
-
     public GregorianCalendar getSubmissionTime() {
         return submissionTime;
-    }
-
-    public void setSubmissionTime(final GregorianCalendar submissionTime) {
-        this.submissionTime = submissionTime;
     }
 }
