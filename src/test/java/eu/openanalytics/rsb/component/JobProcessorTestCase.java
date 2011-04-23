@@ -71,7 +71,9 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JobProcessorTestCase {
+
     private JobProcessor jobProcessor;
+
     @Mock
     private Configuration configuration;
     @Mock

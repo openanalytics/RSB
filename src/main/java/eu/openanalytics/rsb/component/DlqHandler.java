@@ -20,8 +20,14 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.io.IOException;
+
+import javax.annotation.Resource;
+
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem;
@@ -33,14 +39,25 @@ import eu.openanalytics.rsb.message.AbstractWorkItem;
  */
 @Component("dlqHandler")
 public class DlqHandler extends AbstractComponent {
+    @Resource
+    private JmsTemplate jmsTemplate;
+
+    // exposed for unit testing
+    void setJmsTemplate(final JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
+    }
+
     /**
      * Handles a job whose processing has failed repetitively.
      * 
      * @param job
+     * @throws IOException
      */
-    public void handle(final AbstractJob job) {
+    public void handle(final AbstractJob job) throws IOException {
         logAndAlertFailure(job);
-        // FIXME build a response and send to response queue
+        final String message = getMessages().getMessage("job.abort", null, null);
+        final AbstractResult<?> errorResult = job.buildErrorResult(new RuntimeException(message), getMessages());
+        Util.dispatch(errorResult, jmsTemplate);
     }
 
     /**
@@ -53,6 +70,7 @@ public class DlqHandler extends AbstractComponent {
     }
 
     private void logAndAlertFailure(final AbstractWorkItem workItem) {
+        // do not call workItem.destroy() to keep faulty file in the file system for inspection
         getLogger().error("Abandonning processing of: " + workItem);
         // FIXME email rsb admin
     }

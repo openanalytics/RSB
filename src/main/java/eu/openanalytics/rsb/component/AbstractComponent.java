@@ -47,6 +47,10 @@ public abstract class AbstractComponent {
         this.configuration = configuration;
     }
 
+    void setMessages(final MessageSource messages) {
+        this.messages = messages;
+    }
+
     protected Configuration getConfiguration() {
         return configuration;
     }

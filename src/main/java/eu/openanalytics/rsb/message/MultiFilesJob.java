@@ -114,8 +114,8 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     @Override
     public MultiFilesResult buildErrorResult(final Throwable t, final MessageSource messageSource) throws IOException {
         final String cause = t.getMessage();
-        final String errorText = messageSource.getMessage("job.default.error", new Object[] { getJobId(), getSubmissionTime().getTime(),
-                cause }, cause, null);
+        final String errorText = messageSource.getMessage("job.error", new Object[] { getJobId(), getSubmissionTime().getTime(), cause },
+                cause, null);
 
         final MultiFilesResult result = new MultiFilesResult(getApplicationName(), getJobId(), getSubmissionTime(), false);
         final File resultFile = result.createNewResultFile(getJobId() + "." + Constants.MULTIPLE_FILES_ERROR_FILE_EXTENSION);

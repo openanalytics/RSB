@@ -20,10 +20,27 @@
  */
 package eu.openanalytics.rsb.component;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+import org.springframework.context.MessageSource;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessagePostProcessor;
 
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
@@ -31,19 +48,41 @@ import eu.openanalytics.rsb.message.AbstractResult;
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
+@RunWith(MockitoJUnitRunner.class)
 public class DlqHandlerTestCase {
 
     private DlqHandler dlqHandler;
 
+    @Mock
+    private JmsTemplate jmsTemplate;
+    @Mock
+    private MessageSource messageSource;
+
     @Before
     public void prepareTest() {
         dlqHandler = new DlqHandler();
+        dlqHandler.setJmsTemplate(jmsTemplate);
+        dlqHandler.setMessages(messageSource);
     }
 
     @Test
-    public void handleAbstractJob() {
+    public void handleAbstractJob() throws IOException {
         final AbstractJob job = mock(AbstractJob.class);
+        when(job.getApplicationName()).thenReturn("app_name");
+        @SuppressWarnings("unchecked")
+        final AbstractResult<Object> result = mock(AbstractResult.class);
+        when(job.buildErrorResult(any(Throwable.class), eq(messageSource))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                return result;
+            }
+        });
+
+        when(messageSource.getMessage(anyString(), any(Object[].class), any(Locale.class))).thenReturn("fake err msg");
+
         dlqHandler.handle(job);
+
+        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), any(AbstractResult.class), any(MessagePostProcessor.class));
     }
 
     @Test
