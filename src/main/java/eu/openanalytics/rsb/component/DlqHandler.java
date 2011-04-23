@@ -48,7 +48,7 @@ public class DlqHandler extends AbstractComponent {
      * 
      * @param result
      */
-    public void handle(final AbstractResult result) {
+    public void handle(final AbstractResult<?> result) {
         logAndAlertFailure(result);
     }
 

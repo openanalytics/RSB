@@ -60,6 +60,6 @@ public abstract class AbstractComponent {
     }
 
     protected File getApplicationResultDirectory(final String applicationName) {
-        return new File(getConfiguration().getRsbResultsDirectory(), applicationName);
+        return new File(getConfiguration().getResultsDirectory(), applicationName);
     }
 }

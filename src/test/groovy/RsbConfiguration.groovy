@@ -1,7 +1,3 @@
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /*
  *   R Service Bus
  *   
@@ -27,7 +23,6 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 class RsbConfiguration extends eu.openanalytics.rsb.config.DefaultConfiguration {
-    
     // Demonstrates how to send statistics to Redis
 //    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
 //        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)

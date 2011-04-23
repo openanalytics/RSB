@@ -259,7 +259,7 @@ public abstract class Util {
      * @param result
      * @param jmsTemplate
      */
-    public static void dispatch(final AbstractResult result, final JmsTemplate jmsTemplate) {
+    public static void dispatch(final AbstractResult<?> result, final JmsTemplate jmsTemplate) {
         jmsTemplate.convertAndSend(getQueueName(result), result, new WorkItemMessagePostProcessor(result));
     }
 
@@ -267,7 +267,7 @@ public abstract class Util {
         return "r.jobs." + job.getApplicationName();
     }
 
-    private static String getQueueName(final AbstractResult result) {
+    private static String getQueueName(final AbstractResult<?> result) {
         return "r.results." + result.getApplicationName();
     }
 }

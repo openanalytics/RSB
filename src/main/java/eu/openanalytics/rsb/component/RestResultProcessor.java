@@ -61,7 +61,6 @@ public class RestResultProcessor extends AbstractComponent {
         result.destroy();
     }
 
-    // TODO unit test
     public void process(final MultiFilesResult result) throws IOException {
         ensureApplicationResultDir(result);
         final String resultFileName = getResultFileName(result);
@@ -77,7 +76,7 @@ public class RestResultProcessor extends AbstractComponent {
     }
 
     private void ensureApplicationResultDir(final AbstractResult<?> result) throws IOException {
-        final File applicationResultDir = new File(getConfiguration().getRsbResultsDirectory(), result.getApplicationName());
+        final File applicationResultDir = new File(getConfiguration().getResultsDirectory(), result.getApplicationName());
         FileUtils.forceMkdir(applicationResultDir);
     }
 

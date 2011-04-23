@@ -23,17 +23,26 @@ package eu.openanalytics.rsb;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.annotation.Resource;
+
 import org.apache.activemq.util.ByteArrayInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,6 +53,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.jitr.Jitr;
 import org.jitr.annotation.BaseUri;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,20 +71,27 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
+import eu.openanalytics.rsb.config.Configuration;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(Jitr.class)
 public class RestITCase extends XMLTestCase {
+    private static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
+
     @BaseUri
     private String baseUri;
 
+    @Resource
+    private Configuration configuration;
+
+    private Set<File> testScripts;
     private String restJobsUri;
     private String restResultsUri;
 
     @Before
-    public void before() {
+    public void prepareTests() throws IOException {
         restJobsUri = baseUri + "api/rest/jobs";
         restResultsUri = baseUri + "api/rest/results";
 
@@ -83,6 +100,43 @@ public class RestITCase extends XMLTestCase {
 
         final NamespaceContext ctx = new SimpleNamespaceContext(m);
         XMLUnit.setXpathNamespaceContext(ctx);
+    }
+
+    @Before
+    public void loadTestFileInCatalog() throws IOException {
+        testScripts = new HashSet<File>();
+        putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "test.R"));
+        putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "testSweave.R"));
+        putTestScriptInCatalog(new File(configuration.getSweaveFilesCatalogDirectory(), "testSweave.Rnw"));
+    }
+
+    private void putTestScriptInCatalog(final File testScript) throws FileNotFoundException, IOException {
+        if (!testScript.isFile()) {
+            final FileOutputStream fos = new FileOutputStream(testScript);
+            IOUtils.copy(getTestDataAsStream(testScript.getName()), fos);
+            IOUtils.closeQuietly(fos);
+        }
+        testScripts.add(testScript);
+    }
+
+    @After
+    public void cleanupResults() throws IOException {
+        final File[] testResultFiles = configuration.getResultsDirectory().listFiles(new FilenameFilter() {
+            public boolean accept(final File dir, final String name) {
+                return StringUtils.startsWith(name, TEST_APPLICATION_NAME_PREFIX);
+            }
+        });
+
+        for (final File testResultFile : testResultFiles) {
+            FileUtils.deleteQuietly(testResultFile);
+        }
+    }
+
+    @After
+    public void cleanupCatalog() throws IOException {
+        for (final File testScript : testScripts) {
+            FileUtils.deleteQuietly(testScript);
+        }
     }
 
     @Test
@@ -224,12 +278,73 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void forwardedProtocol() throws Exception {
         final String applicationName = newTestApplicationName();
-        final Document resultDoc = doTestSubmitXmlJobWithXmlAck(applicationName, getTestStream("data/r-job-sample.xml"),
+        final Document resultDoc = doTestSubmitXmlJobWithXmlAck(applicationName, getTestDataAsStream("r-job-sample.xml"),
                 Collections.singletonMap("X-Forwarded-Protocol", "foo"));
 
         assertThat(getApplicationResultsUri(resultDoc), is(new StartsWith("foo:/")));
         assertThat(getResultUri(resultDoc), is(new StartsWith("foo:/")));
     }
+
+    @Test
+    public void submitValidZipJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        @SuppressWarnings("unchecked")
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-sample.zip"), Collections.EMPTY_MAP);
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void submitInvalidZipJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        try {
+            doTestSubmitZipJob(applicationName, getTestDataAsStream("invalid-job-subdir.zip"), Collections.EMPTY_MAP);
+            fail("an exception should have been raised");
+        } catch (final HttpException he) {
+            assertEquals(400, he.getResponseCode());
+        }
+    }
+
+    @Test
+    public void submitValidZipJobWithCatalogRefAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        @SuppressWarnings("unchecked")
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-catalog-ref.zip"), Collections.EMPTY_MAP);
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
+
+    @Test
+    public void submitValidDataOnlyZipJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-data-only.zip"),
+                Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
+
+    @Test
+    public void submitValidJobRequiringMetaAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-meta-required.zip"),
+                Collections.singletonMap("X-RSB-Meta-reportAuthor", "Jules Verne"));
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
+
+    @Test
+    public void submitValidJobRequiringMetaWithoutMeta() throws Exception {
+        final String applicationName = newTestApplicationName();
+        @SuppressWarnings("unchecked")
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-meta-required.zip"),
+                Collections.EMPTY_MAP);
+        final String resultUri = getResultUri(resultDoc);
+        ponderUntilOneResultAvailable(resultUri);
+        retrieveAndValidateZipError(resultUri);
+    }
+
+    // -------- Supporting Functions ---------
 
     private void retrieveAndValidateXmlResult(final String resultUri) throws Exception {
         final String dataUri = doTestResultAvailability(resultUri, "xml");
@@ -261,11 +376,11 @@ public class RestITCase extends XMLTestCase {
     }
 
     private Document doTestSubmitValidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
-        return doTestSubmitXmlJob(applicationName, getTestStream("data/r-job-sample.xml"));
+        return doTestSubmitXmlJob(applicationName, getTestDataAsStream("r-job-sample.xml"));
     }
 
     private Map<?, ?> doTestSubmitValidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
-        return doTestSubmitJobWithJsonAck(applicationName, getTestStream("data/r-job-sample.json"));
+        return doTestSubmitJobWithJsonAck(applicationName, getTestDataAsStream("r-job-sample.json"));
     }
 
     private Map<?, ?> doTestSubmitInvalidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
@@ -282,42 +397,9 @@ public class RestITCase extends XMLTestCase {
         return doTestSubmitXmlJobWithXmlAck(applicationName, xmlJob, Collections.EMPTY_MAP);
     }
 
-    @SuppressWarnings("unchecked")
-    public void testSubmitValidZipJobAndRetrieveByAppName() throws Exception {
-        final String applicationName = newTestApplicationName();
-        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestStream("data/r-job-sample.zip"), Collections.EMPTY_MAP);
-        final String resultUri = getResultUri(resultDoc);
-        ponderRetrieveAndValidateZipResult(resultUri);
-    }
-
     // FIXME reactivate integration tests
 
     /*
-     * @SuppressWarnings("unchecked") public void testSubmitInvalidZipJobAndRetrieveByAppName()
-     * throws Exception { final String applicationName = newTestApplicationName();
-     * doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.JOB_SCRIPT,
-     * Collections.EMPTY_MAP);
-     * 
-     * final String resultUri = restResultsUri + "/" + applicationName;
-     * ponderUntilResultAvailable(resultUri); retrieveAndValidateZipError(resultUri); }
-     * 
-     * @SuppressWarnings("unchecked") public void
-     * testSubmitValidZipJobWithPropsAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitZipJob(applicationName,
-     * AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_PROPS, Collections.EMPTY_MAP);
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * public void testSubmitValidDataOnlyZipJobAndRetrieveByAppName() throws Exception { final
-     * String applicationName = newTestApplicationName(); doTestSubmitZipJob(applicationName,
-     * AbstractRsbFunctionalTestCase.ZIP_JOB_DATA_ONLY,
-     * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * public void testSubmitValidJobRequiringMetaAndRetrieveByAppName() throws Exception { final
-     * String applicationName = newTestApplicationName(); doTestSubmitZipJob(applicationName,
-     * "data/exp-meta-reportAuthor.zip", Collections.singletonMap("X-RSB-Meta-reportAuthor",
-     * "Jules Verne")); ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
      * @SuppressWarnings("unchecked") public void
      * testSubmitMultipartValidZipJobAndRetrieveByAppName() throws Exception { final String
      * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
@@ -341,14 +423,14 @@ public class RestITCase extends XMLTestCase {
      * @SuppressWarnings("unchecked") public void
      * testSubmitMultipartValidMultiFilesJobAndRetrieveByAppName() throws Exception { final String
      * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
-     * Arrays.asList(new UploadedFile("data/exampleSweave.Rnw"), new
-     * UploadedFile("data/exampleSweaveRScript.R")), Collections.EMPTY_MAP);
+     * Arrays.asList(new UploadedFile("exampleSweave.Rnw"), new
+     * UploadedFile("exampleSweaveRScript.R")), Collections.EMPTY_MAP);
      * ponderRetrieveAndValidateZipResult(applicationName); }
      * 
      * public void testSubmitMultipartValidJobRequiringMetaAndRetrieveByAppName() throws Exception {
      * final String applicationName = newTestApplicationName();
      * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
-     * UploadedFile("data/exp-meta-reportAuthor.zip")),
+     * UploadedFile("exp-meta-reportAuthor.zip")),
      * Collections.singletonMap("X-RSB-Meta-reportAuthor", "Jules Verne"));
      * ponderRetrieveAndValidateZipResult(applicationName); }
      * 
@@ -364,9 +446,7 @@ public class RestITCase extends XMLTestCase {
      * doTestSubmitMultipartValidZipJob(applicationName, Collections.EMPTY_LIST,
      * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
      * ponderRetrieveAndValidateZipResult(applicationName); }
-     */
-
-    /*
+     * 
      * private Document doTestSubmitMultipartValidZipJob(final String applicationName, final
      * List<UploadedFile> jobFiles, final Map<String, String> extraFields) throws Exception { //
      * disable javascript because we want a normal form post to happen and not an AJAX one final
@@ -567,7 +647,7 @@ public class RestITCase extends XMLTestCase {
     }
 
     private static String newTestApplicationName() {
-        return "rsb_it_" + RandomStringUtils.randomAlphanumeric(20);
+        return TEST_APPLICATION_NAME_PREFIX + RandomStringUtils.randomAlphanumeric(20);
     }
 
     private static class UploadedFile {
@@ -623,13 +703,14 @@ public class RestITCase extends XMLTestCase {
         assertTrue(response + " should contain 'error'", response.contains("error"));
     }
 
-    private static InputStream getTestStream(final String payloadResourceFile) {
-        return new ByteArrayInputStream(getTestBytes(payloadResourceFile));
+    private static InputStream getTestDataAsStream(final String payloadResourceFile) {
+        return new ByteArrayInputStream(getTestDataAsBytes(payloadResourceFile));
     }
 
-    private static byte[] getTestBytes(final String payloadResourceFile) {
+    private static byte[] getTestDataAsBytes(final String payloadResourceFile) {
         try {
-            return FileCopyUtils.copyToByteArray(Thread.currentThread().getContextClassLoader().getResourceAsStream(payloadResourceFile));
+            return FileCopyUtils.copyToByteArray(Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream("data/" + payloadResourceFile));
         } catch (final IOException ioe) {
             throw new RuntimeException(ioe);
         }

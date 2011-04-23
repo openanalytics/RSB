@@ -48,7 +48,7 @@ public class DlqHandlerTestCase {
 
     @Test
     public void handleAbstractResult() {
-        final AbstractResult result = mock(AbstractResult.class);
+        final AbstractResult<?> result = mock(AbstractResult.class);
         dlqHandler.handle(result);
     }
 }

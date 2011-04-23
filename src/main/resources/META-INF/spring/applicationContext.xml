@@ -146,5 +146,5 @@
     <si:channel id="resultFilesChannel" />
 
     <file:outbound-channel-adapter channel="resultFilesChannel"
-        directory="#{configuration.rsbResultsDirectory}" auto-create-directory="true" />
+        directory="#{configuration.resultsDirectory}" auto-create-directory="true" />
 </beans>

@@ -26,6 +26,8 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
@@ -38,7 +40,9 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 public class DefaultConfiguration implements Configuration {
     protected final File userHomeDirectory;
     private final File rsbHomeDirectory;
-    private final File rsbCatalogDirectory;
+    private final File rScriptsCatalogDirectory;
+    private final File sweaveFilesCatalogDirectory;
+    private final File emailRepliesCatalogDirectory;
     private final File rsbResultsDirectory;
     private final File activeMqWorkDirectory;
     private final URI defaultRserviPoolUri;
@@ -48,7 +52,12 @@ public class DefaultConfiguration implements Configuration {
     public DefaultConfiguration() throws URISyntaxException {
         userHomeDirectory = new File(System.getProperty("user.home"));
         rsbHomeDirectory = new File(userHomeDirectory, ".rsb");
-        rsbCatalogDirectory = new File(rsbHomeDirectory, "catalog");
+
+        final File rsbCatalogRootDirectory = new File(rsbHomeDirectory, "catalog");
+        rScriptsCatalogDirectory = new File(rsbCatalogRootDirectory, "r_scripts");
+        sweaveFilesCatalogDirectory = new File(rsbCatalogRootDirectory, "sweave_files");
+        emailRepliesCatalogDirectory = new File(rsbCatalogRootDirectory, "email_replies");
+
         rsbResultsDirectory = new File(rsbHomeDirectory, "results");
         activeMqWorkDirectory = new File(rsbHomeDirectory, "activemq");
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
@@ -56,9 +65,14 @@ public class DefaultConfiguration implements Configuration {
         numberOfConcurrentJobWorkersPerQueue = 5;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
     public void validate() {
         Validate.notNull(getUserHomeDirectory(), "userHomeDirectory can't be null");
-        Validate.notNull(getRsbResultsDirectory(), "rsbResultsDirectory can't be null");
+        Validate.notNull(getResultsDirectory(), "rsbResultsDirectory can't be null");
         Validate.notNull(getActiveMqWorkDirectory(), "activeMqWorkDirectory can't be null");
         Validate.notNull(getDefaultRserviPoolUri(), "defaultRserviPoolUri can't be null");
     }
@@ -67,11 +81,22 @@ public class DefaultConfiguration implements Configuration {
         return userHomeDirectory;
     }
 
-    public File getRsbCatalogDirectory() {
-        return rsbCatalogDirectory;
+    @Override
+    public File getRScriptsCatalogDirectory() {
+        return rScriptsCatalogDirectory;
     }
 
-    public File getRsbResultsDirectory() {
+    @Override
+    public File getSweaveFilesCatalogDirectory() {
+        return sweaveFilesCatalogDirectory;
+    }
+
+    @Override
+    public File getEmailRepliesCatalogDirectory() {
+        return emailRepliesCatalogDirectory;
+    }
+
+    public File getResultsDirectory() {
         return rsbResultsDirectory;
     }
 

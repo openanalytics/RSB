@@ -68,7 +68,7 @@ public class ResultResourceTestCase {
         testResultPayload = RandomStringUtils.randomAlphanumeric(25 + RandomUtils.nextInt(25));
 
         final Configuration configuration = mock(Configuration.class);
-        when(configuration.getRsbResultsDirectory()).thenReturn(tempDir.getParentFile());
+        when(configuration.getResultsDirectory()).thenReturn(tempDir.getParentFile());
 
         resultResource = new ResultResource();
         resultResource.setConfiguration(configuration);

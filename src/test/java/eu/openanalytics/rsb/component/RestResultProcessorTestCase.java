@@ -41,6 +41,7 @@ import org.springframework.integration.MessageChannel;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
+import eu.openanalytics.rsb.message.MultiFilesResult;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
@@ -52,41 +53,74 @@ public class RestResultProcessorTestCase {
 
     @Mock
     private MessageChannel resultFilesChannel;
-    @Mock
-    private AbstractFunctionCallResult functionCallResult;
 
     @Before
     public void prepareTest() {
         final Configuration configuration = mock(Configuration.class);
         final File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        when(configuration.getRsbResultsDirectory()).thenReturn(tempDir);
+        when(configuration.getResultsDirectory()).thenReturn(tempDir);
 
         restResultProcessor = new RestResultProcessor();
         restResultProcessor.setResultFilesChannel(resultFilesChannel);
         restResultProcessor.setConfiguration(configuration);
+    }
 
+    @Test
+    public void processFunctionCallResultSuccess() throws IOException {
+        final AbstractFunctionCallResult functionCallResult = buildMockFunctionCallResult();
+        when(functionCallResult.isSuccess()).thenReturn(true);
+
+        restResultProcessor.process(functionCallResult);
+
+        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(functionCallResult).destroy();
+    }
+
+    @Test
+    public void processFunctionCallResultFailure() throws IOException {
+        final AbstractFunctionCallResult functionCallResult = buildMockFunctionCallResult();
+        when(functionCallResult.isSuccess()).thenReturn(false);
+
+        restResultProcessor.process(functionCallResult);
+
+        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(functionCallResult).destroy();
+    }
+
+    @Test
+    public void processMultiFilesResultSuccess() throws IOException {
+        final MultiFilesResult multiFilesResult = buildMockMultiFilesCallResult();
+        when(multiFilesResult.isSuccess()).thenReturn(true);
+
+        restResultProcessor.process(multiFilesResult);
+
+        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(multiFilesResult).destroy();
+    }
+
+    @Test
+    public void processMultiFilesResultFailure() throws IOException {
+        final MultiFilesResult multiFilesResult = buildMockMultiFilesCallResult();
+        when(multiFilesResult.isSuccess()).thenReturn(false);
+
+        restResultProcessor.process(multiFilesResult);
+
+        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(multiFilesResult).destroy();
+    }
+
+    private MultiFilesResult buildMockMultiFilesCallResult() throws IOException {
+        final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
+        when(multiFilesResult.getApplicationName()).thenReturn("test_app_name");
+        when(multiFilesResult.getPayload()).thenReturn(new File("fake_result"));
+        return multiFilesResult;
+    }
+
+    private AbstractFunctionCallResult buildMockFunctionCallResult() {
+        final AbstractFunctionCallResult functionCallResult = mock(AbstractFunctionCallResult.class);
         when(functionCallResult.getApplicationName()).thenReturn("test_app_name");
         when(functionCallResult.getMimeType()).thenReturn(Constants.XML_MIME_TYPE);
         when(functionCallResult.getPayload()).thenReturn("<fake />");
-    }
-
-    @Test
-    public void processSuccess() throws IOException {
-        when(functionCallResult.isSuccess()).thenReturn(true);
-
-        restResultProcessor.process(functionCallResult);
-
-        verify(resultFilesChannel).send(any(Message.class), anyInt());
-        verify(functionCallResult).destroy();
-    }
-
-    @Test
-    public void processFailure() throws IOException {
-        when(functionCallResult.isSuccess()).thenReturn(true);
-
-        restResultProcessor.process(functionCallResult);
-
-        verify(resultFilesChannel).send(any(Message.class), anyInt());
-        verify(functionCallResult).destroy();
+        return functionCallResult;
     }
 }

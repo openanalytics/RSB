@@ -42,14 +42,24 @@ public interface Configuration {
     void validate();
 
     /**
-     * Directory where a catalog of R scripts, Sweave files and Email responses are stored.
+     * Directory where a catalog of R scripts are stored.
      */
-    File getRsbCatalogDirectory();
+    File getRScriptsCatalogDirectory();
+
+    /**
+     * Directory where a catalog of Sweave files are stored.
+     */
+    File getSweaveFilesCatalogDirectory();
+
+    /**
+     * Directory where a catalog of Email replies are stored.
+     */
+    File getEmailRepliesCatalogDirectory();
 
     /**
      * Directory where result files are written.
      */
-    File getRsbResultsDirectory();
+    File getResultsDirectory();
 
     /**
      * Directory where ActiveMQ stores its persisted data.

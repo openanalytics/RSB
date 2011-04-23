@@ -104,7 +104,6 @@ public class JobProcessor extends AbstractComponent {
         });
     }
 
-    // TODO unit test
     public void process(final MultiFilesJob job) throws Exception {
         process(job, new JobRunner() {
             public AbstractResult<File> runOn(final RServi rServi) throws Exception {
@@ -112,11 +111,11 @@ public class JobProcessor extends AbstractComponent {
 
                 // locate and upload the R script
                 final String rScriptFromCatalog = job.getMeta().get(Constants.R_SCRIPT_CONFIGURATION_KEY);
-                final File rScriptFile = rScriptFromCatalog != null ? new File(getConfiguration().getRsbCatalogDirectory(),
+                final File rScriptFile = rScriptFromCatalog != null ? new File(getConfiguration().getRScriptsCatalogDirectory(),
                         rScriptFromCatalog) : job.getRScriptFile();
 
                 if ((rScriptFile == null) || (!rScriptFile.isFile())) {
-                    throw new IllegalStateException("No R script has been found for job: " + job);
+                    throw new IllegalArgumentException("No R script has been found for job: " + job);
                 }
 
                 uploadFileToR(rServi, rScriptFile, filesUploadedToR);
@@ -125,7 +124,7 @@ public class JobProcessor extends AbstractComponent {
                 final String sweaveFileFromCatalog = job.getMeta().get(Constants.SWEAVE_FILE_CONFIGURATION_KEY);
 
                 if (sweaveFileFromCatalog != null) {
-                    final File sweaveFile = new File(getConfiguration().getRsbCatalogDirectory(), sweaveFileFromCatalog);
+                    final File sweaveFile = new File(getConfiguration().getSweaveFilesCatalogDirectory(), sweaveFileFromCatalog);
 
                     if (!sweaveFile.isFile()) {
                         throw new IllegalArgumentException("Invalid catalog Sweave file reference in job: " + job);
@@ -161,10 +160,6 @@ public class JobProcessor extends AbstractComponent {
                 }
 
                 return result;
-            }
-
-            private HashSet<String> getFilesInRWorkspace(final RServi rServi) throws UnexpectedRDataException, CoreException {
-                return new HashSet<String>(Arrays.asList(RDataUtil.checkRCharVector(rServi.evalData("dir()", null)).getData().toArray()));
             }
         });
     }
@@ -240,7 +235,9 @@ public class JobProcessor extends AbstractComponent {
 
     private static void uploadFileToR(final RServi rServi, final File file, final Set<String> filesUploadedToR)
             throws FileNotFoundException, CoreException {
-        rServi.uploadFile(new FileInputStream(file), file.length(), file.getName(), 0, null);
+        final FileInputStream fis = new FileInputStream(file);
+        rServi.uploadFile(fis, file.length(), file.getName(), 0, null);
+        IOUtils.closeQuietly(fis);
         filesUploadedToR.add(file.getName());
     }
 
@@ -259,5 +256,10 @@ public class JobProcessor extends AbstractComponent {
         final FunctionCall sourceCall = rServi.createFunctionCall("source");
         sourceCall.addChar("file", rScriptName);
         sourceCall.evalVoid(null);
+    }
+
+    private static HashSet<String> getFilesInRWorkspace(final RServi rServi) throws UnexpectedRDataException, CoreException {
+        RObject evalResult = rServi.evalData("dir()", null);
+        return new HashSet<String>(Arrays.asList(RDataUtil.checkRCharVector(evalResult).getData().toArray()));
     }
 }

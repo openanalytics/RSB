@@ -1,0 +1,24 @@
+% 
+\documentclass[a4paper]{article}
+\usepackage[OT1]{fontenc}
+\usepackage{Sweave}
+\begin{document}
+
+\title{Example Sweave Document}
+\author{Tobias Verbeke}
+
+\maketitle
+
+\section{Introduction}
+
+<<model>>=
+	model <- lm(dist  ~ speed, data = cars)
+@
+
+<<echo=FALSE, fig=TRUE, include = TRUE>>=
+	plot(model, which = 1)
+@
+
+
+
+\end{document}
