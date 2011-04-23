@@ -30,8 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.activemq.util.ByteArrayInputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.NamespaceContext;
@@ -221,7 +224,7 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void forwardedProtocol() throws Exception {
         final String applicationName = newTestApplicationName();
-        final Document resultDoc = doTestSubmitJobWithXmlAck(applicationName, getTestStream("data/r-job-sample.xml"),
+        final Document resultDoc = doTestSubmitXmlJobWithXmlAck(applicationName, getTestStream("data/r-job-sample.xml"),
                 Collections.singletonMap("X-Forwarded-Protocol", "foo"));
 
         assertThat(getApplicationResultsUri(resultDoc), is(new StartsWith("foo:/")));
@@ -276,19 +279,18 @@ public class RestITCase extends XMLTestCase {
     @SuppressWarnings("unchecked")
     private Document doTestSubmitXmlJob(final String applicationName, final InputStream xmlJob) throws IOException, SAXException,
             XpathException {
-        return doTestSubmitJobWithXmlAck(applicationName, xmlJob, Collections.EMPTY_MAP);
+        return doTestSubmitXmlJobWithXmlAck(applicationName, xmlJob, Collections.EMPTY_MAP);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void testSubmitValidZipJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestStream("data/r-job-sample.zip"), Collections.EMPTY_MAP);
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
     }
 
     // FIXME reactivate integration tests
-
-    // @SuppressWarnings("unchecked")
-    // public void testSubmitValidZipJobAndRetrieveByAppName() throws Exception {
-    // final String applicationName = newTestApplicationName();
-    // doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT,
-    // Collections.EMPTY_MAP);
-    //
-    // ponderRetrieveAndValidateZipResult(applicationName);
-    // }
 
     /*
      * @SuppressWarnings("unchecked") public void testSubmitInvalidZipJobAndRetrieveByAppName()
@@ -362,32 +364,7 @@ public class RestITCase extends XMLTestCase {
      * doTestSubmitMultipartValidZipJob(applicationName, Collections.EMPTY_LIST,
      * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
      * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * private void ponderRetrieveAndValidateZipResult(final String applicationName) throws
-     * Exception { final String resultUri = restResultsUri + "/" + applicationName;
-     * ponderUntilResultAvailable(resultUri); retrieveAndValidateZipResult(resultUri); }
-     * 
-     * private void retrieveAndValidateZipResult(final String resultUri) throws Exception { final
-     * String dataUri = doTestResultAvailability(resultUri, "zip");
-     * TestSupport.validateZipResult(getStreamResponse(dataUri)); }
-     * 
-     * private void retrieveAndValidateZipError(final String resultUri) throws Exception { final
-     * String dataUri = doTestResultAvailability(resultUri, "txt");
-     * TestSupport.validateErrorResult(getStreamResponse(dataUri)); }
-     * 
-     * private String doTestSubmitZipJob(final String applicationName, final String zipJobFileName,
-     * final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
-     * final Document result = doTestSubmitZipJob(applicationName, getTestStream(zipJobFileName),
-     * extraHeaders);
-     * 
-     * return getResultUri(result); }
      */
-
-    // private Document doTestSubmitZipJob(final String applicationName, final InputStream job,
-    // final Map<String, String> extraHeaders)
-    // throws IOException, SAXException, XpathException {
-    // return doTestSubmitJobWithXmlAck(applicationName, job, "application/zip", extraHeaders);
-    // }
 
     /*
      * private Document doTestSubmitMultipartValidZipJob(final String applicationName, final
@@ -442,6 +419,26 @@ public class RestITCase extends XMLTestCase {
      * if (uploadedFile.contentType != null) fileInput.setContentType(uploadedFile.contentType); }
      */
 
+    private void ponderRetrieveAndValidateZipResult(final String resultUri) throws Exception {
+        ponderUntilOneResultAvailable(resultUri);
+        retrieveAndValidateZipResult(resultUri);
+    }
+
+    private void retrieveAndValidateZipResult(final String resultUri) throws Exception {
+        final String dataUri = doTestResultAvailability(resultUri, "zip");
+        validateZipResult(getStreamResponse(dataUri));
+    }
+
+    private void retrieveAndValidateZipError(final String resultUri) throws Exception {
+        final String dataUri = doTestResultAvailability(resultUri, "txt");
+        validateErrorResult(getStreamResponse(dataUri));
+    }
+
+    private Document doTestSubmitZipJob(final String applicationName, final InputStream job, final Map<String, String> extraHeaders)
+            throws IOException, SAXException, XpathException {
+        return doTestSubmitJobWithXmlAck(applicationName, job, "application/zip", extraHeaders);
+    }
+
     private String ponderUntilOneResultAvailable(final String watchUri) throws Exception {
         for (int attemptCount = 0; attemptCount < 60; attemptCount++) {
 
@@ -466,10 +463,15 @@ public class RestITCase extends XMLTestCase {
         return null;
     }
 
-    private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream job, final Map<String, String> extraHeaders)
-            throws IOException, SAXException, XpathException {
+    private Document doTestSubmitXmlJobWithXmlAck(final String applicationName, final InputStream job,
+            final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
+        return doTestSubmitJobWithXmlAck(applicationName, job, "application/xml", extraHeaders);
+    }
+
+    private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream job, final String jobContentType,
+            final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
         final WebConversation wc = createNewWebConversation();
-        final PostMethodWebRequest request = new PostMethodWebRequest(restJobsUri, job, "application/xml");
+        final PostMethodWebRequest request = new PostMethodWebRequest(restJobsUri, job, jobContentType);
         request.setHeaderField("X-RSB-Application-Name", applicationName);
 
         for (final Entry<String, String> extraHeader : extraHeaders.entrySet()) {
@@ -533,38 +535,38 @@ public class RestITCase extends XMLTestCase {
         return XMLUnit.newXpathEngine().evaluate("//rsb:result/@dataUri", responseDocument);
     }
 
-    private String getStringResponse(final String resultUri) throws IOException, SAXException {
+    private static String getStringResponse(final String resultUri) throws IOException, SAXException {
         return getResponse(resultUri).getText();
     }
 
-    private InputStream getStreamResponse(final String resultUri) throws IOException, SAXException {
+    private static InputStream getStreamResponse(final String resultUri) throws IOException, SAXException {
         return getResponse(resultUri).getInputStream();
     }
 
-    private WebResponse getResponse(final String resultUri) throws IOException, SAXException {
+    private static WebResponse getResponse(final String resultUri) throws IOException, SAXException {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new GetMethodWebRequest(resultUri);
         final WebResponse response = wc.sendRequest(request);
         return response;
     }
 
-    private String getResultUri(final Document responseDocument) throws XpathException {
+    private static String getResultUri(final Document responseDocument) throws XpathException {
         return XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@resultUri", responseDocument);
     }
 
-    private String getApplicationResultsUri(final Document responseDocument) throws XpathException {
+    private static String getApplicationResultsUri(final Document responseDocument) throws XpathException {
         return XMLUnit.newXpathEngine().evaluate("/rsb:jobToken/@applicationResultsUri", responseDocument);
     }
 
-    private String getResultUri(final Map<?, ?> jsonResult) {
+    private static String getResultUri(final Map<?, ?> jsonResult) {
         return jsonResult.get("resultUri").toString();
     }
 
-    private String getApplicationResultsUri(final Map<?, ?> jsonResult) {
+    private static String getApplicationResultsUri(final Map<?, ?> jsonResult) {
         return jsonResult.get("applicationResultsUri").toString();
     }
 
-    private String newTestApplicationName() {
+    private static String newTestApplicationName() {
         return "rsb_it_" + RandomStringUtils.randomAlphanumeric(20);
     }
 
@@ -582,7 +584,7 @@ public class RestITCase extends XMLTestCase {
         }
     }
 
-    private void doTestUnsupportedDeleteMethod(final String requestUri) throws IOException, SAXException {
+    private static void doTestUnsupportedDeleteMethod(final String requestUri) throws IOException, SAXException {
         final WebConversation wc = createNewWebConversation();
         final WebRequest request = new DeleteMethodWebRequest(requestUri);
         try {
@@ -593,14 +595,32 @@ public class RestITCase extends XMLTestCase {
         }
     }
 
-    private WebClient createNewWebClient() {
+    private static WebClient createNewWebClient() {
         final WebClient webClient = new WebClient();
         webClient.setJavaScriptEnabled(false);
         return webClient;
     }
 
-    private WebConversation createNewWebConversation() {
+    private static WebConversation createNewWebConversation() {
         return new WebConversation();
+    }
+
+    private static void validateZipResult(final InputStream responseStream) throws IOException {
+        final ZipInputStream result = new ZipInputStream(responseStream);
+        ZipEntry ze = null;
+
+        while ((ze = result.getNextEntry()) != null) {
+            if (ze.getName().endsWith(".pdf")) {
+                return;
+            }
+        }
+
+        fail("No PDF file found in Zip result");
+    }
+
+    private static void validateErrorResult(final InputStream responseStream) throws IOException {
+        final String response = IOUtils.toString(responseStream);
+        assertTrue(response + " should contain 'error'", response.contains("error"));
     }
 
     private static InputStream getTestStream(final String payloadResourceFile) {
