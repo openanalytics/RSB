@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.context.MessageSource;
 
 import eu.openanalytics.rsb.config.Configuration;
 
@@ -38,6 +39,9 @@ public abstract class AbstractComponent {
     @Resource
     private Configuration configuration;
 
+    @Resource
+    private MessageSource messages;
+
     // exposed for unit testing
     void setConfiguration(final Configuration configuration) {
         this.configuration = configuration;
@@ -45,6 +49,10 @@ public abstract class AbstractComponent {
 
     protected Configuration getConfiguration() {
         return configuration;
+    }
+
+    protected MessageSource getMessages() {
+        return messages;
     }
 
     protected Log getLogger() {

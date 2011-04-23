@@ -60,7 +60,8 @@ public class JsonFunctionCallJobTestCase {
 
     @Test
     public void buildErrorResultThrowable() throws Exception {
-        final JsonFunctionCallResult xmlFunctionCallResult = jsonFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"));
+        final JsonFunctionCallResult xmlFunctionCallResult = jsonFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"),
+                null);
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(false));
         assertThat(Util.fromJson(xmlFunctionCallResult.getPayload(), Map.class), notNullValue());

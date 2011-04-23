@@ -23,6 +23,8 @@ package eu.openanalytics.rsb.message;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
+import org.springframework.context.MessageSource;
+
 import eu.openanalytics.rsb.Util;
 
 /**
@@ -49,7 +51,7 @@ public class XmlFunctionCallJob extends AbstractFunctionCallJob {
     }
 
     @Override
-    public XmlFunctionCallResult buildErrorResult(final Throwable error) {
+    public XmlFunctionCallResult buildErrorResult(final Throwable error, final MessageSource messageSource) {
         return buildResult(false, Util.toXml(Util.buildJobProcessingErrorResult(this, error)));
     }
 

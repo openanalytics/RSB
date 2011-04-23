@@ -215,7 +215,7 @@ public class JobProcessor extends AbstractComponent {
             getLogger().error(
                     String.format("Failed to process %s %s on %s in %dms", job.getType(), job.getJobId(), rserviPoolAddress, processTime),
                     t);
-            result = job.buildErrorResult(t);
+            result = job.buildErrorResult(t, getMessages());
         } finally {
             rServi.close();
 

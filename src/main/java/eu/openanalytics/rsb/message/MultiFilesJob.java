@@ -37,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
 
 import eu.openanalytics.rsb.Constants;
@@ -111,12 +112,10 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     }
 
     @Override
-    public MultiFilesResult buildErrorResult(final Throwable t) throws IOException {
-        // TODO externalize in a resource bundle
-        // FIXME format time properly
-        final String errorText = String.format(
-                "The job Id %s submitted at %s resulted in an error.\nPlease find the detailed R error message below:\n\n%s", getJobId(),
-                getSubmissionTime(), t.getMessage());
+    public MultiFilesResult buildErrorResult(final Throwable t, final MessageSource messageSource) throws IOException {
+        final String cause = t.getMessage();
+        final String errorText = messageSource.getMessage("job.default.error", new Object[] { getJobId(), getSubmissionTime().getTime(),
+                cause }, cause, null);
 
         final MultiFilesResult result = new MultiFilesResult(getApplicationName(), getJobId(), getSubmissionTime(), false);
         final File resultFile = result.createNewResultFile(getJobId() + "." + Constants.MULTIPLE_FILES_ERROR_FILE_EXTENSION);

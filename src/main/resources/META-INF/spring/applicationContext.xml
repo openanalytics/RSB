@@ -51,6 +51,9 @@
     <mvc:annotation-driven />
     <context:annotation-config />
     <context:component-scan base-package="eu.openanalytics.rsb.component" />
+    <bean id="messageSource"
+        class="org.springframework.context.support.ResourceBundleMessageSource"
+        p:basename="messages" />
     
     <!-- RServi -->
     <bean name="rServiInstanceProvider" class="eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider" />
@@ -64,19 +67,20 @@
     <jaxws:endpoint implementor="#mtomJobHandler" address="/soap/mtom-jobs" />
 
     <util:list id="jsonRsbTypes">
-        <value>#{T(eu.openanalytics.rsb.Constants).RSB_JSON_CONTENT_TYPE}</value>
+        <value>#{T(eu.openanalytics.rsb.Constants).RSB_JSON_CONTENT_TYPE}
+        </value>
     </util:list>
 
     <bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.JSONProvider"
         p:consumeMediaTypes-ref="jsonRsbTypes" p:produceMediaTypes-ref="jsonRsbTypes"
         p:ignoreNamespaces="true" p:attributesToElements="true" />
-        
+
     <bean id="iaeMapper" class="eu.openanalytics.rsb.jaxrs.IllegalArgumentExceptionMapper" />
 
     <jaxrs:server address="/rest">
         <jaxrs:serviceBeans>
             <ref bean="jobsResource" />
-            <ref bean="resultsResource"/>
+            <ref bean="resultsResource" />
             <ref bean="resultResource" />
         </jaxrs:serviceBeans>
         <jaxrs:providers>
@@ -103,7 +107,7 @@
         init-method="start" destroy-method="stop" />
 
     <bean name="amqRedeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy"
-        p:useExponentialBackOff="true" />
+        p:useExponentialBackOff="true" p:maximumRedeliveries="6" />
 
     <bean name="amqPrefetchPolicy" class="org.apache.activemq.ActiveMQPrefetchPolicy"
         p:all="1" />
@@ -138,7 +142,7 @@
             method="handle" />
     </jms:listener-container>
     
-      <!-- Spring Integration -->
+    <!-- Spring Integration -->
     <si:channel id="resultFilesChannel" />
 
     <file:outbound-channel-adapter channel="resultFilesChannel"

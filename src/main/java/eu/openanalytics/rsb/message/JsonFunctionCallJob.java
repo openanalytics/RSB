@@ -23,6 +23,8 @@ package eu.openanalytics.rsb.message;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
+import org.springframework.context.MessageSource;
+
 import eu.openanalytics.rsb.Util;
 
 /**
@@ -49,7 +51,7 @@ public class JsonFunctionCallJob extends AbstractFunctionCallJob {
     }
 
     @Override
-    public JsonFunctionCallResult buildErrorResult(final Throwable error) {
+    public JsonFunctionCallResult buildErrorResult(final Throwable error, final MessageSource messageSource) {
         return buildResult(false, Util.toJson(Util.buildJobProcessingErrorResult(this, error)));
     }
 

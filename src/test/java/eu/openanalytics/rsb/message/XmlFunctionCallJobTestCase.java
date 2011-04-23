@@ -58,7 +58,8 @@ public class XmlFunctionCallJobTestCase {
 
     @Test
     public void buildErrorResultThrowable() throws Exception {
-        final XmlFunctionCallResult xmlFunctionCallResult = xmlFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"));
+        final XmlFunctionCallResult xmlFunctionCallResult = xmlFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"),
+                null);
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(false));
         assertXpathEvaluatesTo("errorResult", "name(/node())", xmlFunctionCallResult.getPayload());

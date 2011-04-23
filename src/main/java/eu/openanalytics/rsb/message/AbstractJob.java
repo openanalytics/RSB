@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
+import org.springframework.context.MessageSource;
+
 /**
  * Represents a generic RSB job.
  * 
@@ -40,5 +42,5 @@ public abstract class AbstractJob extends AbstractWorkItem {
         return getClass().getSimpleName();
     }
 
-    public abstract AbstractResult<?> buildErrorResult(Throwable t) throws IOException;
+    public abstract AbstractResult<?> buildErrorResult(Throwable t, MessageSource messageSource) throws IOException;
 }

@@ -45,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.springframework.context.MessageSource;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
@@ -129,12 +130,12 @@ public class JobProcessorTestCase {
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
-        final RuntimeException exception = new RuntimeException("simulated RServi issue");
+        final Throwable exception = new RuntimeException("simulated RServi issue");
         when(rServi.createFunctionCall(anyString())).thenThrow(exception);
         final AbstractFunctionCallJob functionCallJob = mock(AbstractFunctionCallJob.class);
         @SuppressWarnings("unchecked")
         final AbstractResult<Object> functionCallResult = mock(AbstractResult.class);
-        when(functionCallJob.buildErrorResult(exception)).thenAnswer(new Answer<Object>() {
+        when(functionCallJob.buildErrorResult(eq(exception), any(MessageSource.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(final InvocationOnMock invocation) throws Throwable {
                 return functionCallResult;
