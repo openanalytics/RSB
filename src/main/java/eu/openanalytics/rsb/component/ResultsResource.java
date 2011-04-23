@@ -58,8 +58,6 @@ import eu.openanalytics.rsb.rest.types.Results;
 @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 @Path("/" + Constants.RESULTS_PATH + "/{applicationName}")
 public class ResultsResource extends AbstractComponent {
-    // TODO unit test
-
     private interface SingleResultFileOperation<T> {
         T run(final File resultFile) throws URISyntaxException, IOException;
     }
@@ -109,7 +107,7 @@ public class ResultsResource extends AbstractComponent {
         });
     }
 
-    public <T> T runSingleResultFileOperation(final String applicationName, final String jobId, final HttpHeaders httpHeaders,
+    private <T> T runSingleResultFileOperation(final String applicationName, final String jobId, final HttpHeaders httpHeaders,
             final UriInfo uriInfo, final SingleResultFileOperation<T> operation) throws URISyntaxException, IOException {
 
         if (!Util.isValidApplicationName(applicationName)) {
@@ -137,7 +135,8 @@ public class ResultsResource extends AbstractComponent {
         return operation.run(resultFiles[0]);
     }
 
-    private Result buildResult(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo, final File resultFile)
+    // exposed for unit tests
+    Result buildResult(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo, final File resultFile)
             throws URISyntaxException {
 
         final String fileName = resultFile.getName();

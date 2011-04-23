@@ -133,7 +133,6 @@ public class JobsResource extends AbstractComponent {
      * @throws URISyntaxException
      * @throws IOException
      */
-    // TODO unit test
     @POST
     @Consumes({ Constants.ZIP_CONTENT_TYPE, Constants.ZIP_CONTENT_TYPE2, Constants.ZIP_CONTENT_TYPE3 })
     public Response handleZipJob(final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)

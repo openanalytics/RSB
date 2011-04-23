@@ -58,7 +58,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.StartsWith;
-import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -113,7 +112,7 @@ public class RestITCase extends XMLTestCase {
     private void putTestScriptInCatalog(final File testScript) throws FileNotFoundException, IOException {
         if (!testScript.isFile()) {
             final FileOutputStream fos = new FileOutputStream(testScript);
-            IOUtils.copy(getTestDataAsStream(testScript.getName()), fos);
+            IOUtils.copy(getTestData(testScript.getName()), fos);
             IOUtils.closeQuietly(fos);
         }
         testScripts.add(testScript);
@@ -278,7 +277,7 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void forwardedProtocol() throws Exception {
         final String applicationName = newTestApplicationName();
-        final Document resultDoc = doTestSubmitXmlJobWithXmlAck(applicationName, getTestDataAsStream("r-job-sample.xml"),
+        final Document resultDoc = doTestSubmitXmlJobWithXmlAck(applicationName, getTestData("r-job-sample.xml"),
                 Collections.singletonMap("X-Forwarded-Protocol", "foo"));
 
         assertThat(getApplicationResultsUri(resultDoc), is(new StartsWith("foo:/")));
@@ -289,7 +288,7 @@ public class RestITCase extends XMLTestCase {
     public void submitValidZipJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
         @SuppressWarnings("unchecked")
-        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-sample.zip"), Collections.EMPTY_MAP);
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestData("r-job-sample.zip"), Collections.EMPTY_MAP);
         final String resultUri = getResultUri(resultDoc);
         ponderRetrieveAndValidateZipResult(resultUri);
     }
@@ -299,7 +298,7 @@ public class RestITCase extends XMLTestCase {
     public void submitInvalidZipJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
         try {
-            doTestSubmitZipJob(applicationName, getTestDataAsStream("invalid-job-subdir.zip"), Collections.EMPTY_MAP);
+            doTestSubmitZipJob(applicationName, getTestData("invalid-job-subdir.zip"), Collections.EMPTY_MAP);
             fail("an exception should have been raised");
         } catch (final HttpException he) {
             assertEquals(400, he.getResponseCode());
@@ -310,7 +309,7 @@ public class RestITCase extends XMLTestCase {
     public void submitValidZipJobWithCatalogRefAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
         @SuppressWarnings("unchecked")
-        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-catalog-ref.zip"), Collections.EMPTY_MAP);
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestData("r-job-catalog-ref.zip"), Collections.EMPTY_MAP);
         final String resultUri = getResultUri(resultDoc);
         ponderRetrieveAndValidateZipResult(resultUri);
     }
@@ -318,7 +317,7 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void submitValidDataOnlyZipJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
-        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-data-only.zip"),
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestData("r-job-data-only.zip"),
                 Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
         final String resultUri = getResultUri(resultDoc);
         ponderRetrieveAndValidateZipResult(resultUri);
@@ -327,7 +326,7 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void submitValidJobRequiringMetaAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
-        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-meta-required.zip"),
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestData("r-job-meta-required.zip"),
                 Collections.singletonMap("X-RSB-Meta-reportAuthor", "Jules Verne"));
         final String resultUri = getResultUri(resultDoc);
         ponderRetrieveAndValidateZipResult(resultUri);
@@ -337,8 +336,7 @@ public class RestITCase extends XMLTestCase {
     public void submitValidJobRequiringMetaWithoutMeta() throws Exception {
         final String applicationName = newTestApplicationName();
         @SuppressWarnings("unchecked")
-        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestDataAsStream("r-job-meta-required.zip"),
-                Collections.EMPTY_MAP);
+        final Document resultDoc = doTestSubmitZipJob(applicationName, getTestData("r-job-meta-required.zip"), Collections.EMPTY_MAP);
         final String resultUri = getResultUri(resultDoc);
         ponderUntilOneResultAvailable(resultUri);
         retrieveAndValidateZipError(resultUri);
@@ -376,11 +374,11 @@ public class RestITCase extends XMLTestCase {
     }
 
     private Document doTestSubmitValidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
-        return doTestSubmitXmlJob(applicationName, getTestDataAsStream("r-job-sample.xml"));
+        return doTestSubmitXmlJob(applicationName, getTestData("r-job-sample.xml"));
     }
 
     private Map<?, ?> doTestSubmitValidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
-        return doTestSubmitJobWithJsonAck(applicationName, getTestDataAsStream("r-job-sample.json"));
+        return doTestSubmitJobWithJsonAck(applicationName, getTestData("r-job-sample.json"));
     }
 
     private Map<?, ?> doTestSubmitInvalidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
@@ -703,16 +701,7 @@ public class RestITCase extends XMLTestCase {
         assertTrue(response + " should contain 'error'", response.contains("error"));
     }
 
-    private static InputStream getTestDataAsStream(final String payloadResourceFile) {
-        return new ByteArrayInputStream(getTestDataAsBytes(payloadResourceFile));
-    }
-
-    private static byte[] getTestDataAsBytes(final String payloadResourceFile) {
-        try {
-            return FileCopyUtils.copyToByteArray(Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream("data/" + payloadResourceFile));
-        } catch (final IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
+    private static InputStream getTestData(final String payloadResourceFile) {
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream("data/" + payloadResourceFile);
     }
 }

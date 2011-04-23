@@ -94,6 +94,16 @@ public abstract class Util {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
+    /**
+     * Builds a result URI.
+     * 
+     * @param applicationName
+     * @param jobId
+     * @param httpHeaders
+     * @param uriInfo
+     * @return
+     * @throws URISyntaxException
+     */
     public static URI buildResultUri(final String applicationName, final String jobId, final HttpHeaders httpHeaders, final UriInfo uriInfo)
             throws URISyntaxException {
         return getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULTS_PATH).path(applicationName).path(jobId).build();
