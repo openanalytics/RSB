@@ -46,9 +46,9 @@ import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ResultProcessorTestCase {
+public class RestResultProcessorTestCase {
 
-    private ResultProcessor resultProcessor;
+    private RestResultProcessor restResultProcessor;
 
     @Mock
     private MessageChannel resultFilesChannel;
@@ -61,20 +61,20 @@ public class ResultProcessorTestCase {
         final File tempDir = new File(System.getProperty("java.io.tmpdir"));
         when(configuration.getRsbResultsDirectory()).thenReturn(tempDir);
 
-        resultProcessor = new ResultProcessor();
-        resultProcessor.setResultFilesChannel(resultFilesChannel);
-        resultProcessor.setConfiguration(configuration);
+        restResultProcessor = new RestResultProcessor();
+        restResultProcessor.setResultFilesChannel(resultFilesChannel);
+        restResultProcessor.setConfiguration(configuration);
 
         when(functionCallResult.getApplicationName()).thenReturn("test_app_name");
         when(functionCallResult.getMimeType()).thenReturn(Constants.XML_MIME_TYPE);
-        when(functionCallResult.getResult()).thenReturn("<fake />");
+        when(functionCallResult.getPayload()).thenReturn("<fake />");
     }
 
     @Test
     public void processSuccess() throws IOException {
         when(functionCallResult.isSuccess()).thenReturn(true);
 
-        resultProcessor.process(functionCallResult);
+        restResultProcessor.process(functionCallResult);
 
         verify(resultFilesChannel).send(any(Message.class), anyInt());
         verify(functionCallResult).destroy();
@@ -84,7 +84,7 @@ public class ResultProcessorTestCase {
     public void processFailure() throws IOException {
         when(functionCallResult.isSuccess()).thenReturn(true);
 
-        resultProcessor.process(functionCallResult);
+        restResultProcessor.process(functionCallResult);
 
         verify(resultFilesChannel).send(any(Message.class), anyInt());
         verify(functionCallResult).destroy();

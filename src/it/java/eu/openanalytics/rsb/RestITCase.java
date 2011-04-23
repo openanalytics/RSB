@@ -90,8 +90,7 @@ public class RestITCase extends XMLTestCase {
     @Test
     public void jobsBadApplicationName() throws Exception {
         final WebConversation wc = createNewWebConversation();
-        final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
-                "application/xml");
+        final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()), "application/xml");
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
         try {
@@ -281,14 +280,17 @@ public class RestITCase extends XMLTestCase {
     }
 
     // FIXME reactivate integration tests
+
+    // @SuppressWarnings("unchecked")
+    // public void testSubmitValidZipJobAndRetrieveByAppName() throws Exception {
+    // final String applicationName = newTestApplicationName();
+    // doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT,
+    // Collections.EMPTY_MAP);
+    //
+    // ponderRetrieveAndValidateZipResult(applicationName);
+    // }
+
     /*
-     * @SuppressWarnings("unchecked") public void testSubmitValidZipJobAndRetrieveByAppName() throws
-     * Exception { final String applicationName = newTestApplicationName();
-     * doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT,
-     * Collections.EMPTY_MAP);
-     * 
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
      * @SuppressWarnings("unchecked") public void testSubmitInvalidZipJobAndRetrieveByAppName()
      * throws Exception { final String applicationName = newTestApplicationName();
      * doTestSubmitZipJob(applicationName, AbstractRsbFunctionalTestCase.JOB_SCRIPT,
@@ -379,11 +381,15 @@ public class RestITCase extends XMLTestCase {
      * extraHeaders);
      * 
      * return getResultUri(result); }
-     * 
-     * private Document doTestSubmitZipJob(final String applicationName, final InputStream job,
-     * final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
-     * return doTestSubmitJobWithXmlAck(applicationName, job, ZIP_JOB_CONTENT_TYPE, extraHeaders); }
-     * 
+     */
+
+    // private Document doTestSubmitZipJob(final String applicationName, final InputStream job,
+    // final Map<String, String> extraHeaders)
+    // throws IOException, SAXException, XpathException {
+    // return doTestSubmitJobWithXmlAck(applicationName, job, "application/zip", extraHeaders);
+    // }
+
+    /*
      * private Document doTestSubmitMultipartValidZipJob(final String applicationName, final
      * List<UploadedFile> jobFiles, final Map<String, String> extraFields) throws Exception { //
      * disable javascript because we want a normal form post to happen and not an AJAX one final

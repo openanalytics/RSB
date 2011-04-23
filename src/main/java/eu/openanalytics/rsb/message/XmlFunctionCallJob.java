@@ -30,7 +30,7 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public class XmlFunctionCallJob extends AbstractFunctionCallJob<XmlFunctionCallResult> {
+public class XmlFunctionCallJob extends AbstractFunctionCallJob {
     private static final long serialVersionUID = 1L;
 
     public XmlFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String argument) {

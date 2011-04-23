@@ -26,7 +26,7 @@ import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.AbstractDefaultConfiguration {
+class RsbConfiguration extends eu.openanalytics.rsb.config.DefaultConfiguration {
     
     // Demonstrates how to send statistics to Redis
 //    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {

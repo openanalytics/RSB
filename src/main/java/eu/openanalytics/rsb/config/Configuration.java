@@ -30,7 +30,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
  * changes via a hit-reloadable Groovy concrete implementation.
  * 
- * @see AbstractDefaultConfiguration
+ * @see DefaultConfiguration
  * 
  * @author rsb.development@openanalytics.eu
  */
@@ -40,6 +40,11 @@ public interface Configuration {
      * Validates the configuration, throwing runtime exceptions in case of problems.
      */
     void validate();
+
+    /**
+     * Directory where a catalog of R scripts, Sweave files and Email responses are stored.
+     */
+    File getRsbCatalogDirectory();
 
     /**
      * Directory where result files are written.

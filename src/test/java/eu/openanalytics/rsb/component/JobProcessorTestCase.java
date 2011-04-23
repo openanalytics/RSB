@@ -42,7 +42,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
@@ -129,10 +131,15 @@ public class JobProcessorTestCase {
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
         final RuntimeException exception = new RuntimeException("simulated RServi issue");
         when(rServi.createFunctionCall(anyString())).thenThrow(exception);
+        final AbstractFunctionCallJob functionCallJob = mock(AbstractFunctionCallJob.class);
         @SuppressWarnings("unchecked")
-        final AbstractFunctionCallJob<AbstractFunctionCallResult> functionCallJob = mock(AbstractFunctionCallJob.class);
-        final AbstractFunctionCallResult functionCallResult = mock(AbstractFunctionCallResult.class);
-        when(functionCallJob.buildErrorResult(exception)).thenReturn(functionCallResult);
+        final AbstractResult<Object> functionCallResult = mock(AbstractResult.class);
+        when(functionCallJob.buildErrorResult(exception)).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                return functionCallResult;
+            }
+        });
 
         jobProcessor.process(functionCallJob);
 
@@ -145,8 +152,7 @@ public class JobProcessorTestCase {
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
-        @SuppressWarnings("unchecked")
-        final AbstractFunctionCallJob<AbstractFunctionCallResult> functionCallJob = mock(AbstractFunctionCallJob.class);
+        final AbstractFunctionCallJob functionCallJob = mock(AbstractFunctionCallJob.class);
         final FunctionCall functionCall = mock(FunctionCall.class);
         when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
         final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(new String[] { "fake_result" }));

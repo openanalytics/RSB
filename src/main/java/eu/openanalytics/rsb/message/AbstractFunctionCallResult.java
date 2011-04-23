@@ -23,12 +23,14 @@ package eu.openanalytics.rsb.message;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
+import javax.activation.MimeType;
+
 /**
  * Represents the result of a {@link AbstractFunctionCallJob}.
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractFunctionCallResult extends AbstractResult {
+public abstract class AbstractFunctionCallResult extends AbstractResult<String> {
     private static final long serialVersionUID = 1L;
 
     private final String result;
@@ -39,12 +41,15 @@ public abstract class AbstractFunctionCallResult extends AbstractResult {
         this.result = result;
     }
 
+    public abstract MimeType getMimeType();
+
     @Override
     protected void releaseResources() {
         // NOOP
     }
 
-    public String getResult() {
+    @Override
+    public String getPayload() {
         return result;
     }
 }

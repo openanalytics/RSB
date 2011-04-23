@@ -20,6 +20,7 @@
  */
 package eu.openanalytics.rsb.message;
 
+import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ import java.util.UUID;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResult> extends AbstractJob {
+public abstract class AbstractFunctionCallJob extends AbstractJob {
     private static final long serialVersionUID = 1L;
 
     private final String argument;
@@ -39,16 +40,14 @@ public abstract class AbstractFunctionCallJob<R extends AbstractFunctionCallResu
         this.argument = argument;
     }
 
+    public abstract AbstractResult<String> buildSuccessResult(String result) throws IOException;
+
     @Override
     protected void releaseResources() {
         // NOOP
     }
 
     public abstract String getFunctionName();
-
-    public abstract R buildSuccessResult(String result);
-
-    public abstract R buildErrorResult(Throwable error);
 
     public String getArgument() {
         return argument;

@@ -20,6 +20,7 @@
  */
 package eu.openanalytics.rsb.message;
 
+import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
@@ -38,4 +39,6 @@ public abstract class AbstractJob extends AbstractWorkItem {
     public String getType() {
         return getClass().getSimpleName();
     }
+
+    public abstract AbstractResult<?> buildErrorResult(Throwable t) throws IOException;
 }

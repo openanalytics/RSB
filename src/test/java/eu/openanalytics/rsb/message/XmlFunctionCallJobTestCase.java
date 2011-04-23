@@ -61,6 +61,6 @@ public class XmlFunctionCallJobTestCase {
         final XmlFunctionCallResult xmlFunctionCallResult = xmlFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"));
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(false));
-        assertXpathEvaluatesTo("errorResult", "name(/node())", xmlFunctionCallResult.getResult());
+        assertXpathEvaluatesTo("errorResult", "name(/node())", xmlFunctionCallResult.getPayload());
     }
 }

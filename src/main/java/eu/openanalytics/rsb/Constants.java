@@ -46,9 +46,11 @@ public class Constants {
     public static final String JOB_ID_JMS_HEADER = "jobId";
 
     public static final String MULTIPLE_FILES_JOB_CONFIGURATION = "configuration.txt";
+    public static final String MULTIPLE_FILES_ERROR_FILE_EXTENSION = "err.txt";
     public static final String R_SCRIPT_FILE_EXTENSION = "R";
     public static final String R_SCRIPT_CONFIGURATION_KEY = "rScript";
     public static final String SWEAVE_FILE_CONFIGURATION_KEY = "sweaveFile";
+    public static final String DEFAULT_R_LOG_FILE = "out.log";
 
     public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
     public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";

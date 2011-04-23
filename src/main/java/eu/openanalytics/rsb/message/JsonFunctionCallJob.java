@@ -30,7 +30,7 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public class JsonFunctionCallJob extends AbstractFunctionCallJob<JsonFunctionCallResult> {
+public class JsonFunctionCallJob extends AbstractFunctionCallJob {
     private static final long serialVersionUID = 1L;
 
     public JsonFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String argument) {

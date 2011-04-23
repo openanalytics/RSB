@@ -193,7 +193,7 @@ public class JobsResource extends AbstractComponent {
                 throw new IllegalArgumentException("Multiple values found for header: " + multiValues.getKey());
             }
 
-            meta.put(multiValues.getKey(), multiValues.getValue().get(0));
+            meta.put(StringUtils.substringAfter(multiValues.getKey(), Constants.RSB_META_HEADER_PREFIX), multiValues.getValue().get(0));
         }
 
         return meta;

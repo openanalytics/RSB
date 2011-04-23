@@ -20,34 +20,44 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.CoreException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RObject;
+import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
-import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
+import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MultiFilesJob;
+import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
@@ -59,6 +69,10 @@ import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
  */
 @Component("jobProcessor")
 public class JobProcessor extends AbstractComponent {
+    private interface JobRunner {
+        AbstractResult<?> runOn(RServi rServi) throws Exception;
+    }
+
     @Resource
     private JmsTemplate jmsTemplate;
 
@@ -81,64 +95,78 @@ public class JobProcessor extends AbstractComponent {
                 .getJobStatisticsHandler();
     }
 
-    public void process(final AbstractFunctionCallJob<?> functionCallJob) throws LoginException, CoreException {
-        AbstractFunctionCallResult result = null;
-        final long startTime = System.currentTimeMillis();
-        final URI rserviPoolAddress = getRServiPoolUri(functionCallJob.getApplicationName());
-
-        // don't catch RServi pool here so the error is propagated and the job can be retried
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), rServiClientId);
-
-        try {
-            final String resultPayload = callFunctionOnR(rServi, functionCallJob.getFunctionName(), functionCallJob.getArgument());
-            result = functionCallJob.buildSuccessResult(resultPayload);
-
-            final long processTime = System.currentTimeMillis() - startTime;
-
-            getJobStatisticsHandler().storeJobStatistics(functionCallJob.getApplicationName(), functionCallJob.getJobId(),
-                    new GregorianCalendar(), processTime, rserviPoolAddress.toString());
-
-            getLogger().info(
-                    String.format("Successfully processed %s %s on %s in %dms", functionCallJob.getType(), functionCallJob.getJobId(),
-                            rserviPoolAddress, processTime));
-        } catch (final Throwable t) {
-            // catch wide to prevent disrupting the main flow
-            final long processTime = System.currentTimeMillis() - startTime;
-            getLogger().error(
-                    String.format("Failed to process %s %s on %s in %dms", functionCallJob.getType(), functionCallJob.getJobId(),
-                            rserviPoolAddress, processTime), t);
-            result = functionCallJob.buildErrorResult(t);
-        } finally {
-            rServi.close();
-
-            if (result != null) {
-                Util.dispatch(result, jmsTemplate);
+    public void process(final AbstractFunctionCallJob job) throws Exception {
+        process(job, new JobRunner() {
+            public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException {
+                final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
+                return job.buildSuccessResult(resultPayload);
             }
-
-            functionCallJob.destroy();
-        }
+        });
     }
 
-    public void process(final MultiFilesJob multiFilesJob) {
-        final Set<File> filesUploadedToR = new HashSet<File>();
-        File rScriptFile = null;
+    // TODO unit test
+    public void process(final MultiFilesJob job) throws Exception {
+        process(job, new JobRunner() {
+            public AbstractResult<File> runOn(final RServi rServi) throws Exception {
+                final Set<String> filesUploadedToR = new HashSet<String>();
 
-        // TODO get script file from catalog if rSCript meta
+                // locate and upload the R script
+                final String rScriptFromCatalog = job.getMeta().get(Constants.R_SCRIPT_CONFIGURATION_KEY);
+                final File rScriptFile = rScriptFromCatalog != null ? new File(getConfiguration().getRsbCatalogDirectory(),
+                        rScriptFromCatalog) : job.getRScriptFile();
 
-        for (final File jobFile : multiFilesJob.getFiles()) {
-            if ((rScriptFile == null)
-                    && (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(jobFile.getName()), Constants.R_SCRIPT_FILE_EXTENSION))) {
-                // pick-up the first
-                rScriptFile = jobFile;
+                if ((rScriptFile == null) || (!rScriptFile.isFile())) {
+                    throw new IllegalStateException("No R script has been found for job: " + job);
+                }
+
+                uploadFileToR(rServi, rScriptFile, filesUploadedToR);
+
+                // optionally uploads a Sweave file
+                final String sweaveFileFromCatalog = job.getMeta().get(Constants.SWEAVE_FILE_CONFIGURATION_KEY);
+
+                if (sweaveFileFromCatalog != null) {
+                    final File sweaveFile = new File(getConfiguration().getRsbCatalogDirectory(), sweaveFileFromCatalog);
+
+                    if (!sweaveFile.isFile()) {
+                        throw new IllegalArgumentException("Invalid catalog Sweave file reference in job: " + job);
+                    }
+
+                    uploadFileToR(rServi, sweaveFile, filesUploadedToR);
+                }
+
+                // upload the job files (except the R Script which has already been taken care of)
+                for (final File jobFile : job.getFiles()) {
+                    if (!jobFile.equals(rScriptFile)) {
+                        uploadFileToR(rServi, jobFile, filesUploadedToR);
+                    }
+                }
+
+                // upload the configuration file to R
+                uploadPropertiesToR(rServi, job.getMeta(), filesUploadedToR);
+
+                // hit R
+                executeScriptOnR(rServi, rScriptFile.getName());
+
+                final MultiFilesResult result = job.buildSuccessResult();
+
+                // download the result files but not the uploaded ones nor the log file
+                final Set<String> filesToDownload = getFilesInRWorkspace(rServi);
+                filesToDownload.removeAll(filesUploadedToR);
+                filesToDownload.remove(Constants.DEFAULT_R_LOG_FILE);
+                for (final String fileToDownload : filesToDownload) {
+                    final File resultFile = result.createNewResultFile(fileToDownload);
+                    final FileOutputStream fos = new FileOutputStream(resultFile);
+                    rServi.downloadFile(fos, fileToDownload, 0, null);
+                    IOUtils.closeQuietly(fos);
+                }
+
+                return result;
             }
-        }
 
-        // TODO sweave file from catalog
-
-        // FIXME implement processing of multi-files jobs
-        getLogger().warn("Can't process (yet): " + multiFilesJob);
-
-        multiFilesJob.destroy();
+            private HashSet<String> getFilesInRWorkspace(final RServi rServi) throws UnexpectedRDataException, CoreException {
+                return new HashSet<String>(Arrays.asList(RDataUtil.checkRCharVector(rServi.evalData("dir()", null)).getData().toArray()));
+            }
+        });
     }
 
     // exposed for unit testing
@@ -162,6 +190,43 @@ public class JobProcessor extends AbstractComponent {
         return applicationRserviPoolUri == null ? getConfiguration().getDefaultRserviPoolUri() : applicationRserviPoolUri;
     }
 
+    private void process(final AbstractJob job, final JobRunner jobRunner) throws LoginException, CoreException, IOException {
+        AbstractResult<?> result = null;
+        final long startTime = System.currentTimeMillis();
+        final URI rserviPoolAddress = getRServiPoolUri(job.getApplicationName());
+
+        // don't catch RServi pool here so the error is propagated and the job can be retried
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), rServiClientId);
+
+        try {
+            result = jobRunner.runOn(rServi);
+
+            final long processTime = System.currentTimeMillis() - startTime;
+
+            getJobStatisticsHandler().storeJobStatistics(job.getApplicationName(), job.getJobId(), new GregorianCalendar(), processTime,
+                    rserviPoolAddress.toString());
+
+            getLogger().info(
+                    String.format("Successfully processed %s %s on %s in %dms", job.getType(), job.getJobId(), rserviPoolAddress,
+                            processTime));
+        } catch (final Throwable t) {
+            // catch wide to prevent disrupting the main flow
+            final long processTime = System.currentTimeMillis() - startTime;
+            getLogger().error(
+                    String.format("Failed to process %s %s on %s in %dms", job.getType(), job.getJobId(), rserviPoolAddress, processTime),
+                    t);
+            result = job.buildErrorResult(t);
+        } finally {
+            rServi.close();
+
+            if (result != null) {
+                Util.dispatch(result, jmsTemplate);
+            }
+
+            job.destroy();
+        }
+    }
+
     private static String callFunctionOnR(final RServi rServi, final String functionName, final String argument) throws CoreException {
         final FunctionCall functionCall = rServi.createFunctionCall(functionName);
         functionCall.addChar(argument);
@@ -171,5 +236,28 @@ public class JobProcessor extends AbstractComponent {
         }
 
         return result.getData().getChar(0);
+    }
+
+    private static void uploadFileToR(final RServi rServi, final File file, final Set<String> filesUploadedToR)
+            throws FileNotFoundException, CoreException {
+        rServi.uploadFile(new FileInputStream(file), file.length(), file.getName(), 0, null);
+        filesUploadedToR.add(file.getName());
+    }
+
+    private static void uploadPropertiesToR(final RServi rServi, final Map<String, String> metas, final Set<String> filesUploadedToR)
+            throws CoreException, IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final Properties properties = new Properties();
+        properties.putAll(metas);
+        properties.store(baos, null);
+        final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        rServi.uploadFile(bais, bais.available(), Constants.MULTIPLE_FILES_JOB_CONFIGURATION, 0, null);
+        filesUploadedToR.add(Constants.MULTIPLE_FILES_JOB_CONFIGURATION);
+    }
+
+    private static void executeScriptOnR(final RServi rServi, final String rScriptName) throws CoreException {
+        final FunctionCall sourceCall = rServi.createFunctionCall("source");
+        sourceCall.addChar("file", rScriptName);
+        sourceCall.evalVoid(null);
     }
 }

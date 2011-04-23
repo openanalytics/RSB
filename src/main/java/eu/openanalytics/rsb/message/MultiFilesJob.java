@@ -23,6 +23,7 @@ package eu.openanalytics.rsb.message;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.GregorianCalendar;
@@ -36,6 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.FileCopyUtils;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
@@ -48,13 +50,13 @@ import eu.openanalytics.rsb.Util;
 public class MultiFilesJob extends AbstractJobWithMeta {
     private static final long serialVersionUID = 1L;
 
-    private final File filesDirectory;
+    private final File temporaryDirectory;
     private File rScriptFile;
 
     public MultiFilesJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
             final Map<String, String> meta) throws IOException {
         super(applicationName, jobId, submissionTime, meta);
-        this.filesDirectory = Util.createTemporaryDirectory("job");
+        this.temporaryDirectory = Util.createTemporaryDirectory("job");
     }
 
     public void addFile(final String name, final InputStream is) throws IOException {
@@ -66,7 +68,7 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     }
 
     private void addJobFile(final String name, final InputStream is) throws FileNotFoundException, IOException {
-        final File jobFile = new File(filesDirectory, name);
+        final File jobFile = new File(temporaryDirectory, name);
 
         if (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(name), Constants.R_SCRIPT_FILE_EXTENSION)) {
             if (rScriptFile != null) {
@@ -98,10 +100,28 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     @Override
     protected void releaseResources() {
         try {
-            FileUtils.forceDelete(filesDirectory);
+            FileUtils.forceDelete(temporaryDirectory);
         } catch (final IOException ioe) {
             throw new RuntimeException("Can't release resources of: " + this, ioe);
         }
+    }
+
+    public MultiFilesResult buildSuccessResult() throws IOException {
+        return new MultiFilesResult(getApplicationName(), getJobId(), getSubmissionTime(), true);
+    }
+
+    @Override
+    public MultiFilesResult buildErrorResult(final Throwable t) throws IOException {
+        // TODO externalize in a resource bundle
+        // FIXME format time properly
+        final String errorText = String.format(
+                "The job Id %s submitted at %s resulted in an error.\nPlease find the detailed R error message below:\n\n%s", getJobId(),
+                getSubmissionTime(), t.getMessage());
+
+        final MultiFilesResult result = new MultiFilesResult(getApplicationName(), getJobId(), getSubmissionTime(), false);
+        final File resultFile = result.createNewResultFile(getJobId() + "." + Constants.MULTIPLE_FILES_ERROR_FILE_EXTENSION);
+        FileCopyUtils.copy(errorText, new FileWriter(resultFile));
+        return result;
     }
 
     public File getRScriptFile() {
@@ -109,6 +129,6 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     }
 
     public File[] getFiles() {
-        return filesDirectory.listFiles();
+        return temporaryDirectory.listFiles();
     }
 }

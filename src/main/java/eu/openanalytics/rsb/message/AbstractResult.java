@@ -20,17 +20,16 @@
  */
 package eu.openanalytics.rsb.message;
 
+import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.UUID;
-
-import javax.activation.MimeType;
 
 /**
  * Represents the result of a {@link AbstractJob}.
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public abstract class AbstractResult extends AbstractWorkItem {
+public abstract class AbstractResult<T> extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;
 
     private final boolean success;
@@ -44,5 +43,5 @@ public abstract class AbstractResult extends AbstractWorkItem {
         return success;
     }
 
-    public abstract MimeType getMimeType();
+    public abstract T getPayload() throws IOException;
 }

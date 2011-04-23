@@ -31,22 +31,24 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
  * Provides default configuration values: it is strongly suggested that all concrete implementations
- * of {@link Configuration} extend this abstract class.
+ * of {@link Configuration} extend this class.
  * 
  * @author rsb.development@openanalytics.eu
  */
-public abstract class AbstractDefaultConfiguration implements Configuration {
+public class DefaultConfiguration implements Configuration {
     protected final File userHomeDirectory;
     private final File rsbHomeDirectory;
+    private final File rsbCatalogDirectory;
     private final File rsbResultsDirectory;
     private final File activeMqWorkDirectory;
     private final URI defaultRserviPoolUri;
     private final int jobTimeOut;
     private final int numberOfConcurrentJobWorkersPerQueue;
 
-    public AbstractDefaultConfiguration() throws URISyntaxException {
+    public DefaultConfiguration() throws URISyntaxException {
         userHomeDirectory = new File(System.getProperty("user.home"));
         rsbHomeDirectory = new File(userHomeDirectory, ".rsb");
+        rsbCatalogDirectory = new File(rsbHomeDirectory, "catalog");
         rsbResultsDirectory = new File(rsbHomeDirectory, "results");
         activeMqWorkDirectory = new File(rsbHomeDirectory, "activemq");
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
@@ -63,6 +65,10 @@ public abstract class AbstractDefaultConfiguration implements Configuration {
 
     protected File getUserHomeDirectory() {
         return userHomeDirectory;
+    }
+
+    public File getRsbCatalogDirectory() {
+        return rsbCatalogDirectory;
     }
 
     public File getRsbResultsDirectory() {
