@@ -1,22 +1,22 @@
 /*
- *   R Service Bus
- *   
- *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+  R Service Bus
+  
+  Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
  *
- *   ===========================================================================
+  ===========================================================================
  *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU Affero General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Affero General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
  *
- *   You should have received a copy of the GNU Affero General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package eu.openanalytics.rsb;
 
@@ -29,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,7 +63,13 @@ import org.mockito.internal.matchers.StartsWith;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import com.gargoylesoftware.htmlunit.ElementNotFoundException;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlInput;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpException;
 import com.meterware.httpunit.PostMethodWebRequest;
@@ -88,11 +96,13 @@ public class RestITCase extends XMLTestCase {
     private Set<File> testScripts;
     private String restJobsUri;
     private String restResultsUri;
+    private String uploadFormUri;
 
     @Before
     public void prepareTests() throws IOException {
         restJobsUri = baseUri + "api/rest/jobs";
         restResultsUri = baseUri + "api/rest/results";
+        uploadFormUri = baseUri + "rsb.html";
 
         final Map<String, String> m = new HashMap<String, String>();
         m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
@@ -342,6 +352,61 @@ public class RestITCase extends XMLTestCase {
         retrieveAndValidateZipError(resultUri);
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void submitMultipartValidMultiFilesJobAndRetrieveByAppName() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doTestSubmitMultipartValidZipJob(applicationName,
+                Arrays.asList(new UploadedFile("testSweave.Rnw"), new UploadedFile("testSweave.R")), Collections.EMPTY_MAP);
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
+
+    // FIXME reactivate integration tests
+
+    /*
+     * @SuppressWarnings("unchecked") public void
+     * testSubmitMultipartValidZipJobAndRetrieveByAppName() throws Exception { final String
+     * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
+     * Collections.singletonList(new
+     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT)), Collections.EMPTY_MAP);
+     * ponderRetrieveAndValidateZipResult(applicationName); }
+     * 
+     * public void testSubmitMultipartValidDataOnlyZipJobAndRetrieveByAppName() throws Exception {
+     * final String applicationName = newTestApplicationName();
+     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
+     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_DATA_ONLY)),
+     * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
+     * ponderRetrieveAndValidateZipResult(applicationName); }
+     * 
+     * @SuppressWarnings("unchecked") public void
+     * testSubmitMultipartValidNonZipJobAndRetrieveByAppName() throws Exception { final String
+     * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
+     * Collections.singletonList(new UploadedFile(AbstractRsbFunctionalTestCase.JOB_SCRIPT)),
+     * Collections.EMPTY_MAP); ponderRetrieveAndValidateZipResult(applicationName); }
+     */
+
+    /*
+     * public void testSubmitMultipartValidJobRequiringMetaAndRetrieveByAppName() throws Exception {
+     * final String applicationName = newTestApplicationName();
+     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
+     * UploadedFile("exp-meta-reportAuthor.zip")),
+     * Collections.singletonMap("X-RSB-Meta-reportAuthor", "Jules Verne"));
+     * ponderRetrieveAndValidateZipResult(applicationName); }
+     * 
+     * @SuppressWarnings("unchecked") public void
+     * testSubmitMultipartValidZipJobOctetAsStreamAndRetrieveByAppName() throws Exception { final
+     * String applicationName = newTestApplicationName();
+     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
+     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT, "application/octet-stream")),
+     * Collections.EMPTY_MAP); ponderRetrieveAndValidateZipResult(applicationName); }
+     * 
+     * @SuppressWarnings("unchecked") public void testSubmitMultipartNoAttachedFile() throws
+     * Exception { final String applicationName = newTestApplicationName();
+     * doTestSubmitMultipartValidZipJob(applicationName, Collections.EMPTY_LIST,
+     * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
+     * ponderRetrieveAndValidateZipResult(applicationName); }
+     */
     // -------- Supporting Functions ---------
 
     private void retrieveAndValidateXmlResult(final String resultUri) throws Exception {
@@ -395,107 +460,67 @@ public class RestITCase extends XMLTestCase {
         return doTestSubmitXmlJobWithXmlAck(applicationName, xmlJob, Collections.EMPTY_MAP);
     }
 
-    // FIXME reactivate integration tests
+    private Document doTestSubmitMultipartValidZipJob(final String applicationName, final List<UploadedFile> jobFiles,
+            final Map<String, String> extraFields) throws Exception {
+        // disable javascript because final we want a final normal form post final to happen and
+        // final not an final AJAX one final
+        final WebClient webClient = createNewWebClient();
 
-    /*
-     * @SuppressWarnings("unchecked") public void
-     * testSubmitMultipartValidZipJobAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
-     * Collections.singletonList(new
-     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT)), Collections.EMPTY_MAP);
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * public void testSubmitMultipartValidDataOnlyZipJobAndRetrieveByAppName() throws Exception {
-     * final String applicationName = newTestApplicationName();
-     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
-     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_DATA_ONLY)),
-     * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * @SuppressWarnings("unchecked") public void
-     * testSubmitMultipartValidNonZipJobAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
-     * Collections.singletonList(new UploadedFile(AbstractRsbFunctionalTestCase.JOB_SCRIPT)),
-     * Collections.EMPTY_MAP); ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * @SuppressWarnings("unchecked") public void
-     * testSubmitMultipartValidMultiFilesJobAndRetrieveByAppName() throws Exception { final String
-     * applicationName = newTestApplicationName(); doTestSubmitMultipartValidZipJob(applicationName,
-     * Arrays.asList(new UploadedFile("exampleSweave.Rnw"), new
-     * UploadedFile("exampleSweaveRScript.R")), Collections.EMPTY_MAP);
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * public void testSubmitMultipartValidJobRequiringMetaAndRetrieveByAppName() throws Exception {
-     * final String applicationName = newTestApplicationName();
-     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
-     * UploadedFile("exp-meta-reportAuthor.zip")),
-     * Collections.singletonMap("X-RSB-Meta-reportAuthor", "Jules Verne"));
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * @SuppressWarnings("unchecked") public void
-     * testSubmitMultipartValidZipJobOctetAsStreamAndRetrieveByAppName() throws Exception { final
-     * String applicationName = newTestApplicationName();
-     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
-     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT, "application/octet-stream")),
-     * Collections.EMPTY_MAP); ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * @SuppressWarnings("unchecked") public void testSubmitMultipartNoAttachedFile() throws
-     * Exception { final String applicationName = newTestApplicationName();
-     * doTestSubmitMultipartValidZipJob(applicationName, Collections.EMPTY_LIST,
-     * Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
-     * ponderRetrieveAndValidateZipResult(applicationName); }
-     * 
-     * private Document doTestSubmitMultipartValidZipJob(final String applicationName, final
-     * List<UploadedFile> jobFiles, final Map<String, String> extraFields) throws Exception { //
-     * disable javascript because we want a normal form post to happen and not an AJAX one final
-     * WebClient webClient = createNewWebClient();
-     * 
-     * // get the upload form from RSB web server final HtmlPage jobUploadPage =
-     * webClient.getPage(TestSupport.RSB_JOB_UPLOAD_FORM_URI); final HtmlForm jobUploadForm =
-     * jobUploadPage.getFormByName("jobUploadForm");
-     * 
-     * // fill the form and submit it if (!jobFiles.isEmpty()) { final HtmlFileInput fileInput =
-     * jobUploadForm.getInputByName("X-RSB-JobFile[]"); final UploadedFile firstFile =
-     * jobFiles.get(0); setUploadedFileOnInputControl(fileInput, firstFile);
-     * 
-     * for (int i = 1; i < jobFiles.size(); i++) { final HtmlFileInput extraFileInput =
-     * (HtmlFileInput) fileInput.cloneNode(true); final UploadedFile uploadedFile = jobFiles.get(i);
-     * setUploadedFileOnInputControl(extraFileInput, uploadedFile);
-     * jobUploadForm.appendChild(extraFileInput); } }
-     * 
-     * final HtmlInput applicationNameInput =
-     * jobUploadForm.getInputByName("X-RSB-Application-Name");
-     * applicationNameInput.setValueAttribute(applicationName);
-     * 
-     * // deal with extra meta fields for (final Entry<String, String> extraField :
-     * extraFields.entrySet()) { final String inputName = extraField.getKey(); HtmlInput input =
-     * null;
-     * 
-     * try { input = jobUploadForm.getInputByName(inputName); } catch (final
-     * ElementNotFoundException enfe) { // generate the missing input on the fly (like a dynamic web
-     * form would do) // by cloning an existing one input = (HtmlInput)
-     * applicationNameInput.cloneNode(true); input.setAttribute("name", inputName);
-     * jobUploadForm.appendChild(input); }
-     * 
-     * input.setValueAttribute(extraField.getValue()); }
-     * 
-     * final Page jobUploadConfirmationPage =
-     * jobUploadForm.getInputByName("jobSubmitButton").click(); final
-     * com.gargoylesoftware.htmlunit.WebResponse response =
-     * jobUploadConfirmationPage.getWebResponse();
-     * 
-     * // terminate web client and evaluate response validity webClient.closeAllWindows();
-     * 
-     * return parseJobSubmissionXmlAckResponse(applicationName, response.getStatusCode(),
-     * response.getResponseHeaderValue("Content-Type"), response.getContentAsString()); }
-     * 
-     * private void setUploadedFileOnInputControl(final HtmlFileInput fileInput, final UploadedFile
-     * uploadedFile) {
-     * fileInput.setValueAttribute(AbstractRsbFunctionalTestCase.getTestFile(uploadedFile
-     * .name).getPath());
-     * 
-     * if (uploadedFile.contentType != null) fileInput.setContentType(uploadedFile.contentType); }
-     */
+        // get the upload form from RSB web server final
+        final HtmlPage jobUploadPage = webClient.getPage(uploadFormUri);
+        final HtmlForm jobUploadForm = jobUploadPage.getFormByName("jobUploadForm");
+
+        // fill the form and submit it
+        if (!jobFiles.isEmpty()) {
+            final HtmlFileInput fileInput = jobUploadForm.getInputByName("X-RSB-JobFile[]");
+            final UploadedFile firstFile = jobFiles.get(0);
+            setUploadedFileOnInputControl(fileInput, firstFile);
+
+            for (int i = 1; i < jobFiles.size(); i++) {
+                final HtmlFileInput extraFileInput = (HtmlFileInput) fileInput.cloneNode(true);
+                final UploadedFile uploadedFile = jobFiles.get(i);
+                setUploadedFileOnInputControl(extraFileInput, uploadedFile);
+                jobUploadForm.appendChild(extraFileInput);
+            }
+        }
+
+        final HtmlInput applicationNameInput = jobUploadForm.getInputByName("X-RSB-Application-Name");
+        applicationNameInput.setValueAttribute(applicationName);
+
+        // deal with extra meta fields
+        for (final Entry<String, String> extraField : extraFields.entrySet()) {
+            final String inputName = extraField.getKey();
+            HtmlInput input = null;
+
+            try {
+                input = jobUploadForm.getInputByName(inputName);
+            } catch (final ElementNotFoundException enfe) {
+                // generate the missing input on the fly (like a dynamic web form would do) by
+                // cloning an existing one
+                input = (HtmlInput) applicationNameInput.cloneNode(true);
+                input.setAttribute("name", inputName);
+                jobUploadForm.appendChild(input);
+            }
+
+            input.setValueAttribute(extraField.getValue());
+        }
+
+        final Page jobUploadConfirmationPage = jobUploadForm.getInputByName("jobSubmitButton").click();
+        final com.gargoylesoftware.htmlunit.WebResponse response = jobUploadConfirmationPage.getWebResponse();
+
+        // terminate web client and evaluate response validity webClient.closeAllWindows();
+
+        return parseJobSubmissionXmlAckResponse(applicationName, response.getStatusCode(), response.getResponseHeaderValue("Content-Type"),
+                response.getContentAsString());
+    }
+
+    private void setUploadedFileOnInputControl(final HtmlFileInput fileInput, final UploadedFile uploadedFile) {
+        fileInput.setValueAttribute(getTestFile(uploadedFile.name).getPath());
+
+        if (uploadedFile.contentType != null) {
+            fileInput.setContentType(uploadedFile.contentType);
+        }
+    }
 
     private void ponderRetrieveAndValidateZipResult(final String resultUri) throws Exception {
         ponderUntilOneResultAvailable(resultUri);
@@ -558,14 +583,25 @@ public class RestITCase extends XMLTestCase {
 
         final WebResponse response = wc.sendRequest(request);
 
-        return parseJobSubmissionXmlAckResponse(applicationName, response.getResponseCode(), response.getHeaderField("Content-Type"),
+        return parseJobSubmissionRsbXmlAckResponse(applicationName, response.getResponseCode(), response.getHeaderField("Content-Type"),
                 response.getText());
+    }
+
+    private Document parseJobSubmissionRsbXmlAckResponse(final String applicationName, final int statusCode, final String contentType,
+            final String entity) throws SAXException, IOException, XpathException {
+        return parseJobSubmissionRsbXmlAckResponse(applicationName, statusCode, "application/vnd.rsb+xml", contentType, entity);
     }
 
     private Document parseJobSubmissionXmlAckResponse(final String applicationName, final int statusCode, final String contentType,
             final String entity) throws SAXException, IOException, XpathException {
+        return parseJobSubmissionRsbXmlAckResponse(applicationName, statusCode, "application/xml", contentType, entity);
+    }
+
+    private Document parseJobSubmissionRsbXmlAckResponse(final String applicationName, final int statusCode,
+            final String expectedContentType, final String contentType, final String entity) throws SAXException, IOException,
+            XpathException {
         assertEquals(202, statusCode);
-        assertEquals("application/vnd.rsb+xml", contentType);
+        assertEquals(expectedContentType, contentType);
 
         final Document responseDocument = XMLUnit.buildTestDocument(entity);
         assertXpathEvaluatesTo(applicationName, "/rsb:jobToken/@applicationName", responseDocument);
@@ -703,5 +739,13 @@ public class RestITCase extends XMLTestCase {
 
     private static InputStream getTestData(final String payloadResourceFile) {
         return Thread.currentThread().getContextClassLoader().getResourceAsStream("data/" + payloadResourceFile);
+    }
+
+    public static File getTestFile(final String payloadResourceFile) {
+        try {
+            return new File(Thread.currentThread().getContextClassLoader().getResource("data/" + payloadResourceFile).toURI());
+        } catch (final URISyntaxException urise) {
+            throw new RuntimeException(urise);
+        }
     }
 }

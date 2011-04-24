@@ -44,6 +44,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -188,7 +189,7 @@ public class JobsResource extends AbstractComponent {
 
         final String finalApplicationName = applicationName;
 
-        return handleNewJob(finalApplicationName, Status.OK, httpHeaders, uriInfo, new JobBuilder() {
+        return handleNewJob(finalApplicationName, httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
 
@@ -210,11 +211,11 @@ public class JobsResource extends AbstractComponent {
             throws URISyntaxException, IOException {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
-        return handleNewJob(applicationName, Status.ACCEPTED, httpHeaders, uriInfo, jobBuilder);
+        return handleNewJob(applicationName, httpHeaders, uriInfo, jobBuilder);
     }
 
-    private Response handleNewJob(final String applicationName, final Status responseStatus, final HttpHeaders httpHeaders,
-            final UriInfo uriInfo, final JobBuilder jobBuilder) throws IOException, URISyntaxException {
+    private Response handleNewJob(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo,
+            final JobBuilder jobBuilder) throws IOException, URISyntaxException {
 
         if (!Util.isValidApplicationName(applicationName)) {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
@@ -227,7 +228,7 @@ public class JobsResource extends AbstractComponent {
 
         final JobToken jobToken = buildJobToken(uriInfo, httpHeaders, job);
 
-        return Response.status(responseStatus).entity(jobToken).build();
+        return Response.status(Status.ACCEPTED).entity(jobToken).build();
     }
 
     private Map<String, String> getJobMeta(final HttpHeaders httpHeaders) {
@@ -267,6 +268,6 @@ public class JobsResource extends AbstractComponent {
     }
 
     private static String getPartFileName(final Attachment part) {
-        return part.getContentDisposition().getParameter("filename");
+        return FilenameUtils.getName(part.getContentDisposition().getParameter("filename"));
     }
 }
