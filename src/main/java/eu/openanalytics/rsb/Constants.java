@@ -37,6 +37,7 @@ public class Constants {
 
     public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
     public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
+    public static final String JOB_FILES_MULTIPART_NAME = "X-RSB-JobFile[]";
 
     public final static String JOBS_PATH = "jobs";
     public final static String RESULTS_PATH = "results";
@@ -61,6 +62,7 @@ public class Constants {
     public static final String ZIP_CONTENT_TYPE = "application/zip";
     public static final String ZIP_CONTENT_TYPE2 = "application/x-zip";
     public static final String ZIP_CONTENT_TYPE3 = "application/x-zip-compressed";
+    public static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
 
     public static final MimeType JSON_MIME_TYPE;
     public static final MimeType XML_MIME_TYPE;

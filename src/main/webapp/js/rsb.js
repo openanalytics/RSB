@@ -33,26 +33,41 @@ var urlParams = {};
        urlParams[d(e[1])] = d(e[2]);
 })();
 
+function xmlTimeStampToDate(xmlDate)
+{
+    var dt = new Date();
+    var dtS = xmlDate.slice(xmlDate.indexOf('T')+1, xmlDate.indexOf('.'))
+    var TimeArray = dtS.split(":");
+    dt.setUTCHours(TimeArray[0],TimeArray[1],TimeArray[2]);
+    dtS = xmlDate.slice(0, xmlDate.indexOf('T'))
+    TimeArray = dtS.split("-");
+    dt.setUTCFullYear(TimeArray[0],TimeArray[1],TimeArray[2]);
+    return dt;
+}
+
 function loadApplicationResults(applicationName, highlightJobId) {
-  $.ajax({ url: "/api/results/" + applicationName,
+  $.ajax({ url: "/api/rest/results/" + applicationName,
            success: function(responseXML) {
              
     var tableBody = $("#resultsTableBody");
     tableBody.empty();
     
-    $(responseXML).find('r-result').each(function(){
+    $(responseXML).find('result').each(function(){
      var jobId = $(this).attr("jobId");
      var resultUri = $(this).attr("selfUri");
      var dataUri = $(this).attr("dataUri");
-     var timestamp = $(this).attr("timestamp");
+     var timestamp = $(this).attr("resultTime");
      
      tableBody.append("<tr id='res-" + jobId + "' class='" + (jobId === highlightJobId ? "highlighted" : "") + "'><td>"
-                      + $(this).attr("appName")
+                      + $(this).attr("applicationName")
                       + "</td><td>"
-                      + Date.parse(timestamp)
+                      + xmlTimeStampToDate(timestamp)
                       + "</td><td>"
                       + jobId
                       + "</td><td>"
+                      + "<img src='images/"
+                      + (($(this).attr("success")==='true')?"success.gif":"failure.png")
+                      + "' title='Status' border='0' />&nbsp;"
                       + $(this).attr("type")
                       + "</td><td>"
                       + "<a href='" + dataUri + "' target='_blank' id='getres-"+jobId+"'><img src='images/download.gif' title='Download' border='0' /></a>"
@@ -70,6 +85,11 @@ function loadApplicationResults(applicationName, highlightJobId) {
                      
            success: function(data, textStatus, xhr) {
              $("#res-"+jobId).hide();
+           },
+         
+           error: function(jqXHR, textStatus, errorThrown) {
+             // DELETE returns No Content, which may yield a parse issue -> if this happens, reload all the results
+             loadApplicationResults(applicationName);
            }
          });
        }
@@ -124,7 +144,7 @@ $(document).ready(function() {
           $('#jobFileSelector').attr({ value: '' });
           $('#jobFileSelector').MultiFile('reset');
           
-          var response = $('r-job-accepted', responseXML)
+          var response = $('jobToken', responseXML)
           var jobId = response.attr('jobId');
 
           if (!jobId) {
@@ -133,7 +153,7 @@ $(document).ready(function() {
             return;
           }
           
-          var appName = response.attr('appName');
+          var appName = response.attr('applicationName');
           var resultUri = response.attr('resultUri');
           
           $('#runningJobsPanel').show(250);

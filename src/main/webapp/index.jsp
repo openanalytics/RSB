@@ -20,11 +20,6 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<html>
-  <head>
-    <title>Redirecting to RSB</title>
-    <script type="text/javascript">
-      window.location.replace("rsb.html");
-    </script> 
-  </head>
-</html>
+<%
+    response.sendRedirect("rsb.html");
+%>

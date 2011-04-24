@@ -46,6 +46,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +54,7 @@ import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
+import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 import eu.openanalytics.rsb.message.ZipJob;
 import eu.openanalytics.rsb.rest.types.JobToken;
@@ -66,8 +68,6 @@ import eu.openanalytics.rsb.rest.types.JobToken;
 @Path("/" + Constants.JOBS_PATH)
 @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 public class JobsResource extends AbstractComponent {
-    // FIXME support multipart/form-data
-
     private interface JobBuilder {
         AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) throws IOException;
     }
@@ -94,7 +94,7 @@ public class JobsResource extends AbstractComponent {
     @Consumes(Constants.JSON_CONTENT_TYPE)
     public Response handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
-        return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
+        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
                 return new JsonFunctionCallJob(applicationName, jobId, submissionTime, jsonArgument);
             }
@@ -116,7 +116,7 @@ public class JobsResource extends AbstractComponent {
     public Response handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
-        return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
+        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
                 return new XmlFunctionCallJob(applicationName, jobId, submissionTime, xmlArgument);
             }
@@ -138,34 +138,84 @@ public class JobsResource extends AbstractComponent {
     public Response handleZipJob(final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
             throws URISyntaxException, IOException {
 
-        return handleNewJob(httpHeaders, uriInfo, new JobBuilder() {
+        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
 
-                final ZipJob zipJob = new ZipJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
+                final ZipJob job = new ZipJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
 
                 final ZipInputStream zis = new ZipInputStream(in);
                 ZipEntry ze = null;
 
                 while ((ze = zis.getNextEntry()) != null) {
                     if (ze.isDirectory()) {
-                        zipJob.destroy();
+                        job.destroy();
                         throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
                     }
-                    zipJob.addFile(ze.getName(), zis);
+                    job.addFile(ze.getName(), zis);
                     zis.closeEntry();
                 }
 
                 IOUtils.closeQuietly(zis);
-                return zipJob;
+                return job;
             }
         });
     }
 
-    private Response handleNewJob(final HttpHeaders httpHeaders, final UriInfo uriInfo, final JobBuilder jobBuilder)
+    @POST
+    @Consumes(Constants.MULTIPART_CONTENT_TYPE)
+    // force content type to plain XML (browsers choke on subclasses of it)
+    @Produces(Constants.XML_CONTENT_TYPE)
+    // TODO javadoc, unit test
+    public Response handleMultipartFormJob(final List<Attachment> parts, @Context final HttpHeaders httpHeaders,
+            @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+
+        String applicationName = null;
+        final Map<String, String> jobMeta = new HashMap<String, String>();
+
+        for (final Attachment part : parts) {
+            final String partName = getPartName(part);
+            if (StringUtils.equals(partName, Constants.APPLICATION_NAME_HTTP_HEADER)) {
+                applicationName = part.getObject(String.class);
+            } else if (StringUtils.startsWith(partName, Constants.RSB_META_HEADER_PREFIX)) {
+                final String metaName = StringUtils.substringAfter(partName, Constants.RSB_META_HEADER_PREFIX);
+                final String metaValue = part.getObject(String.class);
+                if (StringUtils.isNotEmpty(metaValue)) {
+                    jobMeta.put(metaName, metaValue);
+                }
+            }
+        }
+
+        final String finalApplicationName = applicationName;
+
+        return handleNewJob(finalApplicationName, Status.OK, httpHeaders, uriInfo, new JobBuilder() {
+            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
+                    throws IOException {
+
+                // FIXME handle multipart zip attachment
+                final MultiFilesJob job = new MultiFilesJob(applicationName, jobId, submissionTime, jobMeta);
+
+                for (final Attachment part : parts) {
+                    if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
+                        job.addFile(getPartFileName(part), part.getDataHandler().getInputStream());
+                    }
+                }
+
+                return job;
+            }
+        });
+    }
+
+    private Response handleNewRestJob(final HttpHeaders httpHeaders, final UriInfo uriInfo, final JobBuilder jobBuilder)
             throws URISyntaxException, IOException {
 
         final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
+        return handleNewJob(applicationName, Status.ACCEPTED, httpHeaders, uriInfo, jobBuilder);
+    }
+
+    private Response handleNewJob(final String applicationName, final Status responseStatus, final HttpHeaders httpHeaders,
+            final UriInfo uriInfo, final JobBuilder jobBuilder) throws IOException, URISyntaxException {
+
         if (!Util.isValidApplicationName(applicationName)) {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
@@ -177,7 +227,7 @@ public class JobsResource extends AbstractComponent {
 
         final JobToken jobToken = buildJobToken(uriInfo, httpHeaders, job);
 
-        return Response.status(Status.ACCEPTED).entity(jobToken).build();
+        return Response.status(responseStatus).entity(jobToken).build();
     }
 
     private Map<String, String> getJobMeta(final HttpHeaders httpHeaders) {
@@ -210,5 +260,13 @@ public class JobsResource extends AbstractComponent {
         jobToken.setApplicationResultsUri(uriBuilder.toString());
         jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders, uriInfo).toString());
         return jobToken;
+    }
+
+    private static String getPartName(final Attachment part) {
+        return part.getContentDisposition().getParameter("name");
+    }
+
+    private static String getPartFileName(final Attachment part) {
+        return part.getContentDisposition().getParameter("filename");
     }
 }

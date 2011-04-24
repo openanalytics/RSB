@@ -25,7 +25,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -41,6 +45,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -74,7 +79,10 @@ public class ResultsResource extends AbstractComponent {
         final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles();
 
         if (resultFiles != null) {
-            for (final File resultFile : resultFiles) {
+            final List<File> sortedFiles = new ArrayList<File>(Arrays.asList(resultFiles));
+            Collections.sort(sortedFiles, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+
+            for (final File resultFile : sortedFiles) {
                 final Result result = buildResult(applicationName, httpHeaders, uriInfo, resultFile);
                 results.getContents().add(result);
             }
