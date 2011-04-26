@@ -18,6 +18,15 @@ To produce rsb.war, run:
 
     mvn clean install
 
+
+### Test run
+
+Use:
+
+    mvn jetty:run
+
+to start RSB configured to use a locally running RServi.
+
 ### Integration tests
 
 RServi must be running locally before starting the integration tests.
@@ -26,6 +35,9 @@ If that is the case, then run:
 
     mvn -Pit verify
 
+### Smoke test a running instance
+
+TBD
 
 ### Deployment
 
