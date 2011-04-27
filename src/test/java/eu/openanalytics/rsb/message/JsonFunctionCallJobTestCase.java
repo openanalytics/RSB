@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
@@ -42,8 +43,8 @@ public class JsonFunctionCallJobTestCase {
 
     @Before
     public void prepareTest() {
-        jsonFunctionCallJob = new JsonFunctionCallJob("app_name", UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(),
-                "\\\"fake_job\\\"");
+        jsonFunctionCallJob = new JsonFunctionCallJob(Source.REST, "app_name", UUID.randomUUID(),
+                (GregorianCalendar) GregorianCalendar.getInstance(), "\\\"fake_job\\\"");
     }
 
     @Test

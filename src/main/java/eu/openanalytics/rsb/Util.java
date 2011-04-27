@@ -67,6 +67,7 @@ public abstract class Util {
         }
 
         public Message postProcessMessage(final Message message) throws JMSException {
+            message.setStringProperty(Constants.SOURCE_JMS_HEADER, workItem.getSource().toString());
             message.setStringProperty(Constants.APPLICATION_NAME_JMS_HEADER, workItem.getApplicationName());
             message.setStringProperty(Constants.JOB_ID_JMS_HEADER, workItem.getJobId().toString());
             return message;

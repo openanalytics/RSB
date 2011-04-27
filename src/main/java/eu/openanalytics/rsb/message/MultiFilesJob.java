@@ -33,6 +33,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -48,15 +50,15 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public class MultiFilesJob extends AbstractJobWithMeta {
+public class MultiFilesJob extends AbstractJob {
     private static final long serialVersionUID = 1L;
 
     private final File temporaryDirectory;
     private File rScriptFile;
 
-    public MultiFilesJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+    public MultiFilesJob(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
             final Map<String, String> meta) throws IOException {
-        super(applicationName, jobId, submissionTime, meta);
+        super(source, applicationName, jobId, submissionTime, meta);
         this.temporaryDirectory = Util.createTemporaryDirectory("job");
     }
 
@@ -108,18 +110,20 @@ public class MultiFilesJob extends AbstractJobWithMeta {
     }
 
     public MultiFilesResult buildSuccessResult() throws IOException {
-        return new MultiFilesResult(getApplicationName(), getJobId(), getSubmissionTime(), true);
+        return new MultiFilesResult(getSource(), getApplicationName(), getJobId(), getSubmissionTime(), getMeta(), true);
     }
 
     @Override
     public MultiFilesResult buildErrorResult(final Throwable t, final MessageSource messageSource) throws IOException {
-        final String cause = t.getMessage();
-        final String errorText = messageSource.getMessage("job.error", new Object[] { getJobId(), getSubmissionTime().getTime(), cause },
-                cause, null);
+        final String message = messageSource.getMessage(getErrorMessageId(), null, null);
+        final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
+        template.setAttribute("job", this);
+        template.setAttribute("throwable", t);
 
-        final MultiFilesResult result = new MultiFilesResult(getApplicationName(), getJobId(), getSubmissionTime(), false);
+        final MultiFilesResult result = new MultiFilesResult(getSource(), getApplicationName(), getJobId(), getSubmissionTime(), getMeta(),
+                false);
         final File resultFile = result.createNewResultFile(getJobId() + "." + Constants.MULTIPLE_FILES_ERROR_FILE_EXTENSION);
-        FileCopyUtils.copy(errorText, new FileWriter(resultFile));
+        FileCopyUtils.copy(template.toString(), new FileWriter(resultFile));
         return result;
     }
 

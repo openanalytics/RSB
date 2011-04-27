@@ -235,6 +235,11 @@
             <artifactId>jackson-xc</artifactId>
             <version>1.7.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>stringtemplate</artifactId>
+            <version>3.2.1</version>
+        </dependency>
     
         <!-- Testing -->
         <dependency>

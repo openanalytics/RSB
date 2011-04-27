@@ -31,6 +31,8 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
+import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
+
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
@@ -40,8 +42,8 @@ public class XmlFunctionCallJobTestCase {
 
     @Before
     public void prepareTest() {
-        xmlFunctionCallJob = new XmlFunctionCallJob("app_name", UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(),
-                "<fake_job/>");
+        xmlFunctionCallJob = new XmlFunctionCallJob(Source.REST, "app_name", UUID.randomUUID(),
+                (GregorianCalendar) GregorianCalendar.getInstance(), "<fake_job/>");
     }
 
     @Test

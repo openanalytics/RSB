@@ -54,6 +54,7 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
@@ -96,7 +97,7 @@ public class JobsResource extends AbstractComponent {
             @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
         return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
-                return new JsonFunctionCallJob(applicationName, jobId, submissionTime, jsonArgument);
+                return new JsonFunctionCallJob(Source.REST, applicationName, jobId, submissionTime, jsonArgument);
             }
         });
     }
@@ -118,7 +119,7 @@ public class JobsResource extends AbstractComponent {
 
         return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
-                return new XmlFunctionCallJob(applicationName, jobId, submissionTime, xmlArgument);
+                return new XmlFunctionCallJob(Source.REST, applicationName, jobId, submissionTime, xmlArgument);
             }
         });
     }
@@ -142,7 +143,7 @@ public class JobsResource extends AbstractComponent {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
 
-                final MultiFilesJob job = new MultiFilesJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
+                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
                 loadZippedJobFiles(in, job);
                 return job;
             }
@@ -189,7 +190,7 @@ public class JobsResource extends AbstractComponent {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
 
-                final MultiFilesJob job = new MultiFilesJob(applicationName, jobId, submissionTime, jobMeta);
+                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId, submissionTime, jobMeta);
 
                 for (final Attachment part : parts) {
                     if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {

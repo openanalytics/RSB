@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.GregorianCalendar;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -50,9 +51,9 @@ public class MultiFilesResult extends AbstractResult<File> {
 
     private File payload = null;
 
-    public MultiFilesResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final boolean success)
-            throws IOException {
-        super(applicationName, jobId, submissionTime, success);
+    public MultiFilesResult(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final Map<String, String> meta, final boolean success) throws IOException {
+        super(source, applicationName, jobId, submissionTime, meta, success);
         this.temporaryDirectory = Util.createTemporaryDirectory("job");
     }
 

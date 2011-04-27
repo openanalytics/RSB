@@ -35,8 +35,9 @@ import eu.openanalytics.rsb.Util;
 public class JsonFunctionCallJob extends AbstractFunctionCallJob {
     private static final long serialVersionUID = 1L;
 
-    public JsonFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String argument) {
-        super(applicationName, jobId, submissionTime, argument);
+    public JsonFunctionCallJob(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final String argument) {
+        super(source, applicationName, jobId, submissionTime, argument);
     }
 
     @Override
@@ -56,6 +57,6 @@ public class JsonFunctionCallJob extends AbstractFunctionCallJob {
     }
 
     private JsonFunctionCallResult buildResult(final boolean success, final String result) {
-        return new JsonFunctionCallResult(getApplicationName(), getJobId(), getSubmissionTime(), success, result);
+        return new JsonFunctionCallResult(getSource(), getApplicationName(), getJobId(), getSubmissionTime(), success, result);
     }
 }

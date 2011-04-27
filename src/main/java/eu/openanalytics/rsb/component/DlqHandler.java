@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import javax.annotation.Resource;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
@@ -55,8 +57,11 @@ public class DlqHandler extends AbstractComponent {
      */
     public void handle(final AbstractJob job) throws IOException {
         logAndAlertFailure(job);
-        final String message = getMessages().getMessage("job.abort", null, null);
-        final AbstractResult<?> errorResult = job.buildErrorResult(new RuntimeException(message), getMessages());
+        final String message = getMessages().getMessage(job.getAbortMessageId(), null, null);
+        final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
+        template.setAttribute("job", job);
+
+        final AbstractResult<?> errorResult = job.buildErrorResult(new RuntimeException(template.toString()), getMessages());
         Util.dispatch(errorResult, jmsTemplate);
     }
 

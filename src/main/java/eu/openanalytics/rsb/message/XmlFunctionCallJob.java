@@ -35,8 +35,9 @@ import eu.openanalytics.rsb.Util;
 public class XmlFunctionCallJob extends AbstractFunctionCallJob {
     private static final long serialVersionUID = 1L;
 
-    public XmlFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime, final String argument) {
-        super(applicationName, jobId, submissionTime, argument);
+    public XmlFunctionCallJob(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final String argument) {
+        super(source, applicationName, jobId, submissionTime, argument);
     }
 
     @Override
@@ -56,6 +57,6 @@ public class XmlFunctionCallJob extends AbstractFunctionCallJob {
     }
 
     private XmlFunctionCallResult buildResult(final boolean success, final String result) {
-        return new XmlFunctionCallResult(getApplicationName(), getJobId(), getSubmissionTime(), success, result);
+        return new XmlFunctionCallResult(getSource(), getApplicationName(), getJobId(), getSubmissionTime(), success, result);
     }
 }

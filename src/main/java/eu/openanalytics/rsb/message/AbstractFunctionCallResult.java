@@ -20,6 +20,7 @@
  */
 package eu.openanalytics.rsb.message;
 
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
@@ -35,9 +36,11 @@ public abstract class AbstractFunctionCallResult extends AbstractResult<String> 
 
     private final String result;
 
-    public AbstractFunctionCallResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final boolean success, final String result) {
-        super(applicationName, jobId, submissionTime, success);
+    @SuppressWarnings("unchecked")
+    public AbstractFunctionCallResult(final Source source, final String applicationName, final UUID jobId,
+            final GregorianCalendar submissionTime, final boolean success, final String result) {
+        // function call jobs and results have no meta
+        super(source, applicationName, jobId, submissionTime, Collections.EMPTY_MAP, success);
         this.result = result;
     }
 

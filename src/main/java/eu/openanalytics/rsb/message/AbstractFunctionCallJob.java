@@ -21,11 +21,12 @@
 package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
 /**
- * Represents a RSB job that consists in calling a 1-arity function on R.
+ * Represents a RSB job that consists in calling a unary function on R.
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
@@ -34,9 +35,11 @@ public abstract class AbstractFunctionCallJob extends AbstractJob {
 
     private final String argument;
 
-    public AbstractFunctionCallJob(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final String argument) {
-        super(applicationName, jobId, submissionTime);
+    @SuppressWarnings("unchecked")
+    public AbstractFunctionCallJob(final Source source, final String applicationName, final UUID jobId,
+            final GregorianCalendar submissionTime, final String argument) {
+        // function call jobs and results have no meta
+        super(source, applicationName, jobId, submissionTime, Collections.EMPTY_MAP);
         this.argument = argument;
     }
 

@@ -22,8 +22,10 @@ package eu.openanalytics.rsb.message;
 
 import java.io.Serializable;
 import java.util.GregorianCalendar;
+import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -33,27 +35,44 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public abstract class AbstractWorkItem implements Serializable {
+    public enum Source {
+        REST("job.error", "job.abort"), SOAP("job.error", "job.abort"), EMAIL("email.job.error", "email.job.abort"), DIRECTORY(
+                "directory.job.error", "directory.job.abort");
+
+        private final String errorMessageId;
+        private final String abortMessageId;
+
+        private Source(final String errorMessageId, final String abortMessageId) {
+            this.errorMessageId = errorMessageId;
+            this.abortMessageId = abortMessageId;
+        }
+    };
+
     private static final long serialVersionUID = 1L;
 
-    private boolean destroyed;
+    private final Source source;
     private final String applicationName;
     private final UUID jobId;
     private final GregorianCalendar submissionTime;
+    private final Map<String, String> meta;
 
-    public AbstractWorkItem(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
-        this.destroyed = false;
+    public AbstractWorkItem(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
+            final Map<String, String> meta) {
+        Validate.notNull(source, "source can't be null");
+        Validate.notEmpty(applicationName, "applicationName can't be empty");
+        Validate.notNull(jobId, "jobId can't be null");
+        Validate.notNull(submissionTime, "submissionTime can't be null");
+        Validate.notNull(meta, "meta can't be null");
+
+        this.source = source;
         this.applicationName = applicationName;
         this.jobId = jobId;
         this.submissionTime = submissionTime;
-    }
-
-    public boolean isDestroyed() {
-        return destroyed;
+        this.meta = meta;
     }
 
     public void destroy() {
         releaseResources();
-        destroyed = true;
     }
 
     protected abstract void releaseResources();
@@ -61,6 +80,10 @@ public abstract class AbstractWorkItem implements Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    public Source getSource() {
+        return source;
     }
 
     public String getApplicationName() {
@@ -74,4 +97,17 @@ public abstract class AbstractWorkItem implements Serializable {
     public GregorianCalendar getSubmissionTime() {
         return submissionTime;
     }
+
+    public Map<String, String> getMeta() {
+        return meta;
+    }
+
+    public String getErrorMessageId() {
+        return getSource().errorMessageId;
+    }
+
+    public String getAbortMessageId() {
+        return getSource().abortMessageId;
+    }
+
 }

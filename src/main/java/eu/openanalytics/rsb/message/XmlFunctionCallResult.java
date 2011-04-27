@@ -35,9 +35,9 @@ import eu.openanalytics.rsb.Constants;
 public class XmlFunctionCallResult extends AbstractFunctionCallResult {
     private static final long serialVersionUID = 1L;
 
-    public XmlFunctionCallResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final boolean success, final String result) {
-        super(applicationName, jobId, submissionTime, success, result);
+    public XmlFunctionCallResult(final Source source, final String applicationName, final UUID jobId,
+            final GregorianCalendar submissionTime, final boolean success, final String result) {
+        super(source, applicationName, jobId, submissionTime, success, result);
     }
 
     @Override

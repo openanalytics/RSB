@@ -47,6 +47,7 @@ public class Constants {
     public final static String RESULTS_PATH = "results";
     public final static String RESULT_PATH = "result";
 
+    public static final String SOURCE_JMS_HEADER = "source";
     public static final String APPLICATION_NAME_JMS_HEADER = "applicationName";
     public static final String JOB_ID_JMS_HEADER = "jobId";
 

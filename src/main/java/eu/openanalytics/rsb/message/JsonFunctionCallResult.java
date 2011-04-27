@@ -35,9 +35,9 @@ import eu.openanalytics.rsb.Constants;
 public class JsonFunctionCallResult extends AbstractFunctionCallResult {
     private static final long serialVersionUID = 1L;
 
-    public JsonFunctionCallResult(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final boolean success, final String result) {
-        super(applicationName, jobId, submissionTime, success, result);
+    public JsonFunctionCallResult(final Source source, final String applicationName, final UUID jobId,
+            final GregorianCalendar submissionTime, final boolean success, final String result) {
+        super(source, applicationName, jobId, submissionTime, success, result);
     }
 
     @Override
