@@ -22,11 +22,17 @@
     @author rsb.development@openanalytics.eu
 -->
 <xsd:schema xmlns="http://soap.rsb.openanalytics.eu/types"
-    targetNamespace="http://soap.rsb.openanalytics.eu/types"
-    attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0"
-    xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            targetNamespace="http://soap.rsb.openanalytics.eu/types"
+            xmlns:common="http://rsb.openanalytics.eu/types"
+            attributeFormDefault="unqualified"
+            elementFormDefault="qualified"
+            version="1.0"
+            xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-    <xsd:complexType name="PayloadType">
+    <xsd:import namespace="http://rsb.openanalytics.eu/types" schemaLocation="common.xsd" />
+
+    <xsd:complexType name="payloadType">
         <xsd:sequence>
             <xsd:element name="data" type="xsd:base64Binary"
                 xmime:expectedContentTypes="application/octet-stream" />
@@ -35,16 +41,10 @@
         <xsd:attribute name="contentType" type="xsd:string" use="required" />
     </xsd:complexType>
 
-    <xsd:simpleType name="ApplicationNameType">
-        <xsd:restriction base="xsd:string">
-            <xsd:pattern value="\w+" />
-        </xsd:restriction>
-    </xsd:simpleType>
-
-    <xsd:element name="job" type="JobType" />
-    <xsd:complexType name="JobType">
+    <xsd:element name="job" type="jobType" />
+    <xsd:complexType name="jobType">
         <xsd:sequence>
-            <xsd:element name="applicationName" type="ApplicationNameType" />
+            <xsd:element name="applicationName" type="common:applicationNameType" />
             <xsd:element name="parameter" minOccurs="0" maxOccurs="unbounded">
                 <xsd:complexType>
                     <xsd:attribute name="name" type="xsd:string"
@@ -53,17 +53,17 @@
                         use="required" />
                 </xsd:complexType>
             </xsd:element>
-            <xsd:element name="payload" type="PayloadType"
+            <xsd:element name="payload" type="payloadType"
                 maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
 
-    <xsd:element name="result" type="ResultType" />
-    <xsd:complexType name="ResultType">
+    <xsd:element name="result" type="resultType" />
+    <xsd:complexType name="resultType">
         <xsd:sequence>
-            <xsd:element name="applicationName" type="ApplicationNameType" />
+            <xsd:element name="applicationName" type="common:applicationNameType" />
             <xsd:element name="jobId" type="xsd:string" />
-            <xsd:element name="payload" type="PayloadType"
+            <xsd:element name="payload" type="payloadType"
                 maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>

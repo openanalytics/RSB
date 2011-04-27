@@ -328,7 +328,7 @@ public class RestITCase extends XMLTestCase {
     public void submitValidDataOnlyZipJobAndRetrieveByAppName() throws Exception {
         final String applicationName = newTestApplicationName();
         final Document resultDoc = doTestSubmitZipJob(applicationName, getTestData("r-job-data-only.zip"),
-                Collections.singletonMap("X-RSB-Meta-rScript", "testscript.R"));
+                Collections.singletonMap("X-RSB-Meta-rScript", "test.R"));
         final String resultUri = getResultUri(resultDoc);
         ponderRetrieveAndValidateZipResult(resultUri);
     }
