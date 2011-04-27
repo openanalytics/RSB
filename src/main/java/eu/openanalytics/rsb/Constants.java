@@ -20,6 +20,10 @@
  */
 package eu.openanalytics.rsb;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -62,6 +66,8 @@ public class Constants {
     public static final String ZIP_CONTENT_TYPE = "application/zip";
     public static final String ZIP_CONTENT_TYPE2 = "application/x-zip";
     public static final String ZIP_CONTENT_TYPE3 = "application/x-zip-compressed";
+    public static final Set<String> ZIP_CONTENT_TYPES = new HashSet<String>(Arrays.asList(ZIP_CONTENT_TYPE, ZIP_CONTENT_TYPE2,
+            ZIP_CONTENT_TYPE3));
     public static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
 
     public static final MimeType JSON_MIME_TYPE;

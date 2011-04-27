@@ -143,30 +143,27 @@ public class JobsResource extends AbstractComponent {
                     throws IOException {
 
                 final MultiFilesJob job = new MultiFilesJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
-
-                final ZipInputStream zis = new ZipInputStream(in);
-                ZipEntry ze = null;
-
-                while ((ze = zis.getNextEntry()) != null) {
-                    if (ze.isDirectory()) {
-                        job.destroy();
-                        throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
-                    }
-                    job.addFile(ze.getName(), zis);
-                    zis.closeEntry();
-                }
-
-                IOUtils.closeQuietly(zis);
+                loadZippedJobFiles(in, job);
                 return job;
             }
         });
     }
 
+    /**
+     * Handles a multi-part form job upload.
+     * 
+     * @param parts
+     * @param httpHeaders
+     * @param uriInfo
+     * @return
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     @POST
     @Consumes(Constants.MULTIPART_CONTENT_TYPE)
-    // force content type to plain XML (browsers choke on subclasses of it)
-    @Produces(Constants.XML_CONTENT_TYPE)
-    // TODO javadoc, unit test
+    // force content type to plain XML and JSON (browsers choke on subtypes)
+    @Produces({ Constants.XML_CONTENT_TYPE, Constants.JSON_CONTENT_TYPE })
+    // TODO unit test
     public Response handleMultipartFormJob(final List<Attachment> parts, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
@@ -192,12 +189,19 @@ public class JobsResource extends AbstractComponent {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
 
-                // FIXME handle multipart zip attachment
                 final MultiFilesJob job = new MultiFilesJob(applicationName, jobId, submissionTime, jobMeta);
 
                 for (final Attachment part : parts) {
                     if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
-                        job.addFile(getPartFileName(part), part.getDataHandler().getInputStream());
+                        final InputStream is = part.getDataHandler().getInputStream();
+
+                        if (Constants.ZIP_CONTENT_TYPES.contains(part.getContentType().toString())) {
+                            loadZippedJobFiles(is, job);
+                        } else {
+                            job.addFile(getPartFileName(part), is);
+                        }
+
+                        IOUtils.closeQuietly(is);
                     }
                 }
 
@@ -260,6 +264,22 @@ public class JobsResource extends AbstractComponent {
         jobToken.setApplicationResultsUri(uriBuilder.toString());
         jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders, uriInfo).toString());
         return jobToken;
+    }
+
+    private static void loadZippedJobFiles(final InputStream in, final MultiFilesJob job) throws IOException {
+        final ZipInputStream zis = new ZipInputStream(in);
+        ZipEntry ze = null;
+
+        while ((ze = zis.getNextEntry()) != null) {
+            if (ze.isDirectory()) {
+                job.destroy();
+                throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
+            }
+            job.addFile(ze.getName(), zis);
+            zis.closeEntry();
+        }
+
+        IOUtils.closeQuietly(zis);
     }
 
     private static String getPartName(final Attachment part) {
