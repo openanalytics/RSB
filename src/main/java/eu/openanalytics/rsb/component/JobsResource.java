@@ -57,7 +57,6 @@ import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
-import eu.openanalytics.rsb.message.ZipJob;
 import eu.openanalytics.rsb.rest.types.JobToken;
 
 /**
@@ -143,7 +142,7 @@ public class JobsResource extends AbstractComponent {
             public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
                     throws IOException {
 
-                final ZipJob job = new ZipJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
+                final MultiFilesJob job = new MultiFilesJob(applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
 
                 final ZipInputStream zis = new ZipInputStream(in);
                 ZipEntry ze = null;
