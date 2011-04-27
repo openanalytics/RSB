@@ -25,7 +25,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -68,13 +67,6 @@ public class DefaultConfiguration implements Configuration {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
-
-    public void validate() {
-        Validate.notNull(getUserHomeDirectory(), "userHomeDirectory can't be null");
-        Validate.notNull(getResultsDirectory(), "rsbResultsDirectory can't be null");
-        Validate.notNull(getActiveMqWorkDirectory(), "activeMqWorkDirectory can't be null");
-        Validate.notNull(getDefaultRserviPoolUri(), "defaultRserviPoolUri can't be null");
     }
 
     protected File getUserHomeDirectory() {

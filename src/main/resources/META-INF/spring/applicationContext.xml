@@ -43,9 +43,14 @@
         http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
-    <!-- External configuration -->
+    <!-- Configuration loading and validation -->
     <lang:groovy id="configuration" script-source="classpath:RsbConfiguration.groovy"
-        refresh-check-delay="3000" init-method="validate" />
+        refresh-check-delay="3000" />
+        
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+          p:targetClass="eu.openanalytics.rsb.config.ConfigurationValidator"
+          p:targetMethod="validate"
+          p:arguments-ref="configuration" />
 
     <!-- Spring components -->
     <mvc:annotation-driven />
@@ -67,8 +72,7 @@
     <jaxws:endpoint implementor="#mtomJobHandler" address="/soap/mtom-jobs" />
 
     <util:list id="jsonRsbTypes">
-        <value>#{T(eu.openanalytics.rsb.Constants).RSB_JSON_CONTENT_TYPE}
-        </value>
+        <value>#{T(eu.openanalytics.rsb.Constants).RSB_JSON_CONTENT_TYPE}</value>
     </util:list>
 
     <bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.JSONProvider"
