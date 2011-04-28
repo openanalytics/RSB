@@ -22,7 +22,6 @@
 package eu.openanalytics.rsb.jaxrs;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.StringContains.containsString;
 
@@ -30,8 +29,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
-
-import eu.openanalytics.rsb.Constants;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
@@ -43,7 +40,6 @@ public class IllegalArgumentExceptionMapperTestCase {
 
         final Response response = iaeMapper.toResponse(new IllegalArgumentException("test_err"));
         assertThat(response.getStatus(), is(Status.BAD_REQUEST.getStatusCode()));
-        assertThat(response.getMetadata().get(Constants.REASON_PHRASE_HEADER).get(0).toString(), containsString("test_err"));
-        assertThat(response.getEntity(), nullValue());
+        assertThat(response.getEntity().toString(), containsString("test_err"));
     }
 }

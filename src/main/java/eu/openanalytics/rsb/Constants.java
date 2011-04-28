@@ -37,9 +37,9 @@ public class Constants {
      * This header allows support of SSL termination to happen upstream of RSB.
      */
     public static final String FORWARDED_PROTOCOL_HEADER = "X-Forwarded-Protocol";
-    public static final String REASON_PHRASE_HEADER = "X-Reason-Phrase";
 
-    public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
+    public static final String CONTENT_TYPE_HEADER = "Content-Type";
+    public static final String APPLICATION_NAME_HEADER = "X-RSB-Application-Name";
     public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
     public static final String JOB_FILES_MULTIPART_NAME = "X-RSB-JobFile[]";
 

@@ -136,10 +136,10 @@ $(document).ready(function() {
   
   $('#jobUploadForm').ajaxForm({
       beforeSubmit: function(a,f,o) {
-          o.dataType = 'xml';
+        o.dataType = 'xml';
       },
       
-      success: function(responseXML) {
+      success: function(responseXML, textStatus, xhr) {
           // reset the file selector only
           $('#jobFileSelector').attr({ value: '' });
           $('#jobFileSelector').MultiFile('reset');
@@ -183,7 +183,7 @@ $(document).ready(function() {
                 $.doTimeout(5000, function() { $.ajax(reAjax) });
               }
           });
-      }
+      },
   });
   
   // load URL parameters into specific field values

@@ -173,7 +173,7 @@ public class JobsResource extends AbstractComponent {
 
         for (final Attachment part : parts) {
             final String partName = getPartName(part);
-            if (StringUtils.equals(partName, Constants.APPLICATION_NAME_HTTP_HEADER)) {
+            if (StringUtils.equals(partName, Constants.APPLICATION_NAME_HEADER)) {
                 applicationName = part.getObject(String.class);
             } else if (StringUtils.startsWith(partName, Constants.RSB_META_HEADER_PREFIX)) {
                 final String metaName = StringUtils.substringAfter(partName, Constants.RSB_META_HEADER_PREFIX);
@@ -214,7 +214,7 @@ public class JobsResource extends AbstractComponent {
     private Response handleNewRestJob(final HttpHeaders httpHeaders, final UriInfo uriInfo, final JobBuilder jobBuilder)
             throws URISyntaxException, IOException {
 
-        final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
+        final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HEADER);
         return handleNewJob(applicationName, httpHeaders, uriInfo, jobBuilder);
     }
 

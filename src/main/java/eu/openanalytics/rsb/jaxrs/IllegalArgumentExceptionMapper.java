@@ -21,13 +21,12 @@
 
 package eu.openanalytics.rsb.jaxrs;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.ext.ExceptionMapper;
-
-import eu.openanalytics.rsb.Constants;
 
 /**
  * Converts {@link IllegalArgumentException} into BAD_REQUEST HTTP responses.
@@ -58,8 +57,8 @@ public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalAr
     @Override
     public Response toResponse(final IllegalArgumentException iae) {
         final BadRequestStatus status = new BadRequestStatus("Bad request - " + iae.getMessage());
-        // JAX-RS doesn't seem to propagate the reason phrase to the ultimate HTTP response, hence
-        // add it to a custom header too
-        return Response.status(status).header(Constants.REASON_PHRASE_HEADER, status.getReasonPhrase()).build();
+        // JAX-RS doesn't seem to propagate the reason phrase to the ultimate HTTP response status
+        // line, hence add it to the response body too
+        return Response.status(status).type(MediaType.TEXT_PLAIN).entity(status.getReasonPhrase()).build();
     }
 }
