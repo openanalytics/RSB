@@ -42,4 +42,12 @@ public interface MessageDispatcher {
      * @param jmsTemplate
      */
     void dispatch(final AbstractResult<?> result);
+
+    /**
+     * Dispatches an {@link AbstractJob} and waits for an {@link AbstractResult}.
+     * 
+     * @param job
+     * @return
+     */
+    <T extends AbstractResult<?>> T process(AbstractJob job);
 }

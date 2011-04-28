@@ -65,31 +65,27 @@ public class JmsMessageDispatcher extends AbstractComponent implements MessageDi
         this.jmsTemplate = jmsTemplate;
     }
 
-    /**
-     * Dispatches an {@link AbstractJob} over JMS.
-     * 
-     * @param job
-     * @param jmsTemplate
-     */
     public void dispatch(final AbstractJob job) {
-        jmsTemplate.convertAndSend(getQueueName(job), job, new WorkItemMessagePostProcessor(job));
+        jmsTemplate.convertAndSend(getJobQueueName(job), job, new WorkItemMessagePostProcessor(job));
     }
 
-    /**
-     * Dispatches an {@link AbstractResult} over JMS.
-     * 
-     * @param result
-     * @param jmsTemplate
-     */
     public void dispatch(final AbstractResult<?> result) {
-        jmsTemplate.convertAndSend(getQueueName(result), result, new WorkItemMessagePostProcessor(result));
+        jmsTemplate.convertAndSend(getResultQueueName(result), result, new WorkItemMessagePostProcessor(result));
     }
 
-    private static String getQueueName(final AbstractJob job) {
-        return "r.jobs." + job.getApplicationName();
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractResult<?>> T process(final AbstractJob job) {
+        dispatch(job);
+        final Object result = jmsTemplate.receiveSelectedAndConvert(getResultQueueName(job), Constants.JOB_ID_JMS_HEADER + "='"
+                + job.getJobId().toString() + "'");
+        return (T) result;
     }
 
-    private static String getQueueName(final AbstractResult<?> result) {
-        return "r.results." + result.getApplicationName();
+    private static String getJobQueueName(final AbstractWorkItem work) {
+        return "r.jobs." + work.getApplicationName();
+    }
+
+    private static String getResultQueueName(final AbstractWorkItem work) {
+        return "r.results." + work.getApplicationName();
     }
 }

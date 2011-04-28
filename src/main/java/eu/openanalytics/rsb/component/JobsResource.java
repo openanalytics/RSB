@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -44,7 +42,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.springframework.stereotype.Component;
@@ -134,7 +131,7 @@ public class JobsResource extends AbstractComponent {
                     throws IOException {
 
                 final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
-                loadZippedJobFiles(in, job);
+                Util.addZipFilesToJob(in, job);
                 return job;
             }
         });
@@ -184,15 +181,8 @@ public class JobsResource extends AbstractComponent {
 
                 for (final Attachment part : parts) {
                     if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
-                        final InputStream is = part.getDataHandler().getInputStream();
-
-                        if (Constants.ZIP_CONTENT_TYPES.contains(part.getContentType().toString())) {
-                            loadZippedJobFiles(is, job);
-                        } else {
-                            job.addFile(getPartFileName(part), is);
-                        }
-
-                        IOUtils.closeQuietly(is);
+                        final InputStream data = part.getDataHandler().getInputStream();
+                        Util.addDataToJob(part.getContentType().toString(), getPartFileName(part), data, job);
                     }
                 }
 
@@ -251,22 +241,6 @@ public class JobsResource extends AbstractComponent {
         jobToken.setApplicationResultsUri(uriBuilder.toString());
         jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders, uriInfo).toString());
         return jobToken;
-    }
-
-    private static void loadZippedJobFiles(final InputStream in, final MultiFilesJob job) throws IOException {
-        final ZipInputStream zis = new ZipInputStream(in);
-        ZipEntry ze = null;
-
-        while ((ze = zis.getNextEntry()) != null) {
-            if (ze.isDirectory()) {
-                job.destroy();
-                throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
-            }
-            job.addFile(ze.getName(), zis);
-            zis.closeEntry();
-        }
-
-        IOUtils.closeQuietly(zis);
     }
 
     private static String getPartName(final Attachment part) {

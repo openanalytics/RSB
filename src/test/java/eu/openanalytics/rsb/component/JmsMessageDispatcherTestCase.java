@@ -20,12 +20,16 @@
  */
 package eu.openanalytics.rsb.component;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,5 +74,16 @@ public class JmsMessageDispatcherTestCase {
         final AbstractResult<?> result = mock(AbstractResult.class);
         jmsDispatcher.dispatch(result);
         verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), any(AbstractResult.class), any(WorkItemMessagePostProcessor.class));
+    }
+
+    @Test
+    public void process() {
+        final AbstractJob job = mock(AbstractJob.class);
+        when(job.getJobId()).thenReturn(UUID.randomUUID());
+        final AbstractResult<?> result = mock(AbstractResult.class);
+        when(jmsTemplate.receiveSelectedAndConvert(matches("r\\.results\\..*"), anyString())).thenReturn(result);
+
+        assertEquals(jmsDispatcher.process(job), result);
+        verify(jmsTemplate).convertAndSend(matches("r\\.jobs\\..*"), any(AbstractResult.class), any(WorkItemMessagePostProcessor.class));
     }
 }

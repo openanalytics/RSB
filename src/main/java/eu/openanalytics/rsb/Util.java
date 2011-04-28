@@ -22,12 +22,15 @@ package eu.openanalytics.rsb;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
@@ -38,12 +41,14 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
@@ -231,5 +236,47 @@ public abstract class Util {
         } catch (final IOException ioe) {
             throw new RuntimeException("Failed to JSON unmarshall: " + s, ioe);
         }
+    }
+
+    /**
+     * Add a stream to a job, exploding it if it is a Zip input. Closes the provided data stream.
+     * 
+     * @param contentType
+     * @param name
+     * @param data
+     * @param job
+     * @throws IOException
+     */
+    public static void addDataToJob(final String contentType, final String name, final InputStream data, final MultiFilesJob job)
+            throws IOException {
+        if (Constants.ZIP_CONTENT_TYPES.contains(contentType)) {
+            addZipFilesToJob(data, job);
+        } else {
+            job.addFile(name, data);
+        }
+    }
+
+    /**
+     * Adds all the files contained in a Zip archive to a job. Rejects Zips that contain
+     * sub-directories.
+     * 
+     * @param data
+     * @param job
+     * @throws IOException
+     */
+    public static void addZipFilesToJob(final InputStream data, final MultiFilesJob job) throws IOException {
+        final ZipInputStream zis = new ZipInputStream(data);
+        ZipEntry ze = null;
+
+        while ((ze = zis.getNextEntry()) != null) {
+            if (ze.isDirectory()) {
+                job.destroy();
+                throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
+            }
+            job.addFile(ze.getName(), zis);
+            zis.closeEntry();
+        }
+
+        IOUtils.closeQuietly(zis);
     }
 }

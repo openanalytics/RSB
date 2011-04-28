@@ -20,23 +20,28 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.activation.MimetypesFileTypeMap;
 import javax.jws.WebService;
-import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.soap.MTOM;
 
 import org.springframework.stereotype.Component;
 
-import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MultiFilesJob;
+import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.soap.jobs.MtomJobProcessor;
 import eu.openanalytics.rsb.soap.types.JobType;
+import eu.openanalytics.rsb.soap.types.JobType.Parameter;
 import eu.openanalytics.rsb.soap.types.ObjectFactory;
 import eu.openanalytics.rsb.soap.types.PayloadType;
 import eu.openanalytics.rsb.soap.types.ResultType;
@@ -48,8 +53,8 @@ import eu.openanalytics.rsb.soap.types.ResultType;
  */
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
-@Component("mtomJobHandler")
-public class MtomJobHandler extends AbstractComponent implements MtomJobProcessor {
+@Component("soapMtomJobHandler")
+public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor {
     // TODO unit test
     private final static ObjectFactory soapOF = new ObjectFactory();
 
@@ -62,17 +67,32 @@ public class MtomJobHandler extends AbstractComponent implements MtomJobProcesso
         try {
             final String applicationName = job.getApplicationName();
 
-            final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
-                    (GregorianCalendar) GregorianCalendar.getInstance(), Collections.EMPTY_MAP);
+            final Map<String, String> meta = new HashMap<String, String>();
+            for (final Parameter parameter : job.getParameter()) {
+                meta.put(parameter.getName(), parameter.getValue());
+            }
 
-            // FIXME implement :)
+            // FIXME support XML and JSON jobs
+            final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
+                    (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+
+            for (final PayloadType payload : job.getPayload()) {
+                Util.addDataToJob(payload.getContentType(), payload.getName(), payload.getData().getInputStream(), multiFilesJob);
+            }
+
+            final MultiFilesResult multiFilesResult = getMessageDispatcher().process(multiFilesJob);
+
             final ResultType response = soapOF.createResultType();
-            response.setApplicationName(applicationName);
-            response.setJobId(UUID.randomUUID().toString());
+            response.setApplicationName(multiFilesResult.getApplicationName());
+            response.setJobId(multiFilesResult.getJobId().toString());
+
+            // FIXME support attaching n-files instead of one zip only
+            final File resultFile = multiFilesResult.getPayload();
+
             final PayloadType payload = soapOF.createPayloadType();
-            payload.setContentType(Constants.RSB_XML_CONTENT_TYPE);
-            payload.setName("result");
-            payload.setData(new DataHandler(new ByteArrayDataSource("<fake_result />", Constants.RSB_XML_CONTENT_TYPE)));
+            payload.setContentType(new MimetypesFileTypeMap().getContentType(resultFile));
+            payload.setName(resultFile.getName());
+            payload.setData(new DataHandler(new FileDataSource(resultFile)));
             response.getPayload().add(payload);
             return response;
         } catch (final IOException ioe) {

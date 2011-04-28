@@ -65,11 +65,14 @@
     
     <!-- CXF -->
     <import resource="classpath:META-INF/cxf/cxf.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
-    <import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-    <jaxws:endpoint implementor="#mtomJobHandler" address="/soap/mtom-jobs" />
+    <jaxws:endpoint implementor="#soapMtomJobHandler"
+                    address="/soap/mtom-jobs">
+      <jaxws:properties>
+        <entry key="mtom-enabled" value="true"/>
+      </jaxws:properties>
+    </jaxws:endpoint>
 
     <util:list id="jsonRsbTypes">
         <value>#{T(eu.openanalytics.rsb.Constants).RSB_JSON_CONTENT_TYPE}</value>
@@ -123,7 +126,8 @@
     <!-- Spring JMS -->
     <bean name="jmsTemplate" class="org.springframework.jms.core.JmsTemplate"
         p:connectionFactory-ref="amqConnectionFactory" p:explicitQosEnabled="true"
-        p:deliveryPersistent="true" p:sessionTransacted="true" />
+        p:deliveryPersistent="true" p:sessionTransacted="true"
+        p:receiveTimeout="#{configuration.jobTimeOut}" />
 
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
