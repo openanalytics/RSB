@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.message.MessageDispatcher;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
@@ -42,7 +43,14 @@ public abstract class AbstractComponent {
     @Resource
     private MessageSource messages;
 
+    @Resource
+    private MessageDispatcher messageDispatcher;
+
     // exposed for unit testing
+    void setMessageDispatcher(final MessageDispatcher messageDispatcher) {
+        this.messageDispatcher = messageDispatcher;
+    }
+
     void setConfiguration(final Configuration configuration) {
         this.configuration = configuration;
     }
@@ -65,5 +73,9 @@ public abstract class AbstractComponent {
 
     protected File getApplicationResultDirectory(final String applicationName) {
         return new File(getConfiguration().getResultsDirectory(), applicationName);
+    }
+
+    protected MessageDispatcher getMessageDispatcher() {
+        return messageDispatcher;
     }
 }

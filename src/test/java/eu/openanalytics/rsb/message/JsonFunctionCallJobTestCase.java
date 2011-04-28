@@ -43,7 +43,7 @@ public class JsonFunctionCallJobTestCase {
 
     @Before
     public void prepareTest() {
-        jsonFunctionCallJob = new JsonFunctionCallJob(Source.REST, "app_name", UUID.randomUUID(),
+        jsonFunctionCallJob = new JsonFunctionCallJob(Source.REST, "appName", UUID.randomUUID(),
                 (GregorianCalendar) GregorianCalendar.getInstance(), "\\\"fake_job\\\"");
     }
 

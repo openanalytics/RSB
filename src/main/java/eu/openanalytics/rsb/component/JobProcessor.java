@@ -43,7 +43,6 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.CoreException;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.data.RDataUtil;
@@ -52,7 +51,6 @@ import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Constants;
-import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
@@ -72,9 +70,6 @@ public class JobProcessor extends AbstractComponent {
     private interface JobRunner {
         AbstractResult<?> runOn(RServi rServi) throws Exception;
     }
-
-    @Resource
-    private JmsTemplate jmsTemplate;
 
     @Resource
     private RServiInstanceProvider rServiInstanceProvider;
@@ -165,10 +160,6 @@ public class JobProcessor extends AbstractComponent {
     }
 
     // exposed for unit testing
-    void setJmsTemplate(final JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-    }
-
     void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider) {
         this.rServiInstanceProvider = rServiInstanceProvider;
     }
@@ -215,7 +206,7 @@ public class JobProcessor extends AbstractComponent {
             rServi.close();
 
             if (result != null) {
-                Util.dispatch(result, jmsTemplate);
+                getMessageDispatcher().dispatch(result);
             }
 
             job.destroy();
@@ -259,7 +250,7 @@ public class JobProcessor extends AbstractComponent {
     }
 
     private static HashSet<String> getFilesInRWorkspace(final RServi rServi) throws UnexpectedRDataException, CoreException {
-        RObject evalResult = rServi.evalData("dir()", null);
+        final RObject evalResult = rServi.evalData("dir()", null);
         return new HashSet<String>(Arrays.asList(RDataUtil.checkRCharVector(evalResult).getData().toArray()));
     }
 }

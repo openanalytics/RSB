@@ -27,7 +27,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,8 +48,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.MessageSource;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
@@ -61,6 +58,7 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
+import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
@@ -77,7 +75,7 @@ public class JobProcessorTestCase {
     @Mock
     private Configuration configuration;
     @Mock
-    private JmsTemplate jmsTemplate;
+    private MessageDispatcher messageDispatcher;
     @Mock
     private RServiInstanceProvider rServiInstanceProvider;
 
@@ -85,7 +83,7 @@ public class JobProcessorTestCase {
     public void prepareTest() throws UnknownHostException {
         jobProcessor = new JobProcessor();
         jobProcessor.setConfiguration(configuration);
-        jobProcessor.setJmsTemplate(jmsTemplate);
+        jobProcessor.setMessageDispatcher(messageDispatcher);
         jobProcessor.setRServiInstanceProvider(rServiInstanceProvider);
     }
 
@@ -151,7 +149,7 @@ public class JobProcessorTestCase {
 
         jobProcessor.process(job);
 
-        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), eq(result), any(MessagePostProcessor.class));
+        verify(messageDispatcher).dispatch(eq(result));
     }
 
     @Test
@@ -174,7 +172,7 @@ public class JobProcessorTestCase {
 
         verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
                 eq(defaultPoolUri.toString()));
-        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), eq(result), any(MessagePostProcessor.class));
+        verify(messageDispatcher).dispatch(eq(result));
     }
 
     @Test
@@ -190,7 +188,7 @@ public class JobProcessorTestCase {
 
         jobProcessor.process(job);
 
-        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), eq(result), any(MessagePostProcessor.class));
+        verify(messageDispatcher).dispatch(eq(result));
     }
 
     @Test
@@ -217,6 +215,6 @@ public class JobProcessorTestCase {
 
         verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
                 eq(defaultPoolUri.toString()));
-        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), any(AbstractResult.class), any(MessagePostProcessor.class));
+        verify(messageDispatcher).dispatch(eq(result));
     }
 }

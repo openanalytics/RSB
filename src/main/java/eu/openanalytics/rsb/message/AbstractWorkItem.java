@@ -29,6 +29,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import eu.openanalytics.rsb.Util;
+
 /**
  * Parent of all the work item messages.
  * 
@@ -63,6 +65,10 @@ public abstract class AbstractWorkItem implements Serializable {
         Validate.notNull(jobId, "jobId can't be null");
         Validate.notNull(submissionTime, "submissionTime can't be null");
         Validate.notNull(meta, "meta can't be null");
+
+        if (!Util.isValidApplicationName(applicationName)) {
+            throw new IllegalArgumentException("Invalid application name: " + applicationName);
+        }
 
         this.source = source;
         this.applicationName = applicationName;

@@ -22,14 +22,10 @@ package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
 
-import javax.annotation.Resource;
-
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
-import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem;
@@ -41,14 +37,6 @@ import eu.openanalytics.rsb.message.AbstractWorkItem;
  */
 @Component("dlqHandler")
 public class DlqHandler extends AbstractComponent {
-    @Resource
-    private JmsTemplate jmsTemplate;
-
-    // exposed for unit testing
-    void setJmsTemplate(final JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-    }
-
     /**
      * Handles a job whose processing has failed repetitively.
      * 
@@ -62,7 +50,7 @@ public class DlqHandler extends AbstractComponent {
         template.setAttribute("job", job);
 
         final AbstractResult<?> errorResult = job.buildErrorResult(new RuntimeException(template.toString()), getMessages());
-        Util.dispatch(errorResult, jmsTemplate);
+        getMessageDispatcher().dispatch(errorResult);
     }
 
     /**

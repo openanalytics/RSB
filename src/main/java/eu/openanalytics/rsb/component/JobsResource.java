@@ -33,7 +33,6 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -48,7 +47,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
@@ -71,14 +69,6 @@ import eu.openanalytics.rsb.rest.types.JobToken;
 public class JobsResource extends AbstractComponent {
     private interface JobBuilder {
         AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) throws IOException;
-    }
-
-    @Resource
-    private JmsTemplate jmsTemplate;
-
-    // exposed for unit testing
-    void setJmsTemplate(final JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
     }
 
     /**
@@ -221,14 +211,10 @@ public class JobsResource extends AbstractComponent {
     private Response handleNewJob(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo,
             final JobBuilder jobBuilder) throws IOException, URISyntaxException {
 
-        if (!Util.isValidApplicationName(applicationName)) {
-            throw new IllegalArgumentException("Invalid application name: " + applicationName);
-        }
-
         final UUID jobId = UUID.randomUUID();
         final AbstractJob job = jobBuilder.build(applicationName, jobId, (GregorianCalendar) GregorianCalendar.getInstance());
 
-        Util.dispatch(job, jmsTemplate);
+        getMessageDispatcher().dispatch(job);
 
         final JobToken jobToken = buildJobToken(uriInfo, httpHeaders, job);
 

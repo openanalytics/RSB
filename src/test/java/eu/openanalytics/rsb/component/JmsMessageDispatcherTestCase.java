@@ -21,71 +21,54 @@
 package eu.openanalytics.rsb.component;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.io.IOException;
-import java.util.Locale;
+import java.net.UnknownHostException;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-import org.springframework.context.MessageSource;
+import org.springframework.jms.core.JmsTemplate;
 
+import eu.openanalytics.rsb.component.JmsMessageDispatcher.WorkItemMessagePostProcessor;
+import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
-import eu.openanalytics.rsb.message.MessageDispatcher;
 
 /**
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DlqHandlerTestCase {
-
-    private DlqHandler dlqHandler;
+public class JmsMessageDispatcherTestCase {
+    private JmsMessageDispatcher jmsDispatcher;
 
     @Mock
-    private MessageDispatcher messageDispatcher;
+    private Configuration configuration;
     @Mock
-    private MessageSource messageSource;
+    private JmsTemplate jmsTemplate;
 
     @Before
-    public void prepareTest() {
-        dlqHandler = new DlqHandler();
-        dlqHandler.setMessageDispatcher(messageDispatcher);
-        dlqHandler.setMessages(messageSource);
+    public void prepareTest() throws UnknownHostException {
+        jmsDispatcher = new JmsMessageDispatcher();
+        jmsDispatcher.setConfiguration(configuration);
+        jmsDispatcher.setJmsTemplate(jmsTemplate);
     }
 
     @Test
-    public void handleAbstractJob() throws IOException {
+    public void dispatchJob() {
         final AbstractJob job = mock(AbstractJob.class);
-        when(job.getApplicationName()).thenReturn("app_name");
-        @SuppressWarnings("unchecked")
-        final AbstractResult<Object> result = mock(AbstractResult.class);
-        when(job.buildErrorResult(any(Throwable.class), eq(messageSource))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                return result;
-            }
-        });
-
-        when(messageSource.getMessage(anyString(), any(Object[].class), any(Locale.class))).thenReturn("fake err msg");
-
-        dlqHandler.handle(job);
-
-        verify(messageDispatcher).dispatch(any(AbstractResult.class));
+        jmsDispatcher.dispatch(job);
+        verify(jmsTemplate).convertAndSend(matches("r\\.jobs\\..*"), any(AbstractJob.class), any(WorkItemMessagePostProcessor.class));
     }
 
     @Test
-    public void handleAbstractResult() {
+    public void dispatchResult() {
         final AbstractResult<?> result = mock(AbstractResult.class);
-        dlqHandler.handle(result);
+        jmsDispatcher.dispatch(result);
+        verify(jmsTemplate).convertAndSend(matches("r\\.results\\..*"), any(AbstractResult.class), any(WorkItemMessagePostProcessor.class));
     }
 }

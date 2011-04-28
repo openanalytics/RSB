@@ -29,8 +29,6 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -44,12 +42,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
 
 import eu.openanalytics.rsb.message.AbstractJob;
-import eu.openanalytics.rsb.message.AbstractResult;
-import eu.openanalytics.rsb.message.AbstractWorkItem;
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
@@ -59,21 +53,6 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
 public abstract class Util {
-    private static final class WorkItemMessagePostProcessor implements MessagePostProcessor {
-        private final AbstractWorkItem workItem;
-
-        private WorkItemMessagePostProcessor(final AbstractWorkItem workItem) {
-            this.workItem = workItem;
-        }
-
-        public Message postProcessMessage(final Message message) throws JMSException {
-            message.setStringProperty(Constants.SOURCE_JMS_HEADER, workItem.getSource().toString());
-            message.setStringProperty(Constants.APPLICATION_NAME_JMS_HEADER, workItem.getApplicationName());
-            message.setStringProperty(Constants.JOB_ID_JMS_HEADER, workItem.getJobId().toString());
-            return message;
-        }
-    }
-
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
@@ -252,33 +231,5 @@ public abstract class Util {
         } catch (final IOException ioe) {
             throw new RuntimeException("Failed to JSON unmarshall: " + s, ioe);
         }
-    }
-
-    /**
-     * Dispatches an {@link AbstractJob} over JMS.
-     * 
-     * @param job
-     * @param jmsTemplate
-     */
-    public static void dispatch(final AbstractJob job, final JmsTemplate jmsTemplate) {
-        jmsTemplate.convertAndSend(getQueueName(job), job, new WorkItemMessagePostProcessor(job));
-    }
-
-    /**
-     * Dispatches an {@link AbstractResult} over JMS.
-     * 
-     * @param result
-     * @param jmsTemplate
-     */
-    public static void dispatch(final AbstractResult<?> result, final JmsTemplate jmsTemplate) {
-        jmsTemplate.convertAndSend(getQueueName(result), result, new WorkItemMessagePostProcessor(result));
-    }
-
-    private static String getQueueName(final AbstractJob job) {
-        return "r.jobs." + job.getApplicationName();
-    }
-
-    private static String getQueueName(final AbstractResult<?> result) {
-        return "r.results." + result.getApplicationName();
     }
 }

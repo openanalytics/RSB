@@ -24,8 +24,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
@@ -45,12 +45,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.internal.matchers.StartsWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.rest.types.JobToken;
 
 /**
@@ -65,7 +64,7 @@ public class JobsResourceTestCase {
     @Mock
     private Configuration configuration;
     @Mock
-    private JmsTemplate jmsTemplate;
+    private MessageDispatcher messageDispatcher;
     @Mock
     private HttpHeaders httpHeaders;
     @Mock
@@ -75,13 +74,14 @@ public class JobsResourceTestCase {
     public void prepareTest() throws UnknownHostException {
         jobsResource = new JobsResource();
         jobsResource.setConfiguration(configuration);
-        jobsResource.setJmsTemplate(jmsTemplate);
+        jobsResource.setMessageDispatcher(messageDispatcher);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void handleBadApplicationName() throws Exception {
         when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HEADER)).thenReturn(Collections.singletonList("_bad:app!$name"));
         jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
+        verifyZeroInteractions(messageDispatcher);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class JobsResourceTestCase {
         assertThat(jobToken.getSubmissionTime(), notNullValue());
         assertThat(jobToken.getResultUri(), notNullValue());
         assertThat(jobToken.getApplicationResultsUri(), notNullValue());
-        verify(jmsTemplate).convertAndSend(matches("r\\.jobs\\..*"), any(AbstractJob.class), any(MessagePostProcessor.class));
+        verify(messageDispatcher).dispatch(any(AbstractJob.class));
         return jobToken;
     }
 

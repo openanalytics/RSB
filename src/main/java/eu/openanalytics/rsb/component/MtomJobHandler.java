@@ -21,6 +21,8 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
@@ -31,7 +33,8 @@ import javax.xml.ws.soap.MTOM;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
-import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
+import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.soap.jobs.MtomJobProcessor;
 import eu.openanalytics.rsb.soap.types.JobType;
 import eu.openanalytics.rsb.soap.types.ObjectFactory;
@@ -47,32 +50,33 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("mtomJobHandler")
 public class MtomJobHandler extends AbstractComponent implements MtomJobProcessor {
-    // TODO use @WebFault to generate meaningful errors
+    // TODO unit test
     private final static ObjectFactory soapOF = new ObjectFactory();
 
     /**
      * Processes a single R job.
+     * 
+     * @throws IOException
      */
     public ResultType process(final JobType job) {
-        final String applicationName = job.getApplicationName();
-
-        if (Util.isValidApplicationName(applicationName)) {
-            throw new IllegalArgumentException("Invalid application name: " + applicationName);
-        }
-
-        // FIXME implement :)
-        final ResultType response = soapOF.createResultType();
-        response.setApplicationName(applicationName);
-        response.setJobId(UUID.randomUUID().toString());
-        final PayloadType payload = soapOF.createPayloadType();
-        payload.setContentType(Constants.RSB_XML_CONTENT_TYPE);
-        payload.setName("result");
         try {
+            final String applicationName = job.getApplicationName();
+
+            final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
+                    (GregorianCalendar) GregorianCalendar.getInstance(), Collections.EMPTY_MAP);
+
+            // FIXME implement :)
+            final ResultType response = soapOF.createResultType();
+            response.setApplicationName(applicationName);
+            response.setJobId(UUID.randomUUID().toString());
+            final PayloadType payload = soapOF.createPayloadType();
+            payload.setContentType(Constants.RSB_XML_CONTENT_TYPE);
+            payload.setName("result");
             payload.setData(new DataHandler(new ByteArrayDataSource("<fake_result />", Constants.RSB_XML_CONTENT_TYPE)));
+            response.getPayload().add(payload);
+            return response;
         } catch (final IOException ioe) {
             throw new RuntimeException(ioe);
         }
-        response.getPayload().add(payload);
-        return response;
     }
 }
