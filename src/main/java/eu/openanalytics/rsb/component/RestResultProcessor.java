@@ -55,24 +55,18 @@ public class RestResultProcessor extends AbstractComponent {
 
     public void process(final AbstractFunctionCallResult result) throws IOException {
         ensureApplicationResultDir(result);
-        final String resultFileName = getResultFileName(result);
-        final Message<String> message = newResultMessage(result, resultFileName);
-        resultFilesChannel.send(message, getConfiguration().getJobTimeOut());
-        result.destroy();
+        final String resultFileExtension = (result.isSuccess() ? "" : "err.") + result.getMimeType().getSubType();
+        final String resultPayload = result.getPayload();
+        final String resultFileName = result.getJobId() + "." + resultFileExtension;
+        persistResult(result, resultPayload, resultFileName);
     }
 
     public void process(final MultiFilesResult result) throws IOException {
         ensureApplicationResultDir(result);
-        final String resultFileName = getResultFileName(result);
-        final Message<File> message = newResultMessage(result, resultFileName);
-        resultFilesChannel.send(message, getConfiguration().getJobTimeOut());
-        result.destroy();
-    }
-
-    private <T> Message<T> newResultMessage(final AbstractResult<T> result, final String fileName) throws IOException {
-        final String applicationAndResultFileName = result.getApplicationName() + File.separator + fileName;
-        return new GenericMessage<T>(result.getPayload(), Collections.singletonMap(FileHeaders.FILENAME,
-                (Object) applicationAndResultFileName));
+        final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
+        final File resultPayload = resultFile;
+        final String resultFileName = resultFile.getName();
+        persistResult(result, resultPayload, resultFileName);
     }
 
     private void ensureApplicationResultDir(final AbstractResult<?> result) throws IOException {
@@ -80,12 +74,14 @@ public class RestResultProcessor extends AbstractComponent {
         FileUtils.forceMkdir(applicationResultDir);
     }
 
-    private String getResultFileName(final AbstractFunctionCallResult functionCallResult) {
-        final String resultFileExtension = (functionCallResult.isSuccess() ? "" : "err.") + functionCallResult.getMimeType().getSubType();
-        return functionCallResult.getJobId() + "." + resultFileExtension;
+    private <T> void persistResult(final AbstractResult<?> result, final T resultPayload, final String resultFileName) throws IOException {
+        final Message<T> message = newResultMessage(resultPayload, result.getApplicationName(), resultFileName);
+        resultFilesChannel.send(message, getConfiguration().getJobTimeOut());
+        result.destroy();
     }
 
-    private String getResultFileName(final MultiFilesResult multiFilesResult) throws IOException {
-        return multiFilesResult.getPayload().getName();
+    private <T> Message<T> newResultMessage(final T result, final String applicationName, final String fileName) throws IOException {
+        final String applicationAndResultFileName = applicationName + File.separator + fileName;
+        return new GenericMessage<T>(result, Collections.singletonMap(FileHeaders.FILENAME, (Object) applicationAndResultFileName));
     }
 }

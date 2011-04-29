@@ -131,7 +131,7 @@ public class JobsResource extends AbstractComponent {
                     throws IOException {
 
                 final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
-                Util.addZipFilesToJob(in, job);
+                MultiFilesJob.addZipFilesToJob(in, job);
                 return job;
             }
         });
@@ -182,7 +182,7 @@ public class JobsResource extends AbstractComponent {
                 for (final Attachment part : parts) {
                     if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
                         final InputStream data = part.getDataHandler().getInputStream();
-                        Util.addDataToJob(part.getContentType().toString(), getPartFileName(part), data, job);
+                        MultiFilesJob.addDataToJob(part.getContentType().toString(), getPartFileName(part), data, job);
                     }
                 }
 

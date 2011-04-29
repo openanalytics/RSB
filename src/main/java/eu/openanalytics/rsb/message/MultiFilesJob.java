@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
@@ -133,5 +135,47 @@ public class MultiFilesJob extends AbstractJob {
 
     public File[] getFiles() {
         return temporaryDirectory.listFiles();
+    }
+
+    /**
+     * Add a stream to a job, exploding it if it is a Zip input. Closes the provided data stream.
+     * 
+     * @param contentType
+     * @param name
+     * @param data
+     * @param job
+     * @throws IOException
+     */
+    public static void addDataToJob(final String contentType, final String name, final InputStream data, final MultiFilesJob job)
+            throws IOException {
+        if (Constants.ZIP_CONTENT_TYPES.contains(contentType)) {
+            addZipFilesToJob(data, job);
+        } else {
+            job.addFile(name, data);
+        }
+    }
+
+    /**
+     * Adds all the files contained in a Zip archive to a job. Rejects Zips that contain
+     * sub-directories.
+     * 
+     * @param data
+     * @param job
+     * @throws IOException
+     */
+    public static void addZipFilesToJob(final InputStream data, final MultiFilesJob job) throws IOException {
+        final ZipInputStream zis = new ZipInputStream(data);
+        ZipEntry ze = null;
+
+        while ((ze = zis.getNextEntry()) != null) {
+            if (ze.isDirectory()) {
+                job.destroy();
+                throw new IllegalArgumentException("Invalid zip archive: nested directories are not supported");
+            }
+            job.addFile(ze.getName(), zis);
+            zis.closeEntry();
+        }
+
+        IOUtils.closeQuietly(zis);
     }
 }

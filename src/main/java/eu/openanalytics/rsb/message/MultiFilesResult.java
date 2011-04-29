@@ -34,9 +34,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
-import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 
 /**
@@ -44,12 +42,10 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics <rsb.development@openanalytics.eu>"
  */
-public class MultiFilesResult extends AbstractResult<File> {
+public class MultiFilesResult extends AbstractResult<File[]> {
     private static final long serialVersionUID = 1L;
 
     private final File temporaryDirectory;
-
-    private File payload = null;
 
     public MultiFilesResult(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
             final Map<String, String> meta, final boolean success) throws IOException {
@@ -71,21 +67,29 @@ public class MultiFilesResult extends AbstractResult<File> {
     }
 
     @Override
-    public File getPayload() throws IOException {
-        if (payload == null) {
-            payload = buildPayload();
-        }
-
-        return payload;
+    public File[] getPayload() throws IOException {
+        final File[] resultFiles = temporaryDirectory.listFiles();
+        return resultFiles == null ? new File[0] : resultFiles;
     }
 
-    private File buildPayload() throws FileNotFoundException, IOException {
-        final File[] resultFiles = temporaryDirectory.listFiles();
-        if ((resultFiles.length == 1) && (StringUtils.endsWith(resultFiles[0].getName(), Constants.MULTIPLE_FILES_ERROR_FILE_EXTENSION))) {
+    /**
+     * Zips all the files contained in a multifiles result except if the result is not successful,
+     * in that case returns the first file (which should be the only one and contain a plain text
+     * error message).
+     * 
+     * @param result
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static File zipResultFilesIfNotError(final MultiFilesResult result) throws FileNotFoundException, IOException {
+        final File[] resultFiles = result.getPayload();
+
+        if ((!result.isSuccess()) && (resultFiles.length == 1)) {
             return resultFiles[0];
         }
 
-        final File resultZipFile = new File(temporaryDirectory, getJobId() + ".zip");
+        final File resultZipFile = new File(result.temporaryDirectory, result.getJobId() + ".zip");
         final ZipOutputStream resultZOS = new ZipOutputStream(new FileOutputStream(resultZipFile));
 
         for (final File resultFile : resultFiles) {

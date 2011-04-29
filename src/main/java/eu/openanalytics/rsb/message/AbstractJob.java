@@ -27,6 +27,9 @@ import java.util.UUID;
 
 import org.springframework.context.MessageSource;
 
+import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.rest.types.ErrorResult;
+
 /**
  * Represents a generic RSB job.
  * 
@@ -45,4 +48,20 @@ public abstract class AbstractJob extends AbstractWorkItem {
     }
 
     public abstract AbstractResult<?> buildErrorResult(Throwable t, MessageSource messageSource) throws IOException;
+
+    /**
+     * Builds an {@link ErrorResult} for a job whose processing has failed.
+     * 
+     * @param job
+     * @param error
+     * @return
+     */
+    public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job, final Throwable error) {
+        final ErrorResult errorResult = Util.REST_OBJECT_FACTORY.createErrorResult();
+        errorResult.setApplicationName(job.getApplicationName());
+        errorResult.setJobId(job.getJobId().toString());
+        errorResult.setSubmissionTime(Util.convert(job.getSubmissionTime()));
+        errorResult.setErrorMessage(error.getMessage());
+        return errorResult;
+    }
 }

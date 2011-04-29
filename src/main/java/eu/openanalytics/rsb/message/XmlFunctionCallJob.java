@@ -53,7 +53,7 @@ public class XmlFunctionCallJob extends AbstractFunctionCallJob {
 
     @Override
     public XmlFunctionCallResult buildErrorResult(final Throwable error, final MessageSource messageSource) {
-        return buildResult(false, Util.toXml(Util.buildJobProcessingErrorResult(this, error)));
+        return buildResult(false, Util.toXml(AbstractJob.buildJobProcessingErrorResult(this, error)));
     }
 
     private XmlFunctionCallResult buildResult(final boolean success, final String result) {

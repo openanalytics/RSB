@@ -112,7 +112,7 @@ public class RestResultProcessorTestCase {
     private MultiFilesResult buildMockMultiFilesCallResult() throws IOException {
         final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
         when(multiFilesResult.getApplicationName()).thenReturn("test_app_name");
-        when(multiFilesResult.getPayload()).thenReturn(new File("fake_result"));
+        when(multiFilesResult.getPayload()).thenReturn(new File[0]);
         return multiFilesResult;
     }
 

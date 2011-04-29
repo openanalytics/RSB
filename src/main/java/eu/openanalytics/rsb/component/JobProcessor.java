@@ -101,7 +101,7 @@ public class JobProcessor extends AbstractComponent {
 
     public void process(final MultiFilesJob job) throws Exception {
         process(job, new JobRunner() {
-            public AbstractResult<File> runOn(final RServi rServi) throws Exception {
+            public AbstractResult<File[]> runOn(final RServi rServi) throws Exception {
                 final Set<String> filesUploadedToR = new HashSet<String>();
 
                 // locate and upload the R script

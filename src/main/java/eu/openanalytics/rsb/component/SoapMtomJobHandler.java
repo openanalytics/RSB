@@ -31,14 +31,21 @@ import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.activation.MimetypesFileTypeMap;
 import javax.jws.WebService;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.soap.MTOM;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
-import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
+import eu.openanalytics.rsb.message.JsonFunctionCallJob;
+import eu.openanalytics.rsb.message.JsonFunctionCallResult;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
+import eu.openanalytics.rsb.message.XmlFunctionCallJob;
+import eu.openanalytics.rsb.message.XmlFunctionCallResult;
 import eu.openanalytics.rsb.soap.jobs.MtomJobProcessor;
 import eu.openanalytics.rsb.soap.types.JobType;
 import eu.openanalytics.rsb.soap.types.JobType.Parameter;
@@ -54,8 +61,8 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("soapMtomJobHandler")
+// TODO unit test, integration test
 public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor {
-    // TODO unit test
     private final static ObjectFactory soapOF = new ObjectFactory();
 
     /**
@@ -72,31 +79,82 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
                 meta.put(parameter.getName(), parameter.getValue());
             }
 
-            // FIXME support XML and JSON jobs
+            // FIXME refactor this code!
+
+            // function call jobs have a single attachment and no meta
+            if ((job.getPayload().size() == 1) && (meta.isEmpty())) {
+                final PayloadType singlePayload = job.getPayload().get(0);
+                if (Constants.XML_CONTENT_TYPE.equals(singlePayload.getContentType())) {
+                    final String argument = IOUtils.toString(singlePayload.getData().getInputStream());
+                    final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP, applicationName, UUID.randomUUID(),
+                            (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+
+                    final XmlFunctionCallResult xmlFunctionCallResult = getMessageDispatcher().process(xmlFunctionCallJob);
+
+                    final ResultType response = createResponse(xmlFunctionCallResult);
+                    final PayloadType payload = soapOF.createPayloadType();
+                    payload.setContentType(Constants.XML_CONTENT_TYPE);
+                    // FIXME use file name building logic
+                    payload.setName("result.xml");
+                    payload.setData(new DataHandler(new ByteArrayDataSource(xmlFunctionCallResult.getPayload(), Constants.XML_CONTENT_TYPE)));
+                    response.getPayload().add(payload);
+
+                    return response;
+                } else if (Constants.JSON_CONTENT_TYPE.equals(job.getPayload().get(0).getContentType())) {
+                    final String argument = IOUtils.toString(singlePayload.getData().getInputStream());
+                    final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP, applicationName,
+                            UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+
+                    final JsonFunctionCallResult jsonFunctionCallResult = getMessageDispatcher().process(jsonFunctionCallJob);
+
+                    final ResultType response = createResponse(jsonFunctionCallResult);
+                    final PayloadType payload = soapOF.createPayloadType();
+                    payload.setContentType(Constants.JSON_CONTENT_TYPE);
+                    // FIXME use file name building logic
+                    payload.setName("result.json");
+                    payload.setData(new DataHandler(new ByteArrayDataSource(jsonFunctionCallResult.getPayload(),
+                            Constants.JSON_CONTENT_TYPE)));
+                    response.getPayload().add(payload);
+
+                    return response;
+                }
+            }
+
             final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
                     (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
+            final boolean isOneZipJob = job.getPayload().size() == 1
+                    && Constants.ZIP_CONTENT_TYPES.contains(job.getPayload().get(0).getContentType());
+
             for (final PayloadType payload : job.getPayload()) {
-                Util.addDataToJob(payload.getContentType(), payload.getName(), payload.getData().getInputStream(), multiFilesJob);
+                MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(), payload.getData().getInputStream(), multiFilesJob);
             }
 
             final MultiFilesResult multiFilesResult = getMessageDispatcher().process(multiFilesJob);
 
-            final ResultType response = soapOF.createResultType();
-            response.setApplicationName(multiFilesResult.getApplicationName());
-            response.setJobId(multiFilesResult.getJobId().toString());
+            final ResultType response = createResponse(multiFilesResult);
 
-            // FIXME support attaching n-files instead of one zip only
-            final File resultFile = multiFilesResult.getPayload();
+            final File[] resultFiles = isOneZipJob ? new File[] { MultiFilesResult.zipResultFilesIfNotError(multiFilesResult) }
+                    : multiFilesResult.getPayload();
 
-            final PayloadType payload = soapOF.createPayloadType();
-            payload.setContentType(new MimetypesFileTypeMap().getContentType(resultFile));
-            payload.setName(resultFile.getName());
-            payload.setData(new DataHandler(new FileDataSource(resultFile)));
-            response.getPayload().add(payload);
+            for (final File resultFile : resultFiles) {
+                final PayloadType payload = soapOF.createPayloadType();
+                payload.setContentType(new MimetypesFileTypeMap().getContentType(resultFile));
+                payload.setName(resultFile.getName());
+                payload.setData(new DataHandler(new FileDataSource(resultFile)));
+                response.getPayload().add(payload);
+            }
+
             return response;
         } catch (final IOException ioe) {
             throw new RuntimeException(ioe);
         }
+    }
+
+    private ResultType createResponse(final AbstractResult<?> result) {
+        final ResultType response = soapOF.createResultType();
+        response.setApplicationName(result.getApplicationName());
+        response.setJobId(result.getJobId().toString());
+        return response;
     }
 }

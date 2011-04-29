@@ -53,7 +53,7 @@ public class JsonFunctionCallJob extends AbstractFunctionCallJob {
 
     @Override
     public JsonFunctionCallResult buildErrorResult(final Throwable error, final MessageSource messageSource) {
-        return buildResult(false, Util.toJson(Util.buildJobProcessingErrorResult(this, error)));
+        return buildResult(false, Util.toJson(AbstractJob.buildJobProcessingErrorResult(this, error)));
     }
 
     private JsonFunctionCallResult buildResult(final boolean success, final String result) {
