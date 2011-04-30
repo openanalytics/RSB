@@ -23,25 +23,31 @@ package eu.openanalytics.rsb.component;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.internal.matchers.StartsWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -124,6 +130,19 @@ public class JobsResourceTestCase {
         assertSuccessfullHandling(jobsResource.handleZipJob(getTestDataAsStream("r-job-sample.zip"), httpHeaders, uriInfo));
     }
 
+    @Test
+    public void handleMultipartFormJob() throws Exception {
+        final Attachment applicationNamePart = mock(Attachment.class);
+        final ContentDisposition applicationContentDisposition = mock(ContentDisposition.class);
+        when(applicationNamePart.getContentDisposition()).thenReturn(applicationContentDisposition);
+        when(applicationContentDisposition.getParameter(eq("name"))).thenReturn(Constants.APPLICATION_NAME_HEADER);
+        when(applicationNamePart.getObject(eq(String.class))).thenReturn(TEST_APP_NAME);
+        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+
+        final List<Attachment> parts = Arrays.asList(applicationNamePart);
+        assertSuccessfullHandling(jobsResource.handleMultipartFormJob(parts, httpHeaders, uriInfo));
+    }
+
     private JobToken assertSuccessfullHandling(final Response response) {
         assertThat(response.getStatus(), is(Status.ACCEPTED.getStatusCode()));
 
@@ -134,7 +153,11 @@ public class JobsResourceTestCase {
         assertThat(jobToken.getSubmissionTime(), notNullValue());
         assertThat(jobToken.getResultUri(), notNullValue());
         assertThat(jobToken.getApplicationResultsUri(), notNullValue());
-        verify(messageDispatcher).dispatch(any(AbstractJob.class));
+
+        final ArgumentCaptor<AbstractJob> jobCaptor = ArgumentCaptor.forClass(AbstractJob.class);
+        verify(messageDispatcher).dispatch(jobCaptor.capture());
+        jobCaptor.getValue().destroy();
+
         return jobToken;
     }
 

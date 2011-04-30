@@ -151,7 +151,6 @@ public class JobsResource extends AbstractComponent {
     @Consumes(Constants.MULTIPART_CONTENT_TYPE)
     // force content type to plain XML and JSON (browsers choke on subtypes)
     @Produces({ Constants.XML_CONTENT_TYPE, Constants.JSON_CONTENT_TYPE })
-    // TODO unit test
     public Response handleMultipartFormJob(final List<Attachment> parts, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
