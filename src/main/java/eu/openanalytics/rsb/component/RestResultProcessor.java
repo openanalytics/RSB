@@ -55,9 +55,8 @@ public class RestResultProcessor extends AbstractComponent {
 
     public void process(final AbstractFunctionCallResult result) throws IOException {
         ensureApplicationResultDir(result);
-        final String resultFileExtension = (result.isSuccess() ? "" : "err.") + result.getMimeType().getSubType();
         final String resultPayload = result.getPayload();
-        final String resultFileName = result.getJobId() + "." + resultFileExtension;
+        final String resultFileName = result.getResultFileName();
         persistResult(result, resultPayload, resultFileName);
     }
 

@@ -55,4 +55,9 @@ public abstract class AbstractFunctionCallResult extends AbstractResult<String> 
     public String getPayload() {
         return result;
     }
+
+    public String getResultFileName() {
+        final String resultFileExtension = (isSuccess() ? "" : "err.") + getMimeType().getSubType();
+        return getJobId() + "." + resultFileExtension;
+    }
 }

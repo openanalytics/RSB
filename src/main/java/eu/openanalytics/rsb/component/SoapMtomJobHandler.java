@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
@@ -73,85 +75,112 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
     public ResultType process(final JobType job) {
         try {
             final String applicationName = job.getApplicationName();
+            final Map<String, String> meta = getMeta(job);
 
-            final Map<String, String> meta = new HashMap<String, String>();
-            for (final Parameter parameter : job.getParameter()) {
-                meta.put(parameter.getName(), parameter.getValue());
+            final ResultType potentialFunctionCallResult = processPotentialFunctionCallJob(applicationName, job, meta);
+            if (potentialFunctionCallResult != null) {
+                return potentialFunctionCallResult;
             }
 
-            // FIXME refactor this code!
-
-            // function call jobs have a single attachment and no meta
-            if ((job.getPayload().size() == 1) && (meta.isEmpty())) {
-                final PayloadType singlePayload = job.getPayload().get(0);
-                if (Constants.XML_CONTENT_TYPE.equals(singlePayload.getContentType())) {
-                    final String argument = IOUtils.toString(singlePayload.getData().getInputStream());
-                    final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP, applicationName, UUID.randomUUID(),
-                            (GregorianCalendar) GregorianCalendar.getInstance(), argument);
-
-                    final XmlFunctionCallResult xmlFunctionCallResult = getMessageDispatcher().process(xmlFunctionCallJob);
-
-                    final ResultType response = createResponse(xmlFunctionCallResult);
-                    final PayloadType payload = soapOF.createPayloadType();
-                    payload.setContentType(Constants.XML_CONTENT_TYPE);
-                    // FIXME use file name building logic
-                    payload.setName("result.xml");
-                    payload.setData(new DataHandler(new ByteArrayDataSource(xmlFunctionCallResult.getPayload(), Constants.XML_CONTENT_TYPE)));
-                    response.getPayload().add(payload);
-
-                    return response;
-                } else if (Constants.JSON_CONTENT_TYPE.equals(job.getPayload().get(0).getContentType())) {
-                    final String argument = IOUtils.toString(singlePayload.getData().getInputStream());
-                    final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP, applicationName,
-                            UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), argument);
-
-                    final JsonFunctionCallResult jsonFunctionCallResult = getMessageDispatcher().process(jsonFunctionCallJob);
-
-                    final ResultType response = createResponse(jsonFunctionCallResult);
-                    final PayloadType payload = soapOF.createPayloadType();
-                    payload.setContentType(Constants.JSON_CONTENT_TYPE);
-                    // FIXME use file name building logic
-                    payload.setName("result.json");
-                    payload.setData(new DataHandler(new ByteArrayDataSource(jsonFunctionCallResult.getPayload(),
-                            Constants.JSON_CONTENT_TYPE)));
-                    response.getPayload().add(payload);
-
-                    return response;
-                }
-            }
-
-            final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
-                    (GregorianCalendar) GregorianCalendar.getInstance(), meta);
-
-            final boolean isOneZipJob = job.getPayload().size() == 1
-                    && Constants.ZIP_CONTENT_TYPES.contains(job.getPayload().get(0).getContentType());
-
-            for (final PayloadType payload : job.getPayload()) {
-                MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(), payload.getData().getInputStream(), multiFilesJob);
-            }
-
-            final MultiFilesResult multiFilesResult = getMessageDispatcher().process(multiFilesJob);
-
-            final ResultType response = createResponse(multiFilesResult);
-
-            final File[] resultFiles = isOneZipJob ? new File[] { MultiFilesResult.zipResultFilesIfNotError(multiFilesResult) }
-                    : multiFilesResult.getPayload();
-
-            for (final File resultFile : resultFiles) {
-                final PayloadType payload = soapOF.createPayloadType();
-                payload.setContentType(new MimetypesFileTypeMap().getContentType(resultFile));
-                payload.setName(resultFile.getName());
-                payload.setData(new DataHandler(new FileDataSource(resultFile)));
-                response.getPayload().add(payload);
-            }
-
-            return response;
+            return processMultiFilesJob(applicationName, job, meta);
         } catch (final IOException ioe) {
             throw new RuntimeException(ioe);
         }
     }
 
-    private ResultType createResponse(final AbstractResult<?> result) {
+    private Map<String, String> getMeta(final JobType job) {
+        final Map<String, String> meta = new HashMap<String, String>();
+        for (final Parameter parameter : job.getParameter()) {
+            meta.put(parameter.getName(), parameter.getValue());
+        }
+        return meta;
+    }
+
+    private ResultType processPotentialFunctionCallJob(final String applicationName, final JobType job, final Map<String, String> meta)
+            throws IOException {
+
+        if (!isPotentiallyAFunctionCallJob(job, meta)) {
+            return null;
+        }
+
+        // we consider only the first payload
+        final PayloadType payload = job.getPayload().get(0);
+        final String contentType = payload.getContentType();
+
+        if (Constants.XML_CONTENT_TYPE.equals(contentType)) {
+            final String argument = IOUtils.toString(payload.getData().getInputStream());
+            final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP, applicationName, UUID.randomUUID(),
+                    (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+
+            final XmlFunctionCallResult xmlFunctionCallResult = getMessageDispatcher().process(xmlFunctionCallJob);
+            return buildResult(xmlFunctionCallResult);
+        }
+
+        if (Constants.JSON_CONTENT_TYPE.equals(payload.getContentType())) {
+            final String argument = IOUtils.toString(payload.getData().getInputStream());
+            final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP, applicationName, UUID.randomUUID(),
+                    (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+
+            final JsonFunctionCallResult jsonFunctionCallResult = getMessageDispatcher().process(jsonFunctionCallJob);
+            return buildResult(jsonFunctionCallResult);
+        }
+
+        // wasn't a function call after all...
+        return null;
+    }
+
+    private boolean isPotentiallyAFunctionCallJob(final JobType job, final Map<String, String> meta) {
+        // function call jobs have a single attachment and no meta
+        return (job.getPayload().size() == 1) && (meta.isEmpty());
+    }
+
+    private ResultType processMultiFilesJob(final String applicationName, final JobType job, final Map<String, String> meta)
+            throws IOException, FileNotFoundException {
+
+        final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
+                (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+
+        for (final PayloadType payload : job.getPayload()) {
+            MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(), payload.getData().getInputStream(), multiFilesJob);
+        }
+
+        final MultiFilesResult multiFilesResult = getMessageDispatcher().process(multiFilesJob);
+        return buildResult(job, multiFilesResult);
+    }
+
+    private ResultType buildResult(final AbstractFunctionCallResult functionCallResult) throws IOException {
+        final String resultContentType = functionCallResult.getMimeType().toString();
+
+        final PayloadType payload = soapOF.createPayloadType();
+        payload.setContentType(resultContentType);
+        payload.setName(functionCallResult.getResultFileName());
+        payload.setData(new DataHandler(new ByteArrayDataSource(functionCallResult.getPayload(), resultContentType)));
+
+        final ResultType result = createResult(functionCallResult);
+        result.getPayload().add(payload);
+        return result;
+    }
+
+    private ResultType buildResult(final JobType job, final MultiFilesResult multiFilesResult) throws FileNotFoundException, IOException {
+        final boolean isOneZipJob = job.getPayload().size() == 1
+                && Constants.ZIP_CONTENT_TYPES.contains(job.getPayload().get(0).getContentType());
+
+        final File[] resultFiles = isOneZipJob ? new File[] { MultiFilesResult.zipResultFilesIfNotError(multiFilesResult) }
+                : multiFilesResult.getPayload();
+
+        final ResultType result = createResult(multiFilesResult);
+
+        for (final File resultFile : resultFiles) {
+            final PayloadType payload = soapOF.createPayloadType();
+            payload.setContentType(new MimetypesFileTypeMap().getContentType(resultFile));
+            payload.setName(resultFile.getName());
+            payload.setData(new DataHandler(new FileDataSource(resultFile)));
+            result.getPayload().add(payload);
+        }
+        return result;
+    }
+
+    private ResultType createResult(final AbstractResult<?> result) {
         final ResultType response = soapOF.createResultType();
         response.setApplicationName(result.getApplicationName());
         response.setJobId(result.getJobId().toString());

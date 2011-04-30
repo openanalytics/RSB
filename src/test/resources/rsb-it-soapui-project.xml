@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project name="RSB SOAP API" resourceRoot="" soapui-version="3.6.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="MtomJobProcessorSoapBinding" type="wsdl" bindingName="{http://soap.rsb.openanalytics.eu/jobs}MtomJobProcessorSoapBinding" soapVersion="1_2" anonymous="optional" definition="http://localhost:8888/api/soap/mtom-jobs?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8888/api/soap/mtom-jobs?wsdl"><con:part><con:url>http://localhost:8888/api/soap/mtom-jobs?wsdl</con:url><con:content><![CDATA[<definitions name="RsbMtomJobs" targetNamespace="http://soap.rsb.openanalytics.eu/jobs" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:jobs="http://soap.rsb.openanalytics.eu/jobs" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:types="http://soap.rsb.openanalytics.eu/types" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <types>
+    <schema targetNamespace="http://soap.rsb.openanalytics.eu/jobs" xmlns="http://www.w3.org/2001/XMLSchema">
+      <import namespace="http://soap.rsb.openanalytics.eu/types" schemaLocation="http://localhost:8888/api/soap/mtom-jobs?xsd=../schemas/soap-jobs-and-results.xsd"/>
+    </schema>
+  </types>
+  <message name="JobResponse">
+    <part element="types:result" name="result"></part>
+  </message>
+  <message name="JobRequest">
+    <part element="types:job" name="job"></part>
+  </message>
+  <portType name="MtomJobProcessor">
+    <operation name="Process">
+      <input message="jobs:JobRequest" name="JobRequest"></input>
+      <output message="jobs:JobResponse" name="JobResponse"></output>
+    </operation>
+  </portType>
+  <binding name="MtomJobProcessorSoapBinding" type="jobs:MtomJobProcessor">
+    <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="Process">
+      <soap12:operation soapAction="" style="document"/>
+      <input name="JobRequest">
+        <soap12:body use="literal"/>
+      </input>
+      <output name="JobResponse">
+        <soap12:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="MtomJobService">
+    <port binding="jobs:MtomJobProcessorSoapBinding" name="MtomJobProcessorPort">
+      <soap12:address location="http://localhost:8888/api/soap/mtom-jobs"/>
+    </port>
+  </service>
+</definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>http://localhost:8888/api/soap/mtom-jobs?xsd=../schemas/soap-jobs-and-results.xsd</con:url><con:content><![CDATA[<!--R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu-->
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://soap.rsb.openanalytics.eu/types" version="1.0" xmlns="http://soap.rsb.openanalytics.eu/types" xmlns:common="http://rsb.openanalytics.eu/types" xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://rsb.openanalytics.eu/types" schemaLocation="http://localhost:8888/api/soap/mtom-jobs?xsd=common.xsd"/>
+  <xsd:complexType name="payloadType">
+    <xsd:sequence>
+      <xsd:element name="data" type="xsd:base64Binary" xmime:expectedContentTypes="application/octet-stream"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="contentType" type="xsd:string" use="required"/>
+  </xsd:complexType>
+  <xsd:element name="job" type="jobType"/>
+  <xsd:complexType name="jobType">
+    <xsd:sequence>
+      <xsd:element name="applicationName" type="common:applicationNameType"/>
+      <xsd:element maxOccurs="unbounded" minOccurs="0" name="parameter">
+        <xsd:complexType>
+          <xsd:attribute name="name" type="xsd:string" use="required"/>
+          <xsd:attribute name="value" type="xsd:string" use="required"/>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element maxOccurs="unbounded" name="payload" type="payloadType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="result" type="resultType"/>
+  <xsd:complexType name="resultType">
+    <xsd:sequence>
+      <xsd:element name="applicationName" type="common:applicationNameType"/>
+      <xsd:element name="jobId" type="xsd:string"/>
+      <xsd:element maxOccurs="unbounded" name="payload" type="payloadType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>http://localhost:8888/api/soap/mtom-jobs?xsd=common.xsd</con:url><con:content><![CDATA[<!--R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu-->
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://rsb.openanalytics.eu/types" version="1.0" xmlns="http://rsb.openanalytics.eu/types" xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:simpleType name="applicationNameType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="\w+"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint></con:endpoints><con:operation isOneWay="false" action="" name="Process" bindingOperationName="Process" type="Request-Response" outputName="JobResponse" inputName="JobRequest" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Zip Job"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@expand-mtom-attachments">false</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:typ="http://soap.rsb.openanalytics.eu/types">
+   <soap:Header/>
+   <soap:Body>
+      <typ:job>
+         <typ:applicationName>rsb_integration_tests</typ:applicationName>
+         <typ:payload name="r-job-sample.zip" contentType="application/zip">
+            <typ:data>cid:7548167578</typ:data>
+         </typ:payload>
+      </typ:job>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>r-job-sample.zip</con:name><con:contentType>application/zip</con:contentType><con:size>175</con:size><con:contentId>7548167578</con:contentId><con:part>7548167578</con:part><con:data>UEsDBBQACAAIADFTnT4AAAAAAAAAAAAAAAAQAAAAci1qb2Itc2FtcGxlLnppcAvwZmbhYmYAAp/gZptt546tMwWyQZgHiEtSi0uKk4syC0r0ggpS0jTSMnNSFWwVlIry8oty9YAiSppcCgoFOfklGmAhDSNjE01NrpTUMr38tDQNTa4Ab0YmEWbcFkCAQsOSRgY06wK8WdlAYoxAaAWk48EqAVBLBwi5mOp6dQAAAK8AAABQSwECFAAUAAgACAAxU50+uZjqenUAAACvAAAAEAAAAAAAAAAAAAAAAAAAAAAAci1qb2Itc2FtcGxlLnppcFBLBQYAAAAAAQABAD4AAACzAAAAAAA=</con:data></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.rsb.openanalytics.eu/jobs/MtomJobProcessor/JobRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Single R Script"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:typ="http://soap.rsb.openanalytics.eu/types">
+   <soap:Header/>
+   <soap:Body>
+      <typ:job>
+         <typ:applicationName>rsb_integration_tests</typ:applicationName>
+         <typ:payload name="test.R" contentType="text/plain">
+            <typ:data>cid:233750288769</typ:data>
+         </typ:payload>
+      </typ:job>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>test.R</con:name><con:contentType>text/plain</con:contentType><con:size>53</con:size><con:contentId>233750288769</con:contentId><con:part>233750288769</con:part><con:data>UEsDBBQACAAIAPpSnT4AAAAAAAAAAAAAAAAGAAAAdGVzdC5SK0hJ00jLzElVsFVQKsrLL8rVK0hJU9LkUlAoyMkv0QALaRgZm2hqcqWklunlp6VpaHIBAFBLBwi2zsauNAAAADUAAABQSwECFAAUAAgACAD6Up0+ts7GrjQAAAA1AAAABgAAAAAAAAAAAAAAAAAAAAAAdGVzdC5SUEsFBgAAAAABAAEANAAAAGgAAAAAAA==</con:data></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.rsb.openanalytics.eu/jobs/MtomJobProcessor/JobRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Xml Job"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:typ="http://soap.rsb.openanalytics.eu/types">
+   <soap:Header/>
+   <soap:Body>
+      <typ:job>
+         <typ:applicationName>rsb_integration_tests</typ:applicationName>
+         <typ:payload name="r-job-sample.xml" contentType="application/xml">
+            <typ:data>cid:7548167578</typ:data>
+         </typ:payload>
+      </typ:job>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>r-job-sample.xml</con:name><con:contentType>application/xml</con:contentType><con:size>1174</con:size><con:contentId>7548167578</con:contentId><con:part>7548167578</con:part><con:data>UEsDBBQACAAIAJpTnT4AAAAAAAAAAAAAAAAQAAAAci1qb2Itc2FtcGxlLnhtbJ1UTVODMBC991fE3CFY+zVOYKb2Qw+2MtXxnjZRmULCJMBYf70hsYWK1CoHJrt5+/ZtNhusMpJNSUZCstmSVwYKJlUkuA8vXQ8GHaA/XGLuGKFMWodxruY532QaGqRSFBFlC0a4GnMaxiILmZwKpflupchTjCpwRTBPiSSJqjzGu2W7INUMExELiVFp4oLEOQvW+oeRXTdjuHx4mUYJ46V6dRTYbURhdEhuK0T1EquibwTd1aIW4/Hj1/bBp0iSxmzFVB5nCqycfaE+fKMfLKLFGoJjuSaMVqcDNoIyHz5PYBNnsIRHCYkBl7opXhcCxd59uGhB297MnlTQ9VzP8/TZl0a1d+E4YC04A1b5NQgnMwUc5wTdYulYxgFG+3UrnQb8zrjUiGDQ7/VGQ4yMcULg8hyBhqQ/HBmFNcYm3R7QSomRPfFz2nHV1rQyreu6/01yKhyj2u35dh/NfvNy3f8g8y85zo7Vk1QfiPrI1abHzpudro41am9Q0PkEUEsHCOZqM6d8AQAAlgQAAFBLAQIUABQACAAIAJpTnT7majOnfAEAAJYEAAAQAAAAAAAAAAAAAAAAAAAAAAByLWpvYi1zYW1wbGUueG1sUEsFBgAAAAABAAEAPgAAALoBAAAAAA==</con:data></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.rsb.openanalytics.eu/jobs/MtomJobProcessor/JobRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Multiple Files"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:typ="http://soap.rsb.openanalytics.eu/types">
+   <soap:Header/>
+   <soap:Body>
+      <typ:job>
+         <typ:applicationName>rsb_integration_tests</typ:applicationName>
+         <typ:payload name="testSweave.R" contentType="text/plain">
+            <typ:data>cid:233750288769</typ:data>
+         </typ:payload>
+         <typ:payload name="testSweave.Rnw" contentType="text/plain">
+            <typ:data>cid:745657615672</typ:data>
+         </typ:payload>
+      </typ:job>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>testSweave.R</con:name><con:contentType>application/octet-stream</con:contentType><con:size>494</con:size><con:contentId>233750288769</con:contentId><con:part>233750288769</con:part><con:data>UEsDBBQACAAIAAdUnT4AAAAAAAAAAAAAAAAMAAAAdGVzdFN3ZWF2ZS5SrZA/b8IwEMX3fIqnsDgSZOhYtUMHmDoBrbo6yQUsHJ9rnwH109dJikTVtZaH++N373deYH3Vg7eEXRuMFwjDB24pRmjsLqTPhN5YKhbI9yXJkcMj9twYHfFOoaFT7v3vKbLTDeIOAcZhW8wFVQpFmeN66y5lNYpaHvz4sBa63iR5odp3PVSKxh2Qw1e9p4+qCPSZTCAlzDZWRZaYh+5s1KR7xr1B7pXLUZrr++3beonWknY/2WQdaODMGXkgDBxm4gg5akE8crIdHAsagtdBwD04iU+CL+PnD+7NIQXaTLKnFayJUk9DVFmP7lqEgvtNtsp7J2eNO6lW/SW+G1llyuIbUEsHCHzZ44QCAQAA7gEAAFBLAQIUABQACAAIAAdUnT582eOEAgEAAO4BAAAMAAAAAAAAAAAAAAAAAAAAAAB0ZXN0U3dlYXZlLlJQSwUGAAAAAAEAAQA6AAAAPAEAAAAA</con:data></con:attachment><con:attachment><con:name>testSweave.Rnw</con:name><con:contentType>application/octet-stream</con:contentType><con:size>334</con:size><con:contentId>745657615672</con:contentId><con:part>745657615672</con:part><con:data>UEsDBBQACAAIAAlUnT4AAAAAAAAAAAAAAAAOAAAAdGVzdFN3ZWF2ZS5SbndVj09LxDAQxc/mU8xFWKEeFjy2i4IrCILgVi/bPUyT2TY0TUL+uEJYP7tpRNHbe7zfe8xcAuuE4XEmHbhC7/d4Y9GSOyR0QXJFZ9ZFTxb5hAPtn9v1IR2NDqT5vyTtToTvC93TIHX6GT0z1gUZFKXtB85WEXyDcP8LdBjDaFxqTS/Rwxu5niZaijNOVMpZe+JBGp0edXBGxGIyU9ezEaQ2m4ZdFAX1Nah5JaQPAJ/gLZGoQGBAaICj81fsdqkRH03zcPe021ZwlEPTvrxmJTVXUVBGF19WrTJhVaYrOI2Sjzlcl5F8FWnx59UvUEsHCP76noPrAAAATgEAAFBLAQIUABQACAAIAAlUnT7++p6D6wAAAE4BAAAOAAAAAAAAAAAAAAAAAAAAAAB0ZXN0U3dlYXZlLlJud1BLBQYAAAAAAQABADwAAAAnAQAAAAA=</con:data></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.rsb.openanalytics.eu/jobs/MtomJobProcessor/JobRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Json Job"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:typ="http://soap.rsb.openanalytics.eu/types">
+   <soap:Header/>
+   <soap:Body>
+      <typ:job>
+         <typ:applicationName>rsb_integration_tests</typ:applicationName>
+         <typ:payload name="r-job-sample.json" contentType="application/json">
+            <typ:data>cid:7548167578</typ:data>
+         </typ:payload>
+      </typ:job>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>r-job-sample.json</con:name><con:contentType>application/json</con:contentType><con:size>77</con:size><con:contentId>7548167578</con:contentId><con:part>7548167578</con:part><con:data>UEsDBBQACAAIAFSPnT4AAAAAAAAAAAAAAAARAAAAci1qb2Itc2FtcGxlLmpzb26r5lJQCnIrzUsuyczPU7JSUErMyQnILy7OTMpJdc7PTcrMSwTJFCvpcCkoKCiBlICBKYSfC+MbKXDVcgEAUEsHCLDecSM9AAAATQAAAFBLAQIUABQACAAIAFSPnT6w3nEjPQAAAE0AAAARAAAAAAAAAAAAAAAAAAAAAAByLWpvYi1zYW1wbGUuanNvblBLBQYAAAAAAQABAD8AAAB8AAAAAAA=</con:data></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.rsb.openanalytics.eu/jobs/MtomJobProcessor/JobRequest"/><con:wsrmConfig version="1.2"/></con:call><con:call name="Job Requiring Meta"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">true</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8888/api/soap/mtom-jobs</con:endpoint><con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:typ="http://soap.rsb.openanalytics.eu/types">
+   <soap:Header/>
+   <soap:Body>
+      <typ:job>
+         <typ:applicationName>rsb_integration_tests</typ:applicationName>
+         <typ:parameter name="reportAuthor" value="Jules Verne" />
+         <typ:payload name="r-job-meta-required.zip" contentType="application/zip">
+            <typ:data>cid:7548167578</typ:data>
+         </typ:payload>
+      </typ:job>
+   </soap:Body>
+</soap:Envelope>]]></con:request><con:attachment><con:name>r-job-meta-required.zip</con:name><con:contentType>application/zip</con:contentType><con:size>401</con:size><con:contentId>7548167578</con:contentId><con:part>7548167578</con:part><con:url>/home/ddossot/java/dev/openanalytics/rsb-public/src/test/resources/data/r-job-meta-required.zip</con:url><con:data>UEsDBBQACAAIAPySnT4AAAAAAAAAAAAAAAAXAAAAci1qb2ItbWV0YS1yZXF1aXJlZC56aXAL8GZmEWFmYOBg4KhKsZVdZTDrLwMDAz8TA4MkkC7SzcpP0s1NLUnULUotyC8qcSwtycgv0gvaOuGgF7OhQNv7yq75ITd0rrB+Vav6sGB5UFfI+9vvlvDlGRue9JK/v7Jp96Z0Zz7F+2eO228+MK2oscIm+HahxYOPIUHdvpM8Vhqk/lBxf6NaYcezUldnoebyJvV3J3UWfE/UyJ+Ut3Gq7HbJ9VPKvqx7I99n2GnH5vfkUf6BWz35d2KVXiqc/fH0jc7utaHCqlPnP3m+bOO/R/xRCX83RTXaNok88aj+5iNrcSY8iaf6+E5O5/u7Vy5dxzuh2yX9elNWl9aKdf+/hRonLnX0fbPn867sO4f9rKVZTyXrH12q8PLFunX5r1T7dNnX9ubqPXnjZriHL2n6jDL9iZrzpoYdLv1ys+P7OrP4AG9GJhFm3KEGAQoNSxoZ8IVhgDcrG0gBIxC6A2kTRhAPAFBLBwhZ+lfbZAEAAJEBAABQSwECFAAUAAgACAD8kp0+WfpX22QBAACRAQAAFwAAAAAAAAAAAAAAAAAAAAAAci1qb2ItbWV0YS1yZXF1aXJlZC56aXBQSwUGAAAAAAEAAQBFAAAAqQEAAAAA</con:data></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://soap.rsb.openanalytics.eu/jobs/MtomJobProcessor/JobRequest"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/></con:soapui-project>
