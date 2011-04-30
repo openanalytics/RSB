@@ -148,7 +148,10 @@ public class MultiFilesJob extends AbstractJob {
      */
     public static void addDataToJob(final String contentType, final String name, final InputStream data, final MultiFilesJob job)
             throws IOException {
-        if (Constants.ZIP_CONTENT_TYPES.contains(contentType)) {
+        // some browsers send zip file as application/octet-stream, forcing a fallback to an
+        // extension check
+        if ((Constants.ZIP_CONTENT_TYPES.contains(contentType) || (StringUtils.endsWithIgnoreCase(FilenameUtils.getExtension(name),
+                Constants.ZIP_MIME_TYPE.getSubType())))) {
             addZipFilesToJob(data, job);
         } else {
             job.addFile(name, data);

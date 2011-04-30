@@ -412,15 +412,15 @@ public class RestITCase extends XMLTestCase {
         ponderRetrieveAndValidateZipResult(resultUri);
     }
 
-    // FIXME reactivate tests
-    /*
-     * @SuppressWarnings("unchecked") public void
-     * testSubmitMultipartValidZipJobOctetAsStreamAndRetrieveByAppName() throws Exception { final
-     * String applicationName = newTestApplicationName();
-     * doTestSubmitMultipartValidZipJob(applicationName, Collections.singletonList(new
-     * UploadedFile(AbstractRsbFunctionalTestCase.ZIP_JOB_WITH_SCRIPT, "application/octet-stream")),
-     * Collections.EMPTY_MAP); ponderRetrieveAndValidateZipResult(applicationName); }
-     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void submitMultipartValidZipJobAsOctetStream() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doSubmitValidMultipartJob(applicationName,
+                Collections.singletonList(new UploadedFile("r-job-sample.zip", "application/octet-stream")), Collections.EMPTY_MAP);
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
 
     // -------- Supporting Methods ---------
 
