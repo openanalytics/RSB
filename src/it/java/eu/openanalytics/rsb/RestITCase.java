@@ -402,17 +402,17 @@ public class RestITCase extends XMLTestCase {
         ponderRetrieveAndValidateZipResult(resultUri);
     }
 
-    // FIXME reactivate tests
-    // @SuppressWarnings("unchecked")
-    // @Test
-    // public void testSubmitMultipartNoAttachedFile() throws Exception {
-    // final String applicationName = newTestApplicationName();
-    // final Document resultDoc = doSubmitValidMultipartJob(applicationName, Collections.EMPTY_LIST,
-    // Collections.singletonMap("X-RSB-Meta-rScript", "test.R"));
-    // final String resultUri = getResultUri(resultDoc);
-    // ponderRetrieveAndValidateZipResult(resultUri);
-    // }
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testSubmitMultipartNoAttachedFile() throws Exception {
+        final String applicationName = newTestApplicationName();
+        final Document resultDoc = doSubmitValidMultipartJob(applicationName, Collections.EMPTY_LIST,
+                Collections.singletonMap("X-RSB-Meta-rScript", "test.R"));
+        final String resultUri = getResultUri(resultDoc);
+        ponderRetrieveAndValidateZipResult(resultUri);
+    }
 
+    // FIXME reactivate tests
     /*
      * @SuppressWarnings("unchecked") public void
      * testSubmitMultipartValidZipJobOctetAsStreamAndRetrieveByAppName() throws Exception { final

@@ -181,6 +181,10 @@ public class JobsResource extends AbstractComponent {
                 for (final Attachment part : parts) {
                     if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
                         final InputStream data = part.getDataHandler().getInputStream();
+                        if (data.available() == 0) {
+                            // if the form is submitted with no file attached, we get an empty part
+                            continue;
+                        }
                         MultiFilesJob.addDataToJob(part.getContentType().toString(), getPartFileName(part), data, job);
                     }
                 }
