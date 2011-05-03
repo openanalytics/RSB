@@ -32,7 +32,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * 
  * @see DefaultConfiguration
  * 
- * @author rsb.development@openanalytics.eu
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public interface Configuration {
     public static final String GROOVY_CONFIGURATION_FILE = "RsbConfiguration.groovy";

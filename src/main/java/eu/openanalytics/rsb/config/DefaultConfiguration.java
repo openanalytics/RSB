@@ -27,6 +27,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
@@ -34,76 +36,53 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * Provides default configuration values: it is strongly suggested that all concrete implementations
  * of {@link Configuration} extend this class.
  * 
- * @author rsb.development@openanalytics.eu
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class DefaultConfiguration implements Configuration {
-    protected final File userHomeDirectory;
-    private final File rsbHomeDirectory;
-    private final File rScriptsCatalogDirectory;
-    private final File sweaveFilesCatalogDirectory;
-    private final File emailRepliesCatalogDirectory;
-    private final File rsbResultsDirectory;
-    private final File activeMqWorkDirectory;
+    private static final Log LOGGER = LogFactory.getLog(BootstrapConfigurationServletContextListener.class);
+
+    private File activeMqWorkDirectory;
+    private File defaultRsbHomeDirectory;
     private final URI defaultRserviPoolUri;
+
+    private File emailRepliesCatalogDirectory;
     private final int jobTimeOut;
+
     private final int numberOfConcurrentJobWorkersPerQueue;
+    private File rsbCatalogRootDirectory;
+    private File rsbResultsDirectory;
+    private File rScriptsCatalogDirectory;
+    private File sweaveFilesCatalogDirectory;
 
     public DefaultConfiguration() throws URISyntaxException {
-        // by default create all the directories required by RSB under a single parent home
-        // directory
-        // note that this is not a requirement: each directory can be located in different locations
-        userHomeDirectory = new File(System.getProperty("user.home"));
-        rsbHomeDirectory = new File(userHomeDirectory, ".rsb");
-
-        final File rsbCatalogRootDirectory = new File(rsbHomeDirectory, "catalog");
-        rScriptsCatalogDirectory = new File(rsbCatalogRootDirectory, "r_scripts");
-        sweaveFilesCatalogDirectory = new File(rsbCatalogRootDirectory, "sweave_files");
-        emailRepliesCatalogDirectory = new File(rsbCatalogRootDirectory, "email_replies");
-
-        rsbResultsDirectory = new File(rsbHomeDirectory, "results");
-        activeMqWorkDirectory = new File(rsbHomeDirectory, "activemq");
         defaultRserviPoolUri = new URI("rmi://127.0.0.1/rservi-pool");
         jobTimeOut = 600000; // 10 minutes
         numberOfConcurrentJobWorkersPerQueue = 5;
     }
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
-
-    protected File getUserHomeDirectory() {
-        return userHomeDirectory;
-    }
-
-    @Override
-    public File getRScriptsCatalogDirectory() {
-        return rScriptsCatalogDirectory;
-    }
-
-    @Override
-    public File getSweaveFilesCatalogDirectory() {
-        return sweaveFilesCatalogDirectory;
-    }
-
-    @Override
-    public File getEmailRepliesCatalogDirectory() {
-        return emailRepliesCatalogDirectory;
-    }
-
-    public File getResultsDirectory() {
-        return rsbResultsDirectory;
-    }
-
     public File getActiveMqWorkDirectory() {
+        if (activeMqWorkDirectory == null) {
+            activeMqWorkDirectory = new File(getDefaultRsbHomeDirectory(), "activemq");
+        }
         return activeMqWorkDirectory;
+    }
+
+    public Map<String, URI> getApplicationSpecificRserviPoolUris() {
+        return null;
     }
 
     public URI getDefaultRserviPoolUri() {
         return defaultRserviPoolUri;
     }
 
-    public Map<String, URI> getApplicationSpecificRserviPoolUris() {
+    public File getEmailRepliesCatalogDirectory() {
+        if (emailRepliesCatalogDirectory == null) {
+            emailRepliesCatalogDirectory = new File(getRsbCatalogRootDirectory(), "email_replies");
+        }
+        return emailRepliesCatalogDirectory;
+    }
+
+    public JobStatisticsHandler getJobStatisticsHandler() {
         return null;
     }
 
@@ -115,7 +94,72 @@ public class DefaultConfiguration implements Configuration {
         return numberOfConcurrentJobWorkersPerQueue;
     }
 
-    public JobStatisticsHandler getJobStatisticsHandler() {
+    public File getResultsDirectory() {
+        if (rsbResultsDirectory == null) {
+            rsbResultsDirectory = new File(getDefaultRsbHomeDirectory(), "results");
+        }
+        return rsbResultsDirectory;
+    }
+
+    public File getRScriptsCatalogDirectory() {
+        if (rScriptsCatalogDirectory == null) {
+            rScriptsCatalogDirectory = new File(getRsbCatalogRootDirectory(), "r_scripts");
+        }
+
+        return rScriptsCatalogDirectory;
+    }
+
+    public File getSweaveFilesCatalogDirectory() {
+        if (sweaveFilesCatalogDirectory == null) {
+            sweaveFilesCatalogDirectory = new File(getRsbCatalogRootDirectory(), "sweave_files");
+        }
+        return sweaveFilesCatalogDirectory;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    // by default create all the directories required by RSB under a single parent home
+    // directory
+    // note that this is not a requirement: each directory can be located in different locations
+    private File getDefaultRsbHomeDirectory() {
+        if (defaultRsbHomeDirectory != null) {
+            return defaultRsbHomeDirectory;
+        }
+
+        // try in different potential locations
+        final String[] potentialRsbHomeParentDirectories = { System.getProperty("user.home"), System.getProperty("user.dir"),
+                System.getProperty("java.io.tmpdir") };
+
+        for (final String potentialRsbHomeParentDirectory : potentialRsbHomeParentDirectories) {
+            final File result = getOrCreateDefaultRsbHomeDirectory(potentialRsbHomeParentDirectory);
+            if (result != null) {
+                defaultRsbHomeDirectory = result;
+                return defaultRsbHomeDirectory;
+            }
+        }
+
+        throw new IllegalStateException("Failed to create RSB directories in all attempted locations");
+    }
+
+    private File getOrCreateDefaultRsbHomeDirectory(final String rsbHomeParentDirectory) {
+        final File rsbHomeDirectory = new File(new File(rsbHomeParentDirectory), ".rsb");
+        if (rsbHomeDirectory.isDirectory()) {
+            return rsbHomeDirectory;
+        }
+        if (rsbHomeDirectory.mkdir()) {
+            return rsbHomeDirectory;
+        }
+        LOGGER.info("Failed to create default RSB home directory under: " + rsbHomeDirectory);
         return null;
+    }
+
+    private File getRsbCatalogRootDirectory() {
+        if (rsbCatalogRootDirectory == null) {
+            rsbCatalogRootDirectory = new File(getDefaultRsbHomeDirectory(), "catalog");
+        }
+        return rsbCatalogRootDirectory;
     }
 }

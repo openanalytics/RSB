@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Configuration validator.
  * 
- * @author rsb.development@openanalytics.eu
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class ConfigurationValidator {
     private static final Log LOGGER = LogFactory.getLog(ConfigurationValidator.class);
@@ -50,33 +50,24 @@ public class ConfigurationValidator {
         LOGGER.info("Validating configuration: "
                 + configuration.getClass().getClassLoader().getResource(Configuration.GROOVY_CONFIGURATION_FILE));
 
-        Validate.notNull(configuration.getResultsDirectory(), "rsbResultsDirectory can't be null: " + configurationAsString(configuration));
-
         Validate.notNull(configuration.getActiveMqWorkDirectory(), "activeMqWorkDirectory can't be null: "
                 + configurationAsString(configuration));
+
+        Validate.notNull(configuration.getResultsDirectory(), "rsbResultsDirectory can't be null: " + configurationAsString(configuration));
 
         Validate.notNull(configuration.getDefaultRserviPoolUri(), "defaultRserviPoolUri can't be null: "
                 + configurationAsString(configuration));
 
         if (configuration.getRScriptsCatalogDirectory() != null) {
             FileUtils.forceMkdir(configuration.getRScriptsCatalogDirectory());
-            // Validate.isTrue(configuration.getRScriptsCatalogDirectory().isDirectory(),
-            // "if configured, rScriptsCatalogDirectory must be an existing directory: " +
-            // configurationAsString(configuration));
         }
 
         if (configuration.getSweaveFilesCatalogDirectory() != null) {
             FileUtils.forceMkdir(configuration.getSweaveFilesCatalogDirectory());
-            // Validate.isTrue(configuration.getSweaveFilesCatalogDirectory().isDirectory(),
-            // "if configured, sweaveFilesCatalogDirectory must be an existing directory: " +
-            // configurationAsString(configuration));
         }
 
         if (configuration.getEmailRepliesCatalogDirectory() != null) {
             FileUtils.forceMkdir(configuration.getEmailRepliesCatalogDirectory());
-            // Validate.isTrue(configuration.getEmailRepliesCatalogDirectory().isDirectory(),
-            // "if configured, emailRepliesCatalogDirectory must be an existing directory: " +
-            // configurationAsString(configuration));
         }
 
         LOGGER.info("Successfully validated: " + configuration);

@@ -573,7 +573,7 @@ public class RestITCase extends XMLTestCase {
                 if (StringUtils.isNotBlank(selfUri)) {
                     return selfUri;
                 }
-            } catch (final Exception e) {
+            } catch (final RuntimeException e) {
                 // ignore exceptions final due to 404
             }
         }
