@@ -44,8 +44,9 @@
         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
     <!-- Configuration loading and validation -->
-    <lang:groovy id="configuration" script-source="classpath:RsbConfiguration.groovy"
-        refresh-check-delay="3000" />
+    <lang:groovy id="configuration"
+                 script-source="classpath:#{T(eu.openanalytics.rsb.config.Configuration).GROOVY_CONFIGURATION_FILE}"
+                 refresh-check-delay="10000" />
         
     <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
           p:targetClass="eu.openanalytics.rsb.config.ConfigurationValidator"

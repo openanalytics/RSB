@@ -35,6 +35,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * @author rsb.development@openanalytics.eu
  */
 public interface Configuration {
+    public static final String GROOVY_CONFIGURATION_FILE = "RsbConfiguration.groovy";
 
     /**
      * Directory where a catalog of R scripts are stored.

@@ -26,6 +26,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Configuration validator.
@@ -33,6 +35,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author rsb.development@openanalytics.eu
  */
 public class ConfigurationValidator {
+    private static final Log LOGGER = LogFactory.getLog(ConfigurationValidator.class);
+
     private ConfigurationValidator() {
         throw new UnsupportedOperationException("do not instantiate");
     }
@@ -43,6 +47,9 @@ public class ConfigurationValidator {
      * @throws IOException
      */
     public static void validate(final Configuration configuration) throws IOException {
+        LOGGER.info("Validating configuration: "
+                + configuration.getClass().getClassLoader().getResource(Configuration.GROOVY_CONFIGURATION_FILE));
+
         Validate.notNull(configuration.getResultsDirectory(), "rsbResultsDirectory can't be null: " + configurationAsString(configuration));
 
         Validate.notNull(configuration.getActiveMqWorkDirectory(), "activeMqWorkDirectory can't be null: "
@@ -71,6 +78,8 @@ public class ConfigurationValidator {
             // "if configured, emailRepliesCatalogDirectory must be an existing directory: " +
             // configurationAsString(configuration));
         }
+
+        LOGGER.info("Successfully validated: " + configuration);
     }
 
     private static String configurationAsString(final Configuration configuration) {

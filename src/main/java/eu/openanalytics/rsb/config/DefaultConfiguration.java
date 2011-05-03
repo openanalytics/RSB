@@ -49,6 +49,9 @@ public class DefaultConfiguration implements Configuration {
     private final int numberOfConcurrentJobWorkersPerQueue;
 
     public DefaultConfiguration() throws URISyntaxException {
+        // by default create all the directories required by RSB under a single parent home
+        // directory
+        // note that this is not a requirement: each directory can be located in different locations
         userHomeDirectory = new File(System.getProperty("user.home"));
         rsbHomeDirectory = new File(userHomeDirectory, ".rsb");
 
