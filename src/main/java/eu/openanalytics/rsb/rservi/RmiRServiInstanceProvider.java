@@ -30,7 +30,7 @@ import de.walware.rj.servi.RServiUtil;
 /**
  * Provides RServi connection over RMI.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class RmiRServiInstanceProvider implements RServiInstanceProvider {
     public RServi getRServiInstance(final String address, final String clientId) throws LoginException, CoreException {

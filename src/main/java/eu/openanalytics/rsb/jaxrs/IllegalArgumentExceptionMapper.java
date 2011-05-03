@@ -31,7 +31,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 /**
  * Converts {@link IllegalArgumentException} into BAD_REQUEST HTTP responses.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
     private final static class BadRequestStatus implements StatusType {

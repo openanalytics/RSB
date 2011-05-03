@@ -20,11 +20,17 @@
  */
  
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 class RsbConfiguration extends eu.openanalytics.rsb.config.DefaultConfiguration {
+
+    // Custom directories configuration example
+    //File resultsDirectory = new File('<path to results dir>')
+    //File activeMqWorkDirectory = new File('<path to ActiveMQ work dir>')
+    //File rScriptsCatalogDirectory = new File('<path to RSB catalog dir>')
+    //File sweaveFilesCatalogDirectory = new File('<path to Sweave File catalog dir>')
+    //File emailRepliesCatalogDirectory = new File('<path to email replies catalog dir>')
+
     // Demonstrates how to send statistics to Redis
-//    eu.openanalytics.rsb.stats.JobStatisticsHandler getJobStatisticsHandler() {
-//        new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler("localhost", 6379)
-//    }
+    //eu.openanalytics.rsb.stats.JobStatisticsHandler jobStatisticsHandler = new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler('localhost', 6379)
 }

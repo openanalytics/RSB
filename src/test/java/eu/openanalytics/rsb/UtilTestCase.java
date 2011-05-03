@@ -34,7 +34,7 @@ import javax.ws.rs.core.HttpHeaders;
 import org.junit.Test;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class UtilTestCase {
     @Test

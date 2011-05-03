@@ -33,7 +33,7 @@ import eu.openanalytics.rsb.message.AbstractWorkItem;
 /**
  * Handles messages that end up in the dead letter queue.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @Component("dlqHandler")
 public class DlqHandler extends AbstractComponent {

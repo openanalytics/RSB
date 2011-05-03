@@ -65,7 +65,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JobProcessorTestCase {

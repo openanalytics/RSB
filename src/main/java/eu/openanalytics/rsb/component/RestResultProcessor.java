@@ -41,7 +41,7 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
 /**
  * Processes results of jobs that have submitted over the REST API.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @Component("restResultProcessor")
 public class RestResultProcessor extends AbstractComponent {

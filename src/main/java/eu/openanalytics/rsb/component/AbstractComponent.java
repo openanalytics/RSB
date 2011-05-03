@@ -32,7 +32,7 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public abstract class AbstractComponent {
     private final Log logger = LogFactory.getLog(getClass());

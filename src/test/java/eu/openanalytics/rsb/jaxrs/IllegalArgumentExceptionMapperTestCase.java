@@ -31,7 +31,7 @@ import javax.ws.rs.core.Response.Status;
 import org.junit.Test;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class IllegalArgumentExceptionMapperTestCase {
     @Test

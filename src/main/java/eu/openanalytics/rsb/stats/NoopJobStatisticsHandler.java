@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class NoopJobStatisticsHandler implements JobStatisticsHandler {
     public final static NoopJobStatisticsHandler INSTANCE = new NoopJobStatisticsHandler();

@@ -28,7 +28,7 @@ import java.util.UUID;
 /**
  * Represents the result of a {@link AbstractJob}.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public abstract class AbstractResult<T> extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;

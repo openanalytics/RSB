@@ -30,7 +30,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Represents a RSB job that consists in calling the RSBXmlService function on R.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class XmlFunctionCallJob extends AbstractFunctionCallJob {
     private static final long serialVersionUID = 1L;

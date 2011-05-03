@@ -44,7 +44,7 @@ import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DlqHandlerTestCase {

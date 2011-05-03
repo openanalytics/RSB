@@ -38,7 +38,7 @@ import redis.clients.jedis.JedisPool;
 import eu.openanalytics.rsb.Util;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class RedisJobStatisticsHandler implements JobStatisticsHandler {
     private static final Log LOGGER = LogFactory.getLog(RedisJobStatisticsHandler.class);

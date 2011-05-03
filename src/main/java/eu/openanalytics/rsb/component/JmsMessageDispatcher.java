@@ -38,7 +38,7 @@ import eu.openanalytics.rsb.message.MessageDispatcher;
 /**
  * A JMS-backed a Job and Result message dispatcher.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @Component("messageDispatcher")
 public class JmsMessageDispatcher extends AbstractComponent implements MessageDispatcher {

@@ -49,7 +49,7 @@ import eu.openanalytics.rsb.Util;
  * <i>NB. Could very well be replaced with a static file serving context on a frontal web
  * server.</i>
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @Component("resultResource")
 @Produces("application/octet-stream")

@@ -57,7 +57,7 @@ import eu.openanalytics.rsb.rest.types.Results;
 /**
  * Exposes results meta-information, allowing their deletion too.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @Component("resultsResource")
 @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })

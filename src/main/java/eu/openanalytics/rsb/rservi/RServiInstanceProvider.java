@@ -29,7 +29,7 @@ import de.walware.rj.servi.RServi;
 /**
  * Defines a RServi connection provider.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public interface RServiInstanceProvider {
     RServi getRServiInstance(final String address, final String clientId) throws LoginException, CoreException;

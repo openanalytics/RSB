@@ -27,7 +27,7 @@ import java.util.UUID;
 /**
  * Defines a handler for RSB job statistics.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public interface JobStatisticsHandler {
     void storeJobStatistics(String applicationName, UUID jobId, Calendar jobCompletionTime, long millisecondsSpentProcessing,

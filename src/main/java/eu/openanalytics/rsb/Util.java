@@ -49,7 +49,7 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
 /**
  * Shared utilities.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public abstract class Util {
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();

@@ -49,7 +49,7 @@ import org.springframework.util.FileCopyUtils;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultResourceTestCase {

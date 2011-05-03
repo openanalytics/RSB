@@ -34,7 +34,7 @@ import org.junit.Test;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class XmlFunctionCallJobTestCase {
 

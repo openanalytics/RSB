@@ -40,7 +40,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Represents a RSB result that consists of multiple files.
  * 
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class MultiFilesResult extends AbstractResult<File[]> {
     private static final long serialVersionUID = 1L;

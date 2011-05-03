@@ -81,7 +81,7 @@ import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "Open Analytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(Jitr.class)
 public class RestITCase extends XMLTestCase {
