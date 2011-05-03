@@ -6,6 +6,10 @@
   version="2.5"
 >
   <display-name>R Service Bus</display-name>
+  
+  <listener>
+    <listener-class>eu.openanalytics.rsb.config.BootstrapConfigurationServletContextListener</listener-class>
+  </listener>
 
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>

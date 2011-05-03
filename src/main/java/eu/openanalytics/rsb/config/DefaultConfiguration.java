@@ -23,8 +23,10 @@ package eu.openanalytics.rsb.config;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
@@ -130,10 +132,13 @@ public class DefaultConfiguration implements Configuration {
         }
 
         // try in different potential locations
-        final String[] potentialRsbHomeParentDirectories = { System.getProperty("user.home"), System.getProperty("user.dir"),
-                System.getProperty("java.io.tmpdir") };
+        final String[] potentialRsbHomeParentDirectories = { System.getProperty("user.home"), getWebInfPath(),
+                System.getProperty("user.dir"), System.getProperty("java.io.tmpdir") };
 
         for (final String potentialRsbHomeParentDirectory : potentialRsbHomeParentDirectories) {
+            if (StringUtils.isBlank(potentialRsbHomeParentDirectory)) {
+                continue;
+            }
             final File result = getOrCreateDefaultRsbHomeDirectory(potentialRsbHomeParentDirectory);
             if (result != null) {
                 defaultRsbHomeDirectory = result;
@@ -161,5 +166,16 @@ public class DefaultConfiguration implements Configuration {
             rsbCatalogRootDirectory = new File(getDefaultRsbHomeDirectory(), "catalog");
         }
         return rsbCatalogRootDirectory;
+    }
+
+    private static String getWebInfPath() {
+        final URL classUrl = DefaultConfiguration.class
+                .getResource("/" + DefaultConfiguration.class.getName().replace('.', '/') + ".class");
+
+        if (classUrl == null) {
+            return null;
+        }
+
+        return StringUtils.substringBefore(classUrl.getFile(), "classes");
     }
 }
