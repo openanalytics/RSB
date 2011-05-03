@@ -39,7 +39,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class DefaultConfiguration implements Configuration {
-    private static final Log LOGGER = LogFactory.getLog(BootstrapConfigurationServletContextListener.class);
+    private static final Log LOGGER = LogFactory.getLog(DefaultConfiguration.class);
 
     private File activeMqWorkDirectory;
     private File defaultRsbHomeDirectory;
