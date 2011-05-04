@@ -349,6 +349,9 @@
                 <version>${jetty-plugin.version}</version>
                 <configuration>
                     <useTestClasspath>true</useTestClasspath>
+                    <webAppConfig>
+                        <contextPath>/rsb</contextPath>
+                    </webAppConfig>
                     <connectors>
                         <connector
                             implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">

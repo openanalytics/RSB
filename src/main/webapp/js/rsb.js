@@ -46,7 +46,7 @@ function xmlTimeStampToDate(xmlDate)
 }
 
 function loadApplicationResults(applicationName, highlightJobId) {
-  $.ajax({ url: "/api/rest/results/" + applicationName,
+  $.ajax({ url: "api/rest/results/" + applicationName,
            success: function(responseXML) {
              
     var tableBody = $("#resultsTableBody");

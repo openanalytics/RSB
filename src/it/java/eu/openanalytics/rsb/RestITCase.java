@@ -55,6 +55,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.jitr.Jitr;
 import org.jitr.annotation.BaseUri;
+import org.jitr.annotation.JitrConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,6 +85,7 @@ import eu.openanalytics.rsb.config.Configuration;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(Jitr.class)
+@JitrConfiguration(contextPath = "/rsb-it")
 public class RestITCase extends XMLTestCase {
     private static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
 
@@ -100,9 +102,9 @@ public class RestITCase extends XMLTestCase {
 
     @Before
     public void prepareTests() throws IOException {
-        restJobsUri = baseUri + "api/rest/jobs";
-        restResultsUri = baseUri + "api/rest/results";
-        uploadFormUri = baseUri + "rsb.html";
+        restJobsUri = baseUri + "/api/rest/jobs";
+        restResultsUri = baseUri + "/api/rest/results";
+        uploadFormUri = baseUri + "/rsb.html";
 
         final Map<String, String> m = new HashMap<String, String>();
         m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
