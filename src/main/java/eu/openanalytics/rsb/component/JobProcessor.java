@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.security.auth.login.LoginException;
 
@@ -58,7 +57,6 @@ import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-import eu.openanalytics.rsb.stats.NoopJobStatisticsHandler;
 
 /**
  * Processes job requests and builds job responses.
@@ -74,20 +72,13 @@ public class JobProcessor extends AbstractComponent {
     @Resource
     private RServiInstanceProvider rServiInstanceProvider;
 
+    @Resource
+    private JobStatisticsHandler jobStatisticsHandler;
+
     private final String rServiClientId;
 
     public JobProcessor() throws UnknownHostException {
         rServiClientId = "rsb@" + InetAddress.getLocalHost().getHostName();
-    }
-
-    @PreDestroy
-    public void destroyJobStatisticsHandler() {
-        getJobStatisticsHandler().destroy();
-    }
-
-    private JobStatisticsHandler getJobStatisticsHandler() {
-        return getConfiguration().getJobStatisticsHandler() == null ? NoopJobStatisticsHandler.INSTANCE : getConfiguration()
-                .getJobStatisticsHandler();
     }
 
     public void process(final AbstractFunctionCallJob job) throws Exception {
@@ -164,6 +155,10 @@ public class JobProcessor extends AbstractComponent {
         this.rServiInstanceProvider = rServiInstanceProvider;
     }
 
+    void setJobStatisticsHandler(final JobStatisticsHandler jobStatisticsHandler) {
+        this.jobStatisticsHandler = jobStatisticsHandler;
+    }
+
     URI getRServiPoolUri(final String applicationName) {
         final Map<String, URI> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
 
@@ -189,7 +184,7 @@ public class JobProcessor extends AbstractComponent {
 
             final long processTime = System.currentTimeMillis() - startTime;
 
-            getJobStatisticsHandler().storeJobStatistics(job.getApplicationName(), job.getJobId(), new GregorianCalendar(), processTime,
+            jobStatisticsHandler.storeJobStatistics(job.getApplicationName(), job.getJobId(), new GregorianCalendar(), processTime,
                     rserviPoolAddress.toString());
 
             getLogger().info(

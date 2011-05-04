@@ -78,6 +78,8 @@ public class JobProcessorTestCase {
     private MessageDispatcher messageDispatcher;
     @Mock
     private RServiInstanceProvider rServiInstanceProvider;
+    @Mock
+    private JobStatisticsHandler jobStatisticsHandler;
 
     @Before
     public void prepareTest() throws UnknownHostException {
@@ -85,23 +87,7 @@ public class JobProcessorTestCase {
         jobProcessor.setConfiguration(configuration);
         jobProcessor.setMessageDispatcher(messageDispatcher);
         jobProcessor.setRServiInstanceProvider(rServiInstanceProvider);
-    }
-
-    @Test
-    public void destroyNullJobStatisticsHandler() {
-        when(configuration.getJobStatisticsHandler()).thenReturn(null);
-
-        jobProcessor.destroyJobStatisticsHandler();
-    }
-
-    @Test
-    public void destroyJobStatisticsHandler() {
-        final JobStatisticsHandler jobStatisticsHandler = mock(JobStatisticsHandler.class);
-        when(configuration.getJobStatisticsHandler()).thenReturn(jobStatisticsHandler);
-
-        jobProcessor.destroyJobStatisticsHandler();
-
-        verify(jobStatisticsHandler).destroy();
+        jobProcessor.setJobStatisticsHandler(jobStatisticsHandler);
     }
 
     @SuppressWarnings("unchecked")
@@ -165,8 +151,6 @@ public class JobProcessorTestCase {
         final AbstractFunctionCallJob job = mock(AbstractFunctionCallJob.class);
         final AbstractFunctionCallResult result = mock(AbstractFunctionCallResult.class);
         when(job.buildSuccessResult("fake_result")).thenReturn(result);
-        final JobStatisticsHandler jobStatisticsHandler = mock(JobStatisticsHandler.class);
-        when(configuration.getJobStatisticsHandler()).thenReturn(jobStatisticsHandler);
 
         jobProcessor.process(job);
 
@@ -208,8 +192,6 @@ public class JobProcessorTestCase {
         when(job.getFiles()).thenReturn(new File[] { scriptFile });
         final MultiFilesResult result = mock(MultiFilesResult.class);
         when(job.buildSuccessResult()).thenReturn(result);
-        final JobStatisticsHandler jobStatisticsHandler = mock(JobStatisticsHandler.class);
-        when(configuration.getJobStatisticsHandler()).thenReturn(jobStatisticsHandler);
 
         jobProcessor.process(job);
 

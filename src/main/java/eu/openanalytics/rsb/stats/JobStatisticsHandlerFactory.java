@@ -18,19 +18,25 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
+package eu.openanalytics.rsb.stats;
+
+import java.util.Map;
+
+import org.springframework.beans.BeanUtils;
+
 /**
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-class RsbConfiguration extends eu.openanalytics.rsb.config.DefaultConfiguration {
+public abstract class JobStatisticsHandlerFactory {
 
-    // Custom directories configuration example
-    //File resultsDirectory = new File('<path to results dir>')
-    //File activeMqWorkDirectory = new File('<path to ActiveMQ work dir>')
-    //File rScriptsCatalogDirectory = new File('<path to RSB catalog dir>')
-    //File sweaveFilesCatalogDirectory = new File('<path to Sweave File catalog dir>')
-    //File emailRepliesCatalogDirectory = new File('<path to email replies catalog dir>')
+    private JobStatisticsHandlerFactory() {
+        throw new UnsupportedOperationException("do not instantiate");
+    }
 
-    // Demonstrates how to send statistics to Redis
-    //eu.openanalytics.rsb.stats.JobStatisticsHandler jobStatisticsHandler = new eu.openanalytics.rsb.stats.RedisJobStatisticsHandler('localhost', 6379)
+    public static JobStatisticsHandler create(final Class<? extends JobStatisticsHandler> clazz, final Map<String, Object> configuration) {
+        final JobStatisticsHandler jobStatisticsHandler = BeanUtils.instantiate(clazz);
+        jobStatisticsHandler.setConfiguration(configuration);
+        return jobStatisticsHandler;
+    }
 }

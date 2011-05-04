@@ -44,25 +44,32 @@
         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
     <!-- Configuration loading and validation -->
-    <lang:groovy id="configuration"
-                 script-source="classpath:#{T(eu.openanalytics.rsb.config.Configuration).GROOVY_CONFIGURATION_FILE}"
-                 refresh-check-delay="10000" />
-        
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
-          p:targetClass="eu.openanalytics.rsb.config.ConfigurationValidator"
-          p:targetMethod="validate"
-          p:arguments-ref="configuration" />
+    <bean id="configuration" class="eu.openanalytics.rsb.config.ConfigurationFactory"
+                             factory-method="loadJsonConfiguration">
+      <constructor-arg value="#{T(eu.openanalytics.rsb.config.Configuration).DEFAULT_JSON_CONFIGURATION_FILE}" />
+    </bean>
+
+    <!-- Statistics handler -->
+    <bean id="jobStatisticsHandler"
+          class="eu.openanalytics.rsb.stats.JobStatisticsHandlerFactory"
+          factory-method="create"
+          init-method="initialize"
+          destroy-method="destroy">
+        <constructor-arg index="0" value="#{configuration.jobStatisticsHandlerClass}" />
+        <constructor-arg index="1" value="#{configuration.jobStatisticsHandlerConfiguration}" />
+    </bean>
 
     <!-- Spring components -->
     <mvc:annotation-driven />
     <context:annotation-config />
     <context:component-scan base-package="eu.openanalytics.rsb.component" />
     <bean id="messageSource"
-        class="org.springframework.context.support.ResourceBundleMessageSource"
-        p:basename="messages" />
+          class="org.springframework.context.support.ResourceBundleMessageSource"
+          p:basename="messages" />
     
     <!-- RServi -->
-    <bean name="rServiInstanceProvider" class="eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider" />
+    <bean name="rServiInstanceProvider"
+          class="eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider" />
     
     <!-- CXF -->
     <import resource="classpath:META-INF/cxf/cxf.xml" />

@@ -24,20 +24,18 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
-import eu.openanalytics.rsb.stats.JobStatisticsHandler;
-
 /**
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
- * changes via a hit-reloadable Groovy concrete implementation.
- * 
- * @see DefaultConfiguration
+ * changes.
  * 
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public interface Configuration {
-    public static final String GROOVY_CONFIGURATION_FILE = "RsbConfiguration.groovy";
-    public static final String DEFAULT_CONFIGURATION_CONTENT = "class RsbConfiguration extends " + DefaultConfiguration.class.getName()
-    + " {}";
+    public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";
+
+    public static final String R_SCRIPTS_CATALOG_SUBDIR = "r_scripts";
+    public static final String SWEAVE_FILE_CATALOG_SUBDIR = "sweave_files";
+    public static final String EMAIL_REPLIES_CATALOG_SUBDIR = "email_replies";
 
     /**
      * Directory where a catalog of R scripts are stored.
@@ -87,7 +85,12 @@ public interface Configuration {
     int getNumberOfConcurrentJobWorkersPerQueue();
 
     /**
-     * Optional RSB job statistics handler.
+     * The job statistics handler class to instantiate.
      */
-    JobStatisticsHandler getJobStatisticsHandler();
+    String getJobStatisticsHandlerClass();
+
+    /**
+     * The configuration specific to the job statistics handler.
+     */
+    Map<String, Object> getJobStatisticsHandlerConfiguration();
 }

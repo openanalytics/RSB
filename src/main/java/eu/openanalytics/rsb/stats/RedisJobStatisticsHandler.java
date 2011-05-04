@@ -49,13 +49,20 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler {
     private static final String RSB_STATS_KEY_PREFIX = "rsb:stats:";
     private static final String RSB_STATS_APPLICATIONS_SET_KEY = RSB_STATS_KEY_PREFIX + "applications";
 
-    private final JedisPool pool;
+    private JedisPool pool;
+    private String redisHost;
+    private int redisPort;
 
     private interface RedisAction {
         void run(Jedis jedis);
     }
 
-    public RedisJobStatisticsHandler(final String redisHost, final int redisPort) {
+    public void setConfiguration(final Map<String, Object> configuration) {
+        redisHost = (String) configuration.get("host");
+        redisPort = (Integer) configuration.get("port");
+    }
+
+    public void initialize() {
         final GenericObjectPool.Config poolConfig = new GenericObjectPool.Config();
         poolConfig.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_GROW;
 

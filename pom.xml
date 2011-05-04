@@ -238,7 +238,7 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
-            <version>1.7.6</version>
+            <version>1.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -269,15 +269,6 @@
 
     <build>
         <finalName>rsb</finalName>
-
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-            <testResource>
-                <directory>src/test/groovy</directory>
-            </testResource>
-        </testResources>
 
         <plugins>
             <plugin>
