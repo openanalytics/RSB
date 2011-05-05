@@ -66,6 +66,11 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 // TODO unit test, integration test
 public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor {
     private final static ObjectFactory soapOF = new ObjectFactory();
+    private final MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
+
+    public SoapMtomJobHandler() {
+        mimetypesFileTypeMap.addMimeTypes(Constants.PDF_CONTENT_TYPE + " pdf\n" + Constants.ZIP_CONTENT_TYPE + " zip");
+    }
 
     /**
      * Processes a single R job.
@@ -172,7 +177,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 
         for (final File resultFile : resultFiles) {
             final PayloadType payload = soapOF.createPayloadType();
-            payload.setContentType(new MimetypesFileTypeMap().getContentType(resultFile));
+            payload.setContentType(mimetypesFileTypeMap.getContentType(resultFile));
             payload.setName(resultFile.getName());
             payload.setData(new DataHandler(new FileDataSource(resultFile)));
             result.getPayload().add(payload);
@@ -184,6 +189,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         final ResultType response = soapOF.createResultType();
         response.setApplicationName(result.getApplicationName());
         response.setJobId(result.getJobId().toString());
+        response.setSuccess(result.isSuccess());
         return response;
     }
 }

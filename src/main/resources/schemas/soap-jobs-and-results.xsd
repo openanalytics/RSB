@@ -63,6 +63,7 @@
         <xsd:sequence>
             <xsd:element name="applicationName" type="common:applicationNameType" />
             <xsd:element name="jobId" type="xsd:string" />
+            <xsd:element name="success" type="xsd:boolean" />
             <xsd:element name="payload" type="payloadType"
                 maxOccurs="unbounded" />
         </xsd:sequence>

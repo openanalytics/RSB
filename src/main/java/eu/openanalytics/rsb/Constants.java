@@ -61,6 +61,7 @@ public class Constants {
     public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
     public static final String RSB_XML_CONTENT_TYPE = "application/vnd.rsb+xml";
 
+    public static final String PDF_CONTENT_TYPE = "application/pdf";
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String XML_CONTENT_TYPE = "application/xml";
     public static final String TEXT_CONTENT_TYPE = "text/plain";
