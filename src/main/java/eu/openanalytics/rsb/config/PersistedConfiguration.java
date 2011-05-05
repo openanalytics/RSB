@@ -119,7 +119,8 @@ public class PersistedConfiguration {
     }
 
     /**
-     * Mapping of application names and RServi RMI pool URIs.
+     * Mapping of application names and RServi RMI pool URIs, or null if no specific mapping is
+     * required.
      */
     public Map<String, URI> getApplicationSpecificRserviPoolUris() {
         return applicationSpecificRserviPoolUris;
@@ -130,7 +131,7 @@ public class PersistedConfiguration {
     }
 
     /**
-     * The job statistics handler class to instantiate.
+     * The job statistics handler class to instantiate, or null if no statistics is to be recorded.
      */
     public String getJobStatisticsHandlerClass() {
         return jobStatisticsHandlerClass;
@@ -141,7 +142,7 @@ public class PersistedConfiguration {
     }
 
     /**
-     * The configuration specific to the job statistics handler.
+     * The configuration specific to the job statistics handler, or null if not needed.
      */
     public Map<String, Object> getJobStatisticsHandlerConfiguration() {
         return jobStatisticsHandlerConfiguration;

@@ -41,7 +41,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
@@ -53,6 +56,11 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
  */
 public abstract class Util {
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
+    private final static ObjectMapper PRETTY_JSON_OBJECT_MAPPER = new ObjectMapper();
+    static {
+        PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
+        PRETTY_JSON_OBJECT_MAPPER.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    }
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
     private final static DatatypeFactory XML_DATATYPE_FACTORY;
@@ -199,6 +207,21 @@ public abstract class Util {
         } catch (final IOException ioe) {
             final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
             throw new RuntimeException("Failed to JSON marshall: " + objectAsString, ioe);
+        }
+    }
+
+    /**
+     * Marshals an {@link Object} to a pretty-printed JSON file.
+     * 
+     * @param o
+     * @throws IOException
+     */
+    public static void toPrettyJsonFile(final Object o, final File f) throws IOException {
+        try {
+            PRETTY_JSON_OBJECT_MAPPER.writeValue(f, o);
+        } catch (final JsonProcessingException jpe) {
+            final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
+            throw new RuntimeException("Failed to JSON marshall: " + objectAsString, jpe);
         }
     }
 

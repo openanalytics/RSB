@@ -35,6 +35,10 @@ public abstract class JobStatisticsHandlerFactory {
     }
 
     public static JobStatisticsHandler create(final Class<? extends JobStatisticsHandler> clazz, final Map<String, Object> configuration) {
+        if (clazz == null) {
+            return NoopJobStatisticsHandler.INSTANCE;
+        }
+
         final JobStatisticsHandler jobStatisticsHandler = BeanUtils.instantiate(clazz);
         jobStatisticsHandler.setConfiguration(configuration);
         return jobStatisticsHandler;

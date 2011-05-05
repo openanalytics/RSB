@@ -1,11 +1,8 @@
 {
-    "catalogRootDirectory": "/home/ddossot/.rsb/catalog",
-    "activeMqWorkDirectory": "/home/ddossot/.rsb/activemq",
+    "catalogRootDirectory": "/tmp/.rsb/catalog",
+    "activeMqWorkDirectory": "/tmp/.rsb/activemq",
     "defaultRserviPoolUri": "rmi://127.0.0.1/rservi-pool",
     "jobTimeOut": 600000,
     "numberOfConcurrentJobWorkersPerQueue": 5,
-    "resultsDirectory": "/home/ddossot/.rsb/results",
-    "applicationSpecificRserviPoolUris": null,
-    "jobStatisticsHandlerClass": "eu.openanalytics.rsb.stats.NoopJobStatisticsHandler",
-    "jobStatisticsHandlerConfiguration": null
+    "resultsDirectory": "/tmp/.rsb/results"
 }

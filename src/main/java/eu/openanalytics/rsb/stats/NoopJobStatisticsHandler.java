@@ -29,6 +29,12 @@ import java.util.UUID;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class NoopJobStatisticsHandler implements JobStatisticsHandler {
+    public final static NoopJobStatisticsHandler INSTANCE = new NoopJobStatisticsHandler();
+
+    private NoopJobStatisticsHandler() {
+        // use singleton
+    }
+
     public void storeJobStatistics(final String applicationName, final UUID jobId, final Calendar jobCompletionTime,
             final long millisecondsSpentProcessing, final String rServiAddress) {
         // NOOP
