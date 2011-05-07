@@ -63,7 +63,6 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("soapMtomJobHandler")
-// TODO unit test, integration test
 public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor {
     private final static ObjectFactory soapOF = new ObjectFactory();
     private final MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
