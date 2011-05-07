@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,6 +114,7 @@ public class RestResultProcessorTestCase {
         final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
         when(multiFilesResult.getApplicationName()).thenReturn("test_app_name");
         when(multiFilesResult.getPayload()).thenReturn(new File[0]);
+        when(multiFilesResult.getTemporaryDirectory()).thenReturn(FileUtils.getTempDirectory());
         return multiFilesResult;
     }
 

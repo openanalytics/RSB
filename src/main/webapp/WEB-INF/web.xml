@@ -7,6 +7,16 @@
 >
   <display-name>R Service Bus</display-name>
   
+  <context-param>
+    <param-name>rsbConfiguration</param-name>
+    <param-value>rsb-configuration.json</param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:META-INF/spring/applicationContext.xml</param-value>
+  </context-param>
+  
   <listener>
     <listener-class>eu.openanalytics.rsb.config.BootstrapConfigurationServletContextListener</listener-class>
   </listener>
@@ -14,11 +24,6 @@
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
-
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>classpath:META-INF/spring/applicationContext.xml</param-value>
-  </context-param>
 
   <servlet>
     <servlet-name>CxfServlet</servlet-name>

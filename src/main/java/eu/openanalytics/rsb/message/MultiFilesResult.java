@@ -72,6 +72,11 @@ public class MultiFilesResult extends AbstractResult<File[]> {
         return resultFiles == null ? new File[0] : resultFiles;
     }
 
+    // exposed only for unit tests
+    public File getTemporaryDirectory() {
+        return temporaryDirectory;
+    }
+
     /**
      * Zips all the files contained in a multifiles result except if the result is not successful,
      * in that case returns the first file (which should be the only one and contain a plain text
@@ -89,7 +94,7 @@ public class MultiFilesResult extends AbstractResult<File[]> {
             return resultFiles[0];
         }
 
-        final File resultZipFile = new File(result.temporaryDirectory, result.getJobId() + ".zip");
+        final File resultZipFile = new File(result.getTemporaryDirectory(), result.getJobId() + ".zip");
         final ZipOutputStream resultZOS = new ZipOutputStream(new FileOutputStream(resultZipFile));
 
         for (final File resultFile : resultFiles) {

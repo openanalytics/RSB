@@ -26,11 +26,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,11 +45,11 @@ import eu.openanalytics.rsb.Util;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class BootstrapConfigurationServletContextListener implements ServletContextListener {
+    public static final String RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM = "rsbConfiguration";
     private static final Log LOGGER = LogFactory.getLog(BootstrapConfigurationServletContextListener.class);
 
-    // TODO unit test
     public void contextInitialized(final ServletContextEvent sce) {
-        if (isConfigurationPresent()) {
+        if (isConfigurationPresent(sce.getServletContext())) {
             return;
         }
 
@@ -70,8 +72,11 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         // NOOP
     }
 
-    private static boolean isConfigurationPresent() {
-        return Thread.currentThread().getContextClassLoader().getResource(Configuration.DEFAULT_JSON_CONFIGURATION_FILE) != null;
+    private static boolean isConfigurationPresent(final ServletContext servletContext) {
+        final String configurationFile = servletContext.getInitParameter(RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM);
+        Validate.notEmpty(configurationFile, "No configuration specified in web.xml: servlet context parameter "
+                + RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM + " is missing");
+        return Thread.currentThread().getContextClassLoader().getResource(configurationFile) != null;
     }
 
     private File getWebInfDirectory(final ServletContextEvent sce) {
