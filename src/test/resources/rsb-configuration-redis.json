@@ -1,0 +1,13 @@
+{
+    "catalogRootDirectory": "/tmp/.rsb/catalog",
+    "activeMqWorkDirectory": "/tmp/.rsb/activemq",
+    "defaultRserviPoolUri": "rmi://127.0.0.1/rservi-pool",
+    "jobTimeOut": 600000,
+    "numberOfConcurrentJobWorkersPerQueue": 5,
+    "resultsDirectory": "/tmp/.rsb/results",
+    "jobStatisticsHandlerClass": "eu.openanalytics.rsb.stats.RedisJobStatisticsHandler",
+    "jobStatisticsHandlerConfiguration" : {
+        "host": "localhost",
+        "port": 6379
+    }
+}
