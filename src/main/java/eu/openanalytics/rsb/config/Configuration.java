@@ -24,6 +24,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
+import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
+
 /**
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
  * changes.
@@ -85,7 +87,18 @@ public interface Configuration {
     int getNumberOfConcurrentJobWorkersPerQueue();
 
     /**
-     * The job statistics handler class to instantiate.
+     * The SMTP server that will be used for all outbound email exchanges.
+     */
+    SmtpConfiguration getSmtpConfiguration();
+
+    /**
+     * Optional email address where RSB should send permanent error reports and other service
+     * related messages.
+     */
+    String getAdministratorEmail();
+
+    /**
+     * Optional job statistics handler class to instantiate.
      */
     String getJobStatisticsHandlerClass();
 

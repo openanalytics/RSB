@@ -19,7 +19,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.openanalytics.rsb;
+package eu.openanalytics.rsb.config;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -32,9 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockServletContext;
-
-import eu.openanalytics.rsb.config.BootstrapConfigurationServletContextListener;
-import eu.openanalytics.rsb.config.Configuration;
 
 /**
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
@@ -59,14 +56,14 @@ public class BootstrapConfigurationServletContextListenerTestCase {
     }
 
     @Test
-    public void testContextInitializedConfigurationPresent() {
+    public void contextInitializedConfigurationPresent() {
         mockServletContext.addInitParameter(BootstrapConfigurationServletContextListener.RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM,
                 Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
         bcscl.contextInitialized(servletContextEvent);
     }
 
     @Test
-    public void testContextInitializedConfigurationAbsent() {
+    public void contextInitializedConfigurationAbsent() {
         final File expectedConfigurationFileCreated = new File(FileUtils.getTempDirectory(), Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
         FileUtils.deleteQuietly(expectedConfigurationFileCreated);
 
@@ -78,8 +75,14 @@ public class BootstrapConfigurationServletContextListenerTestCase {
     }
 
     @Test
-    public void testContextDestroyed() {
+    public void contextDestroyed() {
         bcscl.contextDestroyed(servletContextEvent);
     }
 
+    @Test
+    public void defaultConfigurationIsValid() throws Exception {
+        final PersistedConfiguration configuration = BootstrapConfigurationServletContextListener.createDefaultConfiguration(FileUtils
+                .getTempDirectory());
+        ConfigurationFactory.validate(new PersistedConfigurationAdapter(null, configuration));
+    }
 }

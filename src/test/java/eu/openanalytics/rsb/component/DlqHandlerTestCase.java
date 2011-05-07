@@ -38,7 +38,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.MessageSource;
+import org.springframework.integration.Message;
+import org.springframework.integration.MessageChannel;
 
+import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MessageDispatcher;
@@ -52,15 +55,21 @@ public class DlqHandlerTestCase {
     private DlqHandler dlqHandler;
 
     @Mock
+    private Configuration configuration;
+    @Mock
     private MessageDispatcher messageDispatcher;
     @Mock
     private MessageSource messageSource;
+    @Mock
+    private MessageChannel adminEmailChannel;
 
     @Before
     public void prepareTest() {
         dlqHandler = new DlqHandler();
-        dlqHandler.setMessageDispatcher(messageDispatcher);
+        dlqHandler.setConfiguration(configuration);
         dlqHandler.setMessages(messageSource);
+        dlqHandler.setMessageDispatcher(messageDispatcher);
+        dlqHandler.setAdminEmailChannel(adminEmailChannel);
     }
 
     @Test
@@ -86,6 +95,10 @@ public class DlqHandlerTestCase {
     @Test
     public void handleAbstractResult() {
         final AbstractResult<?> result = mock(AbstractResult.class);
+        when(configuration.getAdministratorEmail()).thenReturn("fake@localhost.com");
+
         dlqHandler.handle(result);
+
+        verify(adminEmailChannel).send(any(Message.class));
     }
 }

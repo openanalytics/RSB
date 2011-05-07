@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
 
 /**
  * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can
@@ -95,17 +96,11 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         return null;
     }
 
+    // exposed for testing
     private static void createDefaultConfigurationFile(final File defaultConfigurationFile, final File webInfDirectory)
             throws URISyntaxException {
 
-        final File defaultRsbHomeDirectory = getDefaultRsbHomeDirectory(webInfDirectory);
-        final PersistedConfiguration defaultConfiguration = new PersistedConfiguration();
-        defaultConfiguration.setActiveMqWorkDirectory(new File(defaultRsbHomeDirectory, "activemq"));
-        defaultConfiguration.setCatalogRootDirectory(new File(defaultRsbHomeDirectory, "catalog"));
-        defaultConfiguration.setDefaultRserviPoolUri(new URI("rmi://127.0.0.1/rservi-pool"));
-        defaultConfiguration.setJobTimeOut(600000);// 10 minutes
-        defaultConfiguration.setNumberOfConcurrentJobWorkersPerQueue(5);
-        defaultConfiguration.setResultsDirectory(new File(defaultRsbHomeDirectory, "results"));
+        final PersistedConfiguration defaultConfiguration = createDefaultConfiguration(webInfDirectory);
 
         try {
             Util.toPrettyJsonFile(defaultConfiguration, defaultConfigurationFile);
@@ -115,6 +110,19 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         } catch (final IOException ioe) {
             LOGGER.error("Failed to create default RSB configuration file!", ioe);
         }
+    }
+
+    static PersistedConfiguration createDefaultConfiguration(final File webInfDirectory) throws URISyntaxException {
+        final File defaultRsbHomeDirectory = getDefaultRsbHomeDirectory(webInfDirectory);
+        final PersistedConfiguration defaultConfiguration = new PersistedConfiguration();
+        defaultConfiguration.setActiveMqWorkDirectory(new File(defaultRsbHomeDirectory, "activemq"));
+        defaultConfiguration.setCatalogRootDirectory(new File(defaultRsbHomeDirectory, "catalog"));
+        defaultConfiguration.setDefaultRserviPoolUri(new URI("rmi://127.0.0.1/rservi-pool"));
+        defaultConfiguration.setJobTimeOut(600000);// 10 minutes
+        defaultConfiguration.setNumberOfConcurrentJobWorkersPerQueue(5);
+        defaultConfiguration.setResultsDirectory(new File(defaultRsbHomeDirectory, "results"));
+        defaultConfiguration.setSmtpConfiguration(new SmtpConfiguration("localhost", 25, "", ""));
+        return defaultConfiguration;
     }
 
     // by default create all the directories required by RSB under a single parent home

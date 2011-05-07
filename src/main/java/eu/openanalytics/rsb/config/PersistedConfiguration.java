@@ -25,6 +25,9 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is
  * derived.
@@ -34,6 +37,61 @@ import java.util.Map;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class PersistedConfiguration {
+    public static class SmtpConfiguration {
+        private String host;
+        private int port;
+        private String username;
+        private String password;
+
+        public SmtpConfiguration(final String host, final int port, final String username, final String password) {
+            this.host = host;
+            this.port = port;
+            this.username = username;
+            this.password = password;
+        }
+
+        public SmtpConfiguration() {
+            // NOOP
+        }
+
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public void setHost(final String host) {
+            this.host = host;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(final int port) {
+            this.port = port;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(final String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(final String password) {
+            this.password = password;
+        }
+    }
+
     private File activeMqWorkDirectory;
     private URI defaultRserviPoolUri;
     private int jobTimeOut;
@@ -43,6 +101,8 @@ public class PersistedConfiguration {
     private Map<String, URI> applicationSpecificRserviPoolUris;
     private String jobStatisticsHandlerClass;
     private Map<String, Object> jobStatisticsHandlerConfiguration;
+    private String administratorEmail;
+    private SmtpConfiguration smtpConfiguration;
 
     /**
      * Directory under which RSB catalogs are located. The catalogs are:
@@ -150,5 +210,28 @@ public class PersistedConfiguration {
 
     public void setJobStatisticsHandlerConfiguration(final Map<String, Object> jobStatisticsHandlerConfiguration) {
         this.jobStatisticsHandlerConfiguration = jobStatisticsHandlerConfiguration;
+    }
+
+    /**
+     * Optional email address where RSB should send permanent error reports and other service
+     * related messages.
+     */
+    public String getAdministratorEmail() {
+        return administratorEmail;
+    }
+
+    public void setAdministratorEmail(final String administratorEmail) {
+        this.administratorEmail = administratorEmail;
+    }
+
+    /**
+     * The SMTP server that will be used for all outbound email exchanges.
+     */
+    public SmtpConfiguration getSmtpConfiguration() {
+        return smtpConfiguration;
+    }
+
+    public void setSmtpConfiguration(final SmtpConfiguration smtpConfiguration) {
+        this.smtpConfiguration = smtpConfiguration;
     }
 }

@@ -5,6 +5,9 @@
     "jobTimeOut": 600000,
     "numberOfConcurrentJobWorkersPerQueue": 5,
     "resultsDirectory": "/tmp/.rsb/results",
+    "smtpConfiguration": {
+        "host": "localhost", "port": 25, "username": "", "password": ""
+    },
     "jobStatisticsHandlerClass": "eu.openanalytics.rsb.stats.RedisJobStatisticsHandler",
     "jobStatisticsHandlerConfiguration" : {
         "host": "localhost",

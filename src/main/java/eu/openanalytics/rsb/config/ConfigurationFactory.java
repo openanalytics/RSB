@@ -59,7 +59,8 @@ public abstract class ConfigurationFactory {
         return pca;
     }
 
-    private static void validate(final PersistedConfigurationAdapter pca) throws IOException {
+    // exposed for testing
+    static void validate(final PersistedConfigurationAdapter pca) throws IOException {
         LOGGER.info("Validating configuration: " + pca.getConfigurationUrl());
 
         Validate.notNull(pca.getActiveMqWorkDirectory(), "activeMqWorkDirectory can't be null: " + pca);
@@ -67,6 +68,8 @@ public abstract class ConfigurationFactory {
         Validate.notNull(pca.getResultsDirectory(), "rsbResultsDirectory can't be null: " + pca);
 
         Validate.notNull(pca.getDefaultRserviPoolUri(), "defaultRserviPoolUri can't be null: " + pca);
+
+        Validate.notNull(pca.getSmtpConfiguration(), "smtpConfiguration can't be null: " + pca);
 
         if (pca.getRScriptsCatalogDirectory() != null) {
             FileUtils.forceMkdir(pca.getRScriptsCatalogDirectory());

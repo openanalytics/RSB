@@ -21,9 +21,18 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.language.DefaultTemplateLexer;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.integration.Message;
+import org.springframework.integration.MessageChannel;
+import org.springframework.integration.mail.MailHeaders;
+import org.springframework.integration.message.GenericMessage;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.message.AbstractJob;
@@ -37,6 +46,14 @@ import eu.openanalytics.rsb.message.AbstractWorkItem;
  */
 @Component("dlqHandler")
 public class DlqHandler extends AbstractComponent {
+    @Resource(name = "adminEmailChannel")
+    private MessageChannel adminEmailChannel;
+
+    // exposed for unit testing
+    void setAdminEmailChannel(final MessageChannel adminEmailChannel) {
+        this.adminEmailChannel = adminEmailChannel;
+    }
+
     /**
      * Handles a job whose processing has failed repetitively.
      * 
@@ -44,12 +61,14 @@ public class DlqHandler extends AbstractComponent {
      * @throws IOException
      */
     public void handle(final AbstractJob job) throws IOException {
-        logAndAlertFailure(job);
         final String message = getMessages().getMessage(job.getAbortMessageId(), null, null);
         final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
         template.setAttribute("job", job);
+        final String descriptiveMessage = template.toString();
 
-        final AbstractResult<?> errorResult = job.buildErrorResult(new RuntimeException(template.toString()), getMessages());
+        logAndAlertFailure(job, descriptiveMessage);
+
+        final AbstractResult<?> errorResult = job.buildErrorResult(new RuntimeException(descriptiveMessage), getMessages());
         getMessageDispatcher().dispatch(errorResult);
     }
 
@@ -59,12 +78,26 @@ public class DlqHandler extends AbstractComponent {
      * @param result
      */
     public void handle(final AbstractResult<?> result) {
-        logAndAlertFailure(result);
+        final String message = getMessages().getMessage("result.abort", null, null);
+        final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
+        template.setAttribute("result", result);
+        final String descriptiveMessage = template.toString();
+
+        logAndAlertFailure(result, descriptiveMessage);
     }
 
-    private void logAndAlertFailure(final AbstractWorkItem workItem) {
+    private void logAndAlertFailure(final AbstractWorkItem workItem, final String descriptiveMessage) {
         // do not call workItem.destroy() to keep faulty file in the file system for inspection
         getLogger().error("Abandonning processing of: " + workItem);
-        // FIXME email rsb admin
+
+        if (StringUtils.isNotBlank(getConfiguration().getAdministratorEmail())) {
+            final Map<String, Object> headers = new HashMap<String, Object>();
+            headers.put(MailHeaders.FROM, getConfiguration().getAdministratorEmail());
+            headers.put(MailHeaders.TO, getConfiguration().getAdministratorEmail());
+            headers.put(MailHeaders.SUBJECT, "Notification of RSB Fatal Error");
+
+            final Message<String> message = new GenericMessage<String>(descriptiveMessage, headers);
+            adminEmailChannel.send(message);
+        }
     }
 }

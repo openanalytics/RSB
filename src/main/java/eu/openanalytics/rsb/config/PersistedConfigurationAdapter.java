@@ -29,6 +29,8 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
+
 /**
  * Adapts a {@link PersistedConfiguration} into a {@link Configuration}.
  * 
@@ -88,6 +90,14 @@ public class PersistedConfigurationAdapter implements Configuration {
 
     public String getJobStatisticsHandlerClass() {
         return persistedConfiguration.getJobStatisticsHandlerClass();
+    }
+
+    public String getAdministratorEmail() {
+        return persistedConfiguration.getAdministratorEmail();
+    }
+
+    public SmtpConfiguration getSmtpConfiguration() {
+        return persistedConfiguration.getSmtpConfiguration();
     }
 
     public Map<String, Object> getJobStatisticsHandlerConfiguration() {

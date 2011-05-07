@@ -21,13 +21,20 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:lang="http://www.springframework.org/schema/lang" xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task" xmlns:jms="http://www.springframework.org/schema/jms"
-    xmlns:si="http://www.springframework.org/schema/integration" xmlns:http="http://www.springframework.org/schema/integration/http"
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:jms="http://www.springframework.org/schema/jms"
+    xmlns:si="http://www.springframework.org/schema/integration"
+    xmlns:http="http://www.springframework.org/schema/integration/http"
     xmlns:file="http://www.springframework.org/schema/integration/file"
-    xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xmlns:mail="http://www.springframework.org/schema/integration/mail"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -40,6 +47,7 @@
         http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
         http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+        http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd
         http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     
@@ -160,7 +168,14 @@
     
     <!-- Spring Integration -->
     <si:channel id="resultFilesChannel" />
-
-    <file:outbound-channel-adapter channel="resultFilesChannel"
-        directory="#{configuration.resultsDirectory}" auto-create-directory="true" />
+    <file:outbound-channel-adapter
+        channel="resultFilesChannel"
+        directory="#{configuration.resultsDirectory}"
+        auto-create-directory="true" />
+        
+    <si:channel id="adminEmailChannel" />
+    <mail:outbound-channel-adapter
+        channel="adminEmailChannel"
+        host="#{configuration.smtpConfiguration.host}" port="#{configuration.smtpConfiguration.port}"
+        username="#{configuration.smtpConfiguration.username}" password="#{configuration.smtpConfiguration.password}"/>       
 </beans>
