@@ -1,0 +1,4 @@
+<con:soapui-settings xmlns:con="http://eviware.com/soapui/config">
+  <con:setting id="HttpSettings@authenticate-preemptively">true</con:setting>
+  <con:setting id="WsdlSettings@enable-mtom">true</con:setting>
+</con:soapui-settings>

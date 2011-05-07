@@ -1,47 +1,41 @@
 /*
-  R Service Bus
-  
-  Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ *   R Service Bus
+ *   
+ *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
  *
-  ===========================================================================
+ *   ===========================================================================
  *
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU Affero General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
  *
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU Affero General Public License for more details.
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
  *
-  You should have received a copy of the GNU Affero General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import javax.annotation.Resource;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.FileUtils;
@@ -50,16 +44,11 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
-import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
-import org.jitr.Jitr;
-import org.jitr.annotation.BaseUri;
-import org.jitr.annotation.JitrConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.StartsWith;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -79,32 +68,22 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
-import eu.openanalytics.rsb.config.Configuration;
 
 /**
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-@RunWith(Jitr.class)
-@JitrConfiguration(contextPath = "/rsb-it")
-public class RestITCase extends XMLTestCase {
+public class RestITCase extends AbstractITCase {
     private static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
 
-    @BaseUri
-    private String baseUri;
-
-    @Resource
-    private Configuration configuration;
-
-    private Set<File> testScripts;
     private String restJobsUri;
     private String restResultsUri;
     private String uploadFormUri;
 
     @Before
     public void prepareTests() throws IOException {
-        restJobsUri = baseUri + "/api/rest/jobs";
-        restResultsUri = baseUri + "/api/rest/results";
-        uploadFormUri = baseUri + "/rsb.html";
+        restJobsUri = RSB_BASE_URI + "/api/rest/jobs";
+        restResultsUri = RSB_BASE_URI + "/api/rest/results";
+        uploadFormUri = RSB_BASE_URI + "/rsb.html";
 
         final Map<String, String> m = new HashMap<String, String>();
         m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
@@ -113,26 +92,9 @@ public class RestITCase extends XMLTestCase {
         XMLUnit.setXpathNamespaceContext(ctx);
     }
 
-    @Before
-    public void loadTestFileInCatalog() throws IOException {
-        testScripts = new HashSet<File>();
-        putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "test.R"));
-        putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "testSweave.R"));
-        putTestScriptInCatalog(new File(configuration.getSweaveFilesCatalogDirectory(), "testSweave.Rnw"));
-    }
-
-    private void putTestScriptInCatalog(final File testScript) throws FileNotFoundException, IOException {
-        if (!testScript.isFile()) {
-            final FileOutputStream fos = new FileOutputStream(testScript);
-            IOUtils.copy(getTestData(testScript.getName()), fos);
-            IOUtils.closeQuietly(fos);
-        }
-        testScripts.add(testScript);
-    }
-
     @After
     public void cleanupResults() throws IOException {
-        final File[] testResultFiles = configuration.getResultsDirectory().listFiles(new FilenameFilter() {
+        final File[] testResultFiles = getConfiguration().getResultsDirectory().listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String name) {
                 return StringUtils.startsWith(name, TEST_APPLICATION_NAME_PREFIX);
             }
@@ -143,12 +105,7 @@ public class RestITCase extends XMLTestCase {
         }
     }
 
-    @After
-    public void cleanupCatalog() throws IOException {
-        for (final File testScript : testScripts) {
-            FileUtils.deleteQuietly(testScript);
-        }
-    }
+    // -------- REST API Tests ---------
 
     @Test
     public void jobsBadMethod() throws Exception {
@@ -658,7 +615,6 @@ public class RestITCase extends XMLTestCase {
         assertXpathExists("//rsb:result/@applicationName", responseDocument);
         assertXpathExists("//rsb:result/@resultTime", responseDocument);
         assertXpathExists("//rsb:result/@selfUri", responseDocument);
-
         assertXpathExists("//rsb:result/@type", responseDocument);
         assertXpathEvaluatesTo(expectedType, "//rsb:result/@type", responseDocument);
 
@@ -752,17 +708,5 @@ public class RestITCase extends XMLTestCase {
     private static void validateErrorResult(final InputStream responseStream) throws IOException {
         final String response = IOUtils.toString(responseStream);
         assertTrue(response + " should contain 'error'", response.contains("error"));
-    }
-
-    private static InputStream getTestData(final String payloadResourceFile) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream("data/" + payloadResourceFile);
-    }
-
-    public static File getTestFile(final String payloadResourceFile) {
-        try {
-            return new File(Thread.currentThread().getContextClassLoader().getResource("data/" + payloadResourceFile).toURI());
-        } catch (final URISyntaxException urise) {
-            throw new RuntimeException(urise);
-        }
     }
 }

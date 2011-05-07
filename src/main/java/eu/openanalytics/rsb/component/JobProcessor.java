@@ -101,7 +101,8 @@ public class JobProcessor extends AbstractComponent {
                         rScriptFromCatalog) : job.getRScriptFile();
 
                 if ((rScriptFile == null) || (!rScriptFile.isFile())) {
-                    throw new IllegalArgumentException("No R script has been found for job: " + job);
+                    throw new IllegalArgumentException("No R script has been found for job: " + job + " using catalog: "
+                            + getConfiguration().getRScriptsCatalogDirectory());
                 }
 
                 uploadFileToR(rServi, rScriptFile, filesUploadedToR);
