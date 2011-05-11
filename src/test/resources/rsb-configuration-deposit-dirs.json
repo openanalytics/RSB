@@ -1,4 +1,5 @@
 {
+    "administratorEmail": "fake@nohost.com",
     "catalogRootDirectory": "/tmp/.rsb/catalog",
     "activeMqWorkDirectory": "/tmp/.rsb/activemq",
     "defaultRserviPoolUri": "rmi://127.0.0.1/rservi-pool",
@@ -8,11 +9,8 @@
     "smtpConfiguration": {
         "host": "localhost", "port": 25, "username": "", "password": ""
     },
-    "jobStatisticsHandlerConfiguration" : {
-        "className": "eu.openanalytics.rsb.stats.RedisJobStatisticsHandler",
-        "parameters": {
-            "host": "localhost",
-            "port": 6379
-        }
+    "depositRootDirectories": {
+        "/tmp/.rsb/deposit/lab-equipment-1": "lab",
+        "/tmp/.rsb/deposit/lab-equipment-2": "lab"
     }
 }

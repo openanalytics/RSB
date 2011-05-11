@@ -63,8 +63,8 @@
           factory-method="create"
           init-method="initialize"
           destroy-method="destroy">
-        <constructor-arg index="0" value="#{configuration.jobStatisticsHandlerClass}" />
-        <constructor-arg index="1" value="#{configuration.jobStatisticsHandlerConfiguration}" />
+        <constructor-arg index="0" value="#{configuration.jobStatisticsHandlerConfiguration.className}" />
+        <constructor-arg index="1" value="#{configuration.jobStatisticsHandlerConfiguration.parameters}" />
     </bean>
 
     <!-- Spring components -->

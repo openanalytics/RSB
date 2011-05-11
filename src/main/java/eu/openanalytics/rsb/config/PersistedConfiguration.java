@@ -28,6 +28,9 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
+import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
+
 /**
  * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is
  * derived.
@@ -37,20 +40,20 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class PersistedConfiguration {
-    public static class SmtpConfiguration {
+    public static class PersistedSmtpConfiguration implements SmtpConfiguration {
         private String host;
         private int port;
         private String username;
         private String password;
 
-        public SmtpConfiguration(final String host, final int port, final String username, final String password) {
+        public PersistedSmtpConfiguration(final String host, final int port, final String username, final String password) {
             this.host = host;
             this.port = port;
             this.username = username;
             this.password = password;
         }
 
-        public SmtpConfiguration() {
+        public PersistedSmtpConfiguration() {
             // NOOP
         }
 
@@ -92,6 +95,42 @@ public class PersistedConfiguration {
         }
     }
 
+    public static class PersistedJobStatisticsHandlerConfiguration implements JobStatisticsHandlerConfiguration {
+
+        private String className;
+        private Map<String, Object> parameters;
+
+        public PersistedJobStatisticsHandlerConfiguration(final String className, final Map<String, Object> parameters) {
+            this.className = className;
+            this.parameters = parameters;
+        }
+
+        public PersistedJobStatisticsHandlerConfiguration() {
+            // NOOP
+        }
+
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public void setClassName(final String className) {
+            this.className = className;
+        }
+
+        public Map<String, Object> getParameters() {
+            return parameters;
+        }
+
+        public void setParameters(final Map<String, Object> parameters) {
+            this.parameters = parameters;
+        }
+    }
+
     private File activeMqWorkDirectory;
     private URI defaultRserviPoolUri;
     private int jobTimeOut;
@@ -99,17 +138,25 @@ public class PersistedConfiguration {
     private File catalogRootDirectory;
     private File resultsDirectory;
     private Map<String, URI> applicationSpecificRserviPoolUris;
-    private String jobStatisticsHandlerClass;
-    private Map<String, Object> jobStatisticsHandlerConfiguration;
+    private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
     private String administratorEmail;
-    private SmtpConfiguration smtpConfiguration;
+    private PersistedSmtpConfiguration smtpConfiguration;
+    private Map<File, String> depositRootDirectories;
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
 
     /**
      * Directory under which RSB catalogs are located. The catalogs are:
      * <ul>
-     * <li>r_scripts: catalog of R scripts</li>
-     * <li>sweave_files: catalog of Sweave files</li>
-     * <li>email_replies: catalog of Email replies</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.R_SCRIPTS_CATALOG_SUBDIR}: catalog of R
+     * scripts</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.SWEAVE_FILE_CATALOG_SUBDIR}: catalog of
+     * Sweave files</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.EMAIL_REPLIES_CATALOG_SUBDIR}: catalog
+     * of Email replies</li>
      * </ul>
      * If any of these sub-directories do not pre-exist, RSB will try to create it.
      */
@@ -191,24 +238,13 @@ public class PersistedConfiguration {
     }
 
     /**
-     * The job statistics handler class to instantiate, or null if no statistics is to be recorded.
+     * Optional job statistics handler.
      */
-    public String getJobStatisticsHandlerClass() {
-        return jobStatisticsHandlerClass;
-    }
-
-    public void setJobStatisticsHandlerClass(final String jobStatisticsHandlerClass) {
-        this.jobStatisticsHandlerClass = jobStatisticsHandlerClass;
-    }
-
-    /**
-     * The configuration specific to the job statistics handler, or null if not needed.
-     */
-    public Map<String, Object> getJobStatisticsHandlerConfiguration() {
+    public PersistedJobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration() {
         return jobStatisticsHandlerConfiguration;
     }
 
-    public void setJobStatisticsHandlerConfiguration(final Map<String, Object> jobStatisticsHandlerConfiguration) {
+    public void setJobStatisticsHandlerConfiguration(final PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration) {
         this.jobStatisticsHandlerConfiguration = jobStatisticsHandlerConfiguration;
     }
 
@@ -227,11 +263,28 @@ public class PersistedConfiguration {
     /**
      * The SMTP server that will be used for all outbound email exchanges.
      */
-    public SmtpConfiguration getSmtpConfiguration() {
+    public PersistedSmtpConfiguration getSmtpConfiguration() {
         return smtpConfiguration;
     }
 
-    public void setSmtpConfiguration(final SmtpConfiguration smtpConfiguration) {
+    public void setSmtpConfiguration(final PersistedSmtpConfiguration smtpConfiguration) {
         this.smtpConfiguration = smtpConfiguration;
+    }
+
+    /**
+     * Optional configuration of root directories where jobs and results will respectively be
+     * dropped and retrieved. The map entry element has the root directory for key and the
+     * application name for value. RSB must have full right on the root directory as it will need to
+     * create sub-directories ({@value
+     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
+     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
+     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
+     */
+    public Map<File, String> getDepositRootDirectories() {
+        return depositRootDirectories;
+    }
+
+    public void setDepositRootDirectories(final Map<File, String> depositRootDirectories) {
+        this.depositRootDirectories = depositRootDirectories;
     }
 }

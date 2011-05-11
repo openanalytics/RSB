@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
+import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatisticsHandlerConfiguration;
 
 /**
  * Adapts a {@link PersistedConfiguration} into a {@link Configuration}.
@@ -56,8 +56,7 @@ public class PersistedConfigurationAdapter implements Configuration {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE) + "\n"
-                + ToStringBuilder.reflectionToString(persistedConfiguration, ToStringStyle.MULTI_LINE_STYLE);
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE) + "\n" + persistedConfiguration.toString();
     }
 
     public URL getConfigurationUrl() {
@@ -88,10 +87,6 @@ public class PersistedConfigurationAdapter implements Configuration {
         return persistedConfiguration.getDefaultRserviPoolUri();
     }
 
-    public String getJobStatisticsHandlerClass() {
-        return persistedConfiguration.getJobStatisticsHandlerClass();
-    }
-
     public String getAdministratorEmail() {
         return persistedConfiguration.getAdministratorEmail();
     }
@@ -100,8 +95,13 @@ public class PersistedConfigurationAdapter implements Configuration {
         return persistedConfiguration.getSmtpConfiguration();
     }
 
-    public Map<String, Object> getJobStatisticsHandlerConfiguration() {
-        return persistedConfiguration.getJobStatisticsHandlerConfiguration();
+    public JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration() {
+        final PersistedJobStatisticsHandlerConfiguration persisted = persistedConfiguration.getJobStatisticsHandlerConfiguration();
+        return persisted != null ? persisted : new PersistedJobStatisticsHandlerConfiguration();
+    }
+
+    public Map<File, String> getDepositRootDirectories() {
+        return persistedConfiguration.getDepositRootDirectories();
     }
 
     public File getRScriptsCatalogDirectory() {
@@ -115,4 +115,5 @@ public class PersistedConfigurationAdapter implements Configuration {
     public File getEmailRepliesCatalogDirectory() {
         return emailRepliesCatalogDirectory;
     }
+
 }

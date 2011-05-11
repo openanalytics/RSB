@@ -24,7 +24,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.Map;
 
-import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
+import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
@@ -33,11 +33,40 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public interface Configuration {
+    /**
+     * Hopefully self-explicit SMTP server configuration.
+     */
+    public interface SmtpConfiguration {
+        String getHost();
+
+        int getPort();
+
+        String getUsername();
+
+        String getPassword();
+    }
+
+    /**
+     * Hopefully self-explicit Job statistics handler configuration.
+     */
+    public interface JobStatisticsHandlerConfiguration {
+        /**
+         * The class must implement {@link JobStatisticsHandler}.
+         */
+        String getClassName();
+
+        Map<String, Object> getParameters();
+    }
+
     public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";
 
     public static final String R_SCRIPTS_CATALOG_SUBDIR = "r_scripts";
     public static final String SWEAVE_FILE_CATALOG_SUBDIR = "sweave_files";
     public static final String EMAIL_REPLIES_CATALOG_SUBDIR = "email_replies";
+
+    public static final String DEPOSIT_JOBS_SUBDIR = "inbox";
+    public static final String DEPOSIT_ARCHIVE_SUBDIR = "accepted";
+    public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
 
     /**
      * Directory where a catalog of R scripts are stored.
@@ -98,12 +127,18 @@ public interface Configuration {
     String getAdministratorEmail();
 
     /**
-     * Optional job statistics handler class to instantiate.
+     * Optional job statistics handler.
      */
-    String getJobStatisticsHandlerClass();
+    JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration();
 
     /**
-     * The configuration specific to the job statistics handler.
+     * Optional configuration of root directories where jobs and results will respectively be
+     * dropped and retrieved. The map entry element has the root directory for key and the
+     * application name for value. RSB must have full right on the root directory as it will need to
+     * create sub-directories ({@value
+     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
+     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
+     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
-    Map<String, Object> getJobStatisticsHandlerConfiguration();
+    Map<File, String> getDepositRootDirectories();
 }

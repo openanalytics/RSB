@@ -37,7 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import eu.openanalytics.rsb.Util;
-import eu.openanalytics.rsb.config.PersistedConfiguration.SmtpConfiguration;
+import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedSmtpConfiguration;
 
 /**
  * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can
@@ -121,7 +121,7 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         defaultConfiguration.setJobTimeOut(600000);// 10 minutes
         defaultConfiguration.setNumberOfConcurrentJobWorkersPerQueue(5);
         defaultConfiguration.setResultsDirectory(new File(defaultRsbHomeDirectory, "results"));
-        defaultConfiguration.setSmtpConfiguration(new SmtpConfiguration("localhost", 25, "", ""));
+        defaultConfiguration.setSmtpConfiguration(new PersistedSmtpConfiguration("localhost", 25, "", ""));
         return defaultConfiguration;
     }
 
