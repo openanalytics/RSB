@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu
+-->
+<document
+    xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Building RSB</title>
+        <author
+            email="rsb.development@openanalytics.eu">RSB Development</author>
+    </properties>
+    <body>
+        <section name="Prerequisites">
+          <ul>
+          <li>Sun/Oracle JDK 1.6</li>
+          <li>Maven 3</li>
+          </ul>
+
+          <p>To produce rsb.war, run:
+            <source>
+mvn clean install
+            </source></p>
+        </section>
+        <section name="Test Run">
+            <p>Use:
+            <source>
+mvn jetty:run
+            </source>
+            to start RSB configured to use a locally running RServi.
+            </p>
+        </section>
+        <section name="Integration Tests">
+            <p>RServi must be running locally before starting the integration tests.</p>
+            <p>If that is the case, then run:
+                <source>
+mvn -Pit verify
+                </source>
+            </p>
+        </section>
+        <section name="Smoke Tests">
+            <p>To smoke test a running instance:</p>
+            <p>TBD</p>
+        </section>
+    </body>
+</document>
