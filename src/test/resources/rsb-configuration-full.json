@@ -12,5 +12,12 @@
     "depositRootDirectories": {
         "/tmp/.rsb/deposit/lab-equipment-1": "lab",
         "/tmp/.rsb/deposit/lab-equipment-2": "lab"
+    },
+    "jobStatisticsHandlerConfiguration" : {
+        "className": "eu.openanalytics.rsb.stats.RedisJobStatisticsHandler",
+        "parameters": {
+            "host": "localhost",
+            "port": 6379
+        }
     }
 }

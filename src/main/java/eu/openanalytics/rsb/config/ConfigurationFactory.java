@@ -108,7 +108,7 @@ public abstract class ConfigurationFactory {
         if (pca.getDepositRootDirectories() != null) {
             for (final File depositRootDir : pca.getDepositRootDirectories().keySet()) {
                 FileUtils.forceMkdir(depositRootDir);
-                FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_ARCHIVE_SUBDIR));
+                FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_ACCEPTED_SUBDIR));
                 FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_JOBS_SUBDIR));
                 FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_RESULTS_SUBDIR));
             }

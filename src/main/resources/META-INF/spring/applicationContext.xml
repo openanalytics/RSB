@@ -23,11 +23,8 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:mvc="http://www.springframework.org/schema/mvc"
     xmlns:util="http://www.springframework.org/schema/util"
-    xmlns:lang="http://www.springframework.org/schema/lang"
     xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
     xmlns:jms="http://www.springframework.org/schema/jms"
     xmlns:si="http://www.springframework.org/schema/integration"
     xmlns:http="http://www.springframework.org/schema/integration/http"
@@ -39,10 +36,7 @@
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
         http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
         http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
@@ -68,7 +62,6 @@
     </bean>
 
     <!-- Spring components -->
-    <mvc:annotation-driven />
     <context:annotation-config />
     <context:component-scan base-package="eu.openanalytics.rsb.component" />
     <bean id="messageSource"
@@ -153,11 +146,17 @@
     </jms:listener-container>
 
     <jms:listener-container connection-factory="amqConnectionFactory"
-        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
-        prefetch="1">
+        acknowledge="transacted">
         <jms:listener destination="r.results.>" ref="restResultProcessor"
             method="process"
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_JMS_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).REST}'" />
+    </jms:listener-container>
+
+    <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted">
+        <jms:listener destination="r.results.>" ref="directoryDepositHandler"
+            method="handleZipResult"
+            selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_JMS_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
     </jms:listener-container>
 
     <jms:listener-container connection-factory="amqConnectionFactory"
@@ -167,15 +166,30 @@
     </jms:listener-container>
     
     <!-- Spring Integration -->
-    <si:channel id="resultFilesChannel" />
-    <file:outbound-channel-adapter
-        channel="resultFilesChannel"
-        directory="#{configuration.resultsDirectory}"
-        auto-create-directory="true" />
-        
     <si:channel id="adminEmailChannel" />
     <mail:outbound-channel-adapter
         channel="adminEmailChannel"
         host="#{configuration.smtpConfiguration.host}" port="#{configuration.smtpConfiguration.port}"
-        username="#{configuration.smtpConfiguration.username}" password="#{configuration.smtpConfiguration.password}"/>       
+        username="#{configuration.smtpConfiguration.username}" password="#{configuration.smtpConfiguration.password}"/>
+        
+    <bean id="zipJobFilter" class="org.springframework.integration.file.filters.CompositeFileListFilter">
+      <constructor-arg>
+        <list>
+          <bean class="eu.openanalytics.rsb.si.MinimumAgeFileListFilter" p:minimumAge="5000" />
+          <bean class="org.springframework.integration.file.filters.RegexPatternFileListFilter">
+            <constructor-arg value="^.*\.zip$"/>
+          </bean>
+        </list>
+      </constructor-arg>
+    </bean>
+    <si:channel id="jobDirectoryDepositChannel" />
+    <si:service-activator input-channel="jobDirectoryDepositChannel"
+                          ref="directoryDepositHandler"
+                          method="handleZipJob" />
+        
+    <si:channel id="restResultFilesChannel" />
+    <file:outbound-channel-adapter
+        channel="restResultFilesChannel"
+        directory="#{configuration.resultsDirectory}"
+        auto-create-directory="true" />
 </beans>

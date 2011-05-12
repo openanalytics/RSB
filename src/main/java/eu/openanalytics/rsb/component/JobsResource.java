@@ -22,6 +22,7 @@ package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
@@ -155,7 +156,7 @@ public class JobsResource extends AbstractComponent {
             @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
         String applicationName = null;
-        final Map<String, String> jobMeta = new HashMap<String, String>();
+        final Map<String, Serializable> jobMeta = new HashMap<String, Serializable>();
 
         for (final Attachment part : parts) {
             final String partName = getPartName(part);
@@ -214,8 +215,8 @@ public class JobsResource extends AbstractComponent {
         return Response.status(Status.ACCEPTED).entity(jobToken).build();
     }
 
-    private Map<String, String> getJobMeta(final HttpHeaders httpHeaders) {
-        final Map<String, String> meta = new HashMap<String, String>();
+    private Map<String, Serializable> getJobMeta(final HttpHeaders httpHeaders) {
+        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
 
         for (final Entry<String, List<String>> multiValues : httpHeaders.getRequestHeaders().entrySet()) {
             if (!StringUtils.startsWithIgnoreCase(multiValues.getKey(), Constants.RSB_META_HEADER_PREFIX)) {

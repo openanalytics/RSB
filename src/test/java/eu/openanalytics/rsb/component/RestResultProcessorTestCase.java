@@ -53,7 +53,7 @@ public class RestResultProcessorTestCase {
     private RestResultProcessor restResultProcessor;
 
     @Mock
-    private MessageChannel resultFilesChannel;
+    private MessageChannel restResultFilesChannel;
 
     @Before
     public void prepareTest() {
@@ -62,7 +62,7 @@ public class RestResultProcessorTestCase {
         when(configuration.getResultsDirectory()).thenReturn(tempDir);
 
         restResultProcessor = new RestResultProcessor();
-        restResultProcessor.setResultFilesChannel(resultFilesChannel);
+        restResultProcessor.setResultFilesChannel(restResultFilesChannel);
         restResultProcessor.setConfiguration(configuration);
     }
 
@@ -73,7 +73,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(functionCallResult);
 
-        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(restResultFilesChannel).send(any(Message.class), anyInt());
         verify(functionCallResult).destroy();
     }
 
@@ -84,7 +84,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(functionCallResult);
 
-        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(restResultFilesChannel).send(any(Message.class), anyInt());
         verify(functionCallResult).destroy();
     }
 
@@ -95,7 +95,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(multiFilesResult);
 
-        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(restResultFilesChannel).send(any(Message.class), anyInt());
         verify(multiFilesResult).destroy();
     }
 
@@ -106,7 +106,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(multiFilesResult);
 
-        verify(resultFilesChannel).send(any(Message.class), anyInt());
+        verify(restResultFilesChannel).send(any(Message.class), anyInt());
         verify(multiFilesResult).destroy();
     }
 

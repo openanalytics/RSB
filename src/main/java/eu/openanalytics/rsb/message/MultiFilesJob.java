@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class MultiFilesJob extends AbstractJob {
     private File rScriptFile;
 
     public MultiFilesJob(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, String> meta) throws IOException {
+            final Map<String, Serializable> meta) throws IOException {
         super(source, applicationName, jobId, submissionTime, meta);
         this.temporaryDirectory = Util.createTemporaryDirectory("job");
     }
@@ -91,7 +92,7 @@ public class MultiFilesJob extends AbstractJob {
         final Properties jobConfiguration = new Properties();
         jobConfiguration.load(is);
 
-        final Map<String, String> mergedMeta = new HashMap<String, String>();
+        final Map<String, Serializable> mergedMeta = new HashMap<String, Serializable>();
         for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
             mergedMeta.put(e.getKey().toString(), e.getValue().toString());
         }

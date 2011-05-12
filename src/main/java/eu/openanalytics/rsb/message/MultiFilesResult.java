@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
@@ -48,7 +49,7 @@ public class MultiFilesResult extends AbstractResult<File[]> {
     private final File temporaryDirectory;
 
     public MultiFilesResult(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, String> meta, final boolean success) throws IOException {
+            final Map<String, Serializable> meta, final boolean success) throws IOException {
         super(source, applicationName, jobId, submissionTime, meta, success);
         this.temporaryDirectory = Util.createTemporaryDirectory("job");
     }

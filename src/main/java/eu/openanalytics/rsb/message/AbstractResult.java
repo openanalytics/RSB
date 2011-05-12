@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +37,7 @@ public abstract class AbstractResult<T> extends AbstractWorkItem {
     private final boolean success;
 
     public AbstractResult(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, String> meta, final boolean success) {
+            final Map<String, Serializable> meta, final boolean success) {
         super(source, applicationName, jobId, submissionTime, meta);
         this.success = success;
     }

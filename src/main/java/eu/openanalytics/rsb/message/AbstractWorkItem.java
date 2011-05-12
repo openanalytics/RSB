@@ -56,10 +56,10 @@ public abstract class AbstractWorkItem implements Serializable {
     private final String applicationName;
     private final UUID jobId;
     private final GregorianCalendar submissionTime;
-    private final Map<String, String> meta;
+    private final Map<String, Serializable> meta;
 
     public AbstractWorkItem(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, String> meta) {
+            final Map<String, Serializable> meta) {
         Validate.notNull(source, "source can't be null");
         Validate.notEmpty(applicationName, "applicationName can't be empty");
         Validate.notNull(jobId, "jobId can't be null");
@@ -104,7 +104,7 @@ public abstract class AbstractWorkItem implements Serializable {
         return submissionTime;
     }
 
-    public Map<String, String> getMeta() {
+    public Map<String, Serializable> getMeta() {
         return meta;
     }
 

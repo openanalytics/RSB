@@ -65,7 +65,7 @@ public interface Configuration {
     public static final String EMAIL_REPLIES_CATALOG_SUBDIR = "email_replies";
 
     public static final String DEPOSIT_JOBS_SUBDIR = "inbox";
-    public static final String DEPOSIT_ARCHIVE_SUBDIR = "accepted";
+    public static final String DEPOSIT_ACCEPTED_SUBDIR = "accepted";
     public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
 
     /**

@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
@@ -39,7 +40,7 @@ public abstract class AbstractJob extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;
 
     public AbstractJob(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, String> meta) {
+            final Map<String, Serializable> meta) {
         super(source, applicationName, jobId, submissionTime, meta);
     }
 

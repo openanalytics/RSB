@@ -45,12 +45,12 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  */
 @Component("restResultProcessor")
 public class RestResultProcessor extends AbstractComponent {
-    @Resource(name = "resultFilesChannel")
-    private MessageChannel resultFilesChannel;
+    @Resource(name = "restResultFilesChannel")
+    private MessageChannel restResultFilesChannel;
 
     // exposed for unit tests
     void setResultFilesChannel(final MessageChannel resultFilesChannel) {
-        this.resultFilesChannel = resultFilesChannel;
+        this.restResultFilesChannel = resultFilesChannel;
     }
 
     public void process(final AbstractFunctionCallResult result) throws IOException {
@@ -75,7 +75,7 @@ public class RestResultProcessor extends AbstractComponent {
 
     private <T> void persistResult(final AbstractResult<?> result, final T resultPayload, final String resultFileName) throws IOException {
         final Message<T> message = newResultMessage(resultPayload, result.getApplicationName(), resultFileName);
-        resultFilesChannel.send(message, getConfiguration().getJobTimeOut());
+        restResultFilesChannel.send(message, getConfiguration().getJobTimeOut());
         result.destroy();
     }
 

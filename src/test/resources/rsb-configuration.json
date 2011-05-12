@@ -5,6 +5,9 @@
     "jobTimeOut": 600000,
     "numberOfConcurrentJobWorkersPerQueue": 5,
     "resultsDirectory": "/tmp/.rsb/results",
+    "depositRootDirectories": {
+        "/tmp/.rsb/deposit/lab-equipment-1": "lab"
+    },
     "smtpConfiguration": {
         "host": "localhost", "port": 25, "username": "", "password": ""
     }

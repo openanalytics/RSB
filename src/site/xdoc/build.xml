@@ -43,7 +43,7 @@ mvn clean install
             </source></p>
         </section>
         <section name="Test Run">
-            <p>Use:
+            <p>On Linux/OS X, you can easily start RSB for a quick ride with:
             <source>
 mvn jetty:run
             </source>

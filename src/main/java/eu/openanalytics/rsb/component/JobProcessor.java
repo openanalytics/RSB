@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -96,7 +98,7 @@ public class JobProcessor extends AbstractComponent {
                 final Set<String> filesUploadedToR = new HashSet<String>();
 
                 // locate and upload the R script
-                final String rScriptFromCatalog = job.getMeta().get(Constants.R_SCRIPT_CONFIGURATION_KEY);
+                final String rScriptFromCatalog = (String) job.getMeta().get(Constants.R_SCRIPT_CONFIGURATION_KEY);
                 final File rScriptFile = rScriptFromCatalog != null ? new File(getConfiguration().getRScriptsCatalogDirectory(),
                         rScriptFromCatalog) : job.getRScriptFile();
 
@@ -108,7 +110,7 @@ public class JobProcessor extends AbstractComponent {
                 uploadFileToR(rServi, rScriptFile, filesUploadedToR);
 
                 // optionally uploads a Sweave file
-                final String sweaveFileFromCatalog = job.getMeta().get(Constants.SWEAVE_FILE_CONFIGURATION_KEY);
+                final String sweaveFileFromCatalog = (String) job.getMeta().get(Constants.SWEAVE_FILE_CONFIGURATION_KEY);
 
                 if (sweaveFileFromCatalog != null) {
                     final File sweaveFile = new File(getConfiguration().getSweaveFilesCatalogDirectory(), sweaveFileFromCatalog);
@@ -228,11 +230,13 @@ public class JobProcessor extends AbstractComponent {
         filesUploadedToR.add(file.getName());
     }
 
-    private static void uploadPropertiesToR(final RServi rServi, final Map<String, String> metas, final Set<String> filesUploadedToR)
+    private static void uploadPropertiesToR(final RServi rServi, final Map<String, Serializable> metas, final Set<String> filesUploadedToR)
             throws CoreException, IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final Properties properties = new Properties();
-        properties.putAll(metas);
+        for (final Entry<String, Serializable> meta : metas.entrySet()) {
+            properties.setProperty(meta.getKey(), meta.getValue().toString());
+        }
         properties.store(baos, null);
         final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         rServi.uploadFile(bais, bais.available(), Constants.MULTIPLE_FILES_JOB_CONFIGURATION, 0, null);

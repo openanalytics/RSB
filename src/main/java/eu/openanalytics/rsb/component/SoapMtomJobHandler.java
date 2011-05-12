@@ -23,6 +23,7 @@ package eu.openanalytics.rsb.component;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
     public ResultType process(final JobType job) {
         try {
             final String applicationName = job.getApplicationName();
-            final Map<String, String> meta = getMeta(job);
+            final Map<String, Serializable> meta = getMeta(job);
 
             final ResultType potentialFunctionCallResult = processPotentialFunctionCallJob(applicationName, job, meta);
             if (potentialFunctionCallResult != null) {
@@ -92,15 +93,15 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         }
     }
 
-    private Map<String, String> getMeta(final JobType job) {
-        final Map<String, String> meta = new HashMap<String, String>();
+    private Map<String, Serializable> getMeta(final JobType job) {
+        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
         for (final Parameter parameter : job.getParameter()) {
             meta.put(parameter.getName(), parameter.getValue());
         }
         return meta;
     }
 
-    private ResultType processPotentialFunctionCallJob(final String applicationName, final JobType job, final Map<String, String> meta)
+    private ResultType processPotentialFunctionCallJob(final String applicationName, final JobType job, final Map<String, Serializable> meta)
             throws IOException {
 
         if (!isPotentiallyAFunctionCallJob(job, meta)) {
@@ -133,12 +134,12 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         return null;
     }
 
-    private boolean isPotentiallyAFunctionCallJob(final JobType job, final Map<String, String> meta) {
+    private boolean isPotentiallyAFunctionCallJob(final JobType job, final Map<String, Serializable> meta) {
         // function call jobs have a single attachment and no meta
         return (job.getPayload().size() == 1) && (meta.isEmpty());
     }
 
-    private ResultType processMultiFilesJob(final String applicationName, final JobType job, final Map<String, String> meta)
+    private ResultType processMultiFilesJob(final String applicationName, final JobType job, final Map<String, Serializable> meta)
             throws IOException, FileNotFoundException {
 
         final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),

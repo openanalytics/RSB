@@ -18,25 +18,28 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package eu.openanalytics.rsb.config;
+package eu.openanalytics.rsb.si;
 
-import java.io.IOException;
+import java.io.File;
 
-import org.junit.Test;
+import org.apache.commons.io.FileUtils;
+import org.springframework.integration.file.filters.AbstractFileListFilter;
 
 /**
+ * Spring Integration file filter that selects only files of a certain age, preventing picking files
+ * that are being written.
+ * 
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-public class ConfigurationFactoryTestCase {
+public class MinimumAgeFileListFilter extends AbstractFileListFilter<File> {
+    private int minimumAge; // in milliseconds
 
-    private static final String[] TEST_JSON_CONFIGURATIONS = { "rsb-configuration.json", "rsb-configuration-redis.json",
-            "rsb-configuration-full.json" };
-
-    @Test
-    public void validateTestJsonConfigurations() throws IOException {
-        for (final String configurationFile : TEST_JSON_CONFIGURATIONS) {
-            ConfigurationFactory.loadAndValidateJsonConfigurationFile(configurationFile);
-        }
+    public void setMinimumAge(final int minimumAge) {
+        this.minimumAge = minimumAge;
     }
 
+    @Override
+    protected boolean accept(final File file) {
+        return FileUtils.isFileOlder(file, System.currentTimeMillis() - minimumAge);
+    }
 }
