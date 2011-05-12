@@ -62,7 +62,7 @@
         <enabled>true</enabled>
       </releases>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
       <url>http://nexus.openanalytics.eu/nexus/content/groups/public</url>
     </repository>
