@@ -62,13 +62,9 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  */
 @Component("directoryDepositHandler")
 public class DirectoryDepositHandler extends AbstractComponent implements BeanFactoryAware {
-    private static final String INBOX_DIRECTORY_META_NAME = "inboxDirectory";
-
-    private static final String ORIGINAL_FILENAME_META_NAME = "originalFilename";
-
-    private static final String DEPOSIT_ROOT_DIRECTORY_META_NAME = "depositRootDirectory";
-
-    // TODO unit test, integration test
+    public static final String INBOX_DIRECTORY_META_NAME = "inboxDirectory";
+    public static final String ORIGINAL_FILENAME_META_NAME = "originalFilename";
+    public static final String DEPOSIT_ROOT_DIRECTORY_META_NAME = "depositRootDirectory";
 
     @Resource(name = "jobDirectoryDepositChannel")
     private MessageChannel jobDirectoryDepositChannel;
@@ -82,6 +78,15 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
 
     public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
+    }
+
+    // exposed for testing
+    void setJobDirectoryDepositChannel(final MessageChannel jobDirectoryDepositChannel) {
+        this.jobDirectoryDepositChannel = jobDirectoryDepositChannel;
+    }
+
+    void setZipJobFilter(final FileListFilter<File> zipJobFilter) {
+        this.zipJobFilter = zipJobFilter;
     }
 
     @PostConstruct
@@ -130,9 +135,11 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
     public void handleZipJob(final File zipJobFile) throws IOException {
         final File depositRootDirectory = zipJobFile.getParentFile().getParentFile();
         final String applicationName = getConfiguration().getDepositRootDirectories().get(depositRootDirectory);
-        final File archiveDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
+        final File acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
 
-        FileUtils.moveFileToDirectory(zipJobFile, archiveDirectory, true);
+        final File acceptedFile = new File(acceptedDirectory, zipJobFile.getName());
+        FileUtils.deleteQuietly(acceptedFile); // in case a similar job already exists
+        FileUtils.moveFile(zipJobFile, acceptedFile);
 
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
         meta.put(DEPOSIT_ROOT_DIRECTORY_META_NAME, depositRootDirectory);
@@ -143,7 +150,7 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
                 (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
         try {
-            MultiFilesJob.addZipFilesToJob(new FileInputStream(new File(archiveDirectory, zipJobFile.getName())), job);
+            MultiFilesJob.addZipFilesToJob(new FileInputStream(acceptedFile), job);
             getMessageDispatcher().dispatch(job);
         } catch (final Exception e) {
             final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
@@ -161,7 +168,7 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
                 + FilenameUtils.getBaseName((String) result.getMeta().get(ORIGINAL_FILENAME_META_NAME)) + "."
                 + FilenameUtils.getExtension(resultFile.getName()));
 
-        FileUtils.deleteQuietly(outboxResultFile); // in case a result already exists
+        FileUtils.deleteQuietly(outboxResultFile); // in case a similar result already exists
         FileUtils.moveFile(resultFile, outboxResultFile);
         result.destroy();
     }

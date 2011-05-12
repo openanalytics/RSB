@@ -27,8 +27,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -69,6 +72,24 @@ public abstract class AbstractITCase extends XMLTestCase {
         } catch (final URISyntaxException urise) {
             throw new RuntimeException(urise);
         }
+    }
+
+    public static void validateZipResult(final InputStream responseStream) throws IOException {
+        final ZipInputStream result = new ZipInputStream(responseStream);
+        ZipEntry ze = null;
+
+        while ((ze = result.getNextEntry()) != null) {
+            if (ze.getName().endsWith(".pdf")) {
+                return;
+            }
+        }
+
+        fail("No PDF file found in Zip result");
+    }
+
+    public static void validateErrorResult(final InputStream responseStream) throws IOException {
+        final String response = IOUtils.toString(responseStream);
+        assertTrue(response + " should contain 'error'", StringUtils.containsIgnoreCase(response, "error"));
     }
 
     private void putTestScriptInCatalog(final File testScript) throws FileNotFoundException, IOException {

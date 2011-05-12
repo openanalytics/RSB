@@ -34,12 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.NamespaceContext;
@@ -690,23 +687,5 @@ public class RestITCase extends AbstractITCase {
 
     private static WebConversation createNewWebConversation() {
         return new WebConversation();
-    }
-
-    private static void validateZipResult(final InputStream responseStream) throws IOException {
-        final ZipInputStream result = new ZipInputStream(responseStream);
-        ZipEntry ze = null;
-
-        while ((ze = result.getNextEntry()) != null) {
-            if (ze.getName().endsWith(".pdf")) {
-                return;
-            }
-        }
-
-        fail("No PDF file found in Zip result");
-    }
-
-    private static void validateErrorResult(final InputStream responseStream) throws IOException {
-        final String response = IOUtils.toString(responseStream);
-        assertTrue(response + " should contain 'error'", response.contains("error"));
     }
 }
