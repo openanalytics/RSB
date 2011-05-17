@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:jms="http://www.springframework.org/schema/jms"
+    xmlns:si="http://www.springframework.org/schema/integration"
+    xmlns:http="http://www.springframework.org/schema/integration/http"
+    xmlns:file="http://www.springframework.org/schema/integration/file"
+    xmlns:mail="http://www.springframework.org/schema/integration/mail"
+    xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+        http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+        http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+        http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd
+        http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+    
+    <!-- Configuration loading and validation -->
+    <bean id="configuration" class="eu.openanalytics.rsb.config.ConfigurationFactory"
+                             factory-method="loadJsonConfiguration">
+      <constructor-arg value="#{T(eu.openanalytics.rsb.config.Configuration).DEFAULT_JSON_CONFIGURATION_FILE}" />
+    </bean>
+
+    <!-- Statistics handler -->
+    <bean id="jobStatisticsHandler"
+          class="eu.openanalytics.rsb.stats.JobStatisticsHandlerFactory"
+          factory-method="create"
+          init-method="initialize"
+          destroy-method="destroy">
+        <constructor-arg index="0" value="#{configuration.jobStatisticsHandlerConfiguration.className}" />
+        <constructor-arg index="1" value="#{configuration.jobStatisticsHandlerConfiguration.parameters}" />
+    </bean>
+
+    <!-- Spring components -->
+    <context:annotation-config />
+    <context:component-scan base-package="eu.openanalytics.rsb.component" />
+    <bean id="messageSource"
+          class="org.springframework.context.support.ResourceBundleMessageSource"
+          p:basename="messages" />
+    
+    <!-- RServi -->
+    <bean name="rServiInstanceProvider"
+          class="eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider" />
+</beans>
