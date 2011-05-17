@@ -34,13 +34,34 @@
         p:deliveryPersistent="true" p:sessionTransacted="true"
         p:receiveTimeout="#{configuration.jobTimeOut}" />
 
+    <!--  Global Job Workers --> 
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
         prefetch="1">
         <jms:listener destination="r.jobs.>" ref="jobProcessor"
             method="process" />
     </jms:listener-container>
-
+    
+    <!-- Example of application biased Job Workers:
+         PriviApp has 3 workers reserved to it, all other applications share the remaining workers -->
+    <!--
+    <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted" concurrency="3"
+        prefetch="1">
+        <jms:listener destination="r.jobs.>" ref="jobProcessor"
+            method="process"
+            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_HEADER} = 'PriviApp'"  />
+    </jms:listener-container>
+    <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue - 3}"
+        prefetch="1">
+        <jms:listener destination="r.jobs.>" ref="jobProcessor"
+            method="process"
+            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_HEADER} &lt;&gt; 'PriviApp'"  />
+    </jms:listener-container>
+    -->
+    
+    <!-- Result Processors -->
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
         <jms:listener destination="r.results.>" ref="restResultProcessor"
@@ -55,6 +76,7 @@
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_JMS_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
     </jms:listener-container>
 
+    <!-- Dead Letter Queue Undertaker -->
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
         <jms:listener destination="DLQ.r.jobs.*" ref="dlqHandler"
