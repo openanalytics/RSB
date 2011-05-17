@@ -38,15 +38,17 @@ import eu.openanalytics.rsb.Util;
  */
 public abstract class AbstractWorkItem implements Serializable {
     public enum Source {
-        REST("job.error", "job.abort"), SOAP("job.error", "job.abort"), EMAIL("email.job.error", "email.job.abort"), DIRECTORY(
-                "directory.job.error", "directory.job.abort");
+        REST("job.error", "job.abort", 4), SOAP("job.error", "job.abort", 8), EMAIL("email.job.error", "email.job.abort", 4), DIRECTORY(
+                "directory.job.error", "directory.job.abort", 4);
 
         private final String errorMessageId;
         private final String abortMessageId;
+        private final int priority;
 
-        private Source(final String errorMessageId, final String abortMessageId) {
+        private Source(final String errorMessageId, final String abortMessageId, final int priority) {
             this.errorMessageId = errorMessageId;
             this.abortMessageId = abortMessageId;
+            this.priority = priority;
         }
     };
 
@@ -116,4 +118,8 @@ public abstract class AbstractWorkItem implements Serializable {
         return getSource().abortMessageId;
     }
 
+    public int getPriority() {
+        // potentially support per application priority
+        return getSource().priority;
+    }
 }

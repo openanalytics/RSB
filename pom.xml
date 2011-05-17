@@ -48,7 +48,7 @@
   <properties>
     <spring.version>3.0.5.RELEASE</spring.version>
     <spring-integration.version>2.0.3.RELEASE</spring-integration.version>
-    <activemq.version>5.4.2</activemq.version>
+    <activemq.version>5.5.0</activemq.version>
     <cxf.version>2.4.0</cxf.version>
     <jetty-plugin.version>7.2.2.v20101205</jetty-plugin.version>
     <soapui.version>3.6.1</soapui.version>
@@ -258,6 +258,18 @@
       <groupId>org.antlr</groupId>
       <artifactId>stringtemplate</artifactId>
       <version>3.2.1</version>
+    </dependency>
+    
+    <!-- Logging -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jcl</artifactId>
+      <version>1.5.11</version>
     </dependency>
     
     <!-- Testing -->

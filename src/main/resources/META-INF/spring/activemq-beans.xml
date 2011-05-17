@@ -32,7 +32,7 @@
         p:queuePrefix="DLQ." />
 
     <bean name="amqDefaultPolicyEntry" class="org.apache.activemq.broker.region.policy.PolicyEntry"
-        p:queue="r.*" p:deadLetterStrategy-ref="amqDeadLetterStrategy" />
+        p:queue="r.*" p:deadLetterStrategy-ref="amqDeadLetterStrategy" p:prioritizedMessages="true" />
 
     <bean name="amqPolicyMap" class="org.apache.activemq.broker.region.policy.PolicyMap"
         p:defaultEntry-ref="amqDefaultPolicyEntry" />
