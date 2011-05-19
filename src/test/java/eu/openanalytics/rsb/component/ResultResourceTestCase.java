@@ -23,12 +23,11 @@ package eu.openanalytics.rsb.component;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.GregorianCalendar;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -37,53 +36,53 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.activemq.util.ByteArrayOutputStream;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.util.FileCopyUtils;
 
-import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.data.PersistedResult;
+import eu.openanalytics.rsb.data.ResultStore;
 
 /**
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultResourceTestCase {
-    private static final String MISSING_RSB_RESULT = "_missing_rsb_result_";
+    public static final String TEST_APP_NAME = "app_name";
+    public static final UUID TEST_JOB_ID = UUID.randomUUID();
+    public static final String TEST_RESULT_RESOURCE = TEST_JOB_ID.toString() + ".tst";
+
+    @Mock
+    private ResultStore resultStore;
+
     private ResultResource resultResource;
-    private File tempDir;
-    private String testApplicationName;
-    private String testResult;
     private String testResultPayload;
 
     @Before
     public void prepareTest() {
-        tempDir = new File(System.getProperty("java.io.tmpdir"));
-        testApplicationName = tempDir.getName();
-        testResult = "rsb-" + UUID.randomUUID().toString() + ".tst";
         testResultPayload = RandomStringUtils.randomAlphanumeric(25 + RandomUtils.nextInt(25));
 
-        final Configuration configuration = mock(Configuration.class);
-        when(configuration.getResultsDirectory()).thenReturn(tempDir.getParentFile());
-
         resultResource = new ResultResource();
-        resultResource.setConfiguration(configuration);
+        resultResource.setResultStore(resultStore);
     }
 
     @Test(expected = WebApplicationException.class)
     public void getResultNotFound() throws IOException {
-        resultResource.getResult(testApplicationName, MISSING_RSB_RESULT);
+        resultResource.getResult(TEST_APP_NAME, TEST_RESULT_RESOURCE);
     }
 
     @Test
     public void getResult() throws IOException {
-        createTestResultFile();
+        setupMockResultStore();
 
-        final Response response = resultResource.getResult(testApplicationName, testResult);
+        final Response response = resultResource.getResult(TEST_APP_NAME, TEST_RESULT_RESOURCE);
         assertThat(response.getStatus(), is(Status.OK.getStatusCode()));
 
         final StreamingOutput result = (StreamingOutput) response.getEntity();
@@ -95,25 +94,40 @@ public class ResultResourceTestCase {
     }
 
     @Test(expected = WebApplicationException.class)
-    public void getResultMetaNotFound() {
-        resultResource.getResultMeta(testApplicationName, MISSING_RSB_RESULT);
+    public void getResultMetaNotFound() throws IOException {
+        resultResource.getResultMeta(TEST_APP_NAME, TEST_RESULT_RESOURCE);
     }
 
     @Test
     public void getResultMeta() throws IOException {
-        createTestResultFile();
+        setupMockResultStore();
 
-        final Response response = resultResource.getResultMeta(testApplicationName, testResult);
+        final Response response = resultResource.getResultMeta(TEST_APP_NAME, TEST_RESULT_RESOURCE);
         assertThat(response.getStatus(), is(Status.NO_CONTENT.getStatusCode()));
 
         assertThat(response.getMetadata().get(HttpHeaders.CONTENT_LENGTH), notNullValue());
         assertThat(response.getMetadata().get(HttpHeaders.ETAG), notNullValue());
     }
 
-    private File createTestResultFile() throws IOException {
-        final File testResultFile = new File(tempDir, testResult);
-        testResultFile.deleteOnExit();
-        FileCopyUtils.copy(testResultPayload, new FileWriter(testResultFile));
-        return testResultFile;
+    private void setupMockResultStore() {
+        final PersistedResult persistedResult = buildPersistedResult(testResultPayload);
+        when(resultStore.findByApplicationNameAndJobId(TEST_APP_NAME, TEST_JOB_ID)).thenReturn(persistedResult);
+    }
+
+    public static PersistedResult buildPersistedResult(final String resultPayload) {
+        final PersistedResult persistedResult = new PersistedResult(TEST_APP_NAME, TEST_JOB_ID,
+                (GregorianCalendar) GregorianCalendar.getInstance(), true, Constants.DEFAULT_MIME_TYPE) {
+
+            @Override
+            public long getDataLength() throws IOException {
+                return 1;
+            }
+
+            @Override
+            public InputStream getData() throws IOException {
+                return new ByteArrayInputStream(resultPayload.getBytes());
+            }
+        };
+        return persistedResult;
     }
 }

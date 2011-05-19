@@ -19,7 +19,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.openanalytics.rsb.component;
+package eu.openanalytics.rsb.message;
 
 import javax.annotation.Resource;
 import javax.jms.JMSException;
@@ -30,10 +30,7 @@ import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
-import eu.openanalytics.rsb.message.AbstractJob;
-import eu.openanalytics.rsb.message.AbstractResult;
-import eu.openanalytics.rsb.message.AbstractWorkItem;
-import eu.openanalytics.rsb.message.MessageDispatcher;
+import eu.openanalytics.rsb.component.AbstractComponent;
 
 /**
  * A JMS-backed a Job and Result message dispatcher.

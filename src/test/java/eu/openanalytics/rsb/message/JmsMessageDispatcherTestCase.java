@@ -18,7 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package eu.openanalytics.rsb.component;
+package eu.openanalytics.rsb.message;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -38,10 +38,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jms.core.JmsTemplate;
 
-import eu.openanalytics.rsb.component.JmsMessageDispatcher.WorkItemMessagePostProcessor;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
+import eu.openanalytics.rsb.message.JmsMessageDispatcher;
+import eu.openanalytics.rsb.message.JmsMessageDispatcher.WorkItemMessagePostProcessor;
 
 /**
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"

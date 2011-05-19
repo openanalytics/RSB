@@ -23,10 +23,8 @@ package eu.openanalytics.rsb.component;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -42,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.data.ResultStore;
 import eu.openanalytics.rsb.rest.types.Result;
 import eu.openanalytics.rsb.rest.types.Results;
 
@@ -50,9 +49,9 @@ import eu.openanalytics.rsb.rest.types.Results;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultsResourceTestCase {
-    private static final String TEST_JOB_ID = "job_id_123";
-    private static final String TEST_APP_NAME = "app_name";
     private ResultsResource resultsResource;
+    @Mock
+    private ResultStore resultStore;
     @Mock
     private Configuration configuration;
     @Mock
@@ -64,6 +63,7 @@ public class ResultsResourceTestCase {
     public void prepareTest() {
         resultsResource = new ResultsResource();
         resultsResource.setConfiguration(configuration);
+        resultsResource.setResultStore(resultStore);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -73,32 +73,32 @@ public class ResultsResourceTestCase {
 
     @Test
     public void getAllResults() throws URISyntaxException {
-        final Results allResults = resultsResource.getAllResults(TEST_APP_NAME, httpHeaders, uriInfo);
+        final Results allResults = resultsResource.getAllResults(ResultResourceTestCase.TEST_APP_NAME, httpHeaders, uriInfo);
         assertThat(allResults, is(notNullValue()));
     }
 
     @Test(expected = WebApplicationException.class)
     public void getSingleResultNotFound() throws URISyntaxException, IOException {
-        resultsResource.getSingleResult(TEST_APP_NAME, TEST_JOB_ID, httpHeaders, uriInfo);
+        resultsResource.getSingleResult(ResultResourceTestCase.TEST_APP_NAME, ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders,
+                uriInfo);
     }
 
     @Test(expected = WebApplicationException.class)
     public void deleteSingleResultNotFound() throws URISyntaxException, IOException {
-        resultsResource.deleteSingleResult(TEST_APP_NAME, TEST_JOB_ID, httpHeaders, uriInfo);
+        resultsResource.deleteSingleResult(ResultResourceTestCase.TEST_APP_NAME, ResultResourceTestCase.TEST_JOB_ID.toString(),
+                httpHeaders, uriInfo);
     }
 
     @Test
     public void buildResult() throws URISyntaxException {
-        final File resultFile = mock(File.class);
-        when(resultFile.getName()).thenReturn(TEST_JOB_ID + ".job_type");
-        when(resultFile.lastModified()).thenReturn(123L);
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 
-        final Result result = resultsResource.buildResult(TEST_APP_NAME, httpHeaders, uriInfo, resultFile);
+        final Result result = resultsResource.buildResult(ResultResourceTestCase.TEST_APP_NAME, httpHeaders, uriInfo,
+                ResultResourceTestCase.buildPersistedResult("fake data"));
         assertThat(result, is(notNullValue()));
-        assertThat(result.getApplicationName(), is(TEST_APP_NAME));
-        assertThat(result.getJobId(), is(TEST_JOB_ID));
-        assertThat(result.getType(), is("job_type"));
+        assertThat(result.getApplicationName(), is(ResultResourceTestCase.TEST_APP_NAME));
+        assertThat(result.getJobId(), is(ResultResourceTestCase.TEST_JOB_ID.toString()));
+        assertThat(result.getType(), is("dat"));
         assertThat(result.isSuccess(), is(true));
         assertThat(result.getDataUri(), is(notNullValue()));
         assertThat(result.getSelfUri(), is(notNullValue()));

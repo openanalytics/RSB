@@ -52,7 +52,6 @@ public class Constants {
     public static final String JOB_ID_JMS_HEADER = "jobId";
 
     public static final String MULTIPLE_FILES_JOB_CONFIGURATION = "configuration.txt";
-    public static final String MULTIPLE_FILES_ERROR_FILE_EXTENSION = "err.txt";
     public static final String R_SCRIPT_FILE_EXTENSION = "R";
     public static final String R_SCRIPT_CONFIGURATION_KEY = "rScript";
     public static final String SWEAVE_FILE_CONFIGURATION_KEY = "sweaveFile";
@@ -75,14 +74,18 @@ public class Constants {
     public static final MimeType JSON_MIME_TYPE;
     public static final MimeType XML_MIME_TYPE;
     public static final MimeType TEXT_MIME_TYPE;
+    public static final MimeType PDF_MIME_TYPE;
     public static final MimeType ZIP_MIME_TYPE;
+    public static final MimeType DEFAULT_MIME_TYPE;
 
     static {
         try {
             JSON_MIME_TYPE = new MimeType(JSON_CONTENT_TYPE);
             XML_MIME_TYPE = new MimeType(XML_CONTENT_TYPE);
             TEXT_MIME_TYPE = new MimeType(TEXT_CONTENT_TYPE);
+            PDF_MIME_TYPE = new MimeType(PDF_CONTENT_TYPE);
             ZIP_MIME_TYPE = new MimeType(ZIP_CONTENT_TYPE);
+            DEFAULT_MIME_TYPE = new MimeType("application/octet-stream");
         } catch (final MimeTypeParseException mtpe) {
             throw new IllegalStateException(mtpe);
         }

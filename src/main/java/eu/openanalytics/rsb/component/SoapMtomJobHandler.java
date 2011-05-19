@@ -31,7 +31,6 @@ import java.util.UUID;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
-import javax.activation.MimetypesFileTypeMap;
 import javax.jws.WebService;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.soap.MTOM;
@@ -40,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
@@ -66,11 +66,6 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @Component("soapMtomJobHandler")
 public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor {
     private final static ObjectFactory soapOF = new ObjectFactory();
-    private final MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
-
-    public SoapMtomJobHandler() {
-        mimetypesFileTypeMap.addMimeTypes(Constants.PDF_CONTENT_TYPE + " pdf\n" + Constants.ZIP_CONTENT_TYPE + " zip");
-    }
 
     /**
      * Processes a single R job.
@@ -177,7 +172,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 
         for (final File resultFile : resultFiles) {
             final PayloadType payload = soapOF.createPayloadType();
-            payload.setContentType(mimetypesFileTypeMap.getContentType(resultFile));
+            payload.setContentType(Util.getContentType(resultFile));
             payload.setName(resultFile.getName());
             payload.setData(new DataHandler(new FileDataSource(resultFile)));
             result.getPayload().add(payload);

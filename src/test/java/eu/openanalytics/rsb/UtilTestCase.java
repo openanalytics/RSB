@@ -26,6 +26,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -63,5 +64,21 @@ public class UtilTestCase {
 
         when(httpHeaders.getRequestHeader("multi_value")).thenReturn(Arrays.asList("bingo_too", "ignored"));
         assertThat(Util.getSingleHeader(httpHeaders, "multi_value"), is("bingo_too"));
+    }
+
+    @Test
+    public void getMimeType() {
+        assertThat(Util.getMimeType(new File("test.zip")).toString(), is(Constants.ZIP_MIME_TYPE.toString()));
+        assertThat(Util.getMimeType(new File("test.err.txt")).toString(), is(Constants.TEXT_MIME_TYPE.toString()));
+        assertThat(Util.getMimeType(new File("test.pdf")).toString(), is(Constants.PDF_MIME_TYPE.toString()));
+        assertThat(Util.getMimeType(new File("test.foo")).toString(), is("application/octet-stream"));
+    }
+
+    @Test
+    public void getResourceType() {
+        assertThat(Util.getResourceType(Constants.ZIP_MIME_TYPE), is("zip"));
+        assertThat(Util.getResourceType(Constants.PDF_MIME_TYPE), is("pdf"));
+        assertThat(Util.getResourceType(Constants.TEXT_MIME_TYPE), is("txt"));
+        assertThat(Util.getResourceType(Constants.DEFAULT_MIME_TYPE), is("dat"));
     }
 }

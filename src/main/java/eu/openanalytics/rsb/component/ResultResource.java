@@ -20,11 +20,12 @@
  */
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
@@ -37,12 +38,15 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.data.PersistedResult;
+import eu.openanalytics.rsb.data.ResultStore;
 
 /**
  * Serves R job process result files.<br/>
@@ -53,27 +57,38 @@ import eu.openanalytics.rsb.Util;
  */
 @Component("resultResource")
 @Produces("application/octet-stream")
-@Path("/" + Constants.RESULT_PATH + "/{applicationName}/{resultFileName}")
+@Path("/" + Constants.RESULT_PATH + "/{applicationName}/{resourceName}")
 public class ResultResource extends AbstractComponent {
+    @Resource
+    private ResultStore resultStore;
+
+    // exposed for testing
+    void setResultStore(final ResultStore resultStore) {
+        this.resultStore = resultStore;
+    }
+
     /**
      * Serves a single result file.
      * 
      * @param applicationName
-     * @param resultFileName
+     * @param resourceName
      * @return
      * @throws IOException
      */
     @GET
     public Response getResult(@PathParam("applicationName") final String applicationName,
-            @PathParam("resultFileName") final String resultFileName) throws IOException {
+            @PathParam("resourceName") final String resourceName) throws IOException {
 
-        final File resultFile = getResultFileOrDie(applicationName, resultFileName);
+        final PersistedResult persistedResult = getPersistedResultOrDie(applicationName, resourceName);
 
         final ResponseBuilder rb = Response.ok();
-        addEtagHeader(applicationName, resultFileName, rb);
+        addEtagHeader(persistedResult, rb);
         rb.entity(new StreamingOutput() {
             public void write(final OutputStream output) throws IOException, WebApplicationException {
-                FileCopyUtils.copy(new FileInputStream(resultFile), output);
+                final InputStream data = persistedResult.getData();
+                IOUtils.copy(data, output);
+                IOUtils.closeQuietly(data);
+                IOUtils.closeQuietly(output);
             }
         });
         return rb.build();
@@ -83,44 +98,48 @@ public class ResultResource extends AbstractComponent {
      * Provides HTTP meta-information only for a single result file.
      * 
      * @param applicationName
-     * @param resultFileName
+     * @param resourceName
      * @return
+     * @throws IOException
      */
     @HEAD
     public Response getResultMeta(@PathParam("applicationName") final String applicationName,
-            @PathParam("resultFileName") final String resultFileName) {
+            @PathParam("resourceName") final String resourceName) throws IOException {
 
-        final File resultFile = getResultFileOrDie(applicationName, resultFileName);
+        final PersistedResult persistedResult = getPersistedResultOrDie(applicationName, resourceName);
+
         final ResponseBuilder rb = Response.noContent();
-        addContentLengthHeader(resultFile, rb);
-        addEtagHeader(applicationName, resultFileName, rb);
+        addContentLengthHeader(persistedResult, rb);
+        addEtagHeader(persistedResult, rb);
         return rb.build();
     }
 
-    private void addEtagHeader(final String applicationName, final String resultFileName, final ResponseBuilder rb) {
-        rb.header(HttpHeaders.ETAG, getEtag(applicationName, resultFileName));
+    private void addEtagHeader(final PersistedResult persistedResult, final ResponseBuilder rb) {
+        rb.header(HttpHeaders.ETAG, getEtag(persistedResult));
     }
 
-    private void addContentLengthHeader(final File resultFile, final ResponseBuilder rb) {
-        rb.header(HttpHeaders.CONTENT_LENGTH, Long.toString(resultFile.length()));
+    private void addContentLengthHeader(final PersistedResult persistedResult, final ResponseBuilder rb) throws IOException {
+        rb.header(HttpHeaders.CONTENT_LENGTH, Long.toString(persistedResult.getDataLength()));
     }
 
-    private File getResultFileOrDie(final String applicationName, final String resultFileName) {
+    private PersistedResult getPersistedResultOrDie(final String applicationName, final String resourceName) {
         if (!Util.isValidApplicationName(applicationName)) {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
-        final File resultFile = new File(getApplicationResultDirectory(applicationName), resultFileName);
+        final UUID jobId = UUID.fromString(FilenameUtils.getBaseName(resourceName));
 
-        if (!resultFile.exists()) {
+        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName, jobId);
+
+        if (persistedResult == null) {
             throw new WebApplicationException(Response.status(Status.NOT_FOUND).build());
         }
 
-        return resultFile;
+        return persistedResult;
     }
 
     // exposed for unit testing
-    static String getEtag(final String applicationName, final String resultFileName) {
-        return Base64Utility.encode((applicationName + "/" + resultFileName).getBytes());
+    static String getEtag(final PersistedResult persistedResult) {
+        return Base64Utility.encode((persistedResult.getApplicationName() + "/" + persistedResult.getJobId()).getBytes());
     }
 }

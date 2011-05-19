@@ -56,10 +56,4 @@
     <si:service-activator input-channel="jobDirectoryDepositChannel"
                           ref="directoryDepositHandler"
                           method="handleZipJob" />
-        
-    <si:channel id="restResultFilesChannel" />
-    <file:outbound-channel-adapter
-        channel="restResultFilesChannel"
-        directory="#{configuration.resultsDirectory}"
-        auto-create-directory="true" />
 </beans>

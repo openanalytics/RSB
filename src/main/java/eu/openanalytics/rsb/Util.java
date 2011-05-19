@@ -26,9 +26,14 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import javax.activation.MimetypesFileTypeMap;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -55,23 +60,35 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public abstract class Util {
+    private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
+
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
     private final static ObjectMapper PRETTY_JSON_OBJECT_MAPPER = new ObjectMapper();
-    static {
-        PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
-        PRETTY_JSON_OBJECT_MAPPER.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
-    }
-    private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
     private final static JAXBContext ERROR_RESULT_JAXB_CONTEXT;
     private final static DatatypeFactory XML_DATATYPE_FACTORY;
 
+    private static final MimetypesFileTypeMap MIMETYPES_FILETYPE_MAP = new MimetypesFileTypeMap();
+    private static final String DEFAULT_FILE_EXTENSION = "dat";
+    private static final Map<String, String> DEFAULT_FILE_EXTENSIONS = new HashMap<String, String>();
+
     static {
+        PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
+        PRETTY_JSON_OBJECT_MAPPER.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+
         try {
             ERROR_RESULT_JAXB_CONTEXT = JAXBContext.newInstance(ErrorResult.class);
             XML_DATATYPE_FACTORY = DatatypeFactory.newInstance();
+            MIMETYPES_FILETYPE_MAP.addMimeTypes(Constants.JSON_CONTENT_TYPE + " json\n" + Constants.XML_CONTENT_TYPE + " xml\n"
+                    + Constants.TEXT_CONTENT_TYPE + " txt\n" + Constants.PDF_CONTENT_TYPE + " pdf\n" + Constants.ZIP_CONTENT_TYPE + " zip");
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
+
+        DEFAULT_FILE_EXTENSIONS.put(Constants.JSON_CONTENT_TYPE, "json");
+        DEFAULT_FILE_EXTENSIONS.put(Constants.XML_CONTENT_TYPE, "xml");
+        DEFAULT_FILE_EXTENSIONS.put(Constants.TEXT_CONTENT_TYPE, "txt");
+        DEFAULT_FILE_EXTENSIONS.put(Constants.PDF_CONTENT_TYPE, "pdf");
+        DEFAULT_FILE_EXTENSIONS.put(Constants.ZIP_CONTENT_TYPE, "zip");
     }
 
     public final static ObjectFactory REST_OBJECT_FACTORY = new ObjectFactory();
@@ -79,6 +96,41 @@ public abstract class Util {
 
     private Util() {
         throw new UnsupportedOperationException("do not instantiate");
+    }
+
+    /**
+     * Returns the must probable resource type for a MimeType.
+     * 
+     * @param mimeType
+     * @return
+     */
+    public static String getResourceType(final MimeType mimeType) {
+        final String result = DEFAULT_FILE_EXTENSIONS.get(mimeType.toString());
+        return result != null ? result : DEFAULT_FILE_EXTENSION;
+    }
+
+    /**
+     * Returns the must probable content type for a file.
+     * 
+     * @param file
+     * @return "application/octet-stream" if unknown.
+     */
+    public static String getContentType(final File file) {
+        return MIMETYPES_FILETYPE_MAP.getContentType(file);
+    }
+
+    /**
+     * Returns the must probable mime type for a file.
+     * 
+     * @param file
+     * @return {@value Constants.DEFAULT_MIME_TYPE} if unknown.
+     */
+    public static MimeType getMimeType(final File file) {
+        try {
+            return new MimeType(getContentType(file));
+        } catch (final MimeTypeParseException mtpe) {
+            return Constants.DEFAULT_MIME_TYPE;
+        }
     }
 
     /**

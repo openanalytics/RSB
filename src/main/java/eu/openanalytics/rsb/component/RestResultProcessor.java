@@ -21,19 +21,21 @@
 
 package eu.openanalytics.rsb.component;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
+import java.io.InputStream;
+import java.util.GregorianCalendar;
 
+import javax.activation.MimeType;
 import javax.annotation.Resource;
 
-import org.apache.commons.io.FileUtils;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.file.FileHeaders;
-import org.springframework.integration.message.GenericMessage;
 import org.springframework.stereotype.Component;
 
+import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.data.PersistedResult;
+import eu.openanalytics.rsb.data.ResultStore;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
@@ -45,42 +47,43 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  */
 @Component("restResultProcessor")
 public class RestResultProcessor extends AbstractComponent {
-    @Resource(name = "restResultFilesChannel")
-    private MessageChannel restResultFilesChannel;
+    @Resource
+    private ResultStore resultStore;
 
-    // exposed for unit tests
-    void setResultFilesChannel(final MessageChannel resultFilesChannel) {
-        this.restResultFilesChannel = resultFilesChannel;
+    // exposed for testing
+    void setResultStore(final ResultStore resultStore) {
+        this.resultStore = resultStore;
     }
 
     public void process(final AbstractFunctionCallResult result) throws IOException {
-        ensureApplicationResultDir(result);
-        final String resultPayload = result.getPayload();
-        final String resultFileName = result.getResultFileName();
-        persistResult(result, resultPayload, resultFileName);
+        persistResult(result, result.getMimeType(), new ByteArrayInputStream(result.getPayload().getBytes()));
     }
 
     public void process(final MultiFilesResult result) throws IOException {
-        ensureApplicationResultDir(result);
         final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
-        final File resultPayload = resultFile;
-        final String resultFileName = resultFile.getName();
-        persistResult(result, resultPayload, resultFileName);
+        persistResult(result, Util.getMimeType(resultFile), new FileInputStream(resultFile));
     }
 
-    private void ensureApplicationResultDir(final AbstractResult<?> result) throws IOException {
-        final File applicationResultDir = new File(getConfiguration().getResultsDirectory(), result.getApplicationName());
-        FileUtils.forceMkdir(applicationResultDir);
-    }
+    private <T> void persistResult(final AbstractResult<?> result, final MimeType resultMimeType, final InputStream resultData)
+            throws IOException {
 
-    private <T> void persistResult(final AbstractResult<?> result, final T resultPayload, final String resultFileName) throws IOException {
-        final Message<T> message = newResultMessage(resultPayload, result.getApplicationName(), resultFileName);
-        restResultFilesChannel.send(message, getConfiguration().getJobTimeOut());
+        final GregorianCalendar resultTime = (GregorianCalendar) GregorianCalendar.getInstance();
+
+        final PersistedResult persistedResult = new PersistedResult(result.getApplicationName(), result.getJobId(), resultTime,
+                result.isSuccess(), resultMimeType) {
+
+            @Override
+            public long getDataLength() throws IOException {
+                return resultData.available();
+            }
+
+            @Override
+            public InputStream getData() {
+                return resultData;
+            }
+        };
+
+        resultStore.store(persistedResult);
         result.destroy();
-    }
-
-    private <T> Message<T> newResultMessage(final T result, final String applicationName, final String fileName) throws IOException {
-        final String applicationAndResultFileName = applicationName + File.separator + fileName;
-        return new GenericMessage<T>(result, Collections.singletonMap(FileHeaders.FILENAME, (Object) applicationAndResultFileName));
     }
 }

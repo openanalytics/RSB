@@ -63,7 +63,8 @@
 
     <!-- Spring components -->
     <context:annotation-config />
-    <context:component-scan base-package="eu.openanalytics.rsb.component" />
+    <context:component-scan
+          base-package="eu.openanalytics.rsb.component,eu.openanalytics.rsb.data,eu.openanalytics.rsb.message" />
     <bean id="messageSource"
           class="org.springframework.context.support.ResourceBundleMessageSource"
           p:basename="messages" />

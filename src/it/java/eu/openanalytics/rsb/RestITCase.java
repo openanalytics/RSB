@@ -166,7 +166,7 @@ public class RestITCase extends AbstractITCase {
         final WebConversation wc = createNewWebConversation();
 
         try {
-            wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName/fooJobId"));
+            wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName/de2e7d40-8253-11e0-885e-0002a5d5c51b"));
             fail("an exception should have been raised");
         } catch (final HttpException he) {
             assertEquals(404, he.getResponseCode());

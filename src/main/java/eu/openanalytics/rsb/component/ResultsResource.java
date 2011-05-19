@@ -20,17 +20,12 @@
  */
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -43,14 +38,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.data.PersistedResult;
+import eu.openanalytics.rsb.data.ResultStore;
 import eu.openanalytics.rsb.rest.types.Result;
 import eu.openanalytics.rsb.rest.types.Results;
 
@@ -63,29 +57,25 @@ import eu.openanalytics.rsb.rest.types.Results;
 @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 @Path("/" + Constants.RESULTS_PATH + "/{applicationName}")
 public class ResultsResource extends AbstractComponent {
-    private interface SingleResultFileOperation<T> {
-        T run(final File resultFile) throws URISyntaxException, IOException;
+    @Resource
+    private ResultStore resultStore;
+
+    // exposed for testing
+    void setResultStore(final ResultStore resultStore) {
+        this.resultStore = resultStore;
     }
 
     @GET
     public Results getAllResults(@PathParam("applicationName") final String applicationName, @Context final HttpHeaders httpHeaders,
             @Context final UriInfo uriInfo) throws URISyntaxException {
 
-        if (!Util.isValidApplicationName(applicationName)) {
-            throw new IllegalArgumentException("Invalid application name: " + applicationName);
-        }
+        validateApplicationName(applicationName);
 
         final Results results = Util.REST_OBJECT_FACTORY.createResults();
-        final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles();
 
-        if (resultFiles != null) {
-            final List<File> sortedFiles = new ArrayList<File>(Arrays.asList(resultFiles));
-            Collections.sort(sortedFiles, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-
-            for (final File resultFile : sortedFiles) {
-                final Result result = buildResult(applicationName, httpHeaders, uriInfo, resultFile);
-                results.getContents().add(result);
-            }
+        for (final PersistedResult persistedResult : resultStore.findByApplicationName(applicationName)) {
+            final Result result = buildResult(applicationName, httpHeaders, uriInfo, persistedResult);
+            results.getContents().add(result);
         }
 
         return results;
@@ -95,11 +85,16 @@ public class ResultsResource extends AbstractComponent {
     @GET
     public Result getSingleResult(@PathParam("applicationName") final String applicationName, @PathParam("jobId") final String jobId,
             @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
-        return runSingleResultFileOperation(applicationName, jobId, httpHeaders, uriInfo, new SingleResultFileOperation<Result>() {
-            public Result run(final File resultFile) throws URISyntaxException {
-                return buildResult(applicationName, httpHeaders, uriInfo, resultFile);
-            }
-        });
+
+        validateApplicationName(applicationName);
+        validateJobId(jobId);
+
+        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName, UUID.fromString(jobId));
+        if (persistedResult == null) {
+            throw new WebApplicationException(Status.NOT_FOUND);
+        }
+
+        return buildResult(applicationName, httpHeaders, uriInfo, persistedResult);
     }
 
     @Path("/{jobId}")
@@ -107,63 +102,45 @@ public class ResultsResource extends AbstractComponent {
     public Response deleteSingleResult(@PathParam("applicationName") final String applicationName, @PathParam("jobId") final String jobId,
             @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
-        return runSingleResultFileOperation(applicationName, jobId, httpHeaders, uriInfo, new SingleResultFileOperation<Response>() {
-            public Response run(final File resultFile) throws URISyntaxException, IOException {
-                FileUtils.forceDelete(resultFile);
-                return Response.noContent().build();
-            }
-        });
-    }
+        validateApplicationName(applicationName);
+        validateJobId(jobId);
 
-    private <T> T runSingleResultFileOperation(final String applicationName, final String jobId, final HttpHeaders httpHeaders,
-            final UriInfo uriInfo, final SingleResultFileOperation<T> operation) throws URISyntaxException, IOException {
-
-        if (!Util.isValidApplicationName(applicationName)) {
-            throw new IllegalArgumentException("Invalid application name: " + applicationName);
-        }
-
-        if (StringUtils.isEmpty(jobId)) {
-            throw new IllegalArgumentException("Job Id can't be empty");
-        }
-
-        final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles(new FilenameFilter() {
-            public boolean accept(final File dir, final String name) {
-                return jobId.equals(StringUtils.substringBefore(name, "."));
-            }
-        });
-
-        if ((resultFiles == null) || (resultFiles.length == 0)) {
+        if (!resultStore.deleteByApplicationNameAndJobId(applicationName, UUID.fromString(jobId))) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
-        if (resultFiles.length > 1) {
-            throw new IllegalStateException("Found " + resultFiles.length + " results for job Id: " + jobId);
-        }
-
-        return operation.run(resultFiles[0]);
+        return Response.noContent().build();
     }
 
-    // exposed for unit tests
-    Result buildResult(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo, final File resultFile)
-            throws URISyntaxException {
+    Result buildResult(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo,
+            final PersistedResult persistedResult) throws URISyntaxException {
 
-        final String fileName = resultFile.getName();
-        final String jobId = StringUtils.substringBefore(fileName, ".");
-        final GregorianCalendar resultTime = (GregorianCalendar) GregorianCalendar.getInstance();
-        resultTime.setTimeInMillis(resultFile.lastModified());
-
+        final String jobId = persistedResult.getJobId().toString();
         final URI selfUri = Util.buildResultUri(applicationName, jobId, httpHeaders, uriInfo);
-        final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULT_PATH).path(applicationName).path(fileName)
+        final String resourceName = jobId + "." + Util.getResourceType(persistedResult.getMimeType());
+        final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULT_PATH).path(applicationName).path(resourceName)
                 .build();
 
         final Result result = Util.REST_OBJECT_FACTORY.createResult();
         result.setApplicationName(applicationName);
         result.setJobId(jobId);
-        result.setResultTime(Util.convert(resultTime));
+        result.setResultTime(Util.convert(persistedResult.getResultTime()));
         result.setSelfUri(selfUri.toString());
         result.setDataUri(dataUri.toString());
-        result.setSuccess(!StringUtils.contains(fileName, ".err."));
-        result.setType(FilenameUtils.getExtension(fileName));
+        result.setSuccess(persistedResult.isSuccess());
+        result.setType(Util.getResourceType(persistedResult.getMimeType()));
         return result;
+    }
+
+    private void validateApplicationName(final String applicationName) {
+        if (!Util.isValidApplicationName(applicationName)) {
+            throw new IllegalArgumentException("Invalid application name: " + applicationName);
+        }
+    }
+
+    private void validateJobId(final String jobId) {
+        if (StringUtils.isEmpty(jobId)) {
+            throw new IllegalArgumentException("Job Id can't be empty");
+        }
     }
 }

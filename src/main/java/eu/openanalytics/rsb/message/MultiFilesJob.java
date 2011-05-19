@@ -125,7 +125,7 @@ public class MultiFilesJob extends AbstractJob {
 
         final MultiFilesResult result = new MultiFilesResult(getSource(), getApplicationName(), getJobId(), getSubmissionTime(), getMeta(),
                 false);
-        final File resultFile = result.createNewResultFile(getJobId() + "." + Constants.MULTIPLE_FILES_ERROR_FILE_EXTENSION);
+        final File resultFile = result.createNewResultFile(getJobId() + "." + Util.getResourceType(Constants.TEXT_MIME_TYPE));
         FileCopyUtils.copy(template.toString(), new FileWriter(resultFile));
         return result;
     }

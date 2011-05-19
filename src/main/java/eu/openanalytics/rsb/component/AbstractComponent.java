@@ -20,8 +20,6 @@
  */
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
-
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
@@ -47,15 +45,15 @@ public abstract class AbstractComponent {
     private MessageDispatcher messageDispatcher;
 
     // exposed for unit testing
-    void setMessageDispatcher(final MessageDispatcher messageDispatcher) {
+    public void setMessageDispatcher(final MessageDispatcher messageDispatcher) {
         this.messageDispatcher = messageDispatcher;
     }
 
-    void setConfiguration(final Configuration configuration) {
+    public void setConfiguration(final Configuration configuration) {
         this.configuration = configuration;
     }
 
-    void setMessages(final MessageSource messages) {
+    public void setMessages(final MessageSource messages) {
         this.messages = messages;
     }
 
@@ -69,10 +67,6 @@ public abstract class AbstractComponent {
 
     protected Log getLogger() {
         return logger;
-    }
-
-    protected File getApplicationResultDirectory(final String applicationName) {
-        return new File(getConfiguration().getResultsDirectory(), applicationName);
     }
 
     protected MessageDispatcher getMessageDispatcher() {

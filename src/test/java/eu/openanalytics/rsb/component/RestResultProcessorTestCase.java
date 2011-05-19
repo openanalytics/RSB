@@ -22,7 +22,6 @@
 package eu.openanalytics.rsb.component;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,11 +35,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
 
 import eu.openanalytics.rsb.Constants;
-import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.data.PersistedResult;
+import eu.openanalytics.rsb.data.ResultStore;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 
@@ -53,17 +51,12 @@ public class RestResultProcessorTestCase {
     private RestResultProcessor restResultProcessor;
 
     @Mock
-    private MessageChannel restResultFilesChannel;
+    private ResultStore resultStore;
 
     @Before
     public void prepareTest() {
-        final Configuration configuration = mock(Configuration.class);
-        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        when(configuration.getResultsDirectory()).thenReturn(tempDir);
-
         restResultProcessor = new RestResultProcessor();
-        restResultProcessor.setResultFilesChannel(restResultFilesChannel);
-        restResultProcessor.setConfiguration(configuration);
+        restResultProcessor.setResultStore(resultStore);
     }
 
     @Test
@@ -73,7 +66,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(functionCallResult);
 
-        verify(restResultFilesChannel).send(any(Message.class), anyInt());
+        verify(resultStore).store(any(PersistedResult.class));
         verify(functionCallResult).destroy();
     }
 
@@ -84,7 +77,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(functionCallResult);
 
-        verify(restResultFilesChannel).send(any(Message.class), anyInt());
+        verify(resultStore).store(any(PersistedResult.class));
         verify(functionCallResult).destroy();
     }
 
@@ -95,7 +88,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(multiFilesResult);
 
-        verify(restResultFilesChannel).send(any(Message.class), anyInt());
+        verify(resultStore).store(any(PersistedResult.class));
         verify(multiFilesResult).destroy();
     }
 
@@ -106,7 +99,7 @@ public class RestResultProcessorTestCase {
 
         restResultProcessor.process(multiFilesResult);
 
-        verify(restResultFilesChannel).send(any(Message.class), anyInt());
+        verify(resultStore).store(any(PersistedResult.class));
         verify(multiFilesResult).destroy();
     }
 
