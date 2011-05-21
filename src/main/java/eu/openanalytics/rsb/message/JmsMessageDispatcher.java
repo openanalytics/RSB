@@ -47,9 +47,9 @@ public class JmsMessageDispatcher extends AbstractComponent implements MessageDi
         }
 
         public Message postProcessMessage(final Message message) throws JMSException {
-            message.setStringProperty(Constants.SOURCE_JMS_HEADER, workItem.getSource().toString());
-            message.setStringProperty(Constants.APPLICATION_NAME_JMS_HEADER, workItem.getApplicationName());
-            message.setStringProperty(Constants.JOB_ID_JMS_HEADER, workItem.getJobId().toString());
+            message.setStringProperty(Constants.SOURCE_MESSAGE_HEADER, workItem.getSource().toString());
+            message.setStringProperty(Constants.APPLICATION_NAME_MESSAGE_HEADER, workItem.getApplicationName());
+            message.setStringProperty(Constants.JOB_ID_MESSAGE_HEADER, workItem.getJobId().toString());
             message.setJMSPriority(workItem.getPriority());
             return message;
         }
@@ -74,7 +74,7 @@ public class JmsMessageDispatcher extends AbstractComponent implements MessageDi
     @SuppressWarnings("unchecked")
     public <T extends AbstractResult<?>> T process(final AbstractJob job) {
         dispatch(job);
-        final Object result = jmsTemplate.receiveSelectedAndConvert(getResultQueueName(job), Constants.JOB_ID_JMS_HEADER + "='"
+        final Object result = jmsTemplate.receiveSelectedAndConvert(getResultQueueName(job), Constants.JOB_ID_MESSAGE_HEADER + "='"
                 + job.getJobId().toString() + "'");
         return (T) result;
     }

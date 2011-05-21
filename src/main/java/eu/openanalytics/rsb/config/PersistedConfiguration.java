@@ -23,11 +23,14 @@ package eu.openanalytics.rsb.config;
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
+import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
@@ -40,6 +43,19 @@ import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class PersistedConfiguration {
+    private File activeMqWorkDirectory;
+    private URI defaultRserviPoolUri;
+    private int jobTimeOut;
+    private int numberOfConcurrentJobWorkersPerQueue;
+    private File catalogRootDirectory;
+    private File resultsDirectory;
+    private Map<String, URI> applicationSpecificRserviPoolUris;
+    private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
+    private String administratorEmail;
+    private PersistedSmtpConfiguration smtpConfiguration;
+    private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
+    private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
+
     public static class PersistedSmtpConfiguration implements SmtpConfiguration {
         private String host;
         private int port;
@@ -96,7 +112,6 @@ public class PersistedConfiguration {
     }
 
     public static class PersistedJobStatisticsHandlerConfiguration implements JobStatisticsHandlerConfiguration {
-
         private String className;
         private Map<String, Object> parameters;
 
@@ -131,18 +146,93 @@ public class PersistedConfiguration {
         }
     }
 
-    private File activeMqWorkDirectory;
-    private URI defaultRserviPoolUri;
-    private int jobTimeOut;
-    private int numberOfConcurrentJobWorkersPerQueue;
-    private File catalogRootDirectory;
-    private File resultsDirectory;
-    private Map<String, URI> applicationSpecificRserviPoolUris;
-    private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
-    private String administratorEmail;
-    private PersistedSmtpConfiguration smtpConfiguration;
-    private Map<File, String> depositRootDirectories;
-    private Map<URI, String> polledEmailAccounts;
+    public static class PersistedDepositDirectoryConfiguration implements DepositDirectoryConfiguration {
+        private File rootDirectory;
+        private String applicationName;
+        private long pollingPeriod;
+
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+
+        public File getRootDirectory() {
+            return rootDirectory;
+        }
+
+        public void setRootDirectory(final File rootDirectory) {
+            this.rootDirectory = rootDirectory;
+        }
+
+        public String getApplicationName() {
+            return applicationName;
+        }
+
+        public void setApplicationName(final String applicationName) {
+            this.applicationName = applicationName;
+        }
+
+        public long getPollingPeriod() {
+            return pollingPeriod;
+        }
+
+        public void setPollingPeriod(final long pollingPeriod) {
+            this.pollingPeriod = pollingPeriod;
+        }
+    }
+
+    public static class PersistedDepositEmailConfiguration implements DepositEmailConfiguration {
+        private URI accountURI;
+        private String applicationName;
+        private long pollingPeriod;
+        private String responseFileName;
+        private String jobConfigurationFileName;
+
+        @Override
+        public String toString() {
+            return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+
+        public URI getAccountURI() {
+            return accountURI;
+        }
+
+        public void setAccountURI(final URI accountURI) {
+            this.accountURI = accountURI;
+        }
+
+        public String getApplicationName() {
+            return applicationName;
+        }
+
+        public void setApplicationName(final String applicationName) {
+            this.applicationName = applicationName;
+        }
+
+        public long getPollingPeriod() {
+            return pollingPeriod;
+        }
+
+        public void setPollingPeriod(final long pollingPeriod) {
+            this.pollingPeriod = pollingPeriod;
+        }
+
+        public String getResponseFileName() {
+            return responseFileName;
+        }
+
+        public void setResponseFileName(final String responseFileName) {
+            this.responseFileName = responseFileName;
+        }
+
+        public String getJobConfigurationFileName() {
+            return jobConfigurationFileName;
+        }
+
+        public void setJobConfigurationFileName(final String jobConfigurationFileName) {
+            this.jobConfigurationFileName = jobConfigurationFileName;
+        }
+    }
 
     @Override
     public String toString() {
@@ -156,6 +246,8 @@ public class PersistedConfiguration {
      * scripts</li>
      * <li>{@value eu.openanalytics.rsb.config.Configuration.SWEAVE_FILE_CATALOG_SUBDIR}: catalog of
      * Sweave files</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.JOB_CONFIGURATION_CATALOG_SUBDIR}:
+     * catalog of ready made job configurations</li>
      * <li>{@value eu.openanalytics.rsb.config.Configuration.EMAIL_REPLIES_CATALOG_SUBDIR}: catalog
      * of Email replies</li>
      * </ul>
@@ -281,24 +373,22 @@ public class PersistedConfiguration {
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
-    public Map<File, String> getDepositRootDirectories() {
+    public List<PersistedDepositDirectoryConfiguration> getDepositRootDirectories() {
         return depositRootDirectories;
     }
 
-    public void setDepositRootDirectories(final Map<File, String> depositRootDirectories) {
+    public void setDepositRootDirectories(final List<PersistedDepositDirectoryConfiguration> depositRootDirectories) {
         this.depositRootDirectories = depositRootDirectories;
     }
 
     /**
-     * Optional configuration of email accounts that will be polled for jobs. The map entry element
-     * has the email account URI for key and the application name for value. An email account URI is
-     * of the form: pop3://usr:pwd@host/INBOX. Supported protocols are pop3 and imap.
+     * Optional configuration of email accounts that will be polled for jobs.
      */
-    public Map<URI, String> getPolledEmailAccounts() {
-        return polledEmailAccounts;
+    public List<PersistedDepositEmailConfiguration> getDepositEmailAccounts() {
+        return depositEmailAccounts;
     }
 
-    public void setPolledEmailAccounts(final Map<URI, String> polledEmailAccounts) {
-        this.polledEmailAccounts = polledEmailAccounts;
+    public void setDepositEmailAccounts(final List<PersistedDepositEmailConfiguration> depositEmailAccounts) {
+        this.depositEmailAccounts = depositEmailAccounts;
     }
 }

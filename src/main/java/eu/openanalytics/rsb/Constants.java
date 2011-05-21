@@ -36,20 +36,20 @@ public class Constants {
     /**
      * This header allows support of SSL termination to happen upstream of RSB.
      */
-    public static final String FORWARDED_PROTOCOL_HEADER = "X-Forwarded-Protocol";
+    public static final String FORWARDED_PROTOCOL_HTTP_HEADER = "X-Forwarded-Protocol";
 
-    public static final String CONTENT_TYPE_HEADER = "Content-Type";
-    public static final String APPLICATION_NAME_HEADER = "X-RSB-Application-Name";
-    public static final String RSB_META_HEADER_PREFIX = "X-RSB-Meta-";
+    public static final String CONTENT_TYPE_HTTP_HEADER = "Content-Type";
+    public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
+    public static final String RSB_META_HEADER_HTTP_PREFIX = "X-RSB-Meta-";
     public static final String JOB_FILES_MULTIPART_NAME = "X-RSB-JobFile[]";
 
     public final static String JOBS_PATH = "jobs";
     public final static String RESULTS_PATH = "results";
     public final static String RESULT_PATH = "result";
 
-    public static final String SOURCE_JMS_HEADER = "source";
-    public static final String APPLICATION_NAME_JMS_HEADER = "applicationName";
-    public static final String JOB_ID_JMS_HEADER = "jobId";
+    public static final String SOURCE_MESSAGE_HEADER = "source";
+    public static final String APPLICATION_NAME_MESSAGE_HEADER = "applicationName";
+    public static final String JOB_ID_MESSAGE_HEADER = "jobId";
 
     public static final String MULTIPLE_FILES_JOB_CONFIGURATION = "configuration.txt";
     public static final String R_SCRIPT_FILE_EXTENSION = "R";

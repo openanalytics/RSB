@@ -35,6 +35,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.EmailValidator;
 
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
+import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 
 /**
  * Loads and validated an RSB configuration file and builds a configuration object out of it.
@@ -83,9 +85,29 @@ public abstract class ConfigurationFactory {
         }
 
         if (pca.getDepositRootDirectories() != null) {
-            for (final String depositApplicationName : pca.getDepositRootDirectories().values()) {
+
+            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories()) {
+                final String depositApplicationName = depositRootDirectoryConfig.getApplicationName();
                 Validate.isTrue(Util.isValidApplicationName(depositApplicationName), "invalid deposit directory application name: "
                         + depositApplicationName);
+            }
+        }
+
+        if (pca.getDepositEmailAccounts() != null) {
+            for (final DepositEmailConfiguration depositEmailAccount : pca.getDepositEmailAccounts()) {
+                Validate.isTrue(Util.isValidApplicationName(depositEmailAccount.getApplicationName()),
+                        "invalid deposit email application name: " + depositEmailAccount.getApplicationName());
+
+                if (depositEmailAccount.getResponseFileName() != null) {
+                    final File responseFile = new File(pca.getEmailRepliesCatalogDirectory(), depositEmailAccount.getResponseFileName());
+                    Validate.isTrue(responseFile.exists(), "missing response file: " + responseFile);
+                }
+
+                if (depositEmailAccount.getJobConfigurationFileName() != null) {
+                    final File jobConfigurationFile = new File(pca.getEmailRepliesCatalogDirectory(),
+                            depositEmailAccount.getJobConfigurationFileName());
+                    Validate.isTrue(jobConfigurationFile.exists(), "missing job configuration file: " + jobConfigurationFile);
+                }
             }
         }
 
@@ -93,20 +115,14 @@ public abstract class ConfigurationFactory {
     }
 
     static void createMissingDirectories(final PersistedConfigurationAdapter pca) throws IOException {
-        if (pca.getRScriptsCatalogDirectory() != null) {
-            FileUtils.forceMkdir(pca.getRScriptsCatalogDirectory());
-        }
-
-        if (pca.getSweaveFilesCatalogDirectory() != null) {
-            FileUtils.forceMkdir(pca.getSweaveFilesCatalogDirectory());
-        }
-
-        if (pca.getEmailRepliesCatalogDirectory() != null) {
-            FileUtils.forceMkdir(pca.getEmailRepliesCatalogDirectory());
-        }
+        FileUtils.forceMkdir(pca.getRScriptsCatalogDirectory());
+        FileUtils.forceMkdir(pca.getSweaveFilesCatalogDirectory());
+        FileUtils.forceMkdir(pca.getJobConfigurationCatalogDirectory());
+        FileUtils.forceMkdir(pca.getEmailRepliesCatalogDirectory());
 
         if (pca.getDepositRootDirectories() != null) {
-            for (final File depositRootDir : pca.getDepositRootDirectories().keySet()) {
+            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories()) {
+                final File depositRootDir = depositRootDirectoryConfig.getRootDirectory();
                 FileUtils.forceMkdir(depositRootDir);
                 FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_ACCEPTED_SUBDIR));
                 FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_JOBS_SUBDIR));

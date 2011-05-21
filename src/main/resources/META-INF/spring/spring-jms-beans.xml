@@ -50,14 +50,14 @@
         prefetch="1">
         <jms:listener destination="r.jobs.>" ref="jobProcessor"
             method="process"
-            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_HEADER} = 'PriviApp'"  />
+            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_MESSAGE_HEADER} = 'PriviApp'"  />
     </jms:listener-container>
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue - 3}"
         prefetch="1">
         <jms:listener destination="r.jobs.>" ref="jobProcessor"
             method="process"
-            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_HEADER} &lt;&gt; 'PriviApp'"  />
+            selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_MESSAGE_HEADER} &lt;&gt; 'PriviApp'"  />
     </jms:listener-container>
     -->
     
@@ -66,14 +66,14 @@
         acknowledge="transacted">
         <jms:listener destination="r.results.>" ref="restResultProcessor"
             method="process"
-            selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_JMS_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).REST}'" />
+            selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).REST}'" />
     </jms:listener-container>
 
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
         <jms:listener destination="r.results.>" ref="directoryDepositHandler"
             method="handleZipResult"
-            selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_JMS_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
+            selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
     </jms:listener-container>
 
     <!-- Dead Letter Queue Undertaker -->

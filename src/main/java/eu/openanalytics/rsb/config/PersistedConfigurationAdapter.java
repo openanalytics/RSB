@@ -24,6 +24,7 @@ package eu.openanalytics.rsb.config;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -42,6 +43,7 @@ public class PersistedConfigurationAdapter implements Configuration {
 
     private final File rScriptsCatalogDirectory;
     private final File sweaveFilesCatalogDirectory;
+    private final File jobConfigurationCatalogDirectory;
     private final File emailRepliesCatalogDirectory;
 
     public PersistedConfigurationAdapter(final URL configurationUrl, final PersistedConfiguration persistedConfiguration) {
@@ -50,6 +52,8 @@ public class PersistedConfigurationAdapter implements Configuration {
 
         rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.R_SCRIPTS_CATALOG_SUBDIR);
         sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.SWEAVE_FILE_CATALOG_SUBDIR);
+        jobConfigurationCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
+                Configuration.JOB_CONFIGURATION_CATALOG_SUBDIR);
         emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
                 Configuration.EMAIL_REPLIES_CATALOG_SUBDIR);
     }
@@ -100,12 +104,14 @@ public class PersistedConfigurationAdapter implements Configuration {
         return persisted != null ? persisted : new PersistedJobStatisticsHandlerConfiguration();
     }
 
-    public Map<File, String> getDepositRootDirectories() {
-        return persistedConfiguration.getDepositRootDirectories();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<DepositDirectoryConfiguration> getDepositRootDirectories() {
+        return (List) persistedConfiguration.getDepositRootDirectories();
     }
 
-    public Map<URI, String> getPolledEmailAccounts() {
-        return persistedConfiguration.getPolledEmailAccounts();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<DepositEmailConfiguration> getDepositEmailAccounts() {
+        return (List) persistedConfiguration.getDepositEmailAccounts();
     }
 
     public File getRScriptsCatalogDirectory() {
@@ -114,6 +120,10 @@ public class PersistedConfigurationAdapter implements Configuration {
 
     public File getSweaveFilesCatalogDirectory() {
         return sweaveFilesCatalogDirectory;
+    }
+
+    public File getJobConfigurationCatalogDirectory() {
+        return jobConfigurationCatalogDirectory;
     }
 
     public File getEmailRepliesCatalogDirectory() {

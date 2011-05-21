@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,10 +44,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.file.filters.FileListFilter;
+import org.springframework.integration.support.MessageBuilder;
 
+import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.MultiFilesJob;
@@ -108,12 +113,14 @@ public class DirectoryDepositHandlerTestCase {
         when(zipJobFile.getPath()).thenReturn(jobSample.getPath());
         when(zipJobFile.delete()).thenReturn(true);
 
-        @SuppressWarnings("unchecked")
-        final Map<File, String> depositRootDirectories = mock(Map.class);
-        when(depositRootDirectories.get(FileUtils.getTempDirectory())).thenReturn(TEST_APPLICATION_NAME);
-        when(configuration.getDepositRootDirectories()).thenReturn(depositRootDirectories);
+        final DepositDirectoryConfiguration depositRootDirectoryConfig = mock(DepositDirectoryConfiguration.class);
+        when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
+        when(configuration.getDepositRootDirectories()).thenReturn(Collections.singletonList(depositRootDirectoryConfig));
 
-        directoryDepositHandler.handleZipJob(zipJobFile);
+        final Message<File> message = MessageBuilder.withPayload(zipJobFile)
+                .setHeader(Constants.APPLICATION_NAME_MESSAGE_HEADER, TEST_APPLICATION_NAME).build();
+
+        directoryDepositHandler.handleZipJob(message);
 
         final ArgumentCaptor<MultiFilesJob> jobCaptor = ArgumentCaptor.forClass(MultiFilesJob.class);
         verify(messageDispatcher).dispatch(jobCaptor.capture());

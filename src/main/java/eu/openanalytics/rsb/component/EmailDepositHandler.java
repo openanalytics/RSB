@@ -25,18 +25,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.endpoint.SourcePollingChannelAdapter;
 import org.springframework.integration.mail.AbstractMailReceiver;
@@ -46,6 +47,9 @@ import org.springframework.integration.mail.Pop3MailReceiver;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
+import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
+import eu.openanalytics.rsb.si.ApplicationNameAwareMessageSourceWrapper;
+
 /**
  * Handles email based R job and result exchanges.
  * 
@@ -53,13 +57,13 @@ import org.springframework.stereotype.Component;
  */
 @Component("emailDepositHandler")
 public class EmailDepositHandler extends AbstractComponent implements BeanFactoryAware {
+    // TODO unit test, integration test
     public static final String INBOX_DIRECTORY_META_NAME = "inboxDirectory";
     public static final String ORIGINAL_FILENAME_META_NAME = "originalFilename";
     public static final String DEPOSIT_ROOT_DIRECTORY_META_NAME = "depositRootDirectory";
 
-    // FIXME support configured response message, polling frequency
-    @Resource(name = "jobEmailAccountChannel")
-    private MessageChannel jobEmailAccountChannel;
+    @Resource(name = "emailDepositChannel")
+    private MessageChannel emailDepositChannel;
 
     private BeanFactory beanFactory;
 
@@ -71,23 +75,24 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
     // exposed for testing
     void setJobDirectoryDepositChannel(final MessageChannel jobDirectoryDepositChannel) {
-        this.jobEmailAccountChannel = jobDirectoryDepositChannel;
+        this.emailDepositChannel = jobDirectoryDepositChannel;
     }
 
     @PostConstruct
     public void setupChannelAdapters() throws URISyntaxException {
-        final Map<URI, String> polledEmailAccounts = getConfiguration().getPolledEmailAccounts();
+        final List<DepositEmailConfiguration> depositEmailAccounts = getConfiguration().getDepositEmailAccounts();
 
-        if (polledEmailAccounts == null) {
+        if ((depositEmailAccounts == null) || (depositEmailAccounts.isEmpty())) {
             return;
         }
 
-        final PeriodicTrigger fileTrigger = new PeriodicTrigger(30L, TimeUnit.SECONDS);
-        fileTrigger.setInitialDelay(10L);
+        for (final DepositEmailConfiguration depositEmailAccount : depositEmailAccounts) {
+            final PeriodicTrigger trigger = new PeriodicTrigger(depositEmailAccount.getPollingPeriod(), TimeUnit.MILLISECONDS);
+            trigger.setInitialDelay(5000L);
 
-        for (final URI emailAccountURI : polledEmailAccounts.keySet()) {
             AbstractMailReceiver mailReceiver = null;
 
+            final URI emailAccountURI = depositEmailAccount.getAccountURI();
             if (StringUtils.equals(emailAccountURI.getScheme(), "pop3")) {
                 mailReceiver = new Pop3MailReceiver(emailAccountURI.toString());
             } else if (StringUtils.equals(emailAccountURI.getScheme(), "imap")) {
@@ -101,15 +106,16 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
             mailReceiver.setShouldDeleteMessages(true);
             mailReceiver.setMaxFetchSize(1);
             mailReceiver.afterPropertiesSet();
-
-            final MailReceivingMessageSource messageSource = new MailReceivingMessageSource(mailReceiver);
+            final MailReceivingMessageSource fileMessageSource = new MailReceivingMessageSource(mailReceiver);
+            final ApplicationNameAwareMessageSourceWrapper<javax.mail.Message> messageSource = new ApplicationNameAwareMessageSourceWrapper<javax.mail.Message>(
+                    fileMessageSource, depositEmailAccount.getApplicationName());
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);
             channelAdapter.setBeanName("rsb-email-ca-" + emailAccountURI.getHost() + emailAccountURI.hashCode());
-            channelAdapter.setOutputChannel(jobEmailAccountChannel);
+            channelAdapter.setOutputChannel(emailDepositChannel);
             channelAdapter.setSource(messageSource);
-            channelAdapter.setTrigger(fileTrigger);
+            channelAdapter.setTrigger(trigger);
             channelAdapter.afterPropertiesSet();
             channelAdapter.start();
 
@@ -127,8 +133,22 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         }
     }
 
-    public void handleJob(final Object o) {
-        // FIXME implement javax.mail.internet.MimeMessage@1e9fb74
-        getLogger().warn("Email>>> " + o);
+    public void handleJob(final Message<MimeMessage> message) {
+        getLogger().warn("Email>>> " + message);
+
+        // FIXME implement email job handling
+        // explode zip attachments
+        // required meta: emailAddressee, emailSubject, emailReplyTo, emailReplyCC
+        // copy optional job config from catalog to config.txt
+        // [Payload=javax.mail.internet.MimeMessage@117341c][Headers={timestamp=1306001658248,
+        // id=50f9dbd8-7875-4290-af20-483909f45122, applicationName=scientist}]
     }
+
+    // FIXME implement email result handling
+    // if error, put error text as email body - if success, attach all success
+    // files and use pre-baked response as body
+    // message.setProperty('fromAddress', emailAddressee)
+    // message.setProperty('toAddresses', replyTo)
+    // message.setProperty('ccAddresses', replyCc)
+    // message.setProperty('subject', 'RE: ' + subject)
 }

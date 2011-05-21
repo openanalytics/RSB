@@ -22,6 +22,7 @@ package eu.openanalytics.rsb.config;
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
@@ -33,8 +34,19 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public interface Configuration {
+    public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";
+
+    public static final String R_SCRIPTS_CATALOG_SUBDIR = "r_scripts";
+    public static final String SWEAVE_FILE_CATALOG_SUBDIR = "sweave_files";
+    public static final String JOB_CONFIGURATION_CATALOG_SUBDIR = "job_configurations";
+    public static final String EMAIL_REPLIES_CATALOG_SUBDIR = "email_replies";
+
+    public static final String DEPOSIT_JOBS_SUBDIR = "inbox";
+    public static final String DEPOSIT_ACCEPTED_SUBDIR = "accepted";
+    public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
+
     /**
-     * Hopefully self-explicit SMTP server configuration.
+     * SMTP server configuration used for all RSB outbound email operations.
      */
     public interface SmtpConfiguration {
         String getHost();
@@ -46,8 +58,57 @@ public interface Configuration {
         String getPassword();
     }
 
+    public interface DepositDirectoryConfiguration {
+        /**
+         * RSB must have full right on the root directory as it will need to create sub-directories
+         * ({@value eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
+         * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
+         * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
+         */
+        File getRootDirectory();
+
+        String getApplicationName();
+
+        /**
+         * Interval of time between to email account polling, in milliseconds.
+         */
+        long getPollingPeriod();
+    }
+
     /**
-     * Hopefully self-explicit Job statistics handler configuration.
+     * POP/IMAP email account that must be polled for jobs.
+     */
+    public interface DepositEmailConfiguration {
+        /**
+         * An email account URI is of the form: pop3://usr:pwd@host/INBOX. Supported protocols are
+         * pop3 and imap.
+         */
+        URI getAccountURI();
+
+        String getApplicationName();
+
+        /**
+         * Interval of time between to email account polling, in milliseconds.
+         */
+        long getPollingPeriod();
+
+        /**
+         * Optional filename of a ready-made email response found in the catalog.
+         * 
+         * @see Configuration.getEmailRepliesCatalogDirectory()
+         */
+        String getResponseFileName();
+
+        /**
+         * Optional filename of a ready-made job configuration found in the catalog.
+         * 
+         * @see Configuration.getJobConfigurationCatalogDirectory()
+         */
+        String getJobConfigurationFileName();
+    }
+
+    /**
+     * Job statistics handler configuration.
      */
     public interface JobStatisticsHandlerConfiguration {
         /**
@@ -58,16 +119,6 @@ public interface Configuration {
         Map<String, Object> getParameters();
     }
 
-    public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";
-
-    public static final String R_SCRIPTS_CATALOG_SUBDIR = "r_scripts";
-    public static final String SWEAVE_FILE_CATALOG_SUBDIR = "sweave_files";
-    public static final String EMAIL_REPLIES_CATALOG_SUBDIR = "email_replies";
-
-    public static final String DEPOSIT_JOBS_SUBDIR = "inbox";
-    public static final String DEPOSIT_ACCEPTED_SUBDIR = "accepted";
-    public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
-
     /**
      * Directory where a catalog of R scripts are stored.
      */
@@ -77,6 +128,11 @@ public interface Configuration {
      * Directory where a catalog of Sweave files are stored.
      */
     File getSweaveFilesCatalogDirectory();
+
+    /**
+     * Directory where a catalog of job configuration files are stored.
+     */
+    File getJobConfigurationCatalogDirectory();
 
     /**
      * Directory where a catalog of Email replies are stored.
@@ -140,15 +196,10 @@ public interface Configuration {
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
-    // FIXME review to use an dedicated object in order to support polling frequency
-    Map<File, String> getDepositRootDirectories();
+    List<DepositDirectoryConfiguration> getDepositRootDirectories();
 
     /**
-     * Optional configuration of email accounts that will be polled for jobs. The map entry element
-     * has the email account URI for key and the application name for value. An email account URI is
-     * of the form: pop3://usr:pwd@host/INBOX. Supported protocols are pop3 and imap.
+     * Optional configuration of email accounts that will be polled for jobs.
      */
-    // FIXME review to use an dedicated object in order to support response message and polling
-    // frequency
-    Map<URI, String> getPolledEmailAccounts();
+    List<DepositEmailConfiguration> getDepositEmailAccounts();
 }

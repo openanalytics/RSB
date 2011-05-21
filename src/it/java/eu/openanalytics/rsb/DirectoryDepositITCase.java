@@ -45,7 +45,7 @@ public class DirectoryDepositITCase extends AbstractITCase {
 
     @Before
     public void prepareTests() throws IOException {
-        final File depositRootDirectory = getConfiguration().getDepositRootDirectories().keySet().iterator().next();
+        final File depositRootDirectory = getConfiguration().getDepositRootDirectories().get(0).getRootDirectory();
         jobsDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_JOBS_SUBDIR);
         acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
         resultsDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_RESULTS_SUBDIR);

@@ -170,7 +170,7 @@ public abstract class Util {
     public static UriBuilder getUriBuilder(final UriInfo uriInfo, final HttpHeaders httpHeaders) throws URISyntaxException {
         final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder();
 
-        final String protocol = Util.getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HEADER);
+        final String protocol = Util.getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HTTP_HEADER);
         if (StringUtils.isNotBlank(protocol)) {
             uriBuilder.scheme(protocol);
         }
