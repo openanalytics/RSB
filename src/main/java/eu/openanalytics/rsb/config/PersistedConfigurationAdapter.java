@@ -104,6 +104,10 @@ public class PersistedConfigurationAdapter implements Configuration {
         return persistedConfiguration.getDepositRootDirectories();
     }
 
+    public Map<URI, String> getPolledEmailAccounts() {
+        return persistedConfiguration.getPolledEmailAccounts();
+    }
+
     public File getRScriptsCatalogDirectory() {
         return rScriptsCatalogDirectory;
     }

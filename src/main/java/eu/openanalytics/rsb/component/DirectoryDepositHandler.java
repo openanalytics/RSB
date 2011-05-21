@@ -91,7 +91,9 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
 
     @PostConstruct
     public void setupChannelAdapters() {
-        if (getConfiguration().getDepositRootDirectories() == null) {
+        final Map<File, String> depositRootDirectories = getConfiguration().getDepositRootDirectories();
+
+        if (depositRootDirectories == null) {
             return;
         }
 

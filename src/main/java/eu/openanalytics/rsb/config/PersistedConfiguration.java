@@ -142,6 +142,7 @@ public class PersistedConfiguration {
     private String administratorEmail;
     private PersistedSmtpConfiguration smtpConfiguration;
     private Map<File, String> depositRootDirectories;
+    private Map<URI, String> polledEmailAccounts;
 
     @Override
     public String toString() {
@@ -286,5 +287,18 @@ public class PersistedConfiguration {
 
     public void setDepositRootDirectories(final Map<File, String> depositRootDirectories) {
         this.depositRootDirectories = depositRootDirectories;
+    }
+
+    /**
+     * Optional configuration of email accounts that will be polled for jobs. The map entry element
+     * has the email account URI for key and the application name for value. An email account URI is
+     * of the form: pop3://usr:pwd@host/INBOX. Supported protocols are pop3 and imap.
+     */
+    public Map<URI, String> getPolledEmailAccounts() {
+        return polledEmailAccounts;
+    }
+
+    public void setPolledEmailAccounts(final Map<URI, String> polledEmailAccounts) {
+        this.polledEmailAccounts = polledEmailAccounts;
     }
 }

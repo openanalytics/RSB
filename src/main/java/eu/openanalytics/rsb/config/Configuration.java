@@ -140,5 +140,15 @@ public interface Configuration {
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
+    // FIXME review to use an dedicated object in order to support polling frequency
     Map<File, String> getDepositRootDirectories();
+
+    /**
+     * Optional configuration of email accounts that will be polled for jobs. The map entry element
+     * has the email account URI for key and the application name for value. An email account URI is
+     * of the form: pop3://usr:pwd@host/INBOX. Supported protocols are pop3 and imap.
+     */
+    // FIXME review to use an dedicated object in order to support response message and polling
+    // frequency
+    Map<URI, String> getPolledEmailAccounts();
 }

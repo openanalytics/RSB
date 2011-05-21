@@ -56,4 +56,9 @@
     <si:service-activator input-channel="jobDirectoryDepositChannel"
                           ref="directoryDepositHandler"
                           method="handleZipJob" />
+
+    <si:channel id="jobEmailAccountChannel" />
+    <si:service-activator input-channel="jobEmailAccountChannel"
+                          ref="emailAccountHandler"
+                          method="handleJob" />
 </beans>

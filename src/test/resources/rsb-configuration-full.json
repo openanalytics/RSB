@@ -13,6 +13,10 @@
         "/tmp/.rsb/deposit/lab-equipment-1": "lab",
         "/tmp/.rsb/deposit/lab-equipment-2": "lab"
     },
+    "polledEmailAccounts": {
+        "pop3://usr:pwd@host:123/INBOX": "scientist",
+        "imap://usr:pwd@host:456/INBOX": "scientist"
+    },
     "jobStatisticsHandlerConfiguration" : {
         "className": "eu.openanalytics.rsb.stats.RedisJobStatisticsHandler",
         "parameters": {
