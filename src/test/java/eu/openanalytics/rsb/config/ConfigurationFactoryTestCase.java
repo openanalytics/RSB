@@ -35,8 +35,7 @@ public class ConfigurationFactoryTestCase {
     @Test
     public void validateTestJsonConfigurations() throws IOException {
         for (final String configurationFile : TEST_JSON_CONFIGURATIONS) {
-            ConfigurationFactory.loadAndValidateJsonConfigurationFile(configurationFile);
+            ConfigurationFactory.validate(ConfigurationFactory.load(configurationFile));
         }
     }
-
 }

@@ -30,7 +30,9 @@
         {
             "accountURI":"imap://usr:pwd@host:456/INBOX",
             "applicationName": "scientist",
-            "pollingPeriod": 30000
+            "pollingPeriod": 30000,
+            "responseFileName": "default-response.txt",
+            "jobConfigurationFileName": "default-configuration.txt"
         }
     ],
     "jobStatisticsHandlerConfiguration" : {
