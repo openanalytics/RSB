@@ -61,7 +61,7 @@ public class DlqHandlerTestCase {
     @Mock
     private MessageSource messageSource;
     @Mock
-    private MessageChannel adminEmailChannel;
+    private MessageChannel outboundEmailChannel;
 
     @Before
     public void prepareTest() {
@@ -69,7 +69,7 @@ public class DlqHandlerTestCase {
         dlqHandler.setConfiguration(configuration);
         dlqHandler.setMessages(messageSource);
         dlqHandler.setMessageDispatcher(messageDispatcher);
-        dlqHandler.setAdminEmailChannel(adminEmailChannel);
+        dlqHandler.setOutboundEmailChannel(outboundEmailChannel);
     }
 
     @Test
@@ -99,6 +99,6 @@ public class DlqHandlerTestCase {
 
         dlqHandler.handle(result);
 
-        verify(adminEmailChannel).send(any(Message.class));
+        verify(outboundEmailChannel).send(any(Message.class));
     }
 }

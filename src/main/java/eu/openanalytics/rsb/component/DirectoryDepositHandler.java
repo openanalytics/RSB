@@ -145,8 +145,8 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
     }
 
     public void handleZipJob(final Message<File> message) throws IOException {
-        final File zipJobFile = message.getPayload();
         final String applicationName = message.getHeaders().get(Constants.APPLICATION_NAME_MESSAGE_HEADER, String.class);
+        final File zipJobFile = message.getPayload();
 
         final File depositRootDirectory = zipJobFile.getParentFile().getParentFile();
         final File acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);

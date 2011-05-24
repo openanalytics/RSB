@@ -46,12 +46,12 @@ import eu.openanalytics.rsb.message.AbstractWorkItem;
  */
 @Component("dlqHandler")
 public class DlqHandler extends AbstractComponent {
-    @Resource(name = "adminEmailChannel")
-    private MessageChannel adminEmailChannel;
+    @Resource(name = "outboundEmailChannel")
+    private MessageChannel outboundEmailChannel;
 
     // exposed for unit testing
-    void setAdminEmailChannel(final MessageChannel adminEmailChannel) {
-        this.adminEmailChannel = adminEmailChannel;
+    void setOutboundEmailChannel(final MessageChannel outboundEmailChannel) {
+        this.outboundEmailChannel = outboundEmailChannel;
     }
 
     /**
@@ -97,7 +97,7 @@ public class DlqHandler extends AbstractComponent {
             headers.put(MailHeaders.SUBJECT, "Notification of RSB Fatal Error");
 
             final Message<String> message = new GenericMessage<String>(descriptiveMessage, headers);
-            adminEmailChannel.send(message);
+            outboundEmailChannel.send(message);
         }
     }
 }

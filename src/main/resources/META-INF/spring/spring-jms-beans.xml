@@ -76,6 +76,13 @@
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
     </jms:listener-container>
 
+    <jms:listener-container connection-factory="amqConnectionFactory"
+        acknowledge="transacted">
+        <jms:listener destination="r.results.>" ref="emailDepositHandler"
+            method="handleResult"
+            selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).EMAIL}'" />
+    </jms:listener-container>
+
     <!-- Dead Letter Queue Undertaker -->
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">

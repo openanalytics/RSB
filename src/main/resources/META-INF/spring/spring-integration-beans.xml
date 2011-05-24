@@ -34,11 +34,10 @@
         http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
         http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd">
-    
   
-    <si:channel id="adminEmailChannel" />
+    <si:channel id="outboundEmailChannel" />
     <mail:outbound-channel-adapter
-        channel="adminEmailChannel"
+        channel="outboundEmailChannel"
         host="#{configuration.smtpConfiguration.host}" port="#{configuration.smtpConfiguration.port}"
         username="#{configuration.smtpConfiguration.username}" password="#{configuration.smtpConfiguration.password}"/>
         
@@ -61,4 +60,4 @@
     <si:service-activator input-channel="emailDepositChannel"
                           ref="emailDepositHandler"
                           method="handleJob" />
-</beans>
+  </beans>
