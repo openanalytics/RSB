@@ -52,7 +52,8 @@ public abstract class ConfigurationFactory {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
-    public static Configuration loadJsonConfiguration(final String configurationFile) throws IOException {
+    public static Configuration loadJsonConfiguration() throws IOException {
+        final String configurationFile = System.getProperty(Configuration.class.getName(), Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
         final PersistedConfigurationAdapter pca = loadAndValidateJsonConfigurationFile(configurationFile);
         createMissingDirectories(pca);
         return pca;

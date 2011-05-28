@@ -1,0 +1,25 @@
+{
+    "catalogRootDirectory": "/tmp/.rsb/catalog",
+    "activeMqWorkDirectory": "/tmp/.rsb/activemq",
+    "defaultRserviPoolUri": "rmi://127.0.0.1/rservi-pool",
+    "jobTimeOut": 600000,
+    "numberOfConcurrentJobWorkersPerQueue": 5,
+    "resultsDirectory": "/tmp/.rsb/results",
+    "depositEmailAccounts": [
+        {
+            "accountURI":"pop3://rsb-default:test@localhost:9110/INBOX",
+            "applicationName": "scientist",
+            "pollingPeriod": 5000
+        }
+    ],
+    "depositRootDirectories": [
+        {
+            "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-1",
+            "applicationName": "lab",
+            "pollingPeriod": 5000
+        }
+    ],
+    "smtpConfiguration": {
+        "host": "localhost", "port": 9025, "username": "", "password": ""
+    }
+}

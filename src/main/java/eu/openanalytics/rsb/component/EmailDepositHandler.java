@@ -188,8 +188,10 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
         // TODO copy optional job config from catalog to config.txt
 
-        // TODO fail if no attachment
-        final Multipart multipart = (Multipart) mimeMessage.getContent();
+        final Object content = mimeMessage.getContent();
+        Validate.isTrue(content instanceof Multipart, "only multipart emails can be processed");
+
+        final Multipart multipart = (Multipart) content;
         for (int i = 0, n = multipart.getCount(); i < n; i++) {
             final Part part = multipart.getBodyPart(i);
 

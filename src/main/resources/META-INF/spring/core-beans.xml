@@ -47,9 +47,7 @@
     
     <!-- Configuration loading and validation -->
     <bean id="configuration" class="eu.openanalytics.rsb.config.ConfigurationFactory"
-                             factory-method="loadJsonConfiguration">
-      <constructor-arg value="#{T(eu.openanalytics.rsb.config.Configuration).DEFAULT_JSON_CONFIGURATION_FILE}" />
-    </bean>
+                             factory-method="loadJsonConfiguration" />
 
     <!-- Statistics handler -->
     <bean id="jobStatisticsHandler"

@@ -51,7 +51,7 @@ public abstract class AbstractITCase extends XMLTestCase {
 
     @Before
     public void setupCatalog() throws IOException {
-        configuration = ConfigurationFactory.loadJsonConfiguration(Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
+        configuration = ConfigurationFactory.loadJsonConfiguration();
 
         putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "test.R"));
         putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "testSweave.R"));

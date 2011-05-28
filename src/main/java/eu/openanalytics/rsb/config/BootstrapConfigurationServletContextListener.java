@@ -51,6 +51,9 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
 
     public void contextInitialized(final ServletContextEvent sce) {
         if (isConfigurationPresent(sce.getServletContext())) {
+            final String configuredConfigurationFileName = getConfiguredConfigurationFileName(sce.getServletContext());
+            System.setProperty(Configuration.class.getName(), configuredConfigurationFileName);
+            LOGGER.info("Successfully located configured configuration file: " + configuredConfigurationFileName);
             return;
         }
 
@@ -74,10 +77,14 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
     }
 
     private static boolean isConfigurationPresent(final ServletContext servletContext) {
-        final String configurationFile = servletContext.getInitParameter(RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM);
+        final String configurationFile = getConfiguredConfigurationFileName(servletContext);
         Validate.notEmpty(configurationFile, "No configuration specified in web.xml: servlet context parameter "
                 + RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM + " is missing");
         return Thread.currentThread().getContextClassLoader().getResource(configurationFile) != null;
+    }
+
+    private static String getConfiguredConfigurationFileName(final ServletContext servletContext) {
+        return servletContext.getInitParameter(RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM);
     }
 
     private File getWebInfDirectory(final ServletContextEvent sce) {
