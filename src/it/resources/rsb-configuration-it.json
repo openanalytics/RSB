@@ -10,6 +10,12 @@
             "accountURI":"pop3://rsb-default:test@localhost:9110/INBOX",
             "applicationName": "scientist",
             "pollingPeriod": 5000
+        },
+        {
+            "accountURI":"imap://rsb-conf:test@localhost:9143/INBOX",
+            "applicationName": "scientist",
+            "pollingPeriod": 5000,
+            "jobConfigurationFileName": "test-configuration.txt"
         }
     ],
     "depositRootDirectories": [

@@ -35,11 +35,14 @@
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
         http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd">
   
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"
+          p:host="#{configuration.smtpConfiguration.host}"
+          p:port="#{configuration.smtpConfiguration.port}"
+          p:username="#{configuration.smtpConfiguration.username}"
+          p:password="#{configuration.smtpConfiguration.password}" />
+  
     <si:channel id="outboundEmailChannel" />
-    <mail:outbound-channel-adapter
-        channel="outboundEmailChannel"
-        host="#{configuration.smtpConfiguration.host}" port="#{configuration.smtpConfiguration.port}"
-        username="#{configuration.smtpConfiguration.username}" password="#{configuration.smtpConfiguration.password}"/>
+    <mail:outbound-channel-adapter channel="outboundEmailChannel" mail-sender="mailSender"/>
         
     <bean id="zipJobFilter" class="org.springframework.integration.file.filters.CompositeFileListFilter">
       <constructor-arg>

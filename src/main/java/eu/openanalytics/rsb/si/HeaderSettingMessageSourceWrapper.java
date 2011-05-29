@@ -25,22 +25,21 @@ import org.springframework.integration.Message;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.support.MessageBuilder;
 
-import eu.openanalytics.rsb.Constants;
-
 /**
- * A message source that wraps an existing one and adds an application name to the message
- * properties.
+ * A message source that wraps an existing one and adds an arbitrary header to the in-flight message.
  * 
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-public class ApplicationNameAwareMessageSourceWrapper<T> implements MessageSource<T> {
+public class HeaderSettingMessageSourceWrapper<T> implements MessageSource<T> {
     // TODO unit test
     private final MessageSource<T> wrappedMessageSource;
-    private final String applicationName;
+    private final String headerName;
+    private final Object headerValue;
 
-    public ApplicationNameAwareMessageSourceWrapper(final MessageSource<T> wrappedMessageSource, final String applicationName) {
+    public HeaderSettingMessageSourceWrapper(final MessageSource<T> wrappedMessageSource, final String headerName, final Object headerValue) {
         this.wrappedMessageSource = wrappedMessageSource;
-        this.applicationName = applicationName;
+        this.headerName = headerName;
+        this.headerValue = headerValue;
     }
 
     public Message<T> receive() {
@@ -50,6 +49,7 @@ public class ApplicationNameAwareMessageSourceWrapper<T> implements MessageSourc
             return null;
         }
 
-        return MessageBuilder.fromMessage(receivedMessage).setHeader(Constants.APPLICATION_NAME_MESSAGE_HEADER, applicationName).build();
+        final MessageBuilder<T> messageBuilder = MessageBuilder.fromMessage(receivedMessage).setHeader(headerName, headerValue);
+        return messageBuilder.build();
     }
 }

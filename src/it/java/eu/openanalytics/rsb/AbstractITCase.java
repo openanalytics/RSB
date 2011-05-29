@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -48,6 +49,7 @@ public abstract class AbstractITCase extends XMLTestCase {
     protected final static String RSB_BASE_URI = "http://localhost:8888/rsb";
 
     private Configuration configuration;
+    private Properties rawMessages;
 
     @Before
     public void setupCatalog() throws IOException {
@@ -56,10 +58,21 @@ public abstract class AbstractITCase extends XMLTestCase {
         putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "test.R"));
         putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "testSweave.R"));
         putTestScriptInCatalog(new File(configuration.getSweaveFilesCatalogDirectory(), "testSweave.Rnw"));
+        putTestScriptInCatalog(new File(configuration.getJobConfigurationCatalogDirectory(), "test-configuration.txt"));
+    }
+
+    @Before
+    public void loadRawMessages() throws IOException {
+        rawMessages = new Properties();
+        rawMessages.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("messages.properties"));
     }
 
     protected Configuration getConfiguration() {
         return configuration;
+    }
+
+    protected Properties getRawMessages() {
+        return rawMessages;
     }
 
     public static InputStream getTestData(final String payloadResourceFile) {

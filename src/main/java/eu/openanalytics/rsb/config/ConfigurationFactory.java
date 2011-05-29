@@ -116,7 +116,7 @@ public abstract class ConfigurationFactory {
                 }
 
                 if (depositEmailAccount.getJobConfigurationFileName() != null) {
-                    final File jobConfigurationFile = new File(pca.getEmailRepliesCatalogDirectory(),
+                    final File jobConfigurationFile = new File(pca.getJobConfigurationCatalogDirectory(),
                             depositEmailAccount.getJobConfigurationFileName());
                     validateIsTrue(jobConfigurationFile.exists(), "missing job configuration file: " + jobConfigurationFile,
                             validationErrors);

@@ -22,6 +22,7 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -60,7 +61,6 @@ import org.springframework.integration.mail.MailReceivingMessageSource;
 import org.springframework.integration.mail.Pop3MailReceiver;
 import org.springframework.integration.message.GenericMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.support.PeriodicTrigger;
@@ -71,7 +71,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
-import eu.openanalytics.rsb.si.ApplicationNameAwareMessageSourceWrapper;
+import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
 
 /**
  * Handles email based R job and result exchanges.
@@ -80,6 +80,8 @@ import eu.openanalytics.rsb.si.ApplicationNameAwareMessageSourceWrapper;
  */
 @Component("emailDepositHandler")
 public class EmailDepositHandler extends AbstractComponent implements BeanFactoryAware {
+    private static final String EMAIL_CONFIG_HEADER_NAME = DepositEmailConfiguration.class.getName();
+
     private static final String EMAIL_REPLY_CC_META_NAME = "emailReplyCC";
 
     private static final String EMAIL_REPLY_TO_META_NAME = "emailReplyTo";
@@ -87,6 +89,9 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     private static final String EMAIL_ADDRESSEE_META_NAME = "emailAddressee";
 
     private static final String EMAIL_SUBJECT_META_NAME = "emailSubject";
+
+    @Resource
+    private JavaMailSender mailSender;
 
     // TODO unit test, integration test
     @Resource(name = "emailDepositChannel")
@@ -104,6 +109,10 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     }
 
     // exposed for testing
+    void setMailSender(final JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
     void setJobDirectoryDepositChannel(final MessageChannel jobDirectoryDepositChannel) {
         this.emailDepositChannel = jobDirectoryDepositChannel;
     }
@@ -141,8 +150,8 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
             mailReceiver.setMaxFetchSize(1);
             mailReceiver.afterPropertiesSet();
             final MailReceivingMessageSource fileMessageSource = new MailReceivingMessageSource(mailReceiver);
-            final ApplicationNameAwareMessageSourceWrapper<javax.mail.Message> messageSource = new ApplicationNameAwareMessageSourceWrapper<javax.mail.Message>(
-                    fileMessageSource, depositEmailAccount.getApplicationName());
+            final HeaderSettingMessageSourceWrapper<javax.mail.Message> messageSource = new HeaderSettingMessageSourceWrapper<javax.mail.Message>(
+                    fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailAccount);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);
@@ -169,11 +178,12 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
     @SuppressWarnings("unchecked")
     public void handleJob(final Message<MimeMessage> message) throws IOException, MessagingException {
-        final String applicationName = message.getHeaders().get(Constants.APPLICATION_NAME_MESSAGE_HEADER, String.class);
+        final DepositEmailConfiguration depositEmailConfiguration = message.getHeaders().get(EMAIL_CONFIG_HEADER_NAME,
+                DepositEmailConfiguration.class);
+        final String applicationName = depositEmailConfiguration.getApplicationName();
         final MimeMessage mimeMessage = message.getPayload();
 
-        // TODO immediate return of jobs that fail initial construction (like done in
-        // DirectoryDepositHandler)
+        // TODO immediate return of jobs that fail initial construction (like in DirectoryDepositHandler)
         final Address[] replyTo = mimeMessage.getReplyTo();
         Validate.notEmpty(replyTo, "no reply address found for job emailed with headers:" + Collections.list(mimeMessage.getAllHeaders()));
 
@@ -186,7 +196,11 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         final MultiFilesJob job = new MultiFilesJob(Source.EMAIL, applicationName, UUID.randomUUID(),
                 (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
-        // TODO copy optional job config from catalog to config.txt
+        if (StringUtils.isNotBlank(depositEmailConfiguration.getJobConfigurationFileName())) {
+            final File jobConfigurationFile = new File(getConfiguration().getJobConfigurationCatalogDirectory(),
+                    depositEmailConfiguration.getJobConfigurationFileName());
+            job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(jobConfigurationFile));
+        }
 
         final Object content = mimeMessage.getContent();
         Validate.isTrue(content instanceof Multipart, "only multipart emails can be processed");
@@ -211,8 +225,6 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         // TODO use pre-baked response as body if configured with
         final String responseText = getMessages().getMessage("email.result.body", null, null);
 
-        // TODO create only once
-        final JavaMailSender mailSender = new JavaMailSenderImpl();
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
         final MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
 
@@ -229,8 +241,6 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
         final Message<MimeMailMessage> message = new GenericMessage<MimeMailMessage>(new MimeMailMessage(mmh));
         outboundEmailChannel.send(message);
-        // TODO remove
-        getLogger().info("sending w/ meta: " + result.getMeta());
     }
 
     private String getPrimaryAddressee(final MimeMessage mimeMessage) throws MessagingException {

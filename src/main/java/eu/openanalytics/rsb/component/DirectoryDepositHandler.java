@@ -57,7 +57,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
-import eu.openanalytics.rsb.si.ApplicationNameAwareMessageSourceWrapper;
+import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
 
 /**
  * Handles directory based R job and result exchanges.
@@ -118,8 +118,8 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
             fileMessageSource.setLocker(nioFileLocker);
             fileMessageSource.afterPropertiesSet();
 
-            final ApplicationNameAwareMessageSourceWrapper<File> messageSource = new ApplicationNameAwareMessageSourceWrapper<File>(
-                    fileMessageSource, depositRootDirectoryConfig.getApplicationName());
+            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<File>(
+                    fileMessageSource, Constants.APPLICATION_NAME_MESSAGE_HEADER, depositRootDirectoryConfig.getApplicationName());
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);
