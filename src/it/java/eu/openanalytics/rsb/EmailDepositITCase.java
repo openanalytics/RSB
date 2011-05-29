@@ -81,7 +81,17 @@ public class EmailDepositITCase extends AbstractITCase {
         verifyValidResultWithDefaultResponse(rsbResponseMessage);
     }
 
-    // TODO test: invalid zip, job that needs meta
+    @Test
+    public void submissionOfUnprocessableJob() throws Exception {
+        final String subject = sendJobEmail(SuiteITCase.rsbAccountWithResponseFile,
+                IOUtils.toByteArray(getTestData("r-job-meta-required.zip")), "application/zip", "r-job-sample.zip");
+
+        final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
+
+        verifyErrorResult(rsbResponseMessage);
+    }
+
+    // TODO test: invalid zip
 
     private String sendJobEmail(final GreenMailUser rsbAccount, final byte[] data, final String contentType, final String filename)
             throws MessagingException, IOException {
@@ -112,7 +122,16 @@ public class EmailDepositITCase extends AbstractITCase {
         assertThat(
                 StringUtils.normalizeSpace(((MimeMultipart) getMailBodyPart(parts, "multipart/related").getContent()).getBodyPart(0)
                         .getContent().toString()), is(StringUtils.normalizeSpace(exceptedResponseBody)));
+
         assertThat(getMailBodyPart(parts, "application/pdf").getFileName(), is("rnorm.pdf"));
+    }
+
+    private void verifyErrorResult(final MimeMessage rsbResponseMessage) throws IOException, MessagingException {
+        final Multipart parts = (Multipart) rsbResponseMessage.getContent();
+
+        final String responseBody = StringUtils.normalizeSpace(((MimeMultipart) getMailBodyPart(parts, "multipart/related").getContent())
+                .getBodyPart(0).getContent().toString());
+        assertThat(StringUtils.containsIgnoreCase(responseBody, "error"), is(true));
     }
 
     private BodyPart getMailBodyPart(final Multipart parts, final String contentType) throws MessagingException {

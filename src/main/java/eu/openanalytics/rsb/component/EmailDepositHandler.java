@@ -92,7 +92,7 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     @Resource
     private JavaMailSender mailSender;
 
-    // TODO unit test, integration test
+    // TODO unit test
     @Resource(name = "emailDepositChannel")
     private MessageChannel emailDepositChannel;
 
@@ -233,11 +233,14 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         mmh.setTo((String) result.getMeta().get(EMAIL_REPLY_TO_META_NAME));
         mmh.setCc((String[]) result.getMeta().get(EMAIL_REPLY_CC_META_NAME));
         mmh.setSubject("RE: " + result.getMeta().get(EMAIL_SUBJECT_META_NAME));
-        mmh.setText(responseText);
 
-        // TODO put error text as email body - else, attach all success files
-        for (final File resultFile : result.getPayload()) {
-            mmh.addAttachment(resultFile.getName(), resultFile);
+        if (result.isSuccess()) {
+            mmh.setText(responseText);
+            for (final File resultFile : result.getPayload()) {
+                mmh.addAttachment(resultFile.getName(), resultFile);
+            }
+        } else {
+            mmh.setText(FileUtils.readFileToString(result.getPayload()[0]));
         }
 
         final Message<MimeMailMessage> message = new GenericMessage<MimeMailMessage>(new MimeMailMessage(mmh));
