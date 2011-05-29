@@ -31,7 +31,6 @@ import org.springframework.integration.support.MessageBuilder;
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class HeaderSettingMessageSourceWrapper<T> implements MessageSource<T> {
-    // TODO unit test
     private final MessageSource<T> wrappedMessageSource;
     private final String headerName;
     private final Object headerValue;
