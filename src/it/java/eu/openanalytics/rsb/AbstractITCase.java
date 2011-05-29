@@ -21,9 +21,10 @@
 
 package eu.openanalytics.rsb;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -33,46 +34,21 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import eu.openanalytics.rsb.config.Configuration;
-import eu.openanalytics.rsb.config.ConfigurationFactory;
 
 /**
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-@RunWith(JUnit4.class)
-public abstract class AbstractITCase extends XMLTestCase {
+public abstract class AbstractITCase {
     protected final static String RSB_BASE_URI = "http://localhost:8888/rsb";
 
-    private Configuration configuration;
-    private Properties rawMessages;
-
-    @Before
-    public void setupCatalog() throws IOException {
-        configuration = ConfigurationFactory.loadJsonConfiguration();
-
-        putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "test.R"));
-        putTestScriptInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "testSweave.R"));
-        putTestScriptInCatalog(new File(configuration.getSweaveFilesCatalogDirectory(), "testSweave.Rnw"));
-        putTestScriptInCatalog(new File(configuration.getJobConfigurationCatalogDirectory(), "test-configuration.txt"));
-    }
-
-    @Before
-    public void loadRawMessages() throws IOException {
-        rawMessages = new Properties();
-        rawMessages.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("messages.properties"));
-    }
-
     protected Configuration getConfiguration() {
-        return configuration;
+        return SuiteITCase.configuration;
     }
 
     protected Properties getRawMessages() {
-        return rawMessages;
+        return SuiteITCase.rawMessages;
     }
 
     public static InputStream getTestData(final String payloadResourceFile) {
@@ -103,13 +79,5 @@ public abstract class AbstractITCase extends XMLTestCase {
     public static void validateErrorResult(final InputStream responseStream) throws IOException {
         final String response = IOUtils.toString(responseStream);
         assertTrue(response + " should contain 'error'", StringUtils.containsIgnoreCase(response, "error"));
-    }
-
-    private void putTestScriptInCatalog(final File testScript) throws FileNotFoundException, IOException {
-        if (!testScript.isFile()) {
-            final FileOutputStream fos = new FileOutputStream(testScript);
-            IOUtils.copy(getTestData(testScript.getName()), fos);
-            IOUtils.closeQuietly(fos);
-        }
     }
 }

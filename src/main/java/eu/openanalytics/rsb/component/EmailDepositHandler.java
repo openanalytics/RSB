@@ -46,6 +46,7 @@ import javax.mail.Part;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -83,12 +84,10 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     private static final String EMAIL_CONFIG_HEADER_NAME = DepositEmailConfiguration.class.getName();
 
     private static final String EMAIL_REPLY_CC_META_NAME = "emailReplyCC";
-
     private static final String EMAIL_REPLY_TO_META_NAME = "emailReplyTo";
-
     private static final String EMAIL_ADDRESSEE_META_NAME = "emailAddressee";
-
     private static final String EMAIL_SUBJECT_META_NAME = "emailSubject";
+    private static final String EMAIL_BODY_META_NAME = "emailBody";
 
     @Resource
     private JavaMailSender mailSender;
@@ -192,6 +191,7 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         meta.put(EMAIL_ADDRESSEE_META_NAME, getPrimaryAddressee(mimeMessage));
         meta.put(EMAIL_REPLY_TO_META_NAME, replyTo[0].toString());
         meta.put(EMAIL_REPLY_CC_META_NAME, getCCAddressees(mimeMessage));
+        meta.put(EMAIL_BODY_META_NAME, getResponseBody(depositEmailConfiguration));
 
         final MultiFilesJob job = new MultiFilesJob(Source.EMAIL, applicationName, UUID.randomUUID(),
                 (GregorianCalendar) GregorianCalendar.getInstance(), meta);
@@ -222,8 +222,9 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     }
 
     public void handleResult(final MultiFilesResult result) throws MessagingException, IOException {
-        // TODO use pre-baked response as body if configured with
-        final String responseText = getMessages().getMessage("email.result.body", null, null);
+        final Serializable responseBody = result.getMeta().get(EMAIL_BODY_META_NAME);
+        final String responseText = responseBody instanceof File ? FileUtils.readFileToString((File) responseBody) : responseBody
+                .toString();
 
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
         final MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
@@ -241,6 +242,14 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
         final Message<MimeMailMessage> message = new GenericMessage<MimeMailMessage>(new MimeMailMessage(mmh));
         outboundEmailChannel.send(message);
+    }
+
+    private Serializable getResponseBody(final DepositEmailConfiguration depositEmailConfiguration) {
+        if (StringUtils.isBlank(depositEmailConfiguration.getResponseFileName())) {
+            return getMessages().getMessage("email.result.body", null, null);
+        }
+
+        return new File(getConfiguration().getEmailRepliesCatalogDirectory(), depositEmailConfiguration.getResponseFileName());
     }
 
     private String getPrimaryAddressee(final MimeMessage mimeMessage) throws MessagingException {

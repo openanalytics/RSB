@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
@@ -54,18 +55,22 @@ public abstract class ConfigurationFactory {
 
     public static Configuration loadJsonConfiguration() throws IOException {
         final String configurationFile = System.getProperty(Configuration.class.getName(), Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
-        final PersistedConfigurationAdapter pca = loadAndValidateJsonConfigurationFile(configurationFile);
+        final PersistedConfigurationAdapter pca = load(configurationFile);
+        validateConfiguration(pca);
         createMissingDirectories(pca);
         return pca;
     }
 
-    private static PersistedConfigurationAdapter loadAndValidateJsonConfigurationFile(final String configurationFile) throws IOException {
-        final PersistedConfigurationAdapter pca = load(configurationFile);
+    private static void validateConfiguration(final PersistedConfigurationAdapter pca) throws IOException {
+        if (BooleanUtils.toBoolean(System.getProperty(ConfigurationFactory.class.getName() + ".skipValidation"))) {
+            LOGGER.info("Skipped validation of: " + pca);
+            return;
+        }
+
         final Set<String> validationErrors = validate(pca);
         Validate.isTrue(validationErrors.isEmpty(), "Validation error(s):\n" + StringUtils.join(validationErrors, "\n")
                 + "\nfound in configuration:\n" + pca);
         LOGGER.info("Successfully validated: " + pca);
-        return pca;
     }
 
     // exposed for testing

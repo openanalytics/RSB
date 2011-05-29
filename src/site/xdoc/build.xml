@@ -54,7 +54,7 @@ mvn jetty:run
             <p>RServi must be running locally before starting the integration tests.</p>
             <p>If that is the case, then run:
                 <source>
-mvn -Pit verify
+mvn -Pit -Dit.test=SuiteITCase verify
                 </source>
             </p>
         </section>

@@ -588,6 +588,10 @@
                   <name>org.eclipse.jetty.util.log.INFO</name>
                   <value>true</value>
                 </systemProperty>
+                <systemProperty>
+                  <name>eu.openanalytics.rsb.config.ConfigurationFactory.skipValidation</name>
+                  <value>true</value>
+                </systemProperty>
               </systemProperties>
             </configuration>
             <executions>
