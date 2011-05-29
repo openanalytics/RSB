@@ -23,6 +23,7 @@ package eu.openanalytics.rsb.component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
@@ -176,13 +177,12 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     }
 
     @SuppressWarnings("unchecked")
-    public void handleJob(final Message<MimeMessage> message) throws IOException, MessagingException {
+    public void handleJob(final Message<MimeMessage> message) throws MessagingException, IOException {
         final DepositEmailConfiguration depositEmailConfiguration = message.getHeaders().get(EMAIL_CONFIG_HEADER_NAME,
                 DepositEmailConfiguration.class);
         final String applicationName = depositEmailConfiguration.getApplicationName();
         final MimeMessage mimeMessage = message.getPayload();
 
-        // TODO immediate return of jobs that fail initial construction (like in DirectoryDepositHandler)
         final Address[] replyTo = mimeMessage.getReplyTo();
         Validate.notEmpty(replyTo, "no reply address found for job emailed with headers:" + Collections.list(mimeMessage.getAllHeaders()));
 
@@ -195,6 +195,18 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
         final MultiFilesJob job = new MultiFilesJob(Source.EMAIL, applicationName, UUID.randomUUID(),
                 (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+
+        try {
+            addEmailAttachmentsToJob(depositEmailConfiguration, mimeMessage, job);
+            getMessageDispatcher().dispatch(job);
+        } catch (final Exception e) {
+            final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
+            handleResult(errorResult);
+        }
+    }
+
+    private void addEmailAttachmentsToJob(final DepositEmailConfiguration depositEmailConfiguration, final MimeMessage mimeMessage,
+            final MultiFilesJob job) throws MessagingException, IOException, FileNotFoundException {
 
         if (StringUtils.isNotBlank(depositEmailConfiguration.getJobConfigurationFileName())) {
             final File jobConfigurationFile = new File(getConfiguration().getJobConfigurationCatalogDirectory(),
@@ -217,8 +229,6 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
                 MultiFilesJob.addDataToJob(contentType, name, part.getInputStream(), job);
             }
         }
-
-        getMessageDispatcher().dispatch(job);
     }
 
     public void handleResult(final MultiFilesResult result) throws MessagingException, IOException {

@@ -53,21 +53,15 @@ public class EmailDepositITCase extends AbstractITCase {
 
     @Test
     public void submissionToAccountWithDefaultSettings() throws Exception {
-        final String subject = sendJobEmail(SuiteITCase.rsbAccountWithDefaultSettings,
-                IOUtils.toByteArray(getTestData("r-job-sample.zip")), "application/zip", "r-job-sample.zip");
-
+        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithDefaultSettings, "r-job-sample.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
-
         verifyValidResultWithDefaultResponse(rsbResponseMessage);
     }
 
     @Test
     public void submissionToAccountWithJobConfiguration() throws Exception {
-        final String subject = sendJobEmail(SuiteITCase.rsbAccountWithResponseFile, IOUtils.toByteArray(getTestData("r-job-sample.zip")),
-                "application/zip", "r-job-sample.zip");
-
+        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "r-job-sample.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
-
         verifyValidResult(rsbResponseMessage, IOUtils.toString(getTestData("test-email-response.txt")));
     }
 
@@ -75,23 +69,27 @@ public class EmailDepositITCase extends AbstractITCase {
     public void submissionToAccountWithResponseFile() throws Exception {
         final String subject = sendJobEmail(SuiteITCase.rsbAccountWithJobConfiguration, "fake data".getBytes(), "application/octet-stream",
                 "data.bin");
-
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
-
         verifyValidResultWithDefaultResponse(rsbResponseMessage);
     }
 
     @Test
     public void submissionOfUnprocessableJob() throws Exception {
-        final String subject = sendJobEmail(SuiteITCase.rsbAccountWithResponseFile,
-                IOUtils.toByteArray(getTestData("r-job-meta-required.zip")), "application/zip", "r-job-sample.zip");
-
+        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "r-job-meta-required.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
-
         verifyErrorResult(rsbResponseMessage);
     }
 
-    // TODO test: invalid zip
+    @Test
+    public void submissionOfInvalidZip() throws Exception {
+        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "invalid-job-subdir.zip");
+        final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
+        verifyErrorResult(rsbResponseMessage);
+    }
+
+    private String sendZipJobEmail(final GreenMailUser rsbAccount, final String zipFile) throws MessagingException, IOException {
+        return sendJobEmail(rsbAccount, IOUtils.toByteArray(getTestData(zipFile)), "application/zip", zipFile);
+    }
 
     private String sendJobEmail(final GreenMailUser rsbAccount, final byte[] data, final String contentType, final String filename)
             throws MessagingException, IOException {

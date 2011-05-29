@@ -103,6 +103,10 @@ public class RestITCase extends AbstractITCase {
             }
         });
 
+        if (testResultFiles == null) {
+            return;
+        }
+
         for (final File testResultFile : testResultFiles) {
             FileUtils.deleteQuietly(testResultFile);
         }

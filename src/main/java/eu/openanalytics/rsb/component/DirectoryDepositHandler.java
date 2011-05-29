@@ -118,8 +118,8 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
             fileMessageSource.setLocker(nioFileLocker);
             fileMessageSource.afterPropertiesSet();
 
-            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<File>(
-                    fileMessageSource, Constants.APPLICATION_NAME_MESSAGE_HEADER, depositRootDirectoryConfig.getApplicationName());
+            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<File>(fileMessageSource,
+                    Constants.APPLICATION_NAME_MESSAGE_HEADER, depositRootDirectoryConfig.getApplicationName());
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);
@@ -170,7 +170,6 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
             final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
             handleZipResult(errorResult);
         }
-
     }
 
     public void handleZipResult(final MultiFilesResult result) throws IOException {
