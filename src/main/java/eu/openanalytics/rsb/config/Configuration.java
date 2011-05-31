@@ -88,7 +88,7 @@ public interface Configuration {
         String getApplicationName();
 
         /**
-         * Interval of time between to email account polling, in milliseconds.
+         * Interval of time between two email account polling, in milliseconds.
          */
         long getPollingPeriod();
 
