@@ -21,21 +21,14 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<document
-    xmlns="http://maven.apache.org/XDOC/2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
-    <properties>
-        <title>Installation / Configuration</title>
-        <author
-            email="rsb.development@openanalytics.eu">RSB Development</author>
-    </properties>
-    <body>
-        <section name="Deployment">
-            <p>RSB should deploy fine on any Java web-container supporting Servlet 2.5.</p>
-        </section>
-        <section name="Configuration">
-            <p>TBD</p>
-        </section>
-    </body>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>R Service Bus</title>
+    <author email="rsb.development@openanalytics.eu">RSB Development</author>
+  </properties>
+  <body>
+    <p>RSB (R Service Bus) is a communication middleware and work manager for R statistic analysis jobs.</p>
+    <img src="images/Rservice-diagram.png" />
+  </body>
 </document>

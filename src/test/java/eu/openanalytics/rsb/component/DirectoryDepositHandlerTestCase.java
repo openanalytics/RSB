@@ -45,8 +45,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
-import org.springframework.integration.file.filters.FileListFilter;
 import org.springframework.integration.support.MessageBuilder;
 
 import eu.openanalytics.rsb.Constants;
@@ -69,11 +67,6 @@ public class DirectoryDepositHandlerTestCase {
     private MessageDispatcher messageDispatcher;
     @Mock
     private BeanFactory beanFactory;
-    @Mock
-    MessageChannel jobDirectoryDepositChannel;
-
-    @Mock
-    FileListFilter<File> zipJobFilter;
 
     private DirectoryDepositHandler directoryDepositHandler;
 
@@ -83,8 +76,6 @@ public class DirectoryDepositHandlerTestCase {
         directoryDepositHandler.setConfiguration(configuration);
         directoryDepositHandler.setMessageDispatcher(messageDispatcher);
         directoryDepositHandler.setBeanFactory(beanFactory);
-        directoryDepositHandler.setJobDirectoryDepositChannel(jobDirectoryDepositChannel);
-        directoryDepositHandler.setZipJobFilter(zipJobFilter);
     }
 
     @Test

@@ -85,10 +85,6 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
     }
 
     // exposed for testing
-    void setJobDirectoryDepositChannel(final MessageChannel jobDirectoryDepositChannel) {
-        this.jobDirectoryDepositChannel = jobDirectoryDepositChannel;
-    }
-
     void setZipJobFilter(final FileListFilter<File> zipJobFilter) {
         this.zipJobFilter = zipJobFilter;
     }

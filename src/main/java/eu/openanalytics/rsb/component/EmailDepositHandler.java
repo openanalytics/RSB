@@ -82,18 +82,17 @@ import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
  */
 @Component("emailDepositHandler")
 public class EmailDepositHandler extends AbstractComponent implements BeanFactoryAware {
-    private static final String EMAIL_CONFIG_HEADER_NAME = DepositEmailConfiguration.class.getName();
+    public static final String EMAIL_CONFIG_HEADER_NAME = DepositEmailConfiguration.class.getName();
 
-    private static final String EMAIL_REPLY_CC_META_NAME = "emailReplyCC";
-    private static final String EMAIL_REPLY_TO_META_NAME = "emailReplyTo";
-    private static final String EMAIL_ADDRESSEE_META_NAME = "emailAddressee";
-    private static final String EMAIL_SUBJECT_META_NAME = "emailSubject";
-    private static final String EMAIL_BODY_META_NAME = "emailBody";
+    public static final String EMAIL_REPLY_CC_META_NAME = "emailReplyCC";
+    public static final String EMAIL_REPLY_TO_META_NAME = "emailReplyTo";
+    public static final String EMAIL_ADDRESSEE_META_NAME = "emailAddressee";
+    public static final String EMAIL_SUBJECT_META_NAME = "emailSubject";
+    public static final String EMAIL_BODY_META_NAME = "emailBody";
 
     @Resource
     private JavaMailSender mailSender;
 
-    // TODO unit test
     @Resource(name = "emailDepositChannel")
     private MessageChannel emailDepositChannel;
 
@@ -111,10 +110,6 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
     // exposed for testing
     void setMailSender(final JavaMailSender mailSender) {
         this.mailSender = mailSender;
-    }
-
-    void setJobDirectoryDepositChannel(final MessageChannel jobDirectoryDepositChannel) {
-        this.emailDepositChannel = jobDirectoryDepositChannel;
     }
 
     void setOutboundEmailChannel(final MessageChannel outboundEmailChannel) {
@@ -205,32 +200,6 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         }
     }
 
-    private void addEmailAttachmentsToJob(final DepositEmailConfiguration depositEmailConfiguration, final MimeMessage mimeMessage,
-            final MultiFilesJob job) throws MessagingException, IOException, FileNotFoundException {
-
-        if (StringUtils.isNotBlank(depositEmailConfiguration.getJobConfigurationFileName())) {
-            final File jobConfigurationFile = new File(getConfiguration().getJobConfigurationCatalogDirectory(),
-                    depositEmailConfiguration.getJobConfigurationFileName());
-            job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(jobConfigurationFile));
-        }
-
-        final Object content = mimeMessage.getContent();
-        Validate.isTrue(content instanceof Multipart, "only multipart emails can be processed");
-
-        final Multipart multipart = (Multipart) content;
-        for (int i = 0, n = multipart.getCount(); i < n; i++) {
-            final Part part = multipart.getBodyPart(i);
-
-            final String disposition = part.getDisposition();
-
-            if ((disposition != null) && ((disposition.equals(Part.ATTACHMENT) || (disposition.equals(Part.INLINE))))) {
-                final String name = part.getFileName();
-                final String contentType = StringUtils.substringBefore(part.getContentType(), ";");
-                MultiFilesJob.addDataToJob(contentType, name, part.getInputStream(), job);
-            }
-        }
-    }
-
     public void handleResult(final MultiFilesResult result) throws MessagingException, IOException {
         final Serializable responseBody = result.getMeta().get(EMAIL_BODY_META_NAME);
         final String responseText = responseBody instanceof File ? FileUtils.readFileToString((File) responseBody) : responseBody
@@ -255,6 +224,32 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
         final Message<MimeMailMessage> message = new GenericMessage<MimeMailMessage>(new MimeMailMessage(mmh));
         outboundEmailChannel.send(message);
+    }
+
+    private void addEmailAttachmentsToJob(final DepositEmailConfiguration depositEmailConfiguration, final MimeMessage mimeMessage,
+            final MultiFilesJob job) throws MessagingException, IOException, FileNotFoundException {
+
+        if (StringUtils.isNotBlank(depositEmailConfiguration.getJobConfigurationFileName())) {
+            final File jobConfigurationFile = new File(getConfiguration().getJobConfigurationCatalogDirectory(),
+                    depositEmailConfiguration.getJobConfigurationFileName());
+            job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(jobConfigurationFile));
+        }
+
+        final Object content = mimeMessage.getContent();
+        Validate.isTrue(content instanceof Multipart, "only multipart emails can be processed");
+
+        final Multipart multipart = (Multipart) content;
+        for (int i = 0, n = multipart.getCount(); i < n; i++) {
+            final Part part = multipart.getBodyPart(i);
+
+            final String disposition = part.getDisposition();
+
+            if ((disposition != null) && ((disposition.equals(Part.ATTACHMENT) || (disposition.equals(Part.INLINE))))) {
+                final String name = part.getFileName();
+                final String contentType = StringUtils.substringBefore(part.getContentType(), ";");
+                MultiFilesJob.addDataToJob(contentType, name, part.getInputStream(), job);
+            }
+        }
     }
 
     private Serializable getResponseBody(final DepositEmailConfiguration depositEmailConfiguration) {

@@ -25,7 +25,7 @@
   <body>
     <menu name="Getting Started">
       <item name="Building" href="build.html" />
-      <item name="Installation" href="install.html" />
+      <item name="Installation / Configuration" href="install.html" />
     </menu>
     <menu name="Technical Guide">
       <item name="Architecture" href="architecture.html" />
