@@ -21,21 +21,39 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<document
-    xmlns="http://maven.apache.org/XDOC/2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
-    <properties>
-        <title>Installation / Configuration</title>
-        <author
-            email="rsb.development@openanalytics.eu">RSB Development</author>
-    </properties>
-    <body>
-        <section name="Deployment">
-            <p>RSB should deploy fine on any Java web-container supporting Servlet 2.5.</p>
-        </section>
-        <section name="Configuration">
-            <p>TBD</p>
-        </section>
-    </body>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Installation / Configuration</title>
+    <author email="rsb.development@openanalytics.eu">RSB Development</author>
+  </properties>
+  <body>
+    <section name="Deployment">
+      <p>RSB should deploy fine on any Java web-container supporting Servlet
+        2.5.</p>
+    </section>
+    <section name="Configuration">
+      <p>
+        RSB is configured with a unique JSON file named
+        <b>rsb-configuration.json</b>, which must be located at the root of the JVM classpath.
+      </p>
+      <subsection name="Samples">
+        <p>Here are a few examples of configuration files:</p>
+        <ul>
+        <li><a href="misc/rsb-configuration-minimal.json">Minimal configuration</a>: shows the required configuration entries</li>
+        <li><a href="misc/rsb-configuration-redis.json">Redis statistics store</a>: shows a minimal configuration with an optional Redis statistics store configured</li>
+        <li><a href="misc/rsb-configuration-full.json">Full configuration</a>: shows a complete configuration with examples for all the different job deposit methods</li>
+        </ul>
+      </subsection>
+      <subsection name="Default Configuration">
+        <p>If RSB can't locate a configuration file, it will try to generate one
+          and store it WEB-INF/classes. Here is the content of the default
+          configuration:</p>
+        <p>TBD</p>
+      </subsection>
+      <subsection name="Description">
+        <p>TBD</p>
+      </subsection>
+    </section>
+  </body>
 </document>

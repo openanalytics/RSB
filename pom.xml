@@ -425,13 +425,19 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${basedir}/target/site/api-specs</outputDirectory>
+              <outputDirectory>${basedir}/target/site/misc</outputDirectory>
               <resources>
                 <resource>
                   <directory>src/main/resources</directory>
                   <includes>
                     <include>**/*.xsd</include>
                     <include>**/*.wsdl</include>
+                  </includes>
+                </resource>
+                <resource>
+                  <directory>src/test/resources</directory>
+                  <includes>
+                    <include>rsb-configuration*.json</include>
                   </includes>
                 </resource>
               </resources>

@@ -20,7 +20,11 @@
  */
 package eu.openanalytics.rsb.config;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.IOException;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -29,13 +33,18 @@ import org.junit.Test;
  */
 public class ConfigurationFactoryTestCase {
 
-    private static final String[] TEST_JSON_CONFIGURATIONS = { "rsb-configuration.json", "rsb-configuration-redis.json",
-            "rsb-configuration-full.json" };
+    private static final String[] TEST_JSON_CONFIGURATIONS = { "rsb-configuration.json", "rsb-configuration-minimal.json",
+            "rsb-configuration-redis.json", "rsb-configuration-full.json" };
+
+    // full config is expected to be invalid
+    private static final boolean[] VALIDATION_RESULTS = { true, true, true, false };
 
     @Test
     public void validateTestJsonConfigurations() throws IOException {
+        int i = 0;
         for (final String configurationFile : TEST_JSON_CONFIGURATIONS) {
-            ConfigurationFactory.validate(ConfigurationFactory.load(configurationFile));
+            final Set<String> validationResult = ConfigurationFactory.validate(ConfigurationFactory.load(configurationFile));
+            assertThat(configurationFile, validationResult.isEmpty(), is(VALIDATION_RESULTS[i++]));
         }
     }
 }

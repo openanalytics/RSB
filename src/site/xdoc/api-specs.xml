@@ -21,23 +21,24 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<project>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>XSDs &amp; WSDL</title>
+    <author email="rsb.development@openanalytics.eu">RSB Development</author>
+  </properties>
   <body>
-    <menu name="Getting Started">
-      <item name="Building" href="build.html" />
-      <item name="Installation / Configuration" href="install.html" />
-    </menu>
-    <menu name="Technical Guide">
-      <item name="Architecture" href="architecture.html" />
-      <item name="Runtime" href="runtime.html" />
-      <item name="Scalability" href="scalability.html" />
-      <item name="HA" href="ha.html" />
-      <item name="Statistics" href="stats.html" />
-    </menu>
-    <menu name="Usage">
-      <item name="API &amp; Clients" href="wsdocs/index.html" />
-      <item name="XSDs &amp; WSDL" href="api-specs.html" />
-    </menu>
-    <menu ref="reports" />
+    <section name="XSDs">
+      <ul>
+        <li><a href="misc/schemas/common.xsd">common.xsd</a></li>
+        <li><a href="misc/schemas/rest-jobs-and-results.xsd">rest-jobs-and-results.xsd</a></li>
+        <li><a href="misc/schemas/soap-jobs-and-results.xsd ">soap-jobs-and-results.xsd </a></li>
+      </ul>
+    </section>
+    <section name="WSDL">
+      <ul>
+        <li><a href="misc/wsdl/mtom-jobs.wsdl">mtom-jobs.wsdl</a></li>
+      </ul>
+    </section>
   </body>
-</project>
+</document>
