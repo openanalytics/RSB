@@ -189,4 +189,7 @@ $(document).ready(function() {
   // load URL parameters into specific field values
   $('#applicationName').val(urlParams['appName']);
   
+  // setup page appearance
+  document.title = RSB_FORM_TITLE;
+  $('#formTitle').html(RSB_FORM_TITLE);
 });     

@@ -1,0 +1,26 @@
+<!-- BEGIN: Default RSB Job Upload Panel -->
+<p>
+  <label>Application:</label><input id="applicationName" type="text" name="X-RSB-Application-Name" class="required" />
+  <button id="applicationResultsButton" type="button">Get Results</button>
+</p>
+<div id="requiredParamsPanel" class="centralPanel">
+  <h4>Job Submission</h4>
+  <div>
+    <p><label>Job file(s):</label><input id="jobFileSelector" type="file" name="X-RSB-JobFile[]" class="required multi {namePattern:'$name$i'}" /></p>
+    
+    <div id="optionalParamsPanel" class="centralPanel">
+      <h4>Optional Parameters</h4>
+      <div>
+        <p><label>R Script: </label><input type="text" name="X-RSB-Meta-rScript" /></p>
+        <p><label>Sweave File: </label><input type="text" name="X-RSB-Meta-sweaveFile" /></p>
+      </div>
+    </div>
+    
+    <input type="submit" name="jobSubmitButton" value="Upload Job" /> 
+  </div>
+</div>
+<!-- END: Default RSB Job Upload Panel -->
+<script type="text/javascript">
+  const RSB_FORM_TITLE='RSB - R Service Bus'; 
+</script>
+  
