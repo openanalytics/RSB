@@ -9,6 +9,9 @@
     "smtpConfiguration": {
         "host": "localhost", "port": 25, "username": "", "password": ""
     },
+    "jmxRmiConfiguration": {
+        "stubPort": 1098, "registryPort": 1099
+    },
     "depositRootDirectories": [
         {
             "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-1",

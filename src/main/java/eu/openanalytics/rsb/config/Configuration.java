@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.config;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +29,11 @@ import java.util.Map;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
- * Defines the configuration of RSB, which is injected in all components in order to support runtime
- * changes.
+ * Defines the configuration of RSB, which is injected in all components in order to support runtime changes.
  * 
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-public interface Configuration {
+public interface Configuration extends Serializable {
     public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";
 
     public static final String R_SCRIPTS_CATALOG_SUBDIR = "r_scripts";
@@ -48,7 +48,7 @@ public interface Configuration {
     /**
      * SMTP server configuration used for all RSB outbound email operations.
      */
-    public interface SmtpConfiguration {
+    public interface SmtpConfiguration extends Serializable {
         String getHost();
 
         int getPort();
@@ -58,10 +58,10 @@ public interface Configuration {
         String getPassword();
     }
 
-    public interface DepositDirectoryConfiguration {
+    public interface DepositDirectoryConfiguration extends Serializable {
         /**
-         * RSB must have full right on the root directory as it will need to create sub-directories
-         * ({@value eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
+         * RSB must have full right on the root directory as it will need to create sub-directories ({@value
+         * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
          * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
          * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
          */
@@ -78,10 +78,9 @@ public interface Configuration {
     /**
      * POP/IMAP email account that must be polled for jobs.
      */
-    public interface DepositEmailConfiguration {
+    public interface DepositEmailConfiguration extends Serializable {
         /**
-         * An email account URI is of the form: pop3://usr:pwd@host/INBOX. Supported protocols are
-         * pop3 and imap.
+         * An email account URI is of the form: pop3://usr:pwd@host/INBOX. Supported protocols are pop3 and imap.
          */
         URI getAccountURI();
 
@@ -110,13 +109,28 @@ public interface Configuration {
     /**
      * Job statistics handler configuration.
      */
-    public interface JobStatisticsHandlerConfiguration {
+    public interface JobStatisticsHandlerConfiguration extends Serializable {
         /**
          * The class must implement {@link JobStatisticsHandler}.
          */
         String getClassName();
 
         Map<String, Object> getParameters();
+    }
+
+    /**
+     * JMX RMI configuration.
+     */
+    public interface JmxRmiConfiguration extends Serializable {
+        /**
+         * Defaults to 9098.
+         */
+        int getStubPort();
+
+        /**
+         * Defaults to 9099.
+         */
+        int getRegistryPort();
     }
 
     /**
@@ -165,9 +179,8 @@ public interface Configuration {
     int getJobTimeOut();
 
     /**
-     * Number of concurrent job workers per queue, which must be computed based on the number of
-     * nodes in the RServi pool and the number of job queues (one global plus one per "boosted"
-     * application).
+     * Number of concurrent job workers per queue, which must be computed based on the number of nodes in the RServi
+     * pool and the number of job queues (one global plus one per "boosted" application).
      */
     int getNumberOfConcurrentJobWorkersPerQueue();
 
@@ -177,8 +190,13 @@ public interface Configuration {
     SmtpConfiguration getSmtpConfiguration();
 
     /**
-     * Optional email address where RSB should send permanent error reports and other service
-     * related messages.
+     * The JMX RMI configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxRmiConfiguration}.
+     */
+    JmxRmiConfiguration getJmxRmiConfiguration();
+
+    /**
+     * Optional email address where RSB should send permanent error reports and other service related messages.
      */
     String getAdministratorEmail();
 
@@ -188,10 +206,9 @@ public interface Configuration {
     JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration();
 
     /**
-     * Optional configuration of root directories where jobs and results will respectively be
-     * dropped and retrieved. The map entry element has the root directory for key and the
-     * application name for value. RSB must have full right on the root directory as it will need to
-     * create sub-directories ({@value
+     * Optional configuration of root directories where jobs and results will respectively be dropped and retrieved. The
+     * map entry element has the root directory for key and the application name for value. RSB must have full right on
+     * the root directory as it will need to create sub-directories ({@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.

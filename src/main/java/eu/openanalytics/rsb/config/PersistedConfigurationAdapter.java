@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatisticsHandlerConfiguration;
 
 /**
@@ -38,6 +39,21 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatistics
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class PersistedConfigurationAdapter implements Configuration {
+    private static final class DefaultJmxRmiConfiguration implements JmxRmiConfiguration {
+        private static final long serialVersionUID = 1L;
+
+        public int getStubPort() {
+            return 9098;
+        }
+
+        public int getRegistryPort() {
+            return 9099;
+        }
+    }
+
+    private static final long serialVersionUID = 1L;
+
+    public static final JmxRmiConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new DefaultJmxRmiConfiguration();
     private final transient PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
 
@@ -61,6 +77,16 @@ public class PersistedConfigurationAdapter implements Configuration {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE) + "\n" + persistedConfiguration.toString();
+    }
+
+    // for JMX access
+    public String exportAsString() {
+        return toString();
+    }
+
+    // for JMX access
+    public String exportAsJson() {
+        return Util.toJson(persistedConfiguration);
     }
 
     public URL getConfigurationUrl() {
@@ -97,6 +123,14 @@ public class PersistedConfigurationAdapter implements Configuration {
 
     public SmtpConfiguration getSmtpConfiguration() {
         return persistedConfiguration.getSmtpConfiguration();
+    }
+
+    public JmxRmiConfiguration getJmxRmiConfiguration() {
+        if (persistedConfiguration.getJmxRmiConfiguration() == null) {
+            return DEFAULT_JMX_RMI_CONFIGURATION;
+        }
+
+        return persistedConfiguration.getJmxRmiConfiguration();
     }
 
     public JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration() {

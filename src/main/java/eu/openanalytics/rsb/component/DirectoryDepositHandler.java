@@ -70,8 +70,8 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
     public static final String ORIGINAL_FILENAME_META_NAME = "originalFilename";
     public static final String DEPOSIT_ROOT_DIRECTORY_META_NAME = "depositRootDirectory";
 
-    @Resource(name = "jobDirectoryDepositChannel")
-    private MessageChannel jobDirectoryDepositChannel;
+    @Resource(name = "directoryDepositChannel")
+    private MessageChannel directoryDepositChannel;
 
     @Resource
     private FileListFilter<File> zipJobFilter;
@@ -120,7 +120,7 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);
             channelAdapter.setBeanName("rsb-deposit-dir-ca-" + depositRootDirectory.getPath());
-            channelAdapter.setOutputChannel(jobDirectoryDepositChannel);
+            channelAdapter.setOutputChannel(directoryDepositChannel);
             channelAdapter.setSource(messageSource);
             channelAdapter.setTrigger(fileTrigger);
             channelAdapter.afterPropertiesSet();

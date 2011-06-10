@@ -22,6 +22,7 @@
 package eu.openanalytics.rsb.config;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -31,32 +32,20 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
+import eu.openanalytics.rsb.config.Configuration.JmxRmiConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
 /**
- * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is
- * derived.
+ * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is derived.
  * 
  * @see Configuration
  * 
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
-public class PersistedConfiguration {
-    private File activeMqWorkDirectory;
-    private URI defaultRserviPoolUri;
-    private int jobTimeOut;
-    private int numberOfConcurrentJobWorkersPerQueue;
-    private File catalogRootDirectory;
-    private File resultsDirectory;
-    private Map<String, URI> applicationSpecificRserviPoolUris;
-    private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
-    private String administratorEmail;
-    private PersistedSmtpConfiguration smtpConfiguration;
-    private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
-    private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
-
+public class PersistedConfiguration implements Serializable {
     public static class PersistedSmtpConfiguration implements SmtpConfiguration {
+        private static final long serialVersionUID = 1L;
         private String host;
         private int port;
         private String username;
@@ -111,7 +100,39 @@ public class PersistedConfiguration {
         }
     }
 
+    public static class PersistedJmxRmiConfiguration implements JmxRmiConfiguration {
+        private static final long serialVersionUID = 1L;
+        private int stubPort;
+        private int registryPort;
+
+        public PersistedJmxRmiConfiguration(final int stubPort, final int registryPort) {
+            this.stubPort = stubPort;
+            this.registryPort = registryPort;
+        }
+
+        public PersistedJmxRmiConfiguration() {
+            // NOOP
+        }
+
+        public int getStubPort() {
+            return stubPort;
+        }
+
+        public void setStubPort(final int stubPort) {
+            this.stubPort = stubPort;
+        }
+
+        public int getRegistryPort() {
+            return registryPort;
+        }
+
+        public void setRegistryPort(final int registryPort) {
+            this.registryPort = registryPort;
+        }
+    }
+
     public static class PersistedJobStatisticsHandlerConfiguration implements JobStatisticsHandlerConfiguration {
+        private static final long serialVersionUID = 1L;
         private String className;
         private Map<String, Object> parameters;
 
@@ -147,6 +168,7 @@ public class PersistedConfiguration {
     }
 
     public static class PersistedDepositDirectoryConfiguration implements DepositDirectoryConfiguration {
+        private static final long serialVersionUID = 1L;
         private File rootDirectory;
         private String applicationName;
         private long pollingPeriod;
@@ -182,6 +204,7 @@ public class PersistedConfiguration {
     }
 
     public static class PersistedDepositEmailConfiguration implements DepositEmailConfiguration {
+        private static final long serialVersionUID = 1L;
         private URI accountURI;
         private String applicationName;
         private long pollingPeriod;
@@ -234,6 +257,21 @@ public class PersistedConfiguration {
         }
     }
 
+    private static final long serialVersionUID = 1L;
+    private File activeMqWorkDirectory;
+    private URI defaultRserviPoolUri;
+    private int jobTimeOut;
+    private int numberOfConcurrentJobWorkersPerQueue;
+    private File catalogRootDirectory;
+    private File resultsDirectory;
+    private Map<String, URI> applicationSpecificRserviPoolUris;
+    private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
+    private String administratorEmail;
+    private PersistedSmtpConfiguration smtpConfiguration;
+    private PersistedJmxRmiConfiguration jmxRmiConfiguration;
+    private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
+    private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
@@ -242,14 +280,11 @@ public class PersistedConfiguration {
     /**
      * Directory under which RSB catalogs are located. The catalogs are:
      * <ul>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.R_SCRIPTS_CATALOG_SUBDIR}: catalog of R
-     * scripts</li>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.SWEAVE_FILE_CATALOG_SUBDIR}: catalog of
-     * Sweave files</li>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.JOB_CONFIGURATION_CATALOG_SUBDIR}:
-     * catalog of ready made job configurations</li>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.EMAIL_REPLIES_CATALOG_SUBDIR}: catalog
-     * of Email replies</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.R_SCRIPTS_CATALOG_SUBDIR}: catalog of R scripts</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.SWEAVE_FILE_CATALOG_SUBDIR}: catalog of Sweave files</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.JOB_CONFIGURATION_CATALOG_SUBDIR}: catalog of ready made
+     * job configurations</li>
+     * <li>{@value eu.openanalytics.rsb.config.Configuration.EMAIL_REPLIES_CATALOG_SUBDIR}: catalog of Email replies</li>
      * </ul>
      * If any of these sub-directories do not pre-exist, RSB will try to create it.
      */
@@ -295,9 +330,8 @@ public class PersistedConfiguration {
     }
 
     /**
-     * Number of concurrent job workers per queue, which must be computed based on the number of
-     * nodes in the RServi pool and the number of job queues (one global plus one per "boosted"
-     * application).
+     * Number of concurrent job workers per queue, which must be computed based on the number of nodes in the RServi
+     * pool and the number of job queues (one global plus one per "boosted" application).
      */
     public int getNumberOfConcurrentJobWorkersPerQueue() {
         return numberOfConcurrentJobWorkersPerQueue;
@@ -319,8 +353,7 @@ public class PersistedConfiguration {
     }
 
     /**
-     * Mapping of application names and RServi RMI pool URIs, or null if no specific mapping is
-     * required.
+     * Mapping of application names and RServi RMI pool URIs, or null if no specific mapping is required.
      */
     public Map<String, URI> getApplicationSpecificRserviPoolUris() {
         return applicationSpecificRserviPoolUris;
@@ -342,8 +375,7 @@ public class PersistedConfiguration {
     }
 
     /**
-     * Optional email address where RSB should send permanent error reports and other service
-     * related messages.
+     * Optional email address where RSB should send permanent error reports and other service related messages.
      */
     public String getAdministratorEmail() {
         return administratorEmail;
@@ -365,10 +397,21 @@ public class PersistedConfiguration {
     }
 
     /**
-     * Optional configuration of root directories where jobs and results will respectively be
-     * dropped and retrieved. The map entry element has the root directory for key and the
-     * application name for value. RSB must have full right on the root directory as it will need to
-     * create sub-directories ({@value
+     * The JMX RMI configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxRmiConfiguration}.
+     */
+    public PersistedJmxRmiConfiguration getJmxRmiConfiguration() {
+        return jmxRmiConfiguration;
+    }
+
+    public void setJmxRmiConfiguration(final PersistedJmxRmiConfiguration jmxRmiConfiguration) {
+        this.jmxRmiConfiguration = jmxRmiConfiguration;
+    }
+
+    /**
+     * Optional configuration of root directories where jobs and results will respectively be dropped and retrieved. The
+     * map entry element has the root directory for key and the application name for value. RSB must have full right on
+     * the root directory as it will need to create sub-directories ({@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
      * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.

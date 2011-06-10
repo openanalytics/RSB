@@ -159,8 +159,7 @@ public abstract class Util {
     }
 
     /**
-     * Extracts an UriBuilder for the current request, taking into account the possibility of
-     * header-based URI override.
+     * Extracts an UriBuilder for the current request, taking into account the possibility of header-based URI override.
      * 
      * @param uriInfo
      * @param httpHeaders
@@ -189,8 +188,7 @@ public abstract class Util {
     }
 
     /**
-     * Gets the first header of multiple HTTP headers, returning null if no header is found for the
-     * name.
+     * Gets the first header of multiple HTTP headers, returning null if no header is found for the name.
      * 
      * @param httpHeaders
      * @param headerName
@@ -255,7 +253,7 @@ public abstract class Util {
      */
     public static String toJson(final Object o) {
         try {
-            return JSON_OBJECT_MAPPER.writeValueAsString(o);
+            return PRETTY_JSON_OBJECT_MAPPER.writeValueAsString(o);
         } catch (final IOException ioe) {
             final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
             throw new RuntimeException("Failed to JSON marshall: " + objectAsString, ioe);

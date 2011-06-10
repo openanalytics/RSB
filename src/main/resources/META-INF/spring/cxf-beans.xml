@@ -36,7 +36,7 @@
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-    <jaxws:endpoint implementor="#soapMtomJobHandler"
+    <jaxws:endpoint id="jaxwsMtomJobEndpoint" implementor="#soapMtomJobHandler"
                     address="/soap/mtom-jobs">
       <jaxws:properties>
         <entry key="mtom-enabled" value="true"/>
@@ -53,7 +53,7 @@
 
     <bean id="iaeMapper" class="eu.openanalytics.rsb.jaxrs.IllegalArgumentExceptionMapper" />
 
-    <jaxrs:server address="/rest">
+    <jaxrs:server id="jaxrsRestServer" address="/rest">
         <jaxrs:serviceBeans>
             <ref bean="jobsResource" />
             <ref bean="resultsResource" />

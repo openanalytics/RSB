@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"
+          p:locateExistingServerIfPossible="true"/>
+          
+    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+        <property name="beans">
+            <map>
+                <entry key="rsb:name=Configuration" value-ref="configuration" />
+                <entry key="rsb:domain=jms,name=GlobalJobMessageListener" value-ref="globalJobMessageListener" />
+                <entry key="rsb:domain=jms,name=RestResultMessageListener" value-ref="restResultMessageListener" />
+                <entry key="rsb:domain=jms,name=DirectoryResultMessageListener" value-ref="directoryResultMessageListener" />
+                <entry key="rsb:domain=jms,name=EmailResultMessageListener" value-ref="emailResultMessageListener" />
+                <entry key="rsb:domain=jms,name=DlqMessageListener" value-ref="dlqMessageListener" />
+                <entry key="rsb:domain=service,name=JaxwsMtomJobEndpoint" value-ref="jaxwsMtomJobEndpoint" />
+                <entry key="rsb:domain=service,name=JaxrsRestServer" value-ref="jaxrsRestServer" />
+                <entry key="rsb:domain=service,name=DirectoryDepositServiceActivator" value-ref="directoryDepositServiceActivator" />
+                <entry key="rsb:domain=service,name=EmailDepositServiceActivator" value-ref="emailDepositServiceActivator" />
+            </map>
+        </property>
+        <property name="server" ref="mbeanServer"/>
+    </bean>
+    
+    <bean
+        class="org.springframework.jmx.support.ConnectorServerFactoryBean"
+        depends-on="rmiRegistry">
+        <property name="objectName" value="connector:name=rmi" />
+        <property name="serviceUrl"
+            value="service:jmx:rmi://127.0.0.1:#{configuration.jmxRmiConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxRmiConfiguration.registryPort}/myconnector" />
+    </bean>
+    
+    <bean id="rmiRegistry"
+        class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+        <property name="port" value="#{configuration.jmxRmiConfiguration.registryPort}" />
+    </bean>
+</beans>

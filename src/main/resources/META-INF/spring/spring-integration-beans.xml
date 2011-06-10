@@ -35,7 +35,8 @@
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
         http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd">
   
-    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"
+    <bean id="mailSender"
+          class="org.springframework.mail.javamail.JavaMailSenderImpl"
           p:host="#{configuration.smtpConfiguration.host}"
           p:port="#{configuration.smtpConfiguration.port}"
           p:username="#{configuration.smtpConfiguration.username}"
@@ -54,13 +55,15 @@
         </list>
       </constructor-arg>
     </bean>
-    <si:channel id="jobDirectoryDepositChannel" />
-    <si:service-activator input-channel="jobDirectoryDepositChannel"
+    <si:channel id="directoryDepositChannel" />
+    <si:service-activator id="directoryDepositServiceActivator"
+                          input-channel="jobDirectoryDepositChannel"
                           ref="directoryDepositHandler"
                           method="handleZipJob" />
 
     <si:channel id="emailDepositChannel" />
-    <si:service-activator input-channel="emailDepositChannel"
+    <si:service-activator id="emailDepositServiceActivator"
+                          input-channel="emailDepositChannel"
                           ref="emailDepositHandler"
                           method="handleJob" />
   </beans>

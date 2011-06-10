@@ -21,24 +21,19 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<project>
-  <body>
-    <menu name="Getting Started">
-      <item name="Building" href="build.html" />
-      <item name="Installation / Configuration" href="install.html" />
-      <item name="Administration" hfref="admin.html" />
-    </menu>
-    <menu name="Technical Guide">
-      <item name="Architecture" href="architecture.html" />
-      <item name="Runtime" href="runtime.html" />
-      <item name="Scalability" href="scalability.html" />
-      <item name="HA" href="ha.html" />
-      <item name="Statistics" href="stats.html" />
-    </menu>
-    <menu name="Usage">
-      <item name="API &amp; Clients" href="wsdocs/index.html" />
-      <item name="XSDs &amp; WSDL" href="api-specs.html" />
-    </menu>
-    <menu ref="reports" />
-  </body>
-</project>
+<document
+    xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Administration</title>
+        <author
+            email="rsb.development@openanalytics.eu">RSB Development</author>
+    </properties>
+    <body>
+        <section name="JMX">
+          <p>RSB exposes MBean accessible with JMX locally and over RMI.</p>
+          <p>By default, the remote process URI is: <b>service:jmx:rmi://127.0.0.1:9098/jndi/rmi://localhost:9099/myconnector</b></p>
+        </section>
+    </body>
+</document>

@@ -34,11 +34,10 @@
         p:deliveryPersistent="true" p:sessionTransacted="true"
         p:receiveTimeout="#{configuration.jobTimeOut}" />
 
-    <!--  Global Job Workers --> 
+    <!--  Global Job Workers -->
     <jms:listener-container connection-factory="amqConnectionFactory"
-        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}"
-        prefetch="1">
-        <jms:listener destination="r.jobs.>" ref="jobProcessor"
+        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue}">
+        <jms:listener id="globalJobMessageListener" destination="r.jobs.>" ref="jobProcessor"
             method="process" />
     </jms:listener-container>
     
@@ -46,16 +45,14 @@
          PriviApp has 3 workers reserved to it, all other applications share the remaining workers -->
     <!--
     <jms:listener-container connection-factory="amqConnectionFactory"
-        acknowledge="transacted" concurrency="3"
-        prefetch="1">
-        <jms:listener destination="r.jobs.>" ref="jobProcessor"
+        acknowledge="transacted" concurrency="3">
+        <jms:listener id="priviAppJobMessageListener" destination="r.jobs.>" ref="jobProcessor"
             method="process"
             selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_MESSAGE_HEADER} = 'PriviApp'"  />
     </jms:listener-container>
     <jms:listener-container connection-factory="amqConnectionFactory"
-        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue - 3}"
-        prefetch="1">
-        <jms:listener destination="r.jobs.>" ref="jobProcessor"
+        acknowledge="transacted" concurrency="#{configuration.numberOfConcurrentJobWorkersPerQueue - 3}">
+        <jms:listener id="globalJobMessageListener" destination="r.jobs.>" ref="jobProcessor"
             method="process"
             selector="#{T(eu.openanalytics.rsb.Constants).APPLICATION_NAME_MESSAGE_HEADER} &lt;&gt; 'PriviApp'"  />
     </jms:listener-container>
@@ -64,21 +61,21 @@
     <!-- Result Processors -->
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
-        <jms:listener destination="r.results.>" ref="restResultProcessor"
+        <jms:listener id="restResultMessageListener" destination="r.results.>" ref="restResultProcessor"
             method="process"
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).REST}'" />
     </jms:listener-container>
 
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
-        <jms:listener destination="r.results.>" ref="directoryDepositHandler"
+        <jms:listener id="directoryResultMessageListener" destination="r.results.>" ref="directoryDepositHandler"
             method="handleZipResult"
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
     </jms:listener-container>
 
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
-        <jms:listener destination="r.results.>" ref="emailDepositHandler"
+        <jms:listener id="emailResultMessageListener" destination="r.results.>" ref="emailDepositHandler"
             method="handleResult"
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).EMAIL}'" />
     </jms:listener-container>
@@ -86,7 +83,7 @@
     <!-- Dead Letter Queue Undertaker -->
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
-        <jms:listener destination="DLQ.r.jobs.*" ref="dlqHandler"
+        <jms:listener id="dlqMessageListener" destination="DLQ.r.jobs.*" ref="dlqHandler"
             method="handle" />
     </jms:listener-container>
 </beans>
