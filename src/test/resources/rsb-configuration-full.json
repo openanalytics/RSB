@@ -9,8 +9,8 @@
     "smtpConfiguration": {
         "host": "localhost", "port": 25, "username": "", "password": ""
     },
-    "jmxRmiConfiguration": {
-        "stubPort": 1098, "registryPort": 1099
+    "jmxConfiguration": {
+        "stubPort": 1098, "registryPort": 1099, "httpPort": 8889
     },
     "depositRootDirectories": [
         {

@@ -39,7 +39,7 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatistics
  * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
  */
 public class PersistedConfigurationAdapter implements Configuration {
-    private static final class DefaultJmxRmiConfiguration implements JmxRmiConfiguration {
+    private static final class DefaultJmxRmiConfiguration implements JmxConfiguration {
         private static final long serialVersionUID = 1L;
 
         public int getStubPort() {
@@ -49,11 +49,15 @@ public class PersistedConfigurationAdapter implements Configuration {
         public int getRegistryPort() {
             return 9099;
         }
+
+        public int getHttpPort() {
+            return 8889;
+        }
     }
 
     private static final long serialVersionUID = 1L;
 
-    public static final JmxRmiConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new DefaultJmxRmiConfiguration();
+    public static final JmxConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new DefaultJmxRmiConfiguration();
     private final transient PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
 
@@ -125,12 +129,12 @@ public class PersistedConfigurationAdapter implements Configuration {
         return persistedConfiguration.getSmtpConfiguration();
     }
 
-    public JmxRmiConfiguration getJmxRmiConfiguration() {
-        if (persistedConfiguration.getJmxRmiConfiguration() == null) {
+    public JmxConfiguration getJmxConfiguration() {
+        if (persistedConfiguration.getJmxConfiguration() == null) {
             return DEFAULT_JMX_RMI_CONFIGURATION;
         }
 
-        return persistedConfiguration.getJmxRmiConfiguration();
+        return persistedConfiguration.getJmxConfiguration();
     }
 
     public JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration() {

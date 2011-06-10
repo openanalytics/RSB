@@ -32,7 +32,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
-import eu.openanalytics.rsb.config.Configuration.JmxRmiConfiguration;
+import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
@@ -100,17 +100,19 @@ public class PersistedConfiguration implements Serializable {
         }
     }
 
-    public static class PersistedJmxRmiConfiguration implements JmxRmiConfiguration {
+    public static class PersistedJmxConfiguration implements JmxConfiguration {
         private static final long serialVersionUID = 1L;
         private int stubPort;
         private int registryPort;
+        private int httpPort;
 
-        public PersistedJmxRmiConfiguration(final int stubPort, final int registryPort) {
+        public PersistedJmxConfiguration(final int stubPort, final int registryPort, final int httpPort) {
             this.stubPort = stubPort;
             this.registryPort = registryPort;
+            this.httpPort = httpPort;
         }
 
-        public PersistedJmxRmiConfiguration() {
+        public PersistedJmxConfiguration() {
             // NOOP
         }
 
@@ -128,6 +130,14 @@ public class PersistedConfiguration implements Serializable {
 
         public void setRegistryPort(final int registryPort) {
             this.registryPort = registryPort;
+        }
+
+        public int getHttpPort() {
+            return httpPort;
+        }
+
+        public void setHttpPort(final int httpPort) {
+            this.httpPort = httpPort;
         }
     }
 
@@ -268,7 +278,7 @@ public class PersistedConfiguration implements Serializable {
     private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
     private String administratorEmail;
     private PersistedSmtpConfiguration smtpConfiguration;
-    private PersistedJmxRmiConfiguration jmxRmiConfiguration;
+    private PersistedJmxConfiguration jmxConfiguration;
     private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
 
@@ -397,15 +407,15 @@ public class PersistedConfiguration implements Serializable {
     }
 
     /**
-     * The JMX RMI configuration used to manage RSB. If not specified default ports will be used. See
-     * {@link JmxRmiConfiguration}.
+     * The JMX configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxConfiguration}.
      */
-    public PersistedJmxRmiConfiguration getJmxRmiConfiguration() {
-        return jmxRmiConfiguration;
+    public PersistedJmxConfiguration getJmxConfiguration() {
+        return jmxConfiguration;
     }
 
-    public void setJmxRmiConfiguration(final PersistedJmxRmiConfiguration jmxRmiConfiguration) {
-        this.jmxRmiConfiguration = jmxRmiConfiguration;
+    public void setJmxConfiguration(final PersistedJmxConfiguration jmxRmiConfiguration) {
+        this.jmxConfiguration = jmxRmiConfiguration;
     }
 
     /**

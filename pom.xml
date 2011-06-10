@@ -219,6 +219,13 @@
       </exclusions>
     </dependency>
     
+    <!-- JMX -->
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-tools</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+    
     <!-- Redis -->
     <dependency>
       <groupId>redis.clients</groupId>

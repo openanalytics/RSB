@@ -57,7 +57,7 @@
     </bean>
     <si:channel id="directoryDepositChannel" />
     <si:service-activator id="directoryDepositServiceActivator"
-                          input-channel="jobDirectoryDepositChannel"
+                          input-channel="directoryDepositChannel"
                           ref="directoryDepositHandler"
                           method="handleZipJob" />
 

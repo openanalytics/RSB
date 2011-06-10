@@ -32,8 +32,14 @@
     </properties>
     <body>
         <section name="JMX">
-          <p>RSB exposes MBean accessible with JMX locally and over RMI.</p>
-          <p>By default, the remote process URI is: <b>service:jmx:rmi://127.0.0.1:9098/jndi/rmi://localhost:9099/myconnector</b></p>
+            <subsection name="RMI">
+              <p>RSB exposes MBeans accessible with JMX locally and over RMI.</p>
+              <p>By default, the remote process URI is: <b>service:jmx:rmi://127.0.0.1:9098/jndi/rmi://localhost:9099/myconnector</b></p>
+            </subsection>
+            <subsection name="HTTP">
+              <p>All the MBeans are also accessible over HTTP</p>
+              <p>By default, the (browsable) HTTP URL is: <b>http://localhost:8889</b></p>
+            </subsection>
         </section>
     </body>
 </document>

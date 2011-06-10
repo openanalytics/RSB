@@ -119,18 +119,23 @@ public interface Configuration extends Serializable {
     }
 
     /**
-     * JMX RMI configuration.
+     * JMX configuration.
      */
-    public interface JmxRmiConfiguration extends Serializable {
+    public interface JmxConfiguration extends Serializable {
         /**
-         * Defaults to 9098.
+         * RMI stub port. Defaults to 9098.
          */
         int getStubPort();
 
         /**
-         * Defaults to 9099.
+         * RMI registry port. Defaults to 9099.
          */
         int getRegistryPort();
+
+        /**
+         * HTTP API port. Defaults to 8889.
+         */
+        int getHttpPort();
     }
 
     /**
@@ -190,10 +195,10 @@ public interface Configuration extends Serializable {
     SmtpConfiguration getSmtpConfiguration();
 
     /**
-     * The JMX RMI configuration used to manage RSB. If not specified default ports will be used. See
-     * {@link JmxRmiConfiguration}.
+     * The JMX configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxConfiguration}.
      */
-    JmxRmiConfiguration getJmxRmiConfiguration();
+    JmxConfiguration getJmxConfiguration();
 
     /**
      * Optional email address where RSB should send permanent error reports and other service related messages.

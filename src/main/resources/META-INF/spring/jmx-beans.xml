@@ -32,6 +32,13 @@
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"
           p:locateExistingServerIfPossible="true"/>
           
+    <bean id="mx4jXsltProcessor" class="mx4j.tools.adaptor.http.XSLTProcessor"/>      
+    <bean id="mx4jHttpAdaptor" class="mx4j.tools.adaptor.http.HttpAdaptor"
+          init-method="start" destroy-method="stop"
+          p:host="0.0.0.0" p:port="#{configuration.jmxConfiguration.httpPort}"
+          p:processor-ref="mx4jXsltProcessor">
+    </bean>
+    
     <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
         <property name="beans">
             <map>
@@ -45,6 +52,7 @@
                 <entry key="rsb:domain=service,name=JaxrsRestServer" value-ref="jaxrsRestServer" />
                 <entry key="rsb:domain=service,name=DirectoryDepositServiceActivator" value-ref="directoryDepositServiceActivator" />
                 <entry key="rsb:domain=service,name=EmailDepositServiceActivator" value-ref="emailDepositServiceActivator" />
+                <entry key="mx4j:name=HttpAdaptor" value-ref="mx4jHttpAdaptor" />
             </map>
         </property>
         <property name="server" ref="mbeanServer"/>
@@ -55,11 +63,11 @@
         depends-on="rmiRegistry">
         <property name="objectName" value="connector:name=rmi" />
         <property name="serviceUrl"
-            value="service:jmx:rmi://127.0.0.1:#{configuration.jmxRmiConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxRmiConfiguration.registryPort}/myconnector" />
+            value="service:jmx:rmi://127.0.0.1:#{configuration.jmxConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxConfiguration.registryPort}/myconnector" />
     </bean>
     
     <bean id="rmiRegistry"
         class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-        <property name="port" value="#{configuration.jmxRmiConfiguration.registryPort}" />
+        <property name="port" value="#{configuration.jmxConfiguration.registryPort}" />
     </bean>
 </beans>

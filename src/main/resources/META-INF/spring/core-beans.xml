@@ -32,6 +32,8 @@
     <!-- Configuration loading and validation -->
     <bean id="configuration" class="eu.openanalytics.rsb.config.ConfigurationFactory"
                              factory-method="loadJsonConfiguration" />
+                             
+    <bean class="eu.openanalytics.rsb.config.SpringContextEventListener" />
 
     <!-- Statistics handler -->
     <bean id="jobStatisticsHandler"
