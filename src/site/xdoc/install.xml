@@ -40,10 +40,17 @@
       <subsection name="Samples">
         <p>Here are a few examples of configuration files:</p>
         <ul>
-        <li><a href="misc/rsb-configuration-minimal.json">Minimal configuration</a>: shows the required configuration entries</li>
-        <li><a href="misc/rsb-configuration-redis.json">Redis statistics store</a>: shows a minimal configuration with an optional Redis statistics store configured</li>
-        <li><a href="misc/rsb-configuration-full.json">Full configuration</a>: shows a complete configuration with examples for all the different job deposit methods</li>
+          <li><a href="misc/rsb-configuration-minimal.json">Minimal configuration</a> - the required configuration entries:
+           <iframe src="misc/rsb-configuration-minimal.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
+          </li>
+          <li><a href="misc/rsb-configuration-redis.json">Redis statistics store</a>: a minimal configuration with an optional Redis statistics store configured:
+           <iframe src="misc/rsb-configuration-redis.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
+          </li>
+          <li><a href="misc/rsb-configuration-full.json">Full configuration</a>: a complete configuration with examples for all the different job deposit methods:
+           <iframe src="misc/rsb-configuration-full.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
+          </li>
         </ul>
+        <iframe frameborder="0" src="misc/rsb-configuration-minimal.json" scrolling="no" width="100%" height="300" />
       </subsection>
       <subsection name="Default Configuration">
         <p>If RSB can't locate a configuration file, it will try to generate one
