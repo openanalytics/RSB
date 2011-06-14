@@ -50,7 +50,6 @@
            <iframe src="misc/rsb-configuration-full.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
           </li>
         </ul>
-        <iframe frameborder="0" src="misc/rsb-configuration-minimal.json" scrolling="no" width="100%" height="300" />
       </subsection>
       <subsection name="Default Configuration">
         <p>If RSB can't locate a configuration file, it will try to generate one
