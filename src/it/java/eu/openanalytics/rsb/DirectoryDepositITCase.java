@@ -36,7 +36,7 @@ import org.junit.Test;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class DirectoryDepositITCase extends AbstractITCase {
     private File jobsDirectory;

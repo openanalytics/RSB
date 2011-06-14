@@ -31,7 +31,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 /**
  * Defines the configuration of RSB, which is injected in all components in order to support runtime changes.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface Configuration extends Serializable {
     public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";

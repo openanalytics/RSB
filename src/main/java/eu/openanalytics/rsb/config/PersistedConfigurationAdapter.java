@@ -36,7 +36,7 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatistics
 /**
  * Adapts a {@link PersistedConfiguration} into a {@link Configuration}.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class PersistedConfigurationAdapter implements Configuration {
     private static final class DefaultJmxRmiConfiguration implements JmxConfiguration {

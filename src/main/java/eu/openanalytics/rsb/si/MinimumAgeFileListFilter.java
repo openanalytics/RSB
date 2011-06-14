@@ -29,7 +29,7 @@ import org.springframework.integration.file.filters.AbstractFileListFilter;
  * Spring Integration file filter that selects only files of a certain age, preventing picking files
  * that are being written.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class MinimumAgeFileListFilter extends AbstractFileListFilter<File> {
     private int minimumAge; // in milliseconds

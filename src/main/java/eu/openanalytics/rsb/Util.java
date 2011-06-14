@@ -57,7 +57,7 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
 /**
  * Shared utilities.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class Util {
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");

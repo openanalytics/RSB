@@ -30,7 +30,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Represents a RSB job that consists in calling the RSBJsonService function on R.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class JsonFunctionCallJob extends AbstractFunctionCallJob {
     private static final long serialVersionUID = 1L;

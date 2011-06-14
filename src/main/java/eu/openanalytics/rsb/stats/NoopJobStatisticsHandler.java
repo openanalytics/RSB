@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class NoopJobStatisticsHandler implements JobStatisticsHandler {
     public final static NoopJobStatisticsHandler INSTANCE = new NoopJobStatisticsHandler();

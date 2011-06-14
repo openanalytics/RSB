@@ -24,7 +24,7 @@ package eu.openanalytics.httpunit;
 import com.meterware.httpunit.HeaderOnlyWebRequest;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class DeleteMethodWebRequest extends HeaderOnlyWebRequest {
     public DeleteMethodWebRequest(final String urlString) {

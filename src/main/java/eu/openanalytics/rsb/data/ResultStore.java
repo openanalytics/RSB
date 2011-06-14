@@ -28,7 +28,7 @@ import java.util.UUID;
 /**
  * Defines a result store.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface ResultStore {
 

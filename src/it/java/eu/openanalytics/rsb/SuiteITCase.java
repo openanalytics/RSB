@@ -45,7 +45,7 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.ConfigurationFactory;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(Suite.class)
 @SuiteClasses({ EmailDepositITCase.class, DirectoryDepositITCase.class, RestITCase.class, SoapMtomITCase.class })

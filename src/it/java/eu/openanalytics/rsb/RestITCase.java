@@ -73,7 +73,7 @@ import com.meterware.httpunit.WebResponse;
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class RestITCase extends AbstractITCase {
     private static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";

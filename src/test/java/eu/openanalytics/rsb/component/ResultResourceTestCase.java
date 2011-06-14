@@ -51,7 +51,7 @@ import eu.openanalytics.rsb.data.PersistedResult;
 import eu.openanalytics.rsb.data.ResultStore;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultResourceTestCase {

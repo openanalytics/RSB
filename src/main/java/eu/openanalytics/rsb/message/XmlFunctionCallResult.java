@@ -30,7 +30,7 @@ import eu.openanalytics.rsb.Constants;
 /**
  * Represents the result of a {@link XmlFunctionCallJob}.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class XmlFunctionCallResult extends AbstractFunctionCallResult {
     private static final long serialVersionUID = 1L;

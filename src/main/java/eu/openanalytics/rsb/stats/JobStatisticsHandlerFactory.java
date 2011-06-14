@@ -26,7 +26,7 @@ import java.util.Map;
 import org.springframework.beans.BeanUtils;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class JobStatisticsHandlerFactory {
 

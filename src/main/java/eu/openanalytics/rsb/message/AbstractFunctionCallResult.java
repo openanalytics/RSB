@@ -29,7 +29,7 @@ import javax.activation.MimeType;
 /**
  * Represents the result of a {@link AbstractFunctionCallJob}.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractFunctionCallResult extends AbstractResult<String> {
     private static final long serialVersionUID = 1L;

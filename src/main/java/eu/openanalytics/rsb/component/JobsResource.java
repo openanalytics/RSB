@@ -59,7 +59,7 @@ import eu.openanalytics.rsb.rest.types.JobToken;
 /**
  * Handles asynchronous R job processing requests.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("jobsResource")
 @Path("/" + Constants.JOBS_PATH)

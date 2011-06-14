@@ -28,7 +28,7 @@ import java.util.UUID;
 /**
  * Represents a RSB job that consists in calling a unary function on R.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractFunctionCallJob extends AbstractJob {
     private static final long serialVersionUID = 1L;

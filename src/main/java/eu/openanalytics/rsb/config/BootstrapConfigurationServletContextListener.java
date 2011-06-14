@@ -43,7 +43,7 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedSmtpConfigura
  * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can
  * start anyway.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class BootstrapConfigurationServletContextListener implements ServletContextListener {
     public static final String RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM = "rsbConfiguration";

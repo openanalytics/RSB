@@ -34,7 +34,7 @@ import eu.openanalytics.rsb.rest.types.ErrorResult;
 /**
  * Represents a generic RSB job.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractJob extends AbstractWorkItem {
     private static final long serialVersionUID = 1L;

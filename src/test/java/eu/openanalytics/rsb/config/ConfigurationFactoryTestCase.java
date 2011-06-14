@@ -29,7 +29,7 @@ import java.util.Set;
 import org.junit.Test;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class ConfigurationFactoryTestCase {
 

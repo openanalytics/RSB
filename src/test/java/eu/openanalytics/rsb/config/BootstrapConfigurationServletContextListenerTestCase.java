@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.springframework.mock.web.MockServletContext;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class BootstrapConfigurationServletContextListenerTestCase {
 

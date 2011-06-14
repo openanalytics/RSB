@@ -30,7 +30,7 @@ import javax.activation.MimeTypeParseException;
 /**
  * Useful constants.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class Constants {
     /**

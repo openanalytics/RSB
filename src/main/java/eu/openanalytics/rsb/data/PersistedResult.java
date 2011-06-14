@@ -34,7 +34,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 /**
  * Defines what a result store should persist for job result.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class PersistedResult {
     private final String applicationName;

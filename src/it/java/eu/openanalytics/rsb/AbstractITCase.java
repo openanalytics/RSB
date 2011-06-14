@@ -38,7 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractITCase {
     protected final static String RSB_BASE_URI = "http://localhost:8888/rsb";

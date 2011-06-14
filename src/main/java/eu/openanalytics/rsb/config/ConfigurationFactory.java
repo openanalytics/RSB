@@ -44,7 +44,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 /**
  * Loads and validated an RSB configuration file and builds a configuration object out of it.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class ConfigurationFactory {
     private static final Log LOGGER = LogFactory.getLog(ConfigurationFactory.class);

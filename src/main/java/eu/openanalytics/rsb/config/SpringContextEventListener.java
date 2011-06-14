@@ -33,7 +33,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class SpringContextEventListener implements ApplicationListener<ContextRefreshedEvent> {
     private static final Log LOGGER = LogFactory.getLog(SpringContextEventListener.class);

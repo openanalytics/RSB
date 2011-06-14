@@ -50,7 +50,7 @@ import eu.openanalytics.rsb.component.AbstractComponent;
 /**
  * A file-based result store.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("resultStore")
 public class FileResultStore extends AbstractComponent implements ResultStore {

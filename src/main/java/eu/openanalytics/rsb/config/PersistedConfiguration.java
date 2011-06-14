@@ -41,7 +41,7 @@ import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
  * 
  * @see Configuration
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class PersistedConfiguration implements Serializable {
     public static class PersistedSmtpConfiguration implements SmtpConfiguration {

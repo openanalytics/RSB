@@ -53,7 +53,7 @@ import eu.openanalytics.rsb.data.ResultStore;
  * <i>NB. Could very well be replaced with a static file serving context on a frontal web
  * server.</i>
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("resultResource")
 @Produces("application/octet-stream")

@@ -51,7 +51,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Represents a RSB job that consists of multiple files.
  * 
- * @author "OpenAnalytics <rsb.development@openanalytics.eu>"
+ * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class MultiFilesJob extends AbstractJob {
     private static final long serialVersionUID = 1L;
