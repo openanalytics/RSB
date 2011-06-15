@@ -40,8 +40,7 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedSmtpConfiguration;
 
 /**
- * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can
- * start anyway.
+ * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can start anyway.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -119,6 +118,7 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         }
     }
 
+    // exposed for unit testing
     static PersistedConfiguration createDefaultConfiguration(final File webInfDirectory) throws URISyntaxException {
         final File defaultRsbHomeDirectory = getDefaultRsbHomeDirectory(webInfDirectory);
         final PersistedConfiguration defaultConfiguration = new PersistedConfiguration();
@@ -132,10 +132,10 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         return defaultConfiguration;
     }
 
-    // by default create all the directories required by RSB under a single parent home
-    // directory
+    // exposed for unit testing
+    // by default create all the directories required by RSB under a single parent home directory
     // note that this is not a requirement: each directory can be located in different locations
-    private static File getDefaultRsbHomeDirectory(final File webInfDirectory) {
+    static File getDefaultRsbHomeDirectory(final File webInfDirectory) {
         // try in different potential locations
         final File[] potentialRsbHomeParentDirectories = { FileUtils.getUserDirectory(), webInfDirectory, FileUtils.getTempDirectory() };
 

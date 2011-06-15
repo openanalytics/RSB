@@ -28,10 +28,15 @@ import java.io.File;
 
 import javax.servlet.ServletContextEvent;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockServletContext;
+
+import eu.openanalytics.rsb.Util;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -81,8 +86,14 @@ public class BootstrapConfigurationServletContextListenerTestCase {
 
     @Test
     public void defaultConfigurationIsValid() throws Exception {
-        final PersistedConfiguration configuration = BootstrapConfigurationServletContextListener.createDefaultConfiguration(FileUtils
-                .getTempDirectory());
+        final File tempDirectory = FileUtils.getTempDirectory();
+        final PersistedConfiguration configuration = BootstrapConfigurationServletContextListener.createDefaultConfiguration(tempDirectory);
         ConfigurationFactory.validate(new PersistedConfigurationAdapter(null, configuration));
+
+        final StringTemplate defaultConfigurationTestTemplate = new StringTemplate(IOUtils.toString(Thread.currentThread()
+                .getContextClassLoader().getResourceAsStream("rsb-configuration-default.json")), DefaultTemplateLexer.class);
+        final File defaultRsbHomeDirectory = BootstrapConfigurationServletContextListener.getDefaultRsbHomeDirectory(tempDirectory);
+        defaultConfigurationTestTemplate.setAttribute("RSB_HOME", defaultRsbHomeDirectory.toString());
+        assertThat(defaultConfigurationTestTemplate.toString(), is(Util.toJson(configuration)));
     }
 }

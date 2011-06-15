@@ -1,0 +1,14 @@
+{
+  "activeMqWorkDirectory" : "$RSB_HOME$/activemq",
+  "catalogRootDirectory" : "$RSB_HOME$/catalog",
+  "defaultRserviPoolUri" : "rmi://127.0.0.1/rservi-pool",
+  "jobTimeOut" : 600000,
+  "numberOfConcurrentJobWorkersPerQueue" : 5,
+  "resultsDirectory" : "$RSB_HOME$/results",
+  "smtpConfiguration" : {
+    "host" : "localhost",
+    "password" : "",
+    "port" : 25,
+    "username" : ""
+  }
+}

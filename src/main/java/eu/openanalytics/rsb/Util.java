@@ -73,6 +73,7 @@ public abstract class Util {
 
     static {
         PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
+        PRETTY_JSON_OBJECT_MAPPER.configure(Feature.SORT_PROPERTIES_ALPHABETICALLY, true);
         PRETTY_JSON_OBJECT_MAPPER.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
 
         try {

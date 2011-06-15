@@ -27,6 +27,9 @@
     <title>Installation / Configuration</title>
     <author email="rsb.development@openanalytics.eu">RSB Development</author>
   </properties>
+  <head>
+    <script src="http://code.jquery.com/jquery-1.6.1.min.js" type="text/javascript"></script>
+  </head>
   <body>
     <section name="Deployment">
       <p>RSB should deploy fine on any Java web-container supporting Servlet
@@ -35,31 +38,46 @@
     <section name="Configuration">
       <p>
         RSB is configured with a unique JSON file named
-        <b>rsb-configuration.json</b>, which must be located at the root of the JVM classpath.
+        <b>rsb-configuration.json</b>, which must be located at the root of the JVM classpath (for example, in Tomcat's lib directory).
       </p>
       <subsection name="Samples">
         <p>Here are a few examples of configuration files:</p>
         <ul>
           <li><a href="misc/rsb-configuration-minimal.json">Minimal configuration</a> - the required configuration entries:
-           <iframe src="misc/rsb-configuration-minimal.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
+           <pre id="min_conf"></pre>
           </li>
           <li><a href="misc/rsb-configuration-redis.json">Redis statistics store</a>: a minimal configuration with an optional Redis statistics store configured:
-           <iframe src="misc/rsb-configuration-redis.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
+           <pre id="redis_conf"></pre>
           </li>
           <li><a href="misc/rsb-configuration-full.json">Full configuration</a>: a complete configuration with examples for all the different job deposit methods:
-           <iframe src="misc/rsb-configuration-full.json" frameborder="0" scrolling="auto" width="100%" height="200"></iframe>
+           <pre id="full_conf"></pre>
           </li>
         </ul>
       </subsection>
       <subsection name="Default Configuration">
-        <p>If RSB can't locate a configuration file, it will try to generate one
+        <p>If RSB can't locate a configuration file, it will try to generate one (named rsb-configuration.json, as above)
           and store it WEB-INF/classes. Here is the content of the default
           configuration:</p>
-        <p>TBD</p>
+        <pre id="def_conf"></pre>
+        <p>In this configuration, $RSB_HOME$ is replaced by either, and in order of preference:</p>
+        <ul>
+            <li>The user's home directory, if it exists and is writeable,</li>
+            <li>The rsb.war WEB-INF directory, if it is writeable,</li>
+            <li>The operating system temporary directory</li>
+        </ul>
+        <p>If RSB generates such a default configuration file, it is recommended to review it so it uses the desired values and move it to the root of the JVM classpath, as discussed in the previous section.</p>
       </subsection>
       <subsection name="Description">
         <p>TBD</p>
       </subsection>
+      <script type="text/javascript">
+        //<![CDATA[
+        $('pre#min_conf').load('misc/rsb-configuration-minimal.json');
+        $('pre#redis_conf').load('misc/rsb-configuration-redis.json');
+        $('pre#full_conf').load('misc/rsb-configuration-full.json');
+        $('pre#def_conf').load('misc/rsb-configuration-default.json');
+        //]]>
+      </script>
     </section>
   </body>
 </document>
