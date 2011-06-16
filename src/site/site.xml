@@ -30,7 +30,6 @@
     </menu>
     <menu name="Technical Guide">
       <item name="Architecture" href="architecture.html" />
-      <item name="Runtime" href="runtime.html" />
       <item name="Scalability" href="scalability.html" />
       <item name="HA" href="ha.html" />
       <item name="Statistics" href="stats.html" />

@@ -33,38 +33,62 @@
     <body>
         <section
             name="Overview">
-            <img
-                src="images/rsb-architecture.png" />
-            <p>TBD</p>
+            <img src="images/rsb-architecture.png" />
+<p>The architecture of RSB is organized around a messaging core that handles job requests and results.</p>
+<p>The goal of this messaging core is twofold:
+<ul>
+<li>it throttles the workload towards pool(s) of remotely managed R nodes, which are the ones in charge of actually processing the jobs,</li>
+<li>it stores the results until they get propagated to their relevant destination (application specific result files for the REST API, immediate response for the SOAP API, emails or response directories).</li>
+</ul>
+</p>
+<p>The messaging core consists in an embedded JMS provider (ActiveMQ) which hosts queues that are specific to the applications submitting R jobs. This allows a segregation of the submitted jobs and their related results. It also opens the door for creating application specific job workers in order to boost the priority of job execution (discussed further on).</p>
+<p>The job workers can optionally <a href="stats.html">report statistics</a> on a pluggable store, like Redis.</p>
         </section>
-        <section
-            name="Job Acceptors">
-            <p>TBD</p>
+        <section name="Job Acceptors and Result Handlers">
+<p>Specific job acceptors and result handlers are deployed as frontal elements to the messaging core described previously. They handle the specifics of the particular protocol, format or transport they deal and take care of communicating with the job queues and reading responses from the response queues.</p>
+<p>Here is a summary of the different job acceptors and their mechanics:
+<ul>
+<li>REST: handles raw (API style) and multi-part (web form style) HTTP requests. It works in an asynchronous manner: jobs are submitted and acknowledged with a unique ID, which is used to later on retrieve the corresponding result. Worker responses are dequeued from the response queues and immediately written to a result store, from where they're served over HTTP. The REST API offers functions for browsing and deleting these result files.</li>
+<li>SOAP: MTOM-enabled web service that offers synchronous semantics over the shared messaging core, this by consuming the result queue in a blocking manner on behalf of the client performing the SOAP call.</li>
+<li>POP3/IMAP &amp; SMTP: works asynchronously, regularly polling an inbox for jobs and routing responses over SMTP</li>
+<li>Directory Deposit: works asynchronously too, scanning a deposit directory and writing results back into another directory. Processed jobs are archived in a third directory.</li>
+</ul>
+</p>
+<p>Though they present very different semantics, all the above acceptors use the same messaging core, which allows a complete decoupling of the job accepting phase from the job processing one.</p>
+<p>Jobs and results are transported as serialized objects over JMS and respectively extend <a href="/apidocs/index.html?eu/openanalytics/rsb/message/AbstractJob.html">AbstractJob</a> and <a href="/apidocs/index.html?eu/openanalytics/rsb/message/AbstractResult.html">AbstractResult.</a></p>
         </section>
-        <section
-            name="Job Workers">
-            <subsection
-                name="Default configuration: No Application Bias">
-                <p>TBD</p>
+        <section name="Job Workers">
+            <subsection name="Job Types">
+                <p>RSB supports two main types of jobs:
+                <ul>
+                <li>Multi-files jobs: usually composed of several data files and an R script.</li>
+                <li>Function call jobs: a single String payload (XML or JSON) passed to a predefined R function.</li>
+                </ul>
+                </p>
             </subsection>
-            <subsection
-                name="Optional configuration: Application Dedicated Pools">
-                <p>TBD</p>
+            <subsection name="Default configuration: No Application Bias">
+              <img src="images/job_workers_default.png" />
+              <p>By default, a single pool of JMS transacted message receivers consume all the R jobs in all the r.jobs.* queues. This JMS pool is sized to match the number of nodes in the targeted RServi pool. That way, each concurrent worker thread that will fetch a job and request an R node to process it will never starve.</p>
             </subsection>
-            <subsection
-                name="Optional configuration: Application Dedicated RServi Instance">
-                <p>TBD</p>
+            <subsection name="Optional configuration: Application Dedicated Pools">
+              <img src="images/job_workers_app_bias.png" />
+              <p>If an application needs to have its jobs processed with a higher precedence than the other applications, the idea is to create a dedicated pool of transacted JMS message receivers sized accordingly with the other dedicated pools, the common pool and the actual number of available nodes on RServi.</p>
+              <p>A JMS filter is used on the common pool of receivers so they do not consume jobs of the privileged application. Conversely, the consumers of the privileged application work only with the specific jobs queue of the privileged application.</p>
+            </subsection>
+            <subsection name="Optional configuration: Application Dedicated RServi Instance">
+              <p>By default, RSB connects to a single RServi instance and uses the nodes it finds there for its R processing needs.</p>
+              <p>It is also possible to configure RSB to use application specific RServi instances. This allows to guarantee that the execution of certain jobs only occur on a server where R is configured with the desired extensions or where the desired operating system is in use.</p>
             </subsection>
         </section>
-        <section
-            name="Job Error Handling">
+        <section name="Job Error Handling">
             <subsection
                 name="RServi Node Starvation">
-                <p>TBD</p>
+                <p>If the processing of a particular R job fails because no RServi node was available, processing will be retried again. This happens by letting the exception received from RServi client (because of the unavailability of node) roll-back the transaction into which the JMS message has been consumed. The JMS provider will then redeliver the message, after a configured amount of time and for a configured number of attempts.</p>
+                <p>If the maximum number of retry attempts is reached, the failing job will be sent to a dead letter queue consumed by an RSB service  which takes care of reporting the error to the original application (via the relevant results queue) and to the RSB admin.</p>
             </subsection>
             <subsection
                 name="Faulty Job">
-                <p>TBD</p>
+                <p>If a job is not processable because it contains error (wrong XML, bad R syntax...) it will not be retried. It is immediately rejected and reported faulty to the calling application through the relevant results queue.</p>
             </subsection>
         </section>
     </body>
