@@ -49,6 +49,13 @@ mvn jetty:run
             </source>
             to start RSB configured to use a locally running RServi.
             </p>
+            <p>Similarly, it's also possible to quickly try RSB with Tomcat 6 by running:
+            <source>
+mvn -Ptc6 cargo:start
+            </source>
+            Press Control+C when you'll be done with testing.
+            </p>
+            <p>In both cases, RSB is accessible at this URL: <a href="http://localhost:8888/rsb">http://localhost:8888/rsb</a></p>
         </section>
         <section name="Integration Tests">
             <p>RServi must be running locally before starting the integration tests.</p>

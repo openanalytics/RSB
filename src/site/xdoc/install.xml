@@ -32,8 +32,7 @@
   </head>
   <body>
     <section name="Deployment">
-      <p>RSB should deploy fine on any Java web-container supporting Servlet
-        2.5.</p>
+      <p>RSB should deploy fine on any Java web-container supporting Servlet 2.5.</p>
     </section>
     <section name="Configuration">
       <p>
