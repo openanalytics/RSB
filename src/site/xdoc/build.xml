@@ -65,9 +65,5 @@ mvn -Pit -Dit.test=SuiteITCase verify
                 </source>
             </p>
         </section>
-        <section name="Smoke Tests">
-            <p>To smoke test a running instance:</p>
-            <p>TBD</p>
-        </section>
     </body>
 </document>
