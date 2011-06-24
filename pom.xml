@@ -52,6 +52,7 @@
     <cxf.version>2.4.0</cxf.version>
     <jetty-plugin.version>7.2.2.v20101205</jetty-plugin.version>
     <soapui.version>3.6.1</soapui.version>
+    <local.server.port>8888</local.server.port>
   </properties>
 
   <repositories>
@@ -413,7 +414,7 @@
           </webAppConfig>
           <connectors>
             <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-              <port>8888</port>
+              <port>${local.server.port}</port>
               <maxIdleTime>0</maxIdleTime>
             </connector>
           </connectors>
@@ -529,6 +530,51 @@
 
   <profiles>
     <profile>
+      <id>tc6</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <version>1.0.5</version>
+            <configuration>
+              <wait>true</wait>
+              <container>
+                <containerId>tomcat6x</containerId>
+                <zipUrlInstaller>
+                  <url>http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
+                  <installDir>${cargo.install.tomcat6x.dir}</installDir>
+                </zipUrlInstaller>
+                <output>${cargo.container.log}</output>
+                <append>false</append>
+                <log>${cargo.log}</log>
+              </container>
+              <configuration>
+                <home>${cargo.home.tomcat6x.dir}</home>
+                <deployables>
+                  <deployable>
+                    <pingURL>http://localhost:${local.server.port}/${project.build.finalName}/index.html</pingURL>
+                  </deployable>
+                </deployables>
+                <properties>
+                  <cargo.servlet.port>${local.server.port}</cargo.servlet.port>
+                </properties>
+              </configuration>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <cargo.install.dir>${java.io.tmpdir}/cargo</cargo.install.dir>
+        <cargo.install.tomcat6x.dir>${cargo.install.dir}/tomcat6x</cargo.install.tomcat6x.dir>
+        <cargo.home.dir>${project.build.directory}/cargo</cargo.home.dir>
+        <cargo.home.tomcat6x.dir>${cargo.home.dir}/tomcat6x</cargo.home.tomcat6x.dir>
+        <cargo.log>${cargo.home.dir}/cargo.log</cargo.log>
+        <cargo.container.log>${cargo.home.dir}/container.log</cargo.container.log>
+      </properties>
+    </profile>
+
+    <profile>
       <id>it</id>
       <build>
         <testResources>
@@ -597,7 +643,7 @@
               </webAppConfig>
               <connectors>
                 <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                  <port>8888</port>
+                  <port>${local.server.port}</port>
                   <maxIdleTime>0</maxIdleTime>
                 </connector>
               </connectors>
