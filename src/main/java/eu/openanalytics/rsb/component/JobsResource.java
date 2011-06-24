@@ -236,7 +236,7 @@ public class JobsResource extends AbstractComponent {
     private JobToken buildJobToken(final UriInfo uriInfo, final HttpHeaders httpHeaders, final AbstractJob job) throws URISyntaxException {
         final JobToken jobToken = Util.REST_OBJECT_FACTORY.createJobToken();
         jobToken.setApplicationName(job.getApplicationName());
-        jobToken.setSubmissionTime(Util.convert(job.getSubmissionTime()));
+        jobToken.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
 
         final String jobIdAsString = job.getJobId().toString();
         jobToken.setJobId(jobIdAsString);

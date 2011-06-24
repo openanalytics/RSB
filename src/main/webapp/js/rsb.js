@@ -41,7 +41,7 @@ function xmlTimeStampToDate(xmlDate)
     dt.setUTCHours(TimeArray[0],TimeArray[1],TimeArray[2]);
     dtS = xmlDate.slice(0, xmlDate.indexOf('T'))
     TimeArray = dtS.split("-");
-    dt.setUTCFullYear(TimeArray[0],TimeArray[1],TimeArray[2]);
+    dt.setUTCFullYear(TimeArray[0],TimeArray[1]-1,TimeArray[2]);
     return dt;
 }
 

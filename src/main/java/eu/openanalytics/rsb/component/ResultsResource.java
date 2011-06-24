@@ -124,7 +124,7 @@ public class ResultsResource extends AbstractComponent {
         final Result result = Util.REST_OBJECT_FACTORY.createResult();
         result.setApplicationName(applicationName);
         result.setJobId(jobId);
-        result.setResultTime(Util.convert(persistedResult.getResultTime()));
+        result.setResultTime(Util.convertToXmlDate(persistedResult.getResultTime()));
         result.setSelfUri(selfUri.toString());
         result.setDataUri(dataUri.toString());
         result.setSuccess(persistedResult.isSuccess());

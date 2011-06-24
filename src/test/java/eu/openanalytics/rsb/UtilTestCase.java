@@ -28,9 +28,13 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import javax.ws.rs.core.HttpHeaders;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.Test;
 
@@ -80,5 +84,18 @@ public class UtilTestCase {
         assertThat(Util.getResourceType(Constants.PDF_MIME_TYPE), is("pdf"));
         assertThat(Util.getResourceType(Constants.TEXT_MIME_TYPE), is("txt"));
         assertThat(Util.getResourceType(Constants.DEFAULT_MIME_TYPE), is("dat"));
+    }
+
+    @Test
+    public void convertToXmlDate() {
+        final GregorianCalendar gmtMinus8Calendar = new GregorianCalendar(TimeZone.getTimeZone(TimeZone
+                .getAvailableIDs(-8 * 60 * 60 * 1000)[0]));
+        gmtMinus8Calendar.set(2010, Calendar.JULY, 21, 11, 35, 48);
+        gmtMinus8Calendar.set(GregorianCalendar.MILLISECOND, 456);
+
+        final XMLGregorianCalendar xmlDate = Util.convertToXmlDate(gmtMinus8Calendar);
+        System.err.println(xmlDate.toXMLFormat());
+        assertThat(xmlDate.getTimezone(), is(0));
+        assertThat(xmlDate.toXMLFormat(), is("2010-07-21T18:35:48.456Z"));
     }
 }

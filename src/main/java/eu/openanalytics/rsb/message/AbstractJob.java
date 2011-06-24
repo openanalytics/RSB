@@ -61,7 +61,7 @@ public abstract class AbstractJob extends AbstractWorkItem {
         final ErrorResult errorResult = Util.REST_OBJECT_FACTORY.createErrorResult();
         errorResult.setApplicationName(job.getApplicationName());
         errorResult.setJobId(job.getJobId().toString());
-        errorResult.setSubmissionTime(Util.convert(job.getSubmissionTime()));
+        errorResult.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
         errorResult.setErrorMessage(error.getMessage());
         return errorResult;
     }

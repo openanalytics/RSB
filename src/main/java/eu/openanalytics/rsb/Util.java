@@ -29,6 +29,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import javax.activation.MimeType;
@@ -184,8 +185,13 @@ public abstract class Util {
      * @param calendar
      * @return
      */
-    public static XMLGregorianCalendar convert(final GregorianCalendar calendar) {
-        return XML_DATATYPE_FACTORY.newXMLGregorianCalendar(calendar);
+    public static XMLGregorianCalendar convertToXmlDate(final GregorianCalendar calendar) {
+        final GregorianCalendar zuluDate = new GregorianCalendar();
+        zuluDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+        zuluDate.setTimeInMillis(calendar.getTimeInMillis());
+
+        final XMLGregorianCalendar xmlDate = XML_DATATYPE_FACTORY.newXMLGregorianCalendar(zuluDate);
+        return xmlDate;
     }
 
     /**
