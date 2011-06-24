@@ -33,6 +33,11 @@
   <body>
     <section name="Deployment">
       <p>RSB should deploy fine on any Java web-container supporting Servlet 2.5.</p>
+      <p>To ensure an RSB instance is running and can access its default RServi pool, browse to or curl:</p>
+      <source>
+http://${RSB host}/rsb/api/rest/system/health/check
+      </source>
+      <p>If all is good, RSB should respond: OK</p>
     </section>
     <section name="Configuration">
       <p>

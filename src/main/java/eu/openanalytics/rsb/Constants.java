@@ -20,12 +20,12 @@
  */
 package eu.openanalytics.rsb;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
 /**
  * Useful constants.
@@ -46,6 +46,7 @@ public class Constants {
     public final static String JOBS_PATH = "jobs";
     public final static String RESULTS_PATH = "results";
     public final static String RESULT_PATH = "result";
+    public final static String HEALTH_PATH = "system/health";
 
     public static final String SOURCE_MESSAGE_HEADER = "source";
     public static final String APPLICATION_NAME_MESSAGE_HEADER = "applicationName";
@@ -78,6 +79,8 @@ public class Constants {
     public static final MimeType ZIP_MIME_TYPE;
     public static final MimeType DEFAULT_MIME_TYPE;
 
+    public static final String RSERVI_CLIENT_ID;
+
     static {
         try {
             JSON_MIME_TYPE = new MimeType(JSON_CONTENT_TYPE);
@@ -86,7 +89,10 @@ public class Constants {
             PDF_MIME_TYPE = new MimeType(PDF_CONTENT_TYPE);
             ZIP_MIME_TYPE = new MimeType(ZIP_CONTENT_TYPE);
             DEFAULT_MIME_TYPE = new MimeType("application/octet-stream");
-        } catch (final MimeTypeParseException mtpe) {
+
+            RSERVI_CLIENT_ID = "rsb@" + InetAddress.getLocalHost().getHostName();
+
+        } catch (final Exception mtpe) {
             throw new IllegalStateException(mtpe);
         }
     }

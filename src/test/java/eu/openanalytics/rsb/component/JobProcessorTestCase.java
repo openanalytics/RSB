@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.UUID;
@@ -82,7 +81,7 @@ public class JobProcessorTestCase {
     private JobStatisticsHandler jobStatisticsHandler;
 
     @Before
-    public void prepareTest() throws UnknownHostException {
+    public void prepareTest() {
         jobProcessor = new JobProcessor();
         jobProcessor.setConfiguration(configuration);
         jobProcessor.setMessageDispatcher(messageDispatcher);

@@ -28,9 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -76,12 +74,6 @@ public class JobProcessor extends AbstractComponent {
 
     @Resource
     private JobStatisticsHandler jobStatisticsHandler;
-
-    private final String rServiClientId;
-
-    public JobProcessor() throws UnknownHostException {
-        rServiClientId = "rsb@" + InetAddress.getLocalHost().getHostName();
-    }
 
     public void process(final AbstractFunctionCallJob job) throws Exception {
         process(job, new JobRunner() {
@@ -180,7 +172,7 @@ public class JobProcessor extends AbstractComponent {
         final URI rserviPoolAddress = getRServiPoolUri(job.getApplicationName());
 
         // don't catch RServi pool here so the error is propagated and the job can be retried
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), rServiClientId);
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), Constants.RSERVI_CLIENT_ID);
 
         try {
             result = jobRunner.runOn(rServi);

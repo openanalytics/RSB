@@ -58,6 +58,7 @@
             <ref bean="jobsResource" />
             <ref bean="resultsResource" />
             <ref bean="resultResource" />
+            <ref bean="systemHealthResource"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="jsonProvider" />
