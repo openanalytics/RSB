@@ -21,16 +21,63 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<document
-    xmlns="http://maven.apache.org/XDOC/2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
-    <properties>
-        <title>Usage Statistics</title>
-        <author
-            email="rsb.development@openanalytics.eu">RSB Development</author>
-    </properties>
-    <body>
-        <p>TBD</p>
-    </body>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Usage Statistics</title>
+    <author email="rsb.development@openanalytics.eu">RSB Development</author>
+  </properties>
+  <body>
+    <section name="Usage Statistics">
+      <p>
+        RSB can report usage statistics on a
+        <a href="apidocs/index.html?eu/openanalytics/rsb/data/ResultStore.html">pluggable datastore</a>
+        , like Redis.
+      </p>
+      <p>The reported usage information consists in this data:</p>
+      <ul>
+        <li>UTC Timestamp</li>
+        <li>Application Name</li>
+        <li>Job ID</li>
+        <li>R Servi Address</li>
+        <li>Time Spent (in milliseconds)</li>
+      </ul>
+      <subsection name="Redis Storage Layout">
+        <p>When stored in Redis, the RSB usage statistics are laid out this way:
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Key Name</th>
+              <th>Collection Type</th>
+              <th>Data Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>rsb:stats:applications</td>
+              <td>SET</td>
+              <td>String</td>
+              <td>Unique application names.</td>
+            </tr>
+            <tr>
+              <td>rsb:stats:${applicationName}:monthstamps</td>
+              <td>SET</td>
+              <td>String</td>
+              <td>Unique "monthstamps" (like: 2011-01).</td>
+            </tr>
+            <tr>
+              <td>rsb:stats:${applicationName}:${monthstamp}</td>
+              <td>LIST</td>
+              <td>JSON String</td>
+              <td>RSB usage information.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>This allows navigation and retrieval per application and time in
+          order to produce usage reports.</p>
+      </subsection>
+    </section>
+  </body>
 </document>

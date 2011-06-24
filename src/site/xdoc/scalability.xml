@@ -21,16 +21,67 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<document
-    xmlns="http://maven.apache.org/XDOC/2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
-    <properties>
-        <title>Scalability</title>
-        <author
-            email="rsb.development@openanalytics.eu">RSB Development</author>
-    </properties>
-    <body>
-        <p>TBD</p>
-    </body>
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+  <properties>
+    <title>Scalability</title>
+    <author email="rsb.development@openanalytics.eu">RSB Development</author>
+  </properties>
+  <body>
+    <section name="Scalability">
+      <subsection name="Scaling Up">
+        <p>The workload of single RSB instance is expected to be minimal, as the
+          bulk of the computation is performed by RServi while RSB takes care of
+          moving job requests and results between JMS, file system and e-mail
+          destinations.</p>
+        <p>Increasing the processing throughput of a single RSB node can be
+          achieved by increasing the size of the RServi node pool and the number
+          of RSB workers. Alternatively, if a single RServi instance is reaching
+          a limit that prevents adding more nodes, RSB can be configured to
+          connect multiple RServi instances in order to spread the workload
+          across them. The selection of a particular pool could be achieved by
+          assigning each independent RSB worker to a specific RServi node or by
+          using the configurable association between applications and RServi
+          pools (for example, to dispatch process intensive applications to a
+          specific RServi pool).</p>
+      </subsection>
+      <subsection name="Scaling Out">
+        <p>Currently, RSB is architectured to run as a single stand-alone node.
+          Should it become necessary to run several nodes in parallel, the
+          following must be considered:</p>
+        <ul>
+          <li>
+            <i>RSB polls email resources</i>
+            : running several instances concurrently
+            consuming the same inboxes
+            would create issues, as some jobs could
+            potentially be retrieved
+            several times (an email resource is not
+            transactional). A possible
+            mitigation is to configure each node
+            differently so they don't
+            compete for the same inboxes.<br/><br/>
+          </li>
+          <li>
+            <i>RSB uses the local file system for handling multi-file jobs</i>
+            : if several RSB nodes get connected to a single JMS provider
+            (instead of each of them using an embedded one), it is possible that
+            a JMS message carries a pointer that references a file present in the
+            file system of another node. A possible mitigation consists in
+            carrying the full multi-file job payloads in JMS messages instead of File
+            references.<br/><br/>
+          </li>
+          <li>
+            <i>Results for the REST API are stored in the local file system:</i>
+            in order to have several RSB nodes serve the same results either the
+            file system where the results are stored should be shared across
+            machines (like with an NFS mount) or an alternative implementation of
+            <a href="apidocs/index.html?eu/openanalytics/rsb/data/ResultStore.html">ResultStore</a>
+            that allows sharing over the network (for example a DB or Redis backed implementation).
+            <br/><br/>
+          </li>
+        </ul>
+      </subsection>
+    </section>
+  </body>
 </document>
