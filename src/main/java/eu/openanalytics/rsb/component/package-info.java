@@ -25,7 +25,8 @@
  * Content-Type: application/zip
  * X-RSB-Application-Name: testApp
  * 
- * ...ZIP data...</pre>
+ * ...ZIP data...
+ * </pre>
  * <p>Response:</p>
  * <pre>
  * HTTP/1.1 202 Accepted
@@ -37,15 +38,18 @@
  *           applicationName="testApp"
  *           submissionTime="2011-06-28T17:07:03.220Z"
  *           applicationResultsUri="http://localhost:8888/rsb/api/rest/results/testApp"
- *           resultUri="http://localhost:8888/rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58"/></pre>
+ *           resultUri="http://localhost:8888/rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58"/>
+ * </pre>
  * <p>The job token contains the necessary links to either browse all the jobs for the concerned application or to retrieve the result of the current job.</p>
  * <h5>Retrieving a result</h5>
  * <p>Request:</p>
  * <pre>
- * GET /rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58 HTTP/1.1</pre>
+ * GET /rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58 HTTP/1.1
+ * </pre>
  * <p>Response when the result is not ready:<p>
  * <pre>
- * HTTP/1.1 404 Not Found</pre>
+ * HTTP/1.1 404 Not Found
+ * </pre>
  * <p>Response when the result is ready:<p>
  * <pre>
  * HTTP/1.1 200 OK
@@ -58,15 +62,18 @@
  *            success="true"
  *            type="zip"
  *            selfUri="http://localhost:8888/rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58"
- *            dataUri="http://localhost:8888/rsb/api/rest/result/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58.zip"/></pre>
+ *            dataUri="http://localhost:8888/rsb/api/rest/result/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58.zip"/>
+ * </pre>
  * <p>As you can see, this is only the metadata for a result. The actual result data is reachable, with an HTTP GET, using the the provided data URI.</p>
  * <h5>Deleting a result</h5>
  * <p>Request:</p>
  * <pre>
- * DELETE /rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58 HTTP/1.1</pre>
+ * DELETE /rsb/api/rest/results/testApp/1f8c8aea-8d90-4bdf-92bb-b8da52f35e58 HTTP/1.1
+ * </pre>
  * <p>Response:</p>
  * <pre>
- * HTTP/1.1 204 No Content</pre>
+ * HTTP/1.1 204 No Content
+ * </pre>
  * <h4>Browser Client</h4>
  * <p>It is also possible to use the REST API from a browser, using a standard HTML form. In that case the following rules apply:
  * <ul>
