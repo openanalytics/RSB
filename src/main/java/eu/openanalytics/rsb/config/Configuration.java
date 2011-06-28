@@ -60,10 +60,10 @@ public interface Configuration extends Serializable {
 
     public interface DepositDirectoryConfiguration extends Serializable {
         /**
-         * RSB must have full right on the root directory as it will need to create sub-directories ({@value
-         * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
-         * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
-         * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
+         * RSB must have full right on the root directory as it will need to create sub-directories (
+         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
+         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
+         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below it.
          */
         File getRootDirectory();
 
@@ -94,14 +94,14 @@ public interface Configuration extends Serializable {
         /**
          * Optional filename of a ready-made email response found in the catalog.
          * 
-         * @see Configuration.getEmailRepliesCatalogDirectory()
+         * @see Configuration#getEmailRepliesCatalogDirectory()
          */
         String getResponseFileName();
 
         /**
          * Optional filename of a ready-made job configuration found in the catalog.
          * 
-         * @see Configuration.getJobConfigurationCatalogDirectory()
+         * @see Configuration#getJobConfigurationCatalogDirectory()
          */
         String getJobConfigurationFileName();
     }
@@ -213,10 +213,10 @@ public interface Configuration extends Serializable {
     /**
      * Optional configuration of root directories where jobs and results will respectively be dropped and retrieved. The
      * map entry element has the root directory for key and the application name for value. RSB must have full right on
-     * the root directory as it will need to create sub-directories ({@value
-     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
-     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
-     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
+     * the root directory as it will need to create sub-directories (
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
     List<DepositDirectoryConfiguration> getDepositRootDirectories();
 

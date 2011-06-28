@@ -290,11 +290,11 @@ public class PersistedConfiguration implements Serializable {
     /**
      * Directory under which RSB catalogs are located. The catalogs are:
      * <ul>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.R_SCRIPTS_CATALOG_SUBDIR}: catalog of R scripts</li>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.SWEAVE_FILE_CATALOG_SUBDIR}: catalog of Sweave files</li>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.JOB_CONFIGURATION_CATALOG_SUBDIR}: catalog of ready made
-     * job configurations</li>
-     * <li>{@value eu.openanalytics.rsb.config.Configuration.EMAIL_REPLIES_CATALOG_SUBDIR}: catalog of Email replies</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR}: catalog of R scripts</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILE_CATALOG_SUBDIR}: catalog of Sweave files</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATION_CATALOG_SUBDIR}: catalog of ready made job
+     * configurations</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR}: catalog of Email replies</li>
      * </ul>
      * If any of these sub-directories do not pre-exist, RSB will try to create it.
      */
@@ -421,10 +421,10 @@ public class PersistedConfiguration implements Serializable {
     /**
      * Optional configuration of root directories where jobs and results will respectively be dropped and retrieved. The
      * map entry element has the root directory for key and the application name for value. RSB must have full right on
-     * the root directory as it will need to create sub-directories ({@value
-     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_JOBS_SUBDIR} , {@value
-     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_ARCHIVE_SUBDIR} and {@value
-     * eu.openanalytics.rsb.config.Configuration.DEPOSIT_RESULTS_SUBDIR}) and files below it.
+     * the root directory as it will need to create sub-directories (
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
     public List<PersistedDepositDirectoryConfiguration> getDepositRootDirectories() {
         return depositRootDirectories;

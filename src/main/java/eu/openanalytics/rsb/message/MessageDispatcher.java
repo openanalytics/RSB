@@ -31,7 +31,6 @@ public interface MessageDispatcher {
      * Dispatches an {@link AbstractJob}.
      * 
      * @param job
-     * @param jmsTemplate
      */
     void dispatch(final AbstractJob job);
 
@@ -39,7 +38,6 @@ public interface MessageDispatcher {
      * Dispatches an {@link AbstractResult}.
      * 
      * @param result
-     * @param jmsTemplate
      */
     void dispatch(final AbstractResult<?> result);
 

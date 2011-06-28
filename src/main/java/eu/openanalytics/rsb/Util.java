@@ -125,7 +125,7 @@ public abstract class Util {
      * Returns the must probable mime type for a file.
      * 
      * @param file
-     * @return {@value Constants.DEFAULT_MIME_TYPE} if unknown.
+     * @return {@link eu.openanalytics.rsb.Constants#DEFAULT_MIME_TYPE} if unknown.
      */
     public static MimeType getMimeType(final File file) {
         try {

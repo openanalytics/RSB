@@ -115,8 +115,8 @@ public class JobsResource extends AbstractComponent {
     /**
      * Handles a function call job with a ZIP payload.
      * 
-     * @param xmlArgument
-     *            Argument passed to the function called on RServi.
+     * @param in
+     *            Input stream of the ZIP data.
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
