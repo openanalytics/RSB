@@ -171,6 +171,17 @@ public abstract class Util {
     public static UriBuilder getUriBuilder(final UriInfo uriInfo, final HttpHeaders httpHeaders) throws URISyntaxException {
         final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder();
 
+        final List<String> hosts = httpHeaders.getRequestHeader(HttpHeaders.HOST);
+        if ((hosts != null) && (!hosts.isEmpty())) {
+            final String host = hosts.get(0);
+            uriBuilder.host(StringUtils.substringBefore(host, ":"));
+
+            final String port = StringUtils.substringAfter(host, ":");
+            if (StringUtils.isNotBlank(port)) {
+                uriBuilder.port(Integer.valueOf(port));
+            }
+        }
+
         final String protocol = Util.getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HTTP_HEADER);
         if (StringUtils.isNotBlank(protocol)) {
             uriBuilder.scheme(protocol);
