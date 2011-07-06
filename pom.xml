@@ -54,6 +54,10 @@
     <soapui.version>3.6.1</soapui.version>
     <local.server.port>8888</local.server.port>
   </properties>
+  
+  <scm>
+    <url>https://github.com/openanalytics/RSB</url>
+  </scm>
 
   <repositories>
     <repository>
