@@ -470,6 +470,7 @@
               <artifactId>maven-enunciate-plugin</artifactId>
               <version>1.21</version>
               <configuration>
+                <configFile>enunciate.xml</configFile>
                 <docsSubdir>wsdocs</docsSubdir>
               </configuration>
             </plugin>

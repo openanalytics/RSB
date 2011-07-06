@@ -42,6 +42,8 @@
             docsDir="wsdocs"
             splashPackage="eu.openanalytics.rsb.component"
             title="R Service Bus API"
+            css="src/site/enunciate/wsdocs.css"
+            xslt="src/site/enunciate/wsdocs.xsl"
             copyright="OpenAnalytics BVBA, 2010-2011" />
     </modules>
 </enunciate>

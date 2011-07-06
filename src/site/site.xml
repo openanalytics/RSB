@@ -26,7 +26,7 @@
     <menu name="Getting Started">
       <item name="Building" href="build.html" />
       <item name="Installation / Configuration" href="install.html" />
-      <item name="Administration" hfref="admin.html" />
+      <item name="Administration" href="admin.html" />
     </menu>
     <menu name="Technical Guide">
       <item name="Architecture" href="architecture.html" />

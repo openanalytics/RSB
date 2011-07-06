@@ -1,0 +1,240 @@
+/*
+ *   R Service Bus
+ *   
+ *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ *
+ *   ===========================================================================
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+body, td, select, input, li {
+    color: #313131;
+    font-family: Arial,Tahoma,Helvetica,sans-serif;
+    font-size: 13px;
+    line-height: 150%;
+}
+body {
+		background:  #FFF url(../images/wieni/body-bg.png) repeat-y 30px top;	
+}
+
+
+/*------------------------------ LINKS -------------------------*/
+
+body a:link, body a:visited {
+	color: #3AA8D5;
+	text-decoration: none;
+}
+body a:hover, body a:focus {
+	color: #0082AA;
+	text-decoration: underline;
+}
+
+/*------------------------------ HEADER -------------------------*/
+
+body #banner {
+	border: none;
+	background: url(../images/wieni/banner-bg.png) repeat-x left top;
+	height: 178px;
+	overflow: hidden;
+	position: relative;
+	z-index: 10;
+}
+body #banner #bannerLeft {
+	background: url(../images/wieni/banner.png) no-repeat left top;
+	height: 68px;
+	padding: 110px 0 0 182px;
+	color: #FFF;
+	font-size: 30px;
+	font-weight: normal;
+  text-shadow: 0px 0px 5px #000; /* FF3.5+, Opera 9+, Saf1+, Chrome */
+}
+body #breadcrumbs {
+	position: absolute;
+	top: 130px;
+	right: 40px;
+	color: #CCC;
+	background: transparent;
+	border: none;
+	z-index: 20;
+	font-size: 11px;
+}
+
+
+/*------------------------------ SIDEBAR  -------------------------*/
+
+body #leftColumn {
+	width: 250px;
+	background: #f0efef url(../images/wieni/sidebar-bg.png) no-repeat left top;
+	border: none;
+	margin: 0 0 0 30px;
+	position: relative;
+	z-index: 30px;
+}
+body #navcolumn {
+    padding: 10px 8px;
+}
+
+/*------- BLOCKS ----------*/
+body #leftColumn h5 {
+	background: url(../images/wieni/sidebar-block.png) no-repeat left top;
+	width: 204px;
+	padding: 10px 15px 7px;
+	color: #FFF;
+	font-size: 15px;
+	font-weight: normal;
+  text-shadow: 0px 0px 5px #000; /* FF3.5+, Opera 9+, Saf1+, Chrome */
+	border: none;
+}
+body #leftColumn ul {
+	background: url(../images/wieni/sidebar-block.png) no-repeat left bottom;
+	width: 204px;
+	padding: 7px 15px 25px;
+}
+body #leftColumn ul li {
+	padding: 0 0 3px 0;
+	margin: 0 0 3px 0;
+	color: #D83635;
+	font-size: 12px;
+	border-bottom: dotted 1px #DEDEDE;
+}
+body #leftColumn ul li a {
+	color: #D83635;
+}
+body #leftColumn ul li.expanded, body #leftColumn ul li.collapsed {
+	padding-left: 12px;
+}
+body #leftColumn ul ul {
+	background: none;
+	width: auto;
+	padding: 5px 0 0 0;
+}
+body #leftColumn ul ul li {
+	border: none;
+	margin: 0;
+}
+
+/*------- CREDITS ----------*/
+body #leftColumn a.poweredBy {
+	display: block;
+	width: 90px;
+	height: 30px;
+	overflow: hidden;
+	margin: 0 auto;
+}
+body #leftColumn a.poweredBy img {
+	margin: 0;
+}
+
+
+/*------------------------------ CONTENT  -------------------------*/
+
+body #bodyColumn {
+	margin: 0 30px 0 280px;
+	padding-left: 20px;
+	background: url(../images/wieni/content-bg.png) no-repeat left 2px;
+}
+
+
+/*------- TITLES ----------*/
+body #bodyColumn h2 {
+	background: none;
+	border: none;
+	color: #4C4C4C;
+	font-size: 30px;
+	font-weight: normal;
+	padding: 0 0 3px 0;
+}
+body #bodyColumn h3 {    
+	color: #D83635;	
+	background: none;
+	border: none;
+	font-size: 20px;
+	font-weight: normal;
+	padding: 0 0 3px 0;
+}
+body #bodyColumn h4 {
+	color: #8E8E8E;
+	background: none;
+	border: none;
+	font-size: 17px;
+	font-weight: normal;
+	padding: 0 0 3px 0;
+}
+body #bodyColumn h5, body #bodyColumn h6 {    
+	color: #8E8E8E;	
+	background: none;
+	border: none;
+	font-size: 15px;
+	font-weight: normal;
+	padding: 0 0 3px 0;
+}
+
+/*------- SECTIONS ----------*/
+body #bodyColumn .section {    
+	padding: 5px 0;
+	margin: 5px 0;
+	border-bottom: dotted 1px #DEDEDE;
+}
+body #bodyColumn .section .section {    
+	padding: 0;
+	margin: 0;
+	border-bottom: none;
+}
+
+/*------- LISTS ----------*/
+body #bodyColumn dl {
+	background-color: #EFF;
+	border: 1px solid #6AE3FF;
+	padding: 4px 4px 4px 6px;
+}
+body #bodyColumn dt {
+	color: #313131;
+	font-size: 15px;
+}
+
+/*------- TABLES ----------*/
+body #bodyColumn table, body #bodyColumn table td {
+	border-collapse: collapse;
+	border: none;
+	border-bottom: solid 1px #FFF;
+}
+body #bodyColumn table th {
+	background: #474e57;
+	border-bottom: solid 1px #000;
+	font-weight: normal;
+	font-size: 14px;
+	padding: 8px 5px;
+}
+body #bodyColumn table td {
+	padding: 5px;
+	background: #EFEFEF;
+}
+body #bodyColumn table .b td {
+	padding: 5px;
+	background: #F6F6F6;
+}
+
+/*------------------------------ FOOTER  -------------------------*/
+
+body #footer {
+	font-size: 11px;
+	color: #999;
+	padding: 10px 30px;
+}
+body #footer a:link, body #footer a:visited {
+	color: #666;
+}
+body #footer a:hover, body #footer a:focus {
+	color: #333;
+}
