@@ -52,9 +52,11 @@
     <cxf.version>2.4.0</cxf.version>
     <jetty-plugin.version>7.2.2.v20101205</jetty-plugin.version>
     <soapui.version>3.6.1</soapui.version>
+    <tomcat.version>6.0.32</tomcat.version>
+    <rservi.webapp.version>0.5.3-SNAPSHOT</rservi.webapp.version>
     <local.server.port>8888</local.server.port>
   </properties>
-  
+
   <scm>
     <url>https://github.com/openanalytics/RSB</url>
   </scm>
@@ -547,7 +549,7 @@
               <container>
                 <containerId>tomcat6x</containerId>
                 <zipUrlInstaller>
-                  <url>http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
+                  <url>http://archive.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
                   <installDir>${cargo.install.tomcat6x.dir}</installDir>
                 </zipUrlInstaller>
                 <output>${cargo.container.log}</output>
@@ -723,6 +725,67 @@
           </exclusions>
         </dependency>
       </dependencies>
+    </profile>
+
+    <profile>
+      <id>tomcat-distribution</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.2</version>
+            <executions>
+              <execution>
+                <id>unpack-tomcat</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache</groupId>
+                      <artifactId>tomcat-core</artifactId>
+                      <version>${tomcat.version}</version>
+                      <type>zip</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>${project.build.directory}/</outputDirectory>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>de.walware.rj</groupId>
+                      <artifactId>de.walware.rj.servi.webapp</artifactId>
+                      <version>${rservi.webapp.version}</version>
+                      <type>war</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>${project.build.directory}/rservi</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <finalName>${project.build.finalName}-${project.version}</finalName>
+              <descriptors>
+                <descriptor>tomcat-distribution-assembly.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

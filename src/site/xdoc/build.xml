@@ -65,5 +65,12 @@ mvn -Pit -Dit.test=SuiteITCase verify
                 </source>
             </p>
         </section>
+        <section name="Packaged Distribution">
+            <p>To build a complete distribution consisting of Tomcat with both the RServi and RSB web application deployed in it, run:
+                <source>
+mvn clean -Ptomcat-distribution package
+                </source>
+            </p>
+        </section>
     </body>
 </document>
