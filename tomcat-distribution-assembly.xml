@@ -7,9 +7,18 @@
     <fileSet>
       <directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
       <outputDirectory>/</outputDirectory>
+      <fileMode>0744</fileMode>
+      <includes>
+        <include>bin/*.sh</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
+      <outputDirectory>/</outputDirectory>
       <excludes>
         <exclude>**/webapps/docs/**</exclude>
         <exclude>**/webapps/examples/**</exclude>
+        <exclude>conf/tomcat-users.xml</exclude>
       </excludes>
     </fileSet>
     <fileSet>
@@ -35,6 +44,13 @@
         <include>${project.groupId}:${project.artifactId}</include>
       </includes>
       <unpack>true</unpack>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>/webapps/rservi/WEB-INF/lib</outputDirectory>
+      <includes>
+        <include>javax.faces:jsf-impl</include>
+      </includes>
+      <unpack>false</unpack>
     </dependencySet>
   </dependencySets>
 </assembly>
