@@ -24,15 +24,16 @@
 <assembly>
   <id>tomcat-distribution</id>
   <formats>
-    <format>tar.gz</format>
+    <format>zip</format>
   </formats>
   <fileSets>
     <fileSet>
-      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
-      <outputDirectory>/</outputDirectory>
+      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}/bin</directory>
+      <outputDirectory>/bin</outputDirectory>
       <includes>
-        <include>bin/*.sh</include>
+        <include>*.sh</include>
       </includes>
+      <fileMode>0744</fileMode>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
@@ -42,25 +43,25 @@
         <exclude>**/webapps/examples/**</exclude>
         <exclude>conf/tomcat-users.xml</exclude>
       </excludes>
+      <fileMode>0644</fileMode>
     </fileSet>
     <fileSet>
       <directory>${project.build.directory}/rservi</directory>
       <outputDirectory>/webapps/rservi</outputDirectory>
+      <fileMode>0644</fileMode>
     </fileSet>
   </fileSets>
   <files>
     <file>
       <source>src/misc/tomcat-users.xml</source>
       <outputDirectory>/conf</outputDirectory>
-    </file>
-    <file>
-      <source>src/misc/rconfig.properties</source>
-      <outputDirectory>/webapps/rservi/WEB-INF</outputDirectory>
+      <fileMode>0644</fileMode>
     </file>
     <file>
       <source>LICENSE</source>
       <outputDirectory>/</outputDirectory>
       <destName>RSB-LICENSE</destName>
+      <fileMode>0644</fileMode>
     </file>
   </files>
   <dependencySets>
