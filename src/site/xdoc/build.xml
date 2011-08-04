@@ -41,6 +41,11 @@
             <source>
 mvn clean install
             </source></p>
+          <p>Note that this war embeds javax dependencies and is designed to be deployed on web containers (like Tomcat or Jetty).</p>
+          <p>To produce a rsb.war that can be deployed on application servers, run:
+            <source>
+mvn -P-javax-dependencies clean install
+            </source></p>
         </section>
         <section name="Test Run">
             <p>On Linux/OS X, you can easily start RSB for a quick ride with:
@@ -51,7 +56,7 @@ mvn jetty:run
             </p>
             <p>Similarly, it's also possible to quickly try RSB with Tomcat 6 by running:
             <source>
-mvn -Ptc6 cargo:start
+mvn -Pjavax-dependencies,tc6 cargo:start
             </source>
             Press Control+C when you'll be done with testing.
             </p>
@@ -61,14 +66,14 @@ mvn -Ptc6 cargo:start
             <p>RServi must be running locally before starting the integration tests.</p>
             <p>If that is the case, then run:
                 <source>
-mvn -Pit -Dit.test=SuiteITCase verify
+mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase verify
                 </source>
             </p>
         </section>
         <section name="Packaged Distribution">
             <p>To build a complete distribution consisting of Tomcat with both the RServi and RSB web application deployed in it, run:
                 <source>
-mvn clean -Ptomcat-distribution package
+mvn clean -Pjavax-dependencies,tomcat-distribution package
                 </source>
             </p>
         </section>

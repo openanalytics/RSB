@@ -56,7 +56,7 @@
     <rservi.webapp.version>0.5.3-SNAPSHOT</rservi.webapp.version>
     <local.server.port>8888</local.server.port>
   </properties>
-
+  
   <scm>
     <url>https://github.com/openanalytics/RSB</url>
   </scm>
@@ -223,9 +223,25 @@
           <groupId>org.springframework</groupId>
           <artifactId>spring-context</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jms_1.1_spec</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     
+    <!-- JavaX -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.5</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- JMX -->
     <dependency>
       <groupId>mx4j</groupId>
@@ -240,24 +256,6 @@
       <version>1.5.1</version>
     </dependency>
         
-    <!-- JavaX -->
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.5</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4.1</version>
-    </dependency>
-    
     <!-- Support -->
     <dependency>
       <groupId>commons-lang</groupId>
@@ -536,6 +534,35 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>javax-dependencies</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>jstl</artifactId>
+          <version>1.2</version>
+        </dependency>
+        <dependency>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+          <version>1.4.1</version>
+        </dependency>
+        <dependency>
+          <groupId>javax.jms</groupId>
+          <artifactId>jms</artifactId>
+          <version>1.1</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+          <version>1.0.1</version>
+        </dependency>
+      </dependencies>
+    </profile>
+
     <profile>
       <id>tc6</id>
       <build>
