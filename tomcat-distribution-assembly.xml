@@ -53,6 +53,16 @@
   </fileSets>
   <files>
     <file>
+      <source>src/misc/rsb.sh</source>
+      <outputDirectory>/bin</outputDirectory>
+      <fileMode>0744</fileMode>
+    </file>
+    <file>
+      <source>src/misc/rsb.bat</source>
+      <outputDirectory>/bin</outputDirectory>
+      <fileMode>0644</fileMode>
+    </file>
+    <file>
       <source>src/misc/tomcat-users.xml</source>
       <outputDirectory>/conf</outputDirectory>
       <fileMode>0644</fileMode>
@@ -71,6 +81,7 @@
         <include>${project.groupId}:${project.artifactId}</include>
       </includes>
       <unpack>true</unpack>
+      <fileMode>0644</fileMode>
     </dependencySet>
     <dependencySet>
       <scope>provided</scope>
@@ -79,6 +90,7 @@
         <include>javax.faces:jsf-impl</include>
       </includes>
       <unpack>false</unpack>
+      <fileMode>0644</fileMode>
     </dependencySet>
   </dependencySets>
 </assembly>
