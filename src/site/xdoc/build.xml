@@ -73,7 +73,7 @@ mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase verify
         <section name="Packaged Distribution">
             <p>To build a complete distribution consisting of Tomcat with both the RServi and RSB web application deployed in it, run:
                 <source>
-mvn clean -Pjavax-dependencies,tomcat-distribution package
+mvn -Pjavax-dependencies,tomcat-distribution clean package
                 </source>
             </p>
         </section>
