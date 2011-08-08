@@ -817,7 +817,7 @@
         <dependency>
           <groupId>javax.faces</groupId>
           <artifactId>jsf-impl</artifactId>
-          <version>1.2-b19</version>
+          <version>1.2MR2</version>
           <scope>provided</scope>
         </dependency>
       </dependencies>
