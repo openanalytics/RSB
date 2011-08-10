@@ -28,7 +28,8 @@
   </formats>
   <fileSets>
     <fileSet>
-      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}/bin</directory>
+      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}/bin
+      </directory>
       <outputDirectory>/bin</outputDirectory>
       <includes>
         <include>*.sh</include>
@@ -36,7 +37,8 @@
       <fileMode>0744</fileMode>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
+      <directory>${project.build.directory}/apache-tomcat-${tomcat.version}
+      </directory>
       <outputDirectory>/</outputDirectory>
       <excludes>
         <exclude>**/webapps/docs/**</exclude>
@@ -71,6 +73,11 @@
       <source>LICENSE</source>
       <outputDirectory>/</outputDirectory>
       <destName>RSB-LICENSE</destName>
+      <fileMode>0644</fileMode>
+    </file>
+    <file>
+      <source>src/main/webapp/favicon.ico</source>
+      <outputDirectory>/webapps/ROOT</outputDirectory>
       <fileMode>0644</fileMode>
     </file>
   </files>
