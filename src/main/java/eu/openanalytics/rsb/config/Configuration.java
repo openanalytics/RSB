@@ -224,4 +224,9 @@ public interface Configuration extends Serializable {
      * Optional configuration of email accounts that will be polled for jobs.
      */
     List<DepositEmailConfiguration> getDepositEmailAccounts();
+
+    /**
+     * Optional configuration of directories where data is accessible.
+     */
+    List<File> getDataDirectories();
 }

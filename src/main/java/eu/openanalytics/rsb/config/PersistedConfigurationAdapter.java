@@ -168,4 +168,8 @@ public class PersistedConfigurationAdapter implements Configuration {
         return emailRepliesCatalogDirectory;
     }
 
+    @Override
+    public List<File> getDataDirectories() {
+        return persistedConfiguration.getDataDirectories();
+    }
 }

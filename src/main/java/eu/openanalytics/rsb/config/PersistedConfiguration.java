@@ -281,6 +281,7 @@ public class PersistedConfiguration implements Serializable {
     private PersistedJmxConfiguration jmxConfiguration;
     private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
+    private List<File> dataDirectories;
 
     @Override
     public String toString() {
@@ -443,5 +444,16 @@ public class PersistedConfiguration implements Serializable {
 
     public void setDepositEmailAccounts(final List<PersistedDepositEmailConfiguration> depositEmailAccounts) {
         this.depositEmailAccounts = depositEmailAccounts;
+    }
+
+    /**
+     * Optional configuration of directories where data is accessible.
+     */
+    public List<File> getDataDirectories() {
+        return dataDirectories;
+    }
+
+    public void setDataDirectories(final List<File> dataDirectories) {
+        this.dataDirectories = dataDirectories;
     }
 }
