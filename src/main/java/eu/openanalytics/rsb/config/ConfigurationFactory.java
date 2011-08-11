@@ -128,6 +128,13 @@ public abstract class ConfigurationFactory {
                 }
             }
         }
+
+        if (pca.getDataDirectories() != null) {
+            for (final File dataDirectoryRoot : pca.getDataDirectories()) {
+                validateIsTrue(dataDirectoryRoot.isDirectory(), "invalid data directory: " + dataDirectoryRoot, validationErrors);
+            }
+        }
+
         return validationErrors;
     }
 

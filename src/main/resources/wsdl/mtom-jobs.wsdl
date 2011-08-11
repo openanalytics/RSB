@@ -30,7 +30,7 @@
         <schema targetNamespace="http://soap.rsb.openanalytics.eu/jobs"
             xmlns="http://www.w3.org/2001/XMLSchema">
             <import namespace="http://soap.rsb.openanalytics.eu/types"
-                schemaLocation="../schemas/soap-jobs-and-results.xsd" />
+                schemaLocation="../schemas/soap-types.xsd" />
         </schema>
     </types>
 

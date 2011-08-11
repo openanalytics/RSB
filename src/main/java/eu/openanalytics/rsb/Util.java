@@ -151,6 +151,27 @@ public abstract class Util {
     }
 
     /**
+     * Builds a data directory URI.
+     * 
+     * @param applicationName
+     * @param jobId
+     * @param httpHeaders
+     * @param uriInfo
+     * @return
+     * @throws URISyntaxException
+     */
+    public static URI buildDataDirectoryUri(final HttpHeaders httpHeaders, final UriInfo uriInfo, final String... directoryPathElements)
+            throws URISyntaxException {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo, httpHeaders).path(Constants.DATA_DIR_PATH);
+        for (final String directoryPathElement : directoryPathElements) {
+            if (StringUtils.isNotEmpty(directoryPathElement)) {
+                uriBuilder = uriBuilder.path(directoryPathElement);
+            }
+        }
+        return uriBuilder.build();
+    }
+
+    /**
      * Validates that the passed string is a valid application name.
      * 
      * @param name

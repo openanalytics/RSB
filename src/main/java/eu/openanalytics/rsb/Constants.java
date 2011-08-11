@@ -46,6 +46,7 @@ public class Constants {
     public final static String JOBS_PATH = "jobs";
     public final static String RESULTS_PATH = "results";
     public final static String RESULT_PATH = "result";
+    public final static String DATA_DIR_PATH = "data";
     public final static String HEALTH_PATH = "system/health";
 
     public static final String SOURCE_MESSAGE_HEADER = "source";
