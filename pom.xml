@@ -28,7 +28,7 @@
   <groupId>eu.openanalytics</groupId>
   <artifactId>rsb</artifactId>
   <packaging>war</packaging>
-  <version>5.0-SNAPSHOT</version>
+  <version>5.0</version>
   <name>R Service Bus</name>
   <description>A communication middleware and work manager for R statistic analysis jobs.</description>
   <url>http://openanalytics.eu</url>
