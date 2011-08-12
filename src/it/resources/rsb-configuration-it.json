@@ -33,5 +33,6 @@
     ],
     "smtpConfiguration": {
         "host": "localhost", "port": 9025, "username": "", "password": ""
-    }
+    },
+    "dataDirectories" : ["/tmp"]
 }

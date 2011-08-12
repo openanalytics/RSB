@@ -28,12 +28,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Before;
 
 import eu.openanalytics.rsb.config.Configuration;
 
@@ -42,6 +48,15 @@ import eu.openanalytics.rsb.config.Configuration;
  */
 public abstract class AbstractITCase {
     protected final static String RSB_BASE_URI = "http://localhost:8888/rsb";
+
+    @Before
+    public void setupXmlNameSpaces() {
+        final Map<String, String> m = new HashMap<String, String>();
+        m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
+
+        final NamespaceContext ctx = new SimpleNamespaceContext(m);
+        XMLUnit.setXpathNamespaceContext(ctx);
+    }
 
     protected Configuration getConfiguration() {
         return SuiteITCase.configuration;

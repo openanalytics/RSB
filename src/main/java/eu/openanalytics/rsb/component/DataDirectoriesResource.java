@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
@@ -58,12 +59,18 @@ public class DataDirectoriesResource extends AbstractComponent {
 
     private final Map<String, File> rootMap = new HashMap<String, File>();
 
+    // exposed for unit testing
+    Map<String, File> getRootMap() {
+        return rootMap;
+    }
+
     @PostConstruct
-    public void setupRootMap() {
+    public void setupRootMap() throws IOException {
         final List<File> dataDirectoryRoots = getConfiguration().getDataDirectories();
         if (dataDirectoryRoots != null) {
             for (final File dataDirectoryRoot : dataDirectoryRoots) {
-                final String rootKey = Base64.encodeBase64URLSafeString(DigestUtils.md5Digest(dataDirectoryRoot.getPath().getBytes()));
+                final String rootKey = Base64.encodeBase64URLSafeString(DigestUtils.md5Digest(dataDirectoryRoot.getCanonicalPath()
+                        .getBytes()));
                 rootMap.put(rootKey, dataDirectoryRoot);
             }
         }
@@ -71,14 +78,15 @@ public class DataDirectoriesResource extends AbstractComponent {
 
     @Path("/")
     @GET
-    public Directory browseRoots(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException {
+    public Directory browseRoots(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException,
+            IOException {
         final Directory roots = Util.REST_OBJECT_FACTORY.createDirectory();
         roots.setPath("/");
         roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, "/").toString());
 
         for (final Entry<String, File> rootEntry : rootMap.entrySet()) {
             final Directory root = Util.REST_OBJECT_FACTORY.createDirectory();
-            roots.setPath(rootEntry.getValue().getPath());
+            roots.setPath(rootEntry.getValue().getCanonicalPath());
             roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootEntry.getKey()).toString());
             roots.getDirectories().add(root);
         }
@@ -89,7 +97,7 @@ public class DataDirectoriesResource extends AbstractComponent {
     @Path("/{rootId}{b64extension : (/b64extension)?}")
     @GET
     public Directory browsePath(@PathParam("rootId") final String rootId, @PathParam("b64extension") final String b64extension,
-            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException {
+            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
 
         final File rootDataDir = rootMap.get(rootId);
         if (rootDataDir == null) {
@@ -103,20 +111,26 @@ public class DataDirectoriesResource extends AbstractComponent {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
+        // ensure the target data dir is below the root dir to prevent tampering
+        final String rootDataDirCanonicalPath = rootDataDir.getCanonicalPath();
+        if (!StringUtils.startsWith(targetDataDir.getCanonicalPath(), rootDataDirCanonicalPath)) {
+            throw new WebApplicationException(Status.FORBIDDEN);
+        }
+
         final Directory result = Util.REST_OBJECT_FACTORY.createDirectory();
-        result.setPath(rootDataDir.getPath() + extension);
+        result.setPath(rootDataDirCanonicalPath + extension);
         result.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, b64extension).toString());
 
         for (final File child : targetDataDir.listFiles()) {
             if (child.isFile()) {
                 final FileType fileType = Util.REST_OBJECT_FACTORY.createFileType();
-                fileType.setPath(child.getPath());
+                fileType.setPath(child.getCanonicalPath());
                 result.getFiles().add(fileType);
             } else if (child.isDirectory()) {
                 final Directory childDir = Util.REST_OBJECT_FACTORY.createDirectory();
-                childDir.setPath(child.getPath());
-                final String childB64extension = Base64.encodeBase64URLSafeString(StringUtils.difference(rootDataDir.getPath(),
-                        child.getPath()).getBytes());
+                childDir.setPath(child.getCanonicalPath());
+                final String childB64extension = Base64.encodeBase64URLSafeString(StringUtils.difference(rootDataDirCanonicalPath,
+                        child.getCanonicalPath()).getBytes());
                 childDir.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, childB64extension).toString());
                 result.getDirectories().add(childDir);
             } else {

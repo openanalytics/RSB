@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,8 +44,6 @@ import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.After;
@@ -75,7 +72,7 @@ import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class RestITCase extends AbstractITCase {
+public class RestJobsITCase extends AbstractITCase {
     private static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
 
     private String restJobsUri;
@@ -87,12 +84,6 @@ public class RestITCase extends AbstractITCase {
         restJobsUri = RSB_BASE_URI + "/api/rest/jobs";
         restResultsUri = RSB_BASE_URI + "/api/rest/results";
         uploadFormUri = RSB_BASE_URI + "/rsb.html";
-
-        final Map<String, String> m = new HashMap<String, String>();
-        m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
-
-        final NamespaceContext ctx = new SimpleNamespaceContext(m);
-        XMLUnit.setXpathNamespaceContext(ctx);
     }
 
     @After
@@ -121,7 +112,7 @@ public class RestITCase extends AbstractITCase {
 
     @Test
     public void jobsBadApplicationName() throws Exception {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()), "application/xml");
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
@@ -135,7 +126,7 @@ public class RestITCase extends AbstractITCase {
 
     @Test
     public void jobsBadContentType() throws Exception {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, new ByteArrayInputStream("ignored".getBytes()),
                 "application/unsupported");
         request.setHeaderField("X-RSB-Application-Name", "myApp");
@@ -150,7 +141,7 @@ public class RestITCase extends AbstractITCase {
 
     @Test
     public void noResultForApplication() throws Exception {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebResponse res = wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName"));
         assertEquals(200, res.getResponseCode());
         assertEquals("application/vnd.rsb+xml", res.getHeaderField("Content-Type"));
@@ -162,7 +153,7 @@ public class RestITCase extends AbstractITCase {
 
     @Test
     public void noResultForApplicationAsJson() throws Exception {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final GetMethodWebRequest request = new GetMethodWebRequest(restResultsUri + "/fooAppName");
         request.setHeaderField("Accept", "application/vnd.rsb+json");
         final WebResponse res = wc.sendRequest(request);
@@ -173,7 +164,7 @@ public class RestITCase extends AbstractITCase {
 
     @Test
     public void resultNotFound() throws Exception {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
 
         try {
             wc.sendRequest(new GetMethodWebRequest(restResultsUri + "/fooAppName/de2e7d40-8253-11e0-885e-0002a5d5c51b"));
@@ -208,7 +199,7 @@ public class RestITCase extends AbstractITCase {
         final String resultUri = getResultUri(resultDoc);
         ponderUntilOneResultAvailable(resultUri);
 
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebResponse response = wc.sendRequest(new DeleteMethodWebRequest(resultUri));
         assertEquals(204, response.getResponseCode());
 
@@ -528,7 +519,7 @@ public class RestITCase extends AbstractITCase {
 
             Thread.sleep(500);
 
-            final WebConversation wc = createNewWebConversation();
+            final WebConversation wc = new WebConversation();
             final WebRequest request = new GetMethodWebRequest(watchUri);
             try {
                 final WebResponse response = wc.sendRequest(request);
@@ -554,7 +545,7 @@ public class RestITCase extends AbstractITCase {
 
     private Document doTestSubmitJobWithXmlAck(final String applicationName, final InputStream job, final String jobContentType,
             final Map<String, String> extraHeaders) throws IOException, SAXException, XpathException {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final PostMethodWebRequest request = new PostMethodWebRequest(restJobsUri, job, jobContentType);
         request.setHeaderField("X-RSB-Application-Name", applicationName);
 
@@ -593,7 +584,7 @@ public class RestITCase extends AbstractITCase {
 
     private Map<?, ?> doTestSubmitJobWithJsonAck(final String applicationName, final InputStream job) throws IOException, SAXException,
             XpathException {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebRequest request = new PostMethodWebRequest(restJobsUri, job, "application/json");
         request.setHeaderField("X-RSB-Application-Name", applicationName);
         request.setHeaderField("Accept", "application/vnd.rsb+json");
@@ -611,7 +602,7 @@ public class RestITCase extends AbstractITCase {
     }
 
     private String doTestResultAvailability(final String resultUri, final String expectedType) throws Exception {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebResponse response = wc.sendRequest(new GetMethodWebRequest(resultUri));
         assertEquals(200, response.getResponseCode());
         assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
@@ -638,7 +629,7 @@ public class RestITCase extends AbstractITCase {
     }
 
     private static WebResponse getResponse(final String resultUri) throws IOException, SAXException {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebRequest request = new GetMethodWebRequest(resultUri);
         final WebResponse response = wc.sendRequest(request);
         return response;
@@ -679,7 +670,7 @@ public class RestITCase extends AbstractITCase {
     }
 
     private static void doTestUnsupportedDeleteMethod(final String requestUri) throws IOException, SAXException {
-        final WebConversation wc = createNewWebConversation();
+        final WebConversation wc = new WebConversation();
         final WebRequest request = new DeleteMethodWebRequest(requestUri);
         try {
             wc.sendRequest(request);
@@ -693,9 +684,5 @@ public class RestITCase extends AbstractITCase {
         final WebClient webClient = new WebClient();
         webClient.setJavaScriptEnabled(false);
         return webClient;
-    }
-
-    private static WebConversation createNewWebConversation() {
-        return new WebConversation();
     }
 }
