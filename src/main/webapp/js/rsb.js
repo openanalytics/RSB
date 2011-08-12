@@ -186,10 +186,24 @@ $(document).ready(function() {
       },
   });
   
-  // load URL parameters into specific field values
+  // Load URL parameters into specific field values
   $('#applicationName').val(urlParams['appName']);
   
-  // setup page appearance
+  // Setup page appearance
   document.title = RSB_FORM_TITLE;
   $('#formTitle').html(RSB_FORM_TITLE);
+  
+  // TODO remove jstree test
+//  $('#dataTreeTest').click(function () {
+//    // TODO trigger data load in tree
+//  });
+//  $('#dataTree').jstree({
+//    "json_data" : {
+//      "data" : [ { "data" : "Remote Data", "state" : "closed" } ],
+//    },
+//    "ui" : {
+//      "select_limit" : 1
+//    },
+//    plugins : [ "themes", "json_data", "ui" ]
+//  });
 });     
