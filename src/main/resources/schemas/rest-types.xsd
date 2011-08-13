@@ -109,10 +109,12 @@
             <xsd:element name="file" type="fileType" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
         <xsd:attribute name="path" type="xsd:string" use="required" />
+        <xsd:attribute name="name" type="xsd:string" use="required" />
         <xsd:attribute name="uri" type="xsd:anyURI" use="required" />
     </xsd:complexType>
     
     <xsd:complexType name="fileType">
         <xsd:attribute name="path" type="xsd:string" use="required" />
+        <xsd:attribute name="name" type="xsd:string" use="required" />
     </xsd:complexType>
 </xsd:schema>

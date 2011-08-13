@@ -82,6 +82,7 @@ public class DataDirectoriesResource extends AbstractComponent {
             IOException {
         final Directory roots = Util.REST_OBJECT_FACTORY.createDirectory();
         roots.setPath("/");
+        roots.setName("/");
         roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, "/").toString());
 
         for (final Entry<String, File> rootEntry : rootMap.entrySet()) {
@@ -119,16 +120,19 @@ public class DataDirectoriesResource extends AbstractComponent {
 
         final Directory result = Util.REST_OBJECT_FACTORY.createDirectory();
         result.setPath(rootDataDirCanonicalPath + extension);
+        result.setName(targetDataDir.getName());
         result.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, b64extension).toString());
 
         for (final File child : targetDataDir.listFiles()) {
             if (child.isFile()) {
                 final FileType fileType = Util.REST_OBJECT_FACTORY.createFileType();
                 fileType.setPath(child.getCanonicalPath());
+                fileType.setName(child.getName());
                 result.getFiles().add(fileType);
             } else if (child.isDirectory()) {
                 final Directory childDir = Util.REST_OBJECT_FACTORY.createDirectory();
                 childDir.setPath(child.getCanonicalPath());
+                childDir.setName(child.getName());
                 final String childB64extension = Base64.encodeBase64URLSafeString(StringUtils.difference(rootDataDirCanonicalPath,
                         child.getCanonicalPath()).getBytes());
                 childDir.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, childB64extension).toString());

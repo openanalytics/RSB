@@ -54,9 +54,9 @@ public class RestMiscITCase extends AbstractITCase {
         assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
 
         final String xml = response.getText();
-        System.out.println(xml);
         assertXpathExists("/rsb:directory", xml);
         assertXpathExists("/rsb:directory/@path", xml);
+        assertXpathExists("/rsb:directory/@name", xml);
         assertXpathExists("/rsb:directory/@uri", xml);
     }
 }
