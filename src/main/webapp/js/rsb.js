@@ -220,12 +220,18 @@ $(document).ready(function() {
       "dots" : true,
       "icons" : true
     },
-    "json_data" : {
-      "data" : [ { "data" : "Remote Data", "state" : "closed" } ],
+    "xml_data" : {
+      "ajax" : {
+        "url" : "api/rest/data",
+        "data" : function (n) { 
+          return { id : n.attr ? n.attr("id") : 0 }; 
+        }
+      },
+      "data" : [ "<item><content><name>Remote Data</name></content></item>" ],
     },
     "ui" : {
       "select_limit" : 1
     },
-    plugins : [ "themes", "json_data", "ui" ]
+    plugins : [ "themes", "xml_data", "ui" ]
   });
 });     
