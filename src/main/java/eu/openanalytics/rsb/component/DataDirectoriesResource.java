@@ -87,8 +87,9 @@ public class DataDirectoriesResource extends AbstractComponent {
 
         for (final Entry<String, File> rootEntry : rootMap.entrySet()) {
             final Directory root = Util.REST_OBJECT_FACTORY.createDirectory();
-            roots.setPath(rootEntry.getValue().getCanonicalPath());
-            roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootEntry.getKey()).toString());
+            root.setPath(rootEntry.getValue().getCanonicalPath());
+            root.setName(rootEntry.getValue().getName());
+            root.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootEntry.getKey()).toString());
             roots.getDirectories().add(root);
         }
 
