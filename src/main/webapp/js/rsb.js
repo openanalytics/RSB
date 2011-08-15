@@ -101,6 +101,13 @@ function loadApplicationResults(applicationName, highlightJobId) {
 }
 
 function showRemoteFileSelector(selectionType, targetInput) {
+  if ((selectionType != 'file') && (selectionType != 'directory')) {
+    alert("Unsupported section type: " + selectionType);
+    return false;
+  }
+  
+  $('#remoteDataSelectorType').text(selectionType);
+  
   // TODO support selectionType=file|directory, targetInput
   $('#remoteDataSelector').dialog('open');
   return false;
@@ -108,7 +115,7 @@ function showRemoteFileSelector(selectionType, targetInput) {
 
 $(document).ready(function() {
   // Dialogs
-  $("#remoteDataSelector").dialog({
+  $('#remoteDataSelector').dialog({
     autoOpen: false,
     width: 600,
     buttons: {
@@ -145,7 +152,7 @@ $(document).ready(function() {
       var applicationName = $('#applicationName').val();
       
       if (applicationName.length == 0) {
-        alert('You must provide an application name for retrieving its results!');
+        alert("You must provide an application name for retrieving its results!");
       } else {
         loadApplicationResults(applicationName);
       }
@@ -213,6 +220,7 @@ $(document).ready(function() {
   document.title = RSB_FORM_TITLE;
   $('#formTitle').html(RSB_FORM_TITLE);
   
+  // TODO make this initialization optional 
   $('#dataTree').jstree({
     "themes" : {
       "theme" : "classic",
@@ -220,18 +228,54 @@ $(document).ready(function() {
       "dots" : true,
       "icons" : true
     },
-    "xml_data" : {
+    "json_data" : {
+      "progressive_render" : true,
       "ajax" : {
-        "url" : "api/rest/data",
-        "data" : function (n) { 
-          return { id : n.attr ? n.attr("id") : 0 }; 
+        "url" : function (node) {
+          log.debug('jsTree requesting data for node: '+node);
+          return "api/rest/data";
+        },
+        "success" : function(remoteData) {
+          var directory = remoteData.directory;
+          log.debug('jsTree got remote directory: '+directory.name);
+          
+          children = [];
+          
+          // add child directories
+          var childDirectories = directory.directory;
+          for(var key in childDirectories) {
+            var childDirectory = childDirectories[key];
+            children.push(
+              {data :
+                {
+                 title: childDirectory.name,
+                 attr:  {path: childDirectory.path, uri: childDirectory.uri}
+                }
+               });
+            log.debug('jsTree got remote child directory: '+childDirectory.name);
+          }
+          
+          // TODO add child files
+          
+          return {
+                  data :
+                   {
+                    title: directory.name,
+                    attr:  {path: directory.path, uri: directory.uri}
+                   },
+                   children: children
+                 };
+        },
+        "failure" : function(event, jqXHR, ajaxSettings, thrownError) {
+          log.error('jsTree data fetch error: '+thrownError); 
         }
-      },
-      "data" : [ "<item><content><name>Remote Data</name></content></item>" ],
+      }
     },
     "ui" : {
       "select_limit" : 1
     },
-    plugins : [ "themes", "xml_data", "ui" ]
+    plugins : [ "themes", "json_data", "ui" ]
   });
+  
+  log.info('RSB UI Ready');
 });     

@@ -54,7 +54,8 @@ import eu.openanalytics.rsb.rest.types.FileType;
  */
 @Component("dataDirectoriesResource")
 @Path("/" + Constants.DATA_DIR_PATH)
-@Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
+// Produces "regular" XML/JSON content types as browsers don't understand subtypes correctly
+@Produces({ Constants.JSON_CONTENT_TYPE, Constants.XML_CONTENT_TYPE, Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
 public class DataDirectoriesResource extends AbstractComponent {
 
     private final Map<String, File> rootMap = new HashMap<String, File>();
@@ -82,7 +83,7 @@ public class DataDirectoriesResource extends AbstractComponent {
             IOException {
         final Directory roots = Util.REST_OBJECT_FACTORY.createDirectory();
         roots.setPath("/");
-        roots.setName("/");
+        roots.setName("Remote Data");
         roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, "/").toString());
 
         for (final Entry<String, File> rootEntry : rootMap.entrySet()) {

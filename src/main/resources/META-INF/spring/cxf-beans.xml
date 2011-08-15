@@ -45,6 +45,7 @@
 
     <util:list id="jsonRsbTypes">
         <value>#{T(eu.openanalytics.rsb.Constants).RSB_JSON_CONTENT_TYPE}</value>
+        <value>#{T(eu.openanalytics.rsb.Constants).JSON_CONTENT_TYPE}</value>
     </util:list>
 
     <bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.JSONProvider"
