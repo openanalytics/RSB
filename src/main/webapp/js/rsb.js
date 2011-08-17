@@ -21,6 +21,7 @@
  *   @author rsb.development@openanalytics.eu
  */
 
+var remoteDataRoot;
 var urlParams = {};
 (function () {
     var e,
@@ -100,11 +101,118 @@ function loadApplicationResults(applicationName, highlightJobId) {
   }});
 }
 
+var remoteDataNode = function(remoteDirectory) {
+  var name;
+  var attr = {};
+  var children = [];
+  
+  if (remoteDirectory) {
+    name = remoteDirectory.name;
+    attr = {path: remoteDirectory.path, uri: remoteDirectory.uri};
+  }
+  
+  var o = $({});
+  
+  o.extend({
+    openNode: function(cb) {
+      log.debug("Open->"+this.getName());
+      
+      if (this.getAttr()) {
+        $.ajax({
+          type       : 'GET',
+          url        : this.getAttr().uri,
+          dataType   : 'json',
+                    
+          success: function(data) {
+            // add child directories
+            var childDirectories = data.directory.directory;
+            var newChildren = [];
+            for(var key in childDirectories) {
+              var childDirectory = childDirectories[key];
+              var newChild = remoteDataNode(childDirectory); 
+              newChildren.push(newChild);
+              o.addChild(newChild);
+            }
+            // TODO add child files
+            remoteDataRoot.trigger("addChildren.jstree",[o,newChildren]);
+          }
+        });
+        
+        remoteDataRoot.trigger("addChildren.jstree",[this,children]);
+        if (cb && typeof(cb) === "function") {
+          cb();
+        }
+      }
+    },
+    closeNode: function() {
+      // NOOP
+    },
+    hasChildren : function() {
+      // FIXME add a isEmpty property on remote dir REST resource
+      return this.getAttr().path == '/' || children.length > 0;
+    },
+    addChild : function(child) {
+      children.push(child);
+      return this;
+    },
+    removeChild : function(i) {
+      var child;
+      if (i>=children.length) {
+        child = children.pop();
+      } else {
+        child = children[i];
+        delete children[i];
+      }
+      remoteDataRoot.trigger("removeChildren.jstree",[this,child]);               
+      return this;
+    },
+    getAttr : function() {
+      return attr;
+    },
+    getName : function() {
+      return name;
+    },
+    getProps : function() {
+      return attr;
+    }
+  });
+  
+  return o;
+};
+
+function initializeRemoteDataTree(data) {
+  $('#remoteDataTree').jstree({
+    themes : {
+      theme : "classic",
+      url : "./css/jstree-classic/style.css",
+      dots : true,
+      icons : true
+    },
+    model_data: {
+      data: function(){return(remoteDataRoot);}, 
+      progressive_render: true, 
+      progressive_unload: true,
+      type_attr: "mytype",
+      id_prefix: "myid"
+    },
+    ui : {
+      select_limit : 1
+    },
+    plugins : [ 'themes', 'ui', 'model_data' ]
+  });
+  
+  remoteDataRoot = remoteDataNode({name:'Remote Data',uri:'api/rest/data',path:'/'});
+  remoteDataRoot = remoteDataNode().addChild(remoteDataRoot);
+  log.info('Remote Data Browser Initialized');
+}
+
 function showRemoteFileSelector(selectionType, targetInput) {
   if ((selectionType != 'file') && (selectionType != 'directory')) {
     alert("Unsupported section type: " + selectionType);
     return false;
   }
+  
+  $('button:has(span:contains(Select))').attr('disabled', 'disabled');
   
   $('#remoteDataSelectorType').text(selectionType);
   
@@ -219,62 +327,16 @@ $(document).ready(function() {
   // Setup page appearance
   document.title = RSB_FORM_TITLE;
   $('#formTitle').html(RSB_FORM_TITLE);
-  
-  // TODO make this initialization optional 
-  $('#dataTree').jstree({
-    "themes" : {
-      "theme" : "classic",
-      "url" : "./css/jstree-classic/style.css",
-      "dots" : true,
-      "icons" : true
-    },
-    "json_data" : {
-      "progressive_render" : true,
-      "ajax" : {
-        "url" : function (node) {
-          log.debug('jsTree requesting data for node: '+node);
-          return "api/rest/data";
-        },
-        "success" : function(remoteData) {
-          var directory = remoteData.directory;
-          log.debug('jsTree got remote directory: '+directory.name);
-          
-          children = [];
-          
-          // add child directories
-          var childDirectories = directory.directory;
-          for(var key in childDirectories) {
-            var childDirectory = childDirectories[key];
-            children.push(
-              {data :
-                {
-                 title: childDirectory.name,
-                 attr:  {path: childDirectory.path, uri: childDirectory.uri}
-                }
-               });
-            log.debug('jsTree got remote child directory: '+childDirectory.name);
-          }
-          
-          // TODO add child files
-          
-          return {
-                  data :
-                   {
-                    title: directory.name,
-                    attr:  {path: directory.path, uri: directory.uri}
-                   },
-                   children: children
-                 };
-        },
-        "failure" : function(event, jqXHR, ajaxSettings, thrownError) {
-          log.error('jsTree data fetch error: '+thrownError); 
-        }
-      }
-    },
-    "ui" : {
-      "select_limit" : 1
-    },
-    plugins : [ "themes", "json_data", "ui" ]
+
+  // Remote data browser
+  $.ajax({
+    type       : 'GET',
+    url        : 'api/rest/data',
+    dataType   : 'json',
+              
+    success: function(data, textStatus, xhr) {
+      initializeRemoteDataTree(data);
+    }
   });
   
   log.info('RSB UI Ready');
