@@ -85,12 +85,15 @@ public class DataDirectoriesResource extends AbstractComponent {
         roots.setPath("/");
         roots.setName("Remote Data");
         roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, "/").toString());
+        roots.setEmpty(rootMap.isEmpty());
 
         for (final Entry<String, File> rootEntry : rootMap.entrySet()) {
             final Directory root = Util.REST_OBJECT_FACTORY.createDirectory();
-            root.setPath(rootEntry.getValue().getCanonicalPath());
-            root.setName(rootEntry.getValue().getName());
+            final File rootDirectory = rootEntry.getValue();
+            root.setPath(rootDirectory.getCanonicalPath());
+            root.setName(rootDirectory.getName());
             root.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootEntry.getKey()).toString());
+            root.setEmpty(isDirectoryEmpty(rootDirectory));
             roots.getDirectories().add(root);
         }
 
@@ -125,7 +128,10 @@ public class DataDirectoriesResource extends AbstractComponent {
         result.setName(targetDataDir.getName());
         result.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, b64extension).toString());
 
-        for (final File child : targetDataDir.listFiles()) {
+        final File[] targetDataDirFiles = targetDataDir.listFiles();
+        result.setEmpty(targetDataDirFiles.length == 0);
+
+        for (final File child : targetDataDirFiles) {
             if (child.isFile()) {
                 final FileType fileType = Util.REST_OBJECT_FACTORY.createFileType();
                 fileType.setPath(child.getCanonicalPath());
@@ -138,6 +144,7 @@ public class DataDirectoriesResource extends AbstractComponent {
                 final String childB64extension = Base64.encodeBase64URLSafeString(StringUtils.difference(rootDataDirCanonicalPath,
                         child.getCanonicalPath()).getBytes());
                 childDir.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, childB64extension).toString());
+                childDir.setEmpty(isDirectoryEmpty(child));
                 result.getDirectories().add(childDir);
             } else {
                 getLogger().warn("unsupported file type: " + child);
@@ -145,5 +152,13 @@ public class DataDirectoriesResource extends AbstractComponent {
         }
 
         return result;
+    }
+
+    private boolean isDirectoryEmpty(final File file) {
+        if (!file.isDirectory()) {
+            return true;
+        }
+        final File[] childFiles = file.listFiles();
+        return childFiles == null ? true : childFiles.length == 0;
     }
 }

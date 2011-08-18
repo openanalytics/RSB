@@ -111,6 +111,7 @@
         <xsd:attribute name="path" type="xsd:string" use="required" />
         <xsd:attribute name="name" type="xsd:string" use="required" />
         <xsd:attribute name="uri" type="xsd:anyURI" use="required" />
+        <xsd:attribute name="empty" type="xsd:boolean" use="required" />
     </xsd:complexType>
     
     <xsd:complexType name="fileType">

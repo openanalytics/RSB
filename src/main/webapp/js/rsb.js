@@ -101,55 +101,80 @@ function loadApplicationResults(applicationName, highlightJobId) {
   }});
 }
 
+function callCallback(cb) {
+  if (cb && typeof(cb) === "function") {
+    cb();
+  }
+}
+
+
 var remoteDataNode = function(remoteDirectory) {
   var name;
-  var attr = {};
+  var attr = {class: 'jstree-leaf'};
   var children = [];
+  var empty = true;
+  var fetched = false;
   
   if (remoteDirectory) {
     name = remoteDirectory.name;
     attr = {path: remoteDirectory.path, uri: remoteDirectory.uri};
+    empty = remoteDirectory.empty;
+    log.debug("Created "+name + " / " + remoteDirectory.path + " / " + remoteDirectory.uri);
   }
   
   var o = $({});
   
   o.extend({
     openNode: function(cb) {
-      log.debug("Open->"+this.getName());
-      
-      if (this.getAttr()) {
-        $.ajax({
-          type       : 'GET',
-          url        : this.getAttr().uri,
-          dataType   : 'json',
-                    
-          success: function(data) {
-            // add child directories
-            var childDirectories = data.directory.directory;
-            var newChildren = [];
-            for(var key in childDirectories) {
-              var childDirectory = childDirectories[key];
-              var newChild = remoteDataNode(childDirectory); 
-              newChildren.push(newChild);
-              o.addChild(newChild);
-            }
-            // TODO add child files
-            remoteDataRoot.trigger("addChildren.jstree",[o,newChildren]);
-          }
-        });
+      // TODO refactor this code as soon as it is working A-OK
+      if (attr.uri) {
+        log.debug("Calling "+attr.uri);
         
-        remoteDataRoot.trigger("addChildren.jstree",[this,children]);
-        if (cb && typeof(cb) === "function") {
-          cb();
+        if (!fetched) {
+          $.ajax({
+            type       : 'GET',
+            url        : attr.uri,
+            dataType   : 'json',
+                      
+            success: function(data) {
+              log.debug("Retrieved "+data.directory.name);
+              var newChildren = [];
+              
+              // add child directories
+              var childDirectoryOrIes = data.directory.directory;
+              if (childDirectoryOrIes) {
+                var childDirectories = childDirectoryOrIes instanceof Array ? childDirectoryOrIes : [childDirectoryOrIes];
+                for(var key in childDirectories) {
+                  var childDirectory = childDirectories[key];
+                  var newChild = remoteDataNode(childDirectory); 
+                  newChildren.push(newChild);
+                  log.debug("Added dir: "+childDirectory.name + " / " + childDirectory.path + " / " + childDirectory.uri +" in "+o.getName());
+                }
+              }
+              
+              // TODO add child files (use type for this)
+              
+              o.markFetched();
+              remoteDataRoot.trigger("addChildren.jstree",[o,newChildren]);
+              callCallback(cb);
+            }
+          });
+        } else {
+          callCallback(cb);
         }
+      } else {
+        remoteDataRoot.trigger("addChildren.jstree",[this,children]);
+        callCallback(cb);
       }
+    },
+    markFetched : function() {
+      fetched = true;
     },
     closeNode: function() {
       // NOOP
     },
     hasChildren : function() {
-      // FIXME add a isEmpty property on remote dir REST resource
-      return this.getAttr().path == '/' || children.length > 0;
+      return attr.path == '/' || !empty || children.length > 0;
     },
     addChild : function(child) {
       children.push(child);
@@ -170,7 +195,8 @@ var remoteDataNode = function(remoteDirectory) {
       return attr;
     },
     getName : function() {
-      return name;
+      // TODO find a better way to avoid name issues
+      return " "+name;
     },
     getProps : function() {
       return attr;
@@ -191,7 +217,7 @@ function initializeRemoteDataTree(data) {
     model_data: {
       data: function(){return(remoteDataRoot);}, 
       progressive_render: true, 
-      progressive_unload: true,
+      progressive_unload: false,
       type_attr: "mytype",
       id_prefix: "myid"
     },
