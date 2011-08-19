@@ -22,6 +22,9 @@
  */
 
 var remoteDataRoot;
+var remoteDataSelectionContext;
+var selectedRemoteDataNode;
+
 var urlParams = {};
 (function () {
     var e,
@@ -107,19 +110,17 @@ function callCallback(cb) {
   }
 }
 
-
-var remoteDataNode = function(remoteDirectory) {
+var remoteDataNode = function(remoteNode, type) {
   var name;
-  var attr = {class: 'jstree-leaf'};
-  var children = [];
+  var attr = {};
   var empty = true;
+  var children = [];
   var fetched = false;
   
-  if (remoteDirectory) {
-    name = remoteDirectory.name;
-    attr = {path: remoteDirectory.path, uri: remoteDirectory.uri};
-    empty = remoteDirectory.empty;
-    log.debug("Created "+name + " / " + remoteDirectory.path + " / " + remoteDirectory.uri);
+  if (remoteNode) {
+    name = remoteNode.name;
+    attr = {path: remoteNode.path, uri: remoteNode.uri, type: type};
+    empty = remoteNode.empty;
   }
   
   var o = $({});
@@ -128,8 +129,6 @@ var remoteDataNode = function(remoteDirectory) {
     openNode: function(cb) {
       // TODO refactor this code as soon as it is working A-OK
       if (attr.uri) {
-        log.debug("Calling "+attr.uri);
-        
         if (!fetched) {
           $.ajax({
             type       : 'GET',
@@ -137,7 +136,6 @@ var remoteDataNode = function(remoteDirectory) {
             dataType   : 'json',
                       
             success: function(data) {
-              log.debug("Retrieved "+data.directory.name);
               var newChildren = [];
               
               // add child directories
@@ -146,13 +144,12 @@ var remoteDataNode = function(remoteDirectory) {
                 var childDirectories = childDirectoryOrIes instanceof Array ? childDirectoryOrIes : [childDirectoryOrIes];
                 for(var key in childDirectories) {
                   var childDirectory = childDirectories[key];
-                  var newChild = remoteDataNode(childDirectory); 
+                  var newChild = remoteDataNode(childDirectory, 'directory'); 
                   newChildren.push(newChild);
-                  log.debug("Added dir: "+childDirectory.name + " / " + childDirectory.path + " / " + childDirectory.uri +" in "+o.getName());
                 }
               }
               
-              // TODO add child files (use type for this)
+              // FIXME add child files (use type for this)
               
               o.markFetched();
               remoteDataRoot.trigger("addChildren.jstree",[o,newChildren]);
@@ -195,11 +192,13 @@ var remoteDataNode = function(remoteDirectory) {
       return attr;
     },
     getName : function() {
-      // TODO find a better way to avoid name issues
-      return " "+name;
+      return {title: name};
     },
     getProps : function() {
       return attr;
+    },
+    getType : function() {
+      return type;
     }
   });
   
@@ -207,6 +206,7 @@ var remoteDataNode = function(remoteDirectory) {
 };
 
 function initializeRemoteDataTree(data) {
+  // FIXME add type support for file and root node
   $('#remoteDataTree').jstree({
     themes : {
       theme : "classic",
@@ -225,9 +225,11 @@ function initializeRemoteDataTree(data) {
       select_limit : 1
     },
     plugins : [ 'themes', 'ui', 'model_data' ]
+  }).bind("select_node.jstree", function (event, data) {
+    selectedRemoteDataNode = data.rslt.obj;
   });
   
-  remoteDataRoot = remoteDataNode({name:'Remote Data',uri:'api/rest/data',path:'/'});
+  remoteDataRoot = remoteDataNode({name:'Remote Data',uri:'api/rest/data',path:'/'}, 'root');
   remoteDataRoot = remoteDataNode().addChild(remoteDataRoot);
   log.info('Remote Data Browser Initialized');
 }
@@ -237,28 +239,45 @@ function showRemoteFileSelector(selectionType, targetInput) {
     alert("Unsupported section type: " + selectionType);
     return false;
   }
-  
-  $('button:has(span:contains(Select))').attr('disabled', 'disabled');
-  
   $('#remoteDataSelectorType').text(selectionType);
-  
-  // TODO support selectionType=file|directory, targetInput
+  remoteDataSelectionContext = {selectionType: selectionType, targetInput: targetInput};
   $('#remoteDataSelector').dialog('open');
   return false;
+}
+
+function showErrorDialog(message) {
+  $('#errorDialogText').text(message);
+  $('#errorDialog').dialog('open');
 }
 
 $(document).ready(function() {
   // Dialogs
   $('#remoteDataSelector').dialog({
+    modal: true,
     autoOpen: false,
     width: 600,
     buttons: {
       "Select": function() { 
+        if ((!selectedRemoteDataNode) || (selectedRemoteDataNode.attr('type') != remoteDataSelectionContext.selectionType)) {
+          showErrorDialog("You must select a "+remoteDataSelectionContext.selectionType);
+          return false;
+        }
+        $('#'+remoteDataSelectionContext.targetInput).val(selectedRemoteDataNode.attr('path'));
         $(this).dialog("close"); 
       }, 
       "Cancel": function() { 
         $(this).dialog("close"); 
       } 
+    }
+  });
+  
+  $('#errorDialog').dialog({
+    modal: true,
+    autoOpen: false,
+    buttons: {
+      Ok: function() {
+        $(this).dialog("close");
+      }
     }
   });
   
