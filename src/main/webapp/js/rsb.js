@@ -119,15 +119,17 @@ var remoteDataNode = function(remoteNode, type) {
   
   if (remoteNode) {
     name = remoteNode.name;
-    attr = {path: remoteNode.path, uri: remoteNode.uri, type: type};
-    empty = remoteNode.empty;
+    attr = {path: remoteNode.path, uri: remoteNode.uri, type: type, baseType: type=='drive'?'directory':type};
+    if (remoteNode.empty != undefined) empty = remoteNode.empty;
   }
   
   var o = $({});
   
   o.extend({
+    markFetched : function() {
+      fetched = true;
+    },
     openNode: function(cb) {
-      // TODO refactor this code as soon as it is working A-OK
       if (attr.uri) {
         if (!fetched) {
           $.ajax({
@@ -144,12 +146,21 @@ var remoteDataNode = function(remoteNode, type) {
                 var childDirectories = childDirectoryOrIes instanceof Array ? childDirectoryOrIes : [childDirectoryOrIes];
                 for(var key in childDirectories) {
                   var childDirectory = childDirectories[key];
-                  var newChild = remoteDataNode(childDirectory, 'directory'); 
+                  var newChild = remoteDataNode(childDirectory, o.getType()=='network'?'drive':'directory'); 
                   newChildren.push(newChild);
                 }
               }
               
-              // FIXME add child files (use type for this)
+              // add child files
+              var childFileOrFiles = data.directory.file;
+              if (childFileOrFiles) {
+                var childFiles = childFileOrFiles instanceof Array ? childFileOrFiles : [childFileOrFiles];
+                for(var key in childFiles) {
+                  var childFile = childFiles[key];
+                  var newChild = remoteDataNode(childFile, 'file'); 
+                  newChildren.push(newChild);
+                }
+              }
               
               o.markFetched();
               remoteDataRoot.trigger("addChildren.jstree",[o,newChildren]);
@@ -163,9 +174,6 @@ var remoteDataNode = function(remoteNode, type) {
         remoteDataRoot.trigger("addChildren.jstree",[this,children]);
         callCallback(cb);
       }
-    },
-    markFetched : function() {
-      fetched = true;
     },
     closeNode: function() {
       // NOOP
@@ -206,7 +214,6 @@ var remoteDataNode = function(remoteNode, type) {
 };
 
 function initializeRemoteDataTree(data) {
-  // FIXME add type support for file and root node
   $('#remoteDataTree').jstree({
     themes : {
       theme : "classic",
@@ -217,19 +224,49 @@ function initializeRemoteDataTree(data) {
     model_data: {
       data: function(){return(remoteDataRoot);}, 
       progressive_render: true, 
-      progressive_unload: false,
-      type_attr: "mytype",
-      id_prefix: "myid"
+      progressive_unload: true,
+      type_attr: 'rel'
     },
     ui : {
       select_limit : 1
     },
-    plugins : [ 'themes', 'ui', 'model_data' ]
-  }).bind("select_node.jstree", function (event, data) {
+    types : {
+      max_depth : -2,
+      max_children : -2,
+      valid_children : ['network'],
+      types : {
+        network : {
+          valid_children : ['drive'],
+          icon : {
+            image : 'images/network.png'
+          }
+        },
+        drive : {
+          valid_children : ['file', 'directory'],
+          icon : {
+            image : 'images/drive.png'
+          }
+        },
+        directory : {
+          valid_children : ['file', 'directory'],
+          icon : {
+            image : 'images/directory.png'
+          }
+        },
+        file : {
+          valid_children : 'none',
+          icon : {
+            image : 'images/file.png'
+          }
+        }
+      }      
+    },
+    plugins : [ 'themes', 'types', 'ui', 'model_data' ]
+  }).bind('select_node.jstree', function (event, data) {
     selectedRemoteDataNode = data.rslt.obj;
   });
   
-  remoteDataRoot = remoteDataNode({name:'Remote Data',uri:'api/rest/data',path:'/'}, 'root');
+  remoteDataRoot = remoteDataNode({name:'Remote Data',uri:'api/rest/data',path:'/'}, 'network');
   remoteDataRoot = remoteDataNode().addChild(remoteDataRoot);
   log.info('Remote Data Browser Initialized');
 }
@@ -258,7 +295,7 @@ $(document).ready(function() {
     width: 600,
     buttons: {
       "Select": function() { 
-        if ((!selectedRemoteDataNode) || (selectedRemoteDataNode.attr('type') != remoteDataSelectionContext.selectionType)) {
+        if ((!selectedRemoteDataNode) || (selectedRemoteDataNode.attr('baseType') != remoteDataSelectionContext.selectionType)) {
           showErrorDialog("You must select a "+remoteDataSelectionContext.selectionType);
           return false;
         }
@@ -312,7 +349,7 @@ $(document).ready(function() {
     });
  
   // Upload Form and Ajax Job Progress Monitor
-  $("#jobUploadForm").validate();
+  $('#jobUploadForm').validate();
   
   $('#jobUploadForm').ajaxForm({
       beforeSubmit: function(a,f,o) {
@@ -365,9 +402,6 @@ $(document).ready(function() {
           });
       },
   });
-  
-  // Load URL parameters into specific field values
-  $('#applicationName').val(urlParams['appName']);
   
   // Setup page appearance
   document.title = RSB_FORM_TITLE;
