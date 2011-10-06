@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
@@ -40,6 +41,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
@@ -55,23 +57,29 @@ import eu.openanalytics.rsb.rest.types.FileType;
 @Component("dataDirectoriesResource")
 @Path("/" + Constants.DATA_DIR_PATH)
 // Produces "regular" XML/JSON content types as browsers don't understand subtypes correctly
-@Produces({ Constants.JSON_CONTENT_TYPE, Constants.XML_CONTENT_TYPE, Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
-public class DataDirectoriesResource extends AbstractComponent {
+@Produces({Constants.JSON_CONTENT_TYPE, Constants.XML_CONTENT_TYPE, Constants.RSB_XML_CONTENT_TYPE,
+    Constants.RSB_JSON_CONTENT_TYPE})
+public class DataDirectoriesResource extends AbstractComponent
+{
 
     private final Map<String, File> rootMap = new HashMap<String, File>();
 
     // exposed for unit testing
-    Map<String, File> getRootMap() {
+    Map<String, File> getRootMap()
+    {
         return rootMap;
     }
 
     @PostConstruct
-    public void setupRootMap() throws IOException {
+    public void setupRootMap() throws IOException
+    {
         final List<File> dataDirectoryRoots = getConfiguration().getDataDirectories();
-        if (dataDirectoryRoots != null) {
-            for (final File dataDirectoryRoot : dataDirectoryRoots) {
+        if (dataDirectoryRoots != null)
+        {
+            for (final File dataDirectoryRoot : dataDirectoryRoots)
+            {
                 final String rootKey = Base64.encodeBase64URLSafeString(DigestUtils.md5Digest(dataDirectoryRoot.getCanonicalPath()
-                        .getBytes()));
+                    .getBytes()));
                 rootMap.put(rootKey, dataDirectoryRoot);
             }
         }
@@ -79,15 +87,17 @@ public class DataDirectoriesResource extends AbstractComponent {
 
     @Path("/")
     @GET
-    public Directory browseRoots(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException,
-            IOException {
+    public Directory browseRoots(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
+        throws URISyntaxException, IOException
+    {
         final Directory roots = Util.REST_OBJECT_FACTORY.createDirectory();
         roots.setPath("/");
         roots.setName("Remote Data");
         roots.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, "/").toString());
         roots.setEmpty(rootMap.isEmpty());
 
-        for (final Entry<String, File> rootEntry : rootMap.entrySet()) {
+        for (final Entry<String, File> rootEntry : rootMap.entrySet())
+        {
             final Directory root = Util.REST_OBJECT_FACTORY.createDirectory();
             final File rootDirectory = rootEntry.getValue();
             root.setPath(rootDirectory.getCanonicalPath());
@@ -102,25 +112,38 @@ public class DataDirectoriesResource extends AbstractComponent {
 
     @Path("/{rootId}{b64extension : (/b64extension)?}")
     @GET
-    public Directory browsePath(@PathParam("rootId") final String rootId, @PathParam("b64extension") final String b64extension,
-            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+    public Directory browsePath(@PathParam("rootId") final String rootId,
+                                @PathParam("b64extension") final String b64extension,
+                                @Context final HttpHeaders httpHeaders,
+                                @Context final UriInfo uriInfo) throws URISyntaxException, IOException
+    {
 
         final File rootDataDir = rootMap.get(rootId);
-        if (rootDataDir == null) {
-            throw new WebApplicationException(Status.NOT_FOUND);
+        if (rootDataDir == null)
+        {
+            throw new WebApplicationException(new RuntimeException("No root data dir configured"),
+                Status.NOT_FOUND);
         }
 
         final String extension = (b64extension != null ? new String(Base64.decodeBase64(b64extension)) : "");
         final File targetDataDir = new File(rootDataDir, extension);
 
-        if (!targetDataDir.exists()) {
-            throw new WebApplicationException(Status.NOT_FOUND);
+        if (!targetDataDir.exists())
+        {
+            throw new WebApplicationException(
+                new RuntimeException("Invalid root data dir: " + targetDataDir), Status.NOT_FOUND);
         }
 
         // ensure the target data dir is below the root dir to prevent tampering
         final String rootDataDirCanonicalPath = rootDataDir.getCanonicalPath();
-        if (!StringUtils.startsWith(targetDataDir.getCanonicalPath(), rootDataDirCanonicalPath)) {
-            throw new WebApplicationException(Status.FORBIDDEN);
+        final String targetDataDirCanonicalPath = targetDataDir.getCanonicalPath();
+        if (!StringUtils.startsWith(targetDataDirCanonicalPath, rootDataDirCanonicalPath))
+        {
+            throw new WebApplicationException(new SecurityException("Target data dir: "
+                                                                    + targetDataDirCanonicalPath
+                                                                    + " is not below root dir: "
+                                                                    + rootDataDirCanonicalPath),
+                Status.FORBIDDEN);
         }
 
         final Directory result = Util.REST_OBJECT_FACTORY.createDirectory();
@@ -131,31 +154,44 @@ public class DataDirectoriesResource extends AbstractComponent {
         final File[] targetDataDirFiles = targetDataDir.listFiles();
         result.setEmpty(targetDataDirFiles.length == 0);
 
-        for (final File child : targetDataDirFiles) {
-            if (child.isFile()) {
+        for (final File child : targetDataDirFiles)
+        {
+            if (FileUtils.isSymlink(child))
+            {
+                getLogger().warn("Symlinks are not supported: " + child);
+            }
+            else if (child.isFile())
+            {
                 final FileType fileType = Util.REST_OBJECT_FACTORY.createFileType();
                 fileType.setPath(child.getCanonicalPath());
                 fileType.setName(child.getName());
                 result.getFiles().add(fileType);
-            } else if (child.isDirectory()) {
+            }
+            else if (child.isDirectory())
+            {
                 final Directory childDir = Util.REST_OBJECT_FACTORY.createDirectory();
                 childDir.setPath(child.getCanonicalPath());
                 childDir.setName(child.getName());
-                final String childB64extension = Base64.encodeBase64URLSafeString(StringUtils.difference(rootDataDirCanonicalPath,
-                        child.getCanonicalPath()).getBytes());
-                childDir.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, childB64extension).toString());
+                final String childB64extension = Base64.encodeBase64URLSafeString(StringUtils.difference(
+                    rootDataDirCanonicalPath, child.getCanonicalPath()).getBytes());
+                childDir.setUri(Util.buildDataDirectoryUri(httpHeaders, uriInfo, rootId, childB64extension)
+                    .toString());
                 childDir.setEmpty(isDirectoryEmpty(child));
                 result.getDirectories().add(childDir);
-            } else {
-                getLogger().warn("unsupported file type: " + child);
+            }
+            else
+            {
+                getLogger().warn("Unsupported file type: " + child);
             }
         }
 
         return result;
     }
 
-    private boolean isDirectoryEmpty(final File file) {
-        if (!file.isDirectory()) {
+    private boolean isDirectoryEmpty(final File file)
+    {
+        if (!file.isDirectory())
+        {
             return true;
         }
         final File[] childFiles = file.listFiles();

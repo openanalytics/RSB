@@ -224,7 +224,6 @@ function initializeRemoteDataTree(data) {
     model_data: {
       data: function(){return(remoteDataRoot);}, 
       progressive_render: true, 
-      progressive_unload: true,
       type_attr: 'rel'
     },
     ui : {
