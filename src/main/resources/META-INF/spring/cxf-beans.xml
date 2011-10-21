@@ -61,6 +61,7 @@
             <ref bean="resultResource" />
             <ref bean="dataDirectoriesResource" />
             <ref bean="systemHealthResource"/>
+            <ref bean="adminResource" />
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="jsonProvider" />

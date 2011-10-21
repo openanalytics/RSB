@@ -49,7 +49,7 @@
     <spring.version>3.0.5.RELEASE</spring.version>
     <spring-integration.version>2.0.3.RELEASE</spring-integration.version>
     <activemq.version>5.5.0</activemq.version>
-    <cxf.version>2.4.0</cxf.version>
+    <cxf.version>2.4.3</cxf.version>
     <jetty-plugin.version>7.2.2.v20101205</jetty-plugin.version>
     <soapui.version>3.6.1</soapui.version>
     <tomcat.version>6.0.32</tomcat.version>

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb;
 
 import java.net.InetAddress;
@@ -48,6 +49,7 @@ public class Constants {
     public final static String RESULT_PATH = "result";
     public final static String DATA_DIR_PATH = "data";
     public final static String HEALTH_PATH = "system/health";
+    public final static String ADMIN_PATH = "admin";
 
     public static final String SOURCE_MESSAGE_HEADER = "source";
     public static final String APPLICATION_NAME_MESSAGE_HEADER = "applicationName";
