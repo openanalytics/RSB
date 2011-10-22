@@ -292,8 +292,8 @@ public class PersistedConfiguration implements Serializable {
      * Directory under which RSB catalogs are located. The catalogs are:
      * <ul>
      * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR}: catalog of R scripts</li>
-     * <li>{@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILE_CATALOG_SUBDIR}: catalog of Sweave files</li>
-     * <li>{@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATION_CATALOG_SUBDIR}: catalog of ready made job
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILES_CATALOG_SUBDIR}: catalog of Sweave files</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR}: catalog of ready made job
      * configurations</li>
      * <li>{@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR}: catalog of Email replies</li>
      * </ul>

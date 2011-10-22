@@ -101,7 +101,6 @@
     <!--
       File & Directory Definitions 
       -->
-    
     <xsd:element name="directory" type="directoryType" />
     <xsd:complexType name="directoryType">
         <xsd:sequence>
@@ -117,5 +116,36 @@
     <xsd:complexType name="fileType">
         <xsd:attribute name="path" type="xsd:string" use="required" />
         <xsd:attribute name="name" type="xsd:string" use="required" />
+    </xsd:complexType>
+    
+    <!--
+      Catalog
+    -->
+    <xsd:element name="catalog" type="catalogType" />
+    <xsd:complexType name="catalogType">
+        <xsd:sequence>
+            <xsd:element name="directory" type="catalogDirectory" minOccurs="4" maxOccurs="4" />
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="catalogDirectory">
+        <xsd:sequence>
+            <xsd:element name="file" type="catalogFileType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+        <xsd:attribute name="type" use="required">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:NMTOKEN">
+                    <xsd:enumeration value="EMAIL_REPLIES"/>
+                    <xsd:enumeration value="JOB_CONFIGURATIONS"/>
+                    <xsd:enumeration value="R_SCRIPTS"/>
+                    <xsd:enumeration value="SWEAVE_FILES"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="path" type="xsd:string" use="required" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="catalogFileType">
+        <xsd:attribute name="name" type="xsd:string" use="required" />
+        <xsd:attribute name="dataUri" type="xsd:anyURI" use="required" />
     </xsd:complexType>
 </xsd:schema>

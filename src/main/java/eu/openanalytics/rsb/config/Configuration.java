@@ -37,13 +37,17 @@ public interface Configuration extends Serializable {
     public static final String DEFAULT_JSON_CONFIGURATION_FILE = "rsb-configuration.json";
 
     public static final String R_SCRIPTS_CATALOG_SUBDIR = "r_scripts";
-    public static final String SWEAVE_FILE_CATALOG_SUBDIR = "sweave_files";
-    public static final String JOB_CONFIGURATION_CATALOG_SUBDIR = "job_configurations";
+    public static final String SWEAVE_FILES_CATALOG_SUBDIR = "sweave_files";
+    public static final String JOB_CONFIGURATIONS_CATALOG_SUBDIR = "job_configurations";
     public static final String EMAIL_REPLIES_CATALOG_SUBDIR = "email_replies";
 
     public static final String DEPOSIT_JOBS_SUBDIR = "inbox";
     public static final String DEPOSIT_ACCEPTED_SUBDIR = "accepted";
     public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
+
+    public enum DirectoryType {
+        R_SCRIPTS, SWEAVE_FILES, JOB_CONFIGURATIONS, EMAIL_REPLIES
+    }
 
     /**
      * SMTP server configuration used for all RSB outbound email operations.

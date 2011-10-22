@@ -71,9 +71,9 @@ public class PersistedConfigurationAdapter implements Configuration {
         this.persistedConfiguration = persistedConfiguration;
 
         rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.R_SCRIPTS_CATALOG_SUBDIR);
-        sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.SWEAVE_FILE_CATALOG_SUBDIR);
+        sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.SWEAVE_FILES_CATALOG_SUBDIR);
         jobConfigurationCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-                Configuration.JOB_CONFIGURATION_CATALOG_SUBDIR);
+                Configuration.JOB_CONFIGURATIONS_CATALOG_SUBDIR);
         emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
                 Configuration.EMAIL_REPLIES_CATALOG_SUBDIR);
     }
