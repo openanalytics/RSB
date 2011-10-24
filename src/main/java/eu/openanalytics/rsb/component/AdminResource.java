@@ -56,6 +56,7 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.cxf.ReloadableCXFServlet;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
@@ -69,13 +70,22 @@ import eu.openanalytics.rsb.rest.types.CatalogFileType;
 public class AdminResource extends AbstractComponent implements ApplicationContextAware {
 
     private static final String CATALOG_SUBPATH = "catalog";
+    private static final String SYSTEM_SUBPATH = "system";
+
     private ConfigurableApplicationContext applicationContext;
 
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = (ConfigurableApplicationContext) applicationContext;
     }
 
-    @Path("/restart")
+    @Path("/" + SYSTEM_SUBPATH + "/configuration")
+    @GET
+    @Produces({ Constants.JSON_CONTENT_TYPE })
+    public Response getSystemConfiguration() {
+        return Response.ok(Util.toJson(new PersistedConfiguration(getConfiguration()))).build();
+    }
+
+    @Path("/" + SYSTEM_SUBPATH + "/restart")
     @POST
     @Produces({ Constants.TEXT_CONTENT_TYPE })
     public Response restart() {

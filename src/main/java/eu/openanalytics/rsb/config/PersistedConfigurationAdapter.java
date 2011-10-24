@@ -39,25 +39,10 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatistics
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class PersistedConfigurationAdapter implements Configuration {
-    private static final class DefaultJmxRmiConfiguration implements JmxConfiguration {
-        private static final long serialVersionUID = 1L;
-
-        public int getStubPort() {
-            return 9098;
-        }
-
-        public int getRegistryPort() {
-            return 9099;
-        }
-
-        public int getHttpPort() {
-            return 8889;
-        }
-    }
-
     private static final long serialVersionUID = 1L;
 
-    public static final JmxConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new DefaultJmxRmiConfiguration();
+    public static final JmxConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new PersistedConfiguration.PersistedJmxConfiguration(9098, 9099,
+            8889);
     private final PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
 

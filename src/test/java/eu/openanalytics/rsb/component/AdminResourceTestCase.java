@@ -21,6 +21,7 @@
 
 package eu.openanalytics.rsb.component;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -44,7 +45,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.ConfigurationFactory;
+import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.rest.types.Catalog;
 
 /**
@@ -69,6 +73,15 @@ public class AdminResourceTestCase {
         adminResource.setConfiguration(configuration);
 
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+    }
+
+    @Test
+    public void getSystemConfiguration() throws Exception {
+        adminResource.setConfiguration(ConfigurationFactory.loadJsonConfiguration());
+        final Response response = adminResource.getSystemConfiguration();
+        assertThat(response.getStatus(), is(200));
+        assertThat(Util.fromJson(response.getEntity().toString(), PersistedConfiguration.class),
+                is(instanceOf(PersistedConfiguration.class)));
     }
 
     @Test

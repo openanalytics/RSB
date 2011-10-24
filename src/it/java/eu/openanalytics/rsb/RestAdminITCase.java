@@ -21,8 +21,11 @@
 
 package eu.openanalytics.rsb;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
@@ -33,7 +36,6 @@ import javax.xml.bind.JAXB;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -44,6 +46,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
@@ -52,12 +55,19 @@ import eu.openanalytics.rsb.rest.types.CatalogFileType;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class RestAdminITCase extends AbstractITCase {
-    // FIXME reactivate
-    @Ignore
+    @Test
+    public void getSystemConfiguration() throws Exception {
+        final WebConversation wc = new WebConversation();
+        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/configuration");
+        final WebResponse response = wc.sendRequest(request);
+        assertEquals(200, response.getResponseCode());
+        assertThat(Util.fromJson(response.getText(), PersistedConfiguration.class), is(instanceOf(PersistedConfiguration.class)));
+    }
+
     @Test
     public void restart() throws Exception {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new PostMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/restart");
+        final WebRequest request = new PostMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/restart");
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
         assertEquals("RESTARTED", response.getText());

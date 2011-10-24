@@ -283,6 +283,29 @@ public class PersistedConfiguration implements Serializable {
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
     private List<File> dataDirectories;
 
+    public PersistedConfiguration() {
+        // NOOP
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public PersistedConfiguration(final Configuration configuration) {
+        setActiveMqWorkDirectory(configuration.getActiveMqWorkDirectory());
+        setAdministratorEmail(configuration.getAdministratorEmail());
+        setApplicationSpecificRserviPoolUris(configuration.getApplicationSpecificRserviPoolUris());
+        setCatalogRootDirectory(configuration.getRScriptsCatalogDirectory().getParentFile());
+        setDataDirectories(configuration.getDataDirectories());
+        setDefaultRserviPoolUri(configuration.getDefaultRserviPoolUri());
+        setDepositEmailAccounts((List) configuration.getDepositEmailAccounts());
+        setDepositRootDirectories((List) configuration.getDepositRootDirectories());
+        setJmxConfiguration((PersistedJmxConfiguration) configuration.getJmxConfiguration());
+        setJobStatisticsHandlerConfiguration((PersistedJobStatisticsHandlerConfiguration) configuration
+                .getJobStatisticsHandlerConfiguration());
+        setJobTimeOut(configuration.getJobTimeOut());
+        setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
+        setResultsDirectory(configuration.getResultsDirectory());
+        setSmtpConfiguration((PersistedSmtpConfiguration) configuration.getSmtpConfiguration());
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
@@ -293,8 +316,8 @@ public class PersistedConfiguration implements Serializable {
      * <ul>
      * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR}: catalog of R scripts</li>
      * <li>{@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILES_CATALOG_SUBDIR}: catalog of Sweave files</li>
-     * <li>{@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR}: catalog of ready made job
-     * configurations</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR}: catalog of ready made
+     * job configurations</li>
      * <li>{@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR}: catalog of Email replies</li>
      * </ul>
      * If any of these sub-directories do not pre-exist, RSB will try to create it.
