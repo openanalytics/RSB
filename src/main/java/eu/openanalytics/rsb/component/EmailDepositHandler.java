@@ -136,9 +136,10 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
             } else if (StringUtils.equals(emailAccountURI.getScheme(), "imap")) {
                 mailReceiver = new ImapMailReceiver(emailAccountURI.toString());
                 ((ImapMailReceiver) mailReceiver).setShouldMarkMessagesAsRead(true);
+            } else {
+                throw new IllegalArgumentException("Invalid email account URI: " + emailAccountURI);
             }
 
-            Validate.notNull(mailReceiver, "Invalid email account URI: " + emailAccountURI);
             mailReceiver.setBeanFactory(beanFactory);
             mailReceiver.setBeanName("rsb-email-ms-" + emailAccountURI.getHost() + emailAccountURI.hashCode());
             mailReceiver.setShouldDeleteMessages(true);
