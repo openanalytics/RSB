@@ -81,7 +81,8 @@ public abstract class Util {
             ERROR_RESULT_JAXB_CONTEXT = JAXBContext.newInstance(ErrorResult.class);
             XML_DATATYPE_FACTORY = DatatypeFactory.newInstance();
             MIMETYPES_FILETYPE_MAP.addMimeTypes(Constants.JSON_CONTENT_TYPE + " json\n" + Constants.XML_CONTENT_TYPE + " xml\n"
-                    + Constants.TEXT_CONTENT_TYPE + " txt\n" + Constants.PDF_CONTENT_TYPE + " pdf\n" + Constants.ZIP_CONTENT_TYPE + " zip");
+                    + Constants.TEXT_CONTENT_TYPE + " txt\n" + Constants.TEXT_CONTENT_TYPE + " R\n" + Constants.TEXT_CONTENT_TYPE
+                    + " Rnw\n" + Constants.PDF_CONTENT_TYPE + " pdf\n" + Constants.ZIP_CONTENT_TYPE + " zip");
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }

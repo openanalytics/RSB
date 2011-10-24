@@ -82,7 +82,6 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         return Response.ok("RESTARTED").build();
     }
 
-    // TODO integration test
     @Path("/" + CATALOG_SUBPATH)
     @GET
     @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
@@ -99,7 +98,6 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         return Response.ok(result).build();
     }
 
-    // TODO integration test
     @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
     @GET
     public Response getCatalogFile(@PathParam("catalogName") final String catalogName, @PathParam("fileName") final String fileName,

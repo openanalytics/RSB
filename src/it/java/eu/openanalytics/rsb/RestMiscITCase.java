@@ -49,6 +49,7 @@ public class RestMiscITCase extends AbstractITCase {
         final WebConversation wc = new WebConversation();
         final String dataUrl = RSB_BASE_URI + "/api/rest/data/";
         final WebRequest request = new GetMethodWebRequest(dataUrl);
+        request.setHeaderField("Accept", Constants.RSB_XML_CONTENT_TYPE);
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
         assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
