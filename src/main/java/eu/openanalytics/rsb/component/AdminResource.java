@@ -46,8 +46,8 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
@@ -57,7 +57,6 @@ import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
 
-//TODO unit test
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -66,10 +65,10 @@ import eu.openanalytics.rsb.rest.types.CatalogFileType;
 public class AdminResource extends AbstractComponent implements ApplicationContextAware {
 
     private static final String CATALOG_SUBPATH = "catalog";
-    private ConfigurableWebApplicationContext applicationContext;
+    private ConfigurableApplicationContext applicationContext;
 
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = (ConfigurableWebApplicationContext) applicationContext;
+        this.applicationContext = (ConfigurableApplicationContext) applicationContext;
     }
 
     @Path("/restart")
@@ -85,7 +84,7 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
     @Path("/" + CATALOG_SUBPATH)
     @GET
     @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
-    public Response getCatalog(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException,
+    public Catalog getCatalog(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException,
             URISyntaxException {
 
         final Catalog result = Util.REST_OBJECT_FACTORY.createCatalog();
@@ -95,7 +94,7 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
             result.getDirectories().add(catalogDirectory);
         }
 
-        return Response.ok(result).build();
+        return result;
     }
 
     @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
