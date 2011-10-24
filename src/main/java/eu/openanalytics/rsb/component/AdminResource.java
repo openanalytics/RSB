@@ -23,13 +23,17 @@ package eu.openanalytics.rsb.component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -122,6 +126,29 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         return rb.build();
     }
 
+    @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
+    @PUT
+    @Consumes(Constants.TEXT_CONTENT_TYPE)
+    public Response putCatalogFile(@PathParam("catalogName") final String catalogName, @PathParam("fileName") final String fileName,
+            final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException,
+            URISyntaxException {
+
+        final Configuration.Catalog catalog = Configuration.Catalog.valueOf(catalogName);
+        final File catalogFile = new File(catalog.getConfiguredDirectory(getConfiguration()), fileName);
+        final boolean preExistingFile = catalogFile.isFile();
+
+        final FileWriter fw = new FileWriter(catalogFile);
+        IOUtils.copy(in, fw);
+        IOUtils.closeQuietly(fw);
+
+        if (preExistingFile) {
+            return Response.noContent().build();
+        }
+
+        final URI location = buildCatalogFileUri(catalog, catalogFile, httpHeaders, uriInfo);
+        return Response.created(location).build();
+    }
+
     private CatalogDirectory createCatalogDirectory(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType,
             final HttpHeaders httpHeaders, final UriInfo uriInfo) throws IOException, URISyntaxException {
 
@@ -133,8 +160,7 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         catalogDirectory.setPath(configuredDirectory.getCanonicalPath());
 
         for (final File file : catalogType.getConfiguredDirectory(getConfiguration()).listFiles(Constants.FILE_ONLY_FILTER)) {
-            final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.ADMIN_PATH).path(CATALOG_SUBPATH)
-                    .path(catalogType.toString()).path(file.getName()).build();
+            final URI dataUri = buildCatalogFileUri(catalogType, file, httpHeaders, uriInfo);
             final CatalogFileType catalogFile = Util.REST_OBJECT_FACTORY.createCatalogFileType();
             catalogFile.setName(file.getName());
             catalogFile.setDataUri(dataUri.toString());
@@ -142,5 +168,12 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         }
 
         return catalogDirectory;
+    }
+
+    public URI buildCatalogFileUri(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType, final File file,
+            final HttpHeaders httpHeaders, final UriInfo uriInfo) throws URISyntaxException {
+
+        return Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.ADMIN_PATH).path(CATALOG_SUBPATH).path(catalogType.toString())
+                .path(file.getName()).build();
     }
 }

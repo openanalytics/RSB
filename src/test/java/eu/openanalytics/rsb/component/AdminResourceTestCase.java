@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,5 +97,20 @@ public class AdminResourceTestCase {
 
         final Response response = adminResource.getCatalogFile("R_SCRIPTS", "test.R", httpHeaders, uriInfo);
         assertThat(response.getStatus(), is(200));
+    }
+
+    @Test
+    public void putCatalogFile() throws Exception {
+        when(configuration.getRScriptsCatalogDirectory()).thenReturn(FileUtils.getTempDirectory());
+
+        FileUtils.deleteQuietly(new File(FileUtils.getTempDirectory(), "fake.R"));
+
+        final Response firstResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", IOUtils.toInputStream("fake script"),
+                httpHeaders, uriInfo);
+        assertThat(firstResponse.getStatus(), is(201));
+
+        final Response secondResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", IOUtils.toInputStream("fake script"),
+                httpHeaders, uriInfo);
+        assertThat(secondResponse.getStatus(), is(204));
     }
 }

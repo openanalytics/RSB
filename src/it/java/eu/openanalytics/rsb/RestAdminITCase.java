@@ -31,12 +31,14 @@ import java.util.List;
 import javax.xml.bind.JAXB;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.PostMethodWebRequest;
+import com.meterware.httpunit.PutMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -95,4 +97,24 @@ public class RestAdminITCase extends AbstractITCase {
         assertEquals(IOUtils.toString(getTestData("test.R")), response.getText());
     }
 
+    @Test
+    public void putCatalogFile() throws Exception {
+        final String testFileName = "fake-" + RandomStringUtils.randomAlphanumeric(20) + ".R";
+
+        WebConversation wc = new WebConversation();
+        WebRequest request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
+                IOUtils.toInputStream("fake R script content for " + testFileName), "text/plain");
+        WebResponse response = wc.sendRequest(request);
+        assertEquals(201, response.getResponseCode());
+        assertTrue(StringUtils.isNotBlank(response.getHeaderField("Location")));
+
+        SuiteITCase.registerCreatedCatalogFile(Configuration.Catalog.R_SCRIPTS, testFileName);
+
+        wc = new WebConversation();
+        request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
+                IOUtils.toInputStream("fake R script replacement content for " + testFileName), "text/plain");
+        response = wc.sendRequest(request);
+        assertEquals(204, response.getResponseCode());
+        assertTrue(StringUtils.isBlank(response.getHeaderField("Location")));
+    }
 }

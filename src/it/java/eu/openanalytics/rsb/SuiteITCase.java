@@ -97,6 +97,11 @@ public class SuiteITCase {
         greenMail.start();
     }
 
+    public static void registerCreatedCatalogFile(final Configuration.Catalog catalog, final String fileName) {
+        final File fileToRegister = new File(catalog.getConfiguredDirectory(configuration), fileName);
+        catalogTestFiles.add(fileToRegister);
+    }
+
     @AfterClass
     public static void stopEmailServer() {
         greenMail.stop();
