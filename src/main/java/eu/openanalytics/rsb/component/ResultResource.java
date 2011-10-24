@@ -50,8 +50,7 @@ import eu.openanalytics.rsb.data.ResultStore;
 
 /**
  * Serves R job process result files.<br/>
- * <i>NB. Could very well be replaced with a static file serving context on a frontal web
- * server.</i>
+ * <i>NB. Could very well be replaced with a static file serving context on a frontal web server.</i>
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -84,7 +83,7 @@ public class ResultResource extends AbstractComponent {
         final ResponseBuilder rb = Response.ok();
         addEtagHeader(persistedResult, rb);
         rb.entity(new StreamingOutput() {
-            public void write(final OutputStream output) throws IOException, WebApplicationException {
+            public void write(final OutputStream output) throws IOException {
                 final InputStream data = persistedResult.getData();
                 IOUtils.copy(data, output);
                 IOUtils.closeQuietly(data);

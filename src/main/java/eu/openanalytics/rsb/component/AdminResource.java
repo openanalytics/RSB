@@ -22,20 +22,27 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -44,6 +51,7 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.cxf.ReloadableCXFServlet;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
@@ -57,6 +65,7 @@ import eu.openanalytics.rsb.rest.types.CatalogFileType;
 @Path("/" + Constants.ADMIN_PATH)
 public class AdminResource extends AbstractComponent implements ApplicationContextAware {
 
+    private static final String CATALOG_SUBPATH = "catalog";
     private ConfigurableWebApplicationContext applicationContext;
 
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
@@ -74,36 +83,67 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
     }
 
     // TODO integration test
-    @Path("/catalog")
+    @Path("/" + CATALOG_SUBPATH)
     @GET
     @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
     public Response getCatalog(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException,
             URISyntaxException {
 
-        final Catalog catalog = Util.REST_OBJECT_FACTORY.createCatalog();
+        final Catalog result = Util.REST_OBJECT_FACTORY.createCatalog();
 
-        // FIXME support all 4 types, generalize
-        final File catalogDirectoryFile = getConfiguration().getEmailRepliesCatalogDirectory();
-        final String catalogType = "EMAIL_REPLIES";
+        for (final Configuration.Catalog catalog : Configuration.Catalog.values()) {
+            final CatalogDirectory catalogDirectory = createCatalogDirectory(catalog, httpHeaders, uriInfo);
+            result.getDirectories().add(catalogDirectory);
+        }
+
+        return Response.ok(result).build();
+    }
+
+    // TODO integration test
+    @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
+    @GET
+    public Response getCatalogFile(@PathParam("catalogName") final String catalogName, @PathParam("fileName") final String fileName,
+            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException, URISyntaxException {
+
+        final Configuration.Catalog catalog = Configuration.Catalog.valueOf(catalogName);
+        final File catalogFile = new File(catalog.getConfiguredDirectory(getConfiguration()), fileName);
+
+        if (!catalogFile.isFile()) {
+            throw new WebApplicationException(Status.NOT_FOUND);
+        }
+
+        final ResponseBuilder rb = Response.ok();
+        rb.type(Util.getContentType(catalogFile));
+        rb.entity(new StreamingOutput() {
+            public void write(final OutputStream output) throws IOException {
+                final FileInputStream fis = new FileInputStream(catalogFile);
+                IOUtils.copy(fis, output);
+                IOUtils.closeQuietly(fis);
+                IOUtils.closeQuietly(output);
+            }
+        });
+        return rb.build();
+    }
+
+    private CatalogDirectory createCatalogDirectory(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType,
+            final HttpHeaders httpHeaders, final UriInfo uriInfo) throws IOException, URISyntaxException {
+
+        final String catalogTypeAsString = catalogType.toString();
+        final File configuredDirectory = catalogType.getConfiguredDirectory(getConfiguration());
 
         final CatalogDirectory catalogDirectory = Util.REST_OBJECT_FACTORY.createCatalogDirectory();
-        catalogDirectory.setType(catalogType);
-        catalogDirectory.setPath(catalogDirectoryFile.getCanonicalPath());
+        catalogDirectory.setType(catalogTypeAsString);
+        catalogDirectory.setPath(configuredDirectory.getCanonicalPath());
 
-        for (final File file : catalogDirectoryFile.listFiles(new FileFilter() {
-            public boolean accept(final File f) {
-                return f.isFile();
-            }
-        })) {
-            final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path("catalog").path(catalogType).path(file.getName()).build();
+        for (final File file : catalogType.getConfiguredDirectory(getConfiguration()).listFiles(Constants.FILE_ONLY_FILTER)) {
+            final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.ADMIN_PATH).path(CATALOG_SUBPATH)
+                    .path(catalogType.toString()).path(file.getName()).build();
             final CatalogFileType catalogFile = Util.REST_OBJECT_FACTORY.createCatalogFileType();
             catalogFile.setName(file.getName());
             catalogFile.setDataUri(dataUri.toString());
             catalogDirectory.getFiles().add(catalogFile);
         }
 
-        catalog.getDirectories().add(catalogDirectory);
-
-        return Response.ok(catalog).build();
+        return catalogDirectory;
     }
 }

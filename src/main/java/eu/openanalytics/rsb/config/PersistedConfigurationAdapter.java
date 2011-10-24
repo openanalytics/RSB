@@ -58,7 +58,7 @@ public class PersistedConfigurationAdapter implements Configuration {
     private static final long serialVersionUID = 1L;
 
     public static final JmxConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new DefaultJmxRmiConfiguration();
-    private final transient PersistedConfiguration persistedConfiguration;
+    private final PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
 
     private final File rScriptsCatalogDirectory;
@@ -70,12 +70,13 @@ public class PersistedConfigurationAdapter implements Configuration {
         this.configurationUrl = configurationUrl;
         this.persistedConfiguration = persistedConfiguration;
 
-        rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.R_SCRIPTS_CATALOG_SUBDIR);
-        sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.SWEAVE_FILES_CATALOG_SUBDIR);
+        rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.Catalog.R_SCRIPTS.getSubDir());
+        sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
+                Configuration.Catalog.SWEAVE_FILES.getSubDir());
         jobConfigurationCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-                Configuration.JOB_CONFIGURATIONS_CATALOG_SUBDIR);
+                Configuration.Catalog.JOB_CONFIGURATIONS.getSubDir());
         emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-                Configuration.EMAIL_REPLIES_CATALOG_SUBDIR);
+                Configuration.Catalog.EMAIL_REPLIES.getSubDir());
     }
 
     @Override

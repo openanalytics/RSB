@@ -21,6 +21,8 @@
 
 package eu.openanalytics.rsb;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -99,6 +101,14 @@ public class Constants {
             throw new IllegalStateException(mtpe);
         }
     }
+
+    private static final class FileOnlyFilter implements FileFilter {
+        public boolean accept(final File f) {
+            return f.isFile();
+        }
+    }
+
+    public static final FileFilter FILE_ONLY_FILTER = new FileOnlyFilter();
 
     private Constants() {
         throw new UnsupportedOperationException("do not instantiate");
