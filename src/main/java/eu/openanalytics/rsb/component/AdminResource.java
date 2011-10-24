@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -63,7 +64,7 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
     }
 
     @Path("/restart")
-    @GET
+    @POST
     @Produces({ Constants.TEXT_CONTENT_TYPE })
     public Response restart() {
         applicationContext.close();
