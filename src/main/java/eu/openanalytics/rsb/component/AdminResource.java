@@ -27,6 +27,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -47,6 +48,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -56,6 +58,7 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.ConfigurationFactory;
 import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.cxf.ReloadableCXFServlet;
 import eu.openanalytics.rsb.rest.types.Catalog;
@@ -80,14 +83,29 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
 
     @Path("/" + SYSTEM_SUBPATH + "/configuration")
     @GET
-    @Produces({ Constants.JSON_CONTENT_TYPE })
+    @Produces(Constants.JSON_CONTENT_TYPE)
     public Response getSystemConfiguration() {
         return Response.ok(Util.toJson(new PersistedConfiguration(getConfiguration()))).build();
     }
 
+    @Path("/" + SYSTEM_SUBPATH + "/configuration")
+    @PUT
+    @Consumes(Constants.JSON_CONTENT_TYPE)
+    public Response putSystemConfiguration(final InputStream in) throws IOException, URISyntaxException {
+        Validate.notNull(getConfiguration().getConfigurationUrl(), "Transient configuration can't be PUT over the API");
+        final Configuration newConfiguration = ConfigurationFactory.loadJsonConfiguration(in);
+        final String reformattedNewConfiguration = Util.toJson(new PersistedConfiguration(newConfiguration));
+        final File newConfigurationFile = new File(getConfiguration().getConfigurationUrl().toURI());
+        final FileWriter fw = new FileWriter(newConfigurationFile);
+        IOUtils.copy(new StringReader(reformattedNewConfiguration), fw);
+        IOUtils.closeQuietly(fw);
+        getLogger().warn(
+                "Configuration stored in: " + newConfigurationFile + ". System needs restart in order to activate this new configuration!");
+        return Response.noContent().build();
+    }
+
     @Path("/" + SYSTEM_SUBPATH + "/restart")
     @POST
-    @Produces({ Constants.TEXT_CONTENT_TYPE })
     public Response restart() {
         applicationContext.close();
         applicationContext.refresh();

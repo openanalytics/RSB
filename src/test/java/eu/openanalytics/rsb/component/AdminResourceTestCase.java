@@ -85,6 +85,14 @@ public class AdminResourceTestCase {
     }
 
     @Test
+    public void putSystemConfiguration() throws Exception {
+        adminResource.setConfiguration(ConfigurationFactory.loadJsonConfiguration());
+        final Response response = adminResource.putSystemConfiguration(Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("rsb-configuration.json"));
+        assertThat(response.getStatus(), is(204));
+    }
+
+    @Test
     public void restart() throws Exception {
         final Response response = adminResource.restart();
         assertThat(response.getStatus(), is(200));

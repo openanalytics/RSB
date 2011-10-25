@@ -65,6 +65,15 @@ public class RestAdminITCase extends AbstractITCase {
     }
 
     @Test
+    public void putSystemConfiguration() throws Exception {
+        final WebConversation wc = new WebConversation();
+        final WebRequest request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/configuration", Thread.currentThread()
+                .getContextClassLoader().getResourceAsStream("rsb-configuration.json"), "application/json");
+        final WebResponse response = wc.sendRequest(request);
+        assertEquals(204, response.getResponseCode());
+    }
+
+    @Test
     public void restart() throws Exception {
         final WebConversation wc = new WebConversation();
         final WebRequest request = new PostMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/restart");

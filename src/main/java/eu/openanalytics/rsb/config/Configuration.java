@@ -23,6 +23,7 @@ package eu.openanalytics.rsb.config;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -171,6 +172,11 @@ public interface Configuration {
          */
         int getHttpPort();
     }
+
+    /**
+     * URL from where the configuration has been loaded.
+     */
+    URL getConfigurationUrl();
 
     /**
      * Directory where a catalog of R scripts are stored.

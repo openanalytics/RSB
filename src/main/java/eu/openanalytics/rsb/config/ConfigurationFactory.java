@@ -61,6 +61,13 @@ public abstract class ConfigurationFactory {
         return pca;
     }
 
+    public static Configuration loadJsonConfiguration(final InputStream is) throws IOException {
+        final PersistedConfigurationAdapter pca = loadConfigurationStream(null, is);
+        validateConfiguration(pca);
+        createMissingDirectories(pca);
+        return pca;
+    }
+
     private static void validateConfiguration(final PersistedConfigurationAdapter pca) throws IOException {
         if (BooleanUtils.toBoolean(System.getProperty(ConfigurationFactory.class.getName() + ".skipValidation"))) {
             LOGGER.info("Skipped validation of: " + pca);
@@ -79,6 +86,12 @@ public abstract class ConfigurationFactory {
         Validate.notNull(configurationUrl, "Impossible to find " + configurationFile + " on the classpath");
 
         final InputStream is = configurationUrl.openStream();
+        return loadConfigurationStream(configurationUrl, is);
+    }
+
+    private static PersistedConfigurationAdapter loadConfigurationStream(final URL configurationUrl, final InputStream is)
+            throws IOException {
+
         final String json = IOUtils.toString(is);
         IOUtils.closeQuietly(is);
 
