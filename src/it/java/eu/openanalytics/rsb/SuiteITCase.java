@@ -48,10 +48,8 @@ import eu.openanalytics.rsb.config.ConfigurationFactory;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(Suite.class)
-@SuiteClasses({ RestAdminITCase.class })
-// FIXME restore
-// @SuiteClasses({ EmailDepositITCase.class, DirectoryDepositITCase.class, RestJobsITCase.class, RestAdminITCase.class,
-// RestMiscITCase.class, SoapMtomITCase.class })
+@SuiteClasses({ EmailDepositITCase.class, DirectoryDepositITCase.class, RestJobsITCase.class, RestAdminITCase.class, RestMiscITCase.class,
+        SoapMtomITCase.class })
 public class SuiteITCase {
 
     static Configuration configuration;

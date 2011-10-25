@@ -30,6 +30,11 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -48,6 +53,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -64,6 +70,8 @@ import eu.openanalytics.rsb.cxf.ReloadableCXFServlet;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
+import eu.openanalytics.rsb.rest.types.RServiPoolType;
+import eu.openanalytics.rsb.rest.types.RServiPools;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -111,6 +119,32 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         applicationContext.refresh();
         ReloadableCXFServlet.reloadAll();
         return Response.ok("RESTARTED").build();
+    }
+
+    @Path("/" + SYSTEM_SUBPATH + "/rservi_pools")
+    @GET
+    @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
+    public RServiPools getRServiPools() {
+        final Map<URI, Set<String>> pools = new HashMap<URI, Set<String>>();
+
+        addToPools(getConfiguration().getDefaultRserviPoolUri(), null, pools);
+
+        final Map<String, URI> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
+        if (applicationSpecificRserviPoolUris != null) {
+            for (final Entry<String, URI> pool : applicationSpecificRserviPoolUris.entrySet()) {
+                addToPools(pool.getValue(), pool.getKey(), pools);
+            }
+        }
+
+        final RServiPools result = Util.REST_OBJECT_FACTORY.createRServiPools();
+        for (final Entry<URI, Set<String>> pool : pools.entrySet()) {
+            final RServiPoolType rServiPool = Util.REST_OBJECT_FACTORY.createRServiPoolType();
+            rServiPool.setPoolUri(pool.getKey().toString());
+            rServiPool.setApplicationNames(StringUtils.join(pool.getValue(), ','));
+            rServiPool.setDefault(pool.getKey().equals(getConfiguration().getDefaultRserviPoolUri()));
+            result.getRServiPools().add(rServiPool);
+        }
+        return result;
     }
 
     @Path("/" + CATALOG_SUBPATH)
@@ -175,6 +209,17 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
 
         final URI location = buildCatalogFileUri(catalog, catalogFile, httpHeaders, uriInfo);
         return Response.created(location).build();
+    }
+
+    private void addToPools(final URI rServiPoolUri, final String applicationName, final Map<URI, Set<String>> pools) {
+        Set<String> applicationNames = pools.get(rServiPoolUri);
+        if (applicationNames == null) {
+            applicationNames = new HashSet<String>();
+        }
+        if (StringUtils.isNotBlank(applicationName)) {
+            applicationNames.add(applicationName);
+        }
+        pools.put(rServiPoolUri, applicationNames);
     }
 
     private CatalogDirectory createCatalogDirectory(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType,

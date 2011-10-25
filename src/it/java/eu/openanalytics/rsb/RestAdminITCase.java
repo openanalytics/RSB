@@ -50,6 +50,7 @@ import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
+import eu.openanalytics.rsb.rest.types.RServiPools;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -80,6 +81,16 @@ public class RestAdminITCase extends AbstractITCase {
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
         assertEquals("RESTARTED", response.getText());
+    }
+
+    @Test
+    public void getRServiPools() throws Exception {
+        final WebConversation wc = new WebConversation();
+        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/rservi_pools");
+        final WebResponse response = wc.sendRequest(request);
+        assertEquals(200, response.getResponseCode());
+        final RServiPools rServiPools = JAXB.unmarshal(new StringReader(response.getText()), RServiPools.class);
+        assertFalse(rServiPools.getRServiPools().isEmpty());
     }
 
     @Test

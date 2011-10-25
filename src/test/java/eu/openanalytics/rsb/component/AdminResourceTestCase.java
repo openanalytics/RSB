@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.net.URI;
 import java.net.UnknownHostException;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -50,6 +51,7 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.ConfigurationFactory;
 import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.rest.types.Catalog;
+import eu.openanalytics.rsb.rest.types.RServiPools;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -97,6 +99,14 @@ public class AdminResourceTestCase {
         final Response response = adminResource.restart();
         assertThat(response.getStatus(), is(200));
         assertThat(response.getEntity().toString(), is("RESTARTED"));
+    }
+
+    @Test
+    public void getRServiPools() throws Exception {
+        when(configuration.getDefaultRserviPoolUri()).thenReturn(new URI("fake://pool_uri"));
+
+        final RServiPools rServiPools = adminResource.getRServiPools();
+        assertThat(rServiPools.getRServiPools().size(), is(1));
     }
 
     @Test
