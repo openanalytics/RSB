@@ -155,7 +155,13 @@
     <xsd:element name="rServiPools" type="rServiPoolsType" />
     <xsd:complexType name="rServiPoolsType">
         <xsd:sequence>
-            <xsd:element name="rServiPool" type="rServiPoolType" minOccurs="1" maxOccurs="unbounded" />
+            <xsd:element name="rServiPool" type="rServiPoolType" minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:appinfo>
+                        <jaxb:property name="Contents" />
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="rServiPoolType">

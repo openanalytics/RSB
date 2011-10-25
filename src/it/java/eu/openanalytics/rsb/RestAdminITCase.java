@@ -90,7 +90,7 @@ public class RestAdminITCase extends AbstractITCase {
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
         final RServiPools rServiPools = JAXB.unmarshal(new StringReader(response.getText()), RServiPools.class);
-        assertFalse(rServiPools.getRServiPools().isEmpty());
+        assertFalse(rServiPools.getContents().isEmpty());
     }
 
     @Test

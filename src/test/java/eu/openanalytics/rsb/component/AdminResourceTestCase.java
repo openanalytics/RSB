@@ -106,7 +106,7 @@ public class AdminResourceTestCase {
         when(configuration.getDefaultRserviPoolUri()).thenReturn(new URI("fake://pool_uri"));
 
         final RServiPools rServiPools = adminResource.getRServiPools();
-        assertThat(rServiPools.getRServiPools().size(), is(1));
+        assertThat(rServiPools.getContents().size(), is(1));
     }
 
     @Test

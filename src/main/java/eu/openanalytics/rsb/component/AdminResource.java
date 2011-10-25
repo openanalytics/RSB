@@ -142,7 +142,7 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
             rServiPool.setPoolUri(pool.getKey().toString());
             rServiPool.setApplicationNames(StringUtils.join(pool.getValue(), ','));
             rServiPool.setDefault(pool.getKey().equals(getConfiguration().getDefaultRserviPoolUri()));
-            result.getRServiPools().add(rServiPool);
+            result.getContents().add(rServiPool);
         }
         return result;
     }
