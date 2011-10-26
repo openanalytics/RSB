@@ -94,7 +94,7 @@
     </repository>
     <site>
       <id>oa-www</id>
-      <url>file:///usr/share/nginx/www/maven-sites/rsb/</url>
+      <url>file:///usr/share/nginx/www/maven-sites/rsb/${project.artifactId}-${project.version}</url>
     </site>
   </distributionManagement>
 
