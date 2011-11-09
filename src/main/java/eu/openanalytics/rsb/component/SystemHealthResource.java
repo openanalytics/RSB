@@ -81,7 +81,6 @@ public class SystemHealthResource extends AbstractComponent {
         return nodeHealthy.get() ? Response.ok("OK").build() : Response.status(Status.INTERNAL_SERVER_ERROR).entity("ERROR").build();
     }
 
-    // FIXME unit test, integration test
     @GET
     @Path("/info")
     @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })

@@ -21,6 +21,7 @@
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.Response;
 
 import org.junit.Before;
@@ -39,6 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import de.walware.rj.servi.RServi;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 
 /**
@@ -65,10 +68,29 @@ public class SystemHealthResourceTestCase {
     }
 
     @Test
+    public void getInfo() throws Exception {
+        final NodeInformation info = systemHealthResource.getInfo(mock(ServletContext.class));
+
+        assertThat(info, is(notNullValue()));
+    }
+
+    @Test
+    public void defaultCheck() throws Exception {
+        final RServi rServi = mock(RServi.class);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
+
+        final Response checkResult = systemHealthResource.check();
+
+        assertThat(checkResult.getStatus(), is(200));
+        assertThat(checkResult.getEntity().toString(), is("OK"));
+    }
+
+    @Test
     public void happyCheck() throws Exception {
         final RServi rServi = mock(RServi.class);
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
 
+        systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();
 
         assertThat(checkResult.getStatus(), is(200));

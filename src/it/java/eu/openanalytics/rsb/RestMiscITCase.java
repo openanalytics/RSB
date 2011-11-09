@@ -36,7 +36,27 @@ import com.meterware.httpunit.WebResponse;
  */
 public class RestMiscITCase extends AbstractITCase {
     @Test
-    public void healthCheck() throws Exception {
+    public void systemInfo() throws Exception {
+        final WebConversation wc = new WebConversation();
+        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/system/info");
+        final WebResponse response = wc.sendRequest(request);
+        assertEquals(200, response.getResponseCode());
+        assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
+
+        final String xml = response.getText();
+        assertXpathExists("/rsb:nodeInformation", xml);
+        assertXpathExists("/rsb:nodeInformation/@name", xml);
+        assertXpathExists("/rsb:nodeInformation/@healthy", xml);
+        assertXpathExists("/rsb:nodeInformation/@uptime", xml);
+        assertXpathExists("/rsb:nodeInformation/@uptimeText", xml);
+        assertXpathExists("/rsb:nodeInformation/@servletContainerInfo", xml);
+        assertXpathExists("/rsb:nodeInformation/@jvmMaxMemory", xml);
+        assertXpathExists("/rsb:nodeInformation/@jvmFreeMemory", xml);
+        assertXpathExists("/rsb:nodeInformation/@osLoadAverage", xml);
+    }
+
+    @Test
+    public void systemHealthCheck() throws Exception {
         final WebConversation wc = new WebConversation();
         final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/system/health/check");
         final WebResponse response = wc.sendRequest(request);
