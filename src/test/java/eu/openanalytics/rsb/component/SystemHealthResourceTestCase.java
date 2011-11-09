@@ -80,6 +80,7 @@ public class SystemHealthResourceTestCase {
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenThrow(
                 new RuntimeException("simulated RServi provider issue"));
 
+        systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();
 
         assertThat(checkResult.getStatus(), is(500));
