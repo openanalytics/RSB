@@ -22,12 +22,14 @@
     @author rsb.development@openanalytics.eu
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:p="http://www.springframework.org/schema/p"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:task="http://www.springframework.org/schema/task"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
     
     <!-- Configuration loading and validation -->
     <bean id="configuration" class="eu.openanalytics.rsb.config.ConfigurationFactory"
@@ -52,6 +54,7 @@
     <bean id="messageSource"
           class="org.springframework.context.support.ResourceBundleMessageSource"
           p:basename="messages" />
+    <task:annotation-driven/>
     
     <!-- RServi -->
     <bean name="rServiInstanceProvider"

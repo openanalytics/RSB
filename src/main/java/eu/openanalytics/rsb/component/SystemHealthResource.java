@@ -20,6 +20,8 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.annotation.Resource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -27,6 +29,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.servi.RServi;
@@ -44,6 +47,8 @@ public class SystemHealthResource extends AbstractComponent {
     @Resource
     private RServiInstanceProvider rServiInstanceProvider;
 
+    private final AtomicBoolean nodeHealthy = new AtomicBoolean(true);
+
     // exposed for unit testing
     void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider) {
         this.rServiInstanceProvider = rServiInstanceProvider;
@@ -53,14 +58,24 @@ public class SystemHealthResource extends AbstractComponent {
     @Path("/check")
     @Produces({ Constants.TEXT_CONTENT_TYPE })
     public Response check() {
+        return nodeHealthy.get() ? Response.ok("OK").build() : Response.status(Status.INTERNAL_SERVER_ERROR).entity("ERROR").build();
+    }
+
+    @Scheduled(fixedDelay = 60000)
+    public void verifyNodeHealth() {
         try {
-            final RServi rServi = rServiInstanceProvider.getRServiInstance(getConfiguration().getDefaultRserviPoolUri().toString(),
-                    Constants.RSERVI_CLIENT_ID);
-            rServi.close();
-            return Response.ok("OK").build();
+            verifyRServiConnectivity();
+            // LATER consider other tests
+            nodeHealthy.set(true);
         } catch (final Exception e) {
             getLogger().error("RSB is in bad health!", e);
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity("ERROR").build();
+            nodeHealthy.set(false);
         }
+    }
+
+    private void verifyRServiConnectivity() throws Exception {
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(getConfiguration().getDefaultRserviPoolUri().toString(),
+                Constants.RSERVI_CLIENT_ID);
+        rServi.close();
     }
 }
