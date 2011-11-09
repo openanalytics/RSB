@@ -179,6 +179,11 @@ public interface Configuration {
     URL getConfigurationUrl();
 
     /**
+     * Logical name of the RSB node.
+     */
+    String getNodeName();
+
+    /**
      * Directory where a catalog of R scripts are stored.
      */
     File getRScriptsCatalogDirectory();

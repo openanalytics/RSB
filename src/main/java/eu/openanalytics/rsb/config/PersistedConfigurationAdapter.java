@@ -27,9 +27,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatisticsHandlerConfiguration;
 
@@ -45,15 +47,18 @@ public class PersistedConfigurationAdapter implements Configuration {
             8889);
     private final PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
-
+    private final String nodeName;
     private final File rScriptsCatalogDirectory;
     private final File sweaveFilesCatalogDirectory;
     private final File jobConfigurationCatalogDirectory;
     private final File emailRepliesCatalogDirectory;
 
     public PersistedConfigurationAdapter(final URL configurationUrl, final PersistedConfiguration persistedConfiguration) {
-        this.configurationUrl = configurationUrl;
         this.persistedConfiguration = persistedConfiguration;
+        this.configurationUrl = configurationUrl;
+
+        nodeName = StringUtils.isNotBlank(persistedConfiguration.getNodeName()) ? persistedConfiguration.getNodeName()
+                : getDefaultNodeName();
 
         rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.Catalog.R_SCRIPTS.getSubDir());
         sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
@@ -62,6 +67,13 @@ public class PersistedConfigurationAdapter implements Configuration {
                 Configuration.Catalog.JOB_CONFIGURATIONS.getSubDir());
         emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
                 Configuration.Catalog.EMAIL_REPLIES.getSubDir());
+    }
+
+    private String getDefaultNodeName() {
+        // find something unique about the running node like the location of resource
+        final URL resourceUrl = getClass().getResource("/META-INF/spring/core-beans.xml");
+        final String uniqueId = Long.toHexString(Math.abs((long) resourceUrl.toExternalForm().hashCode()));
+        return StringUtils.lowerCase(Constants.HOST_NAME + "-" + uniqueId);
     }
 
     @Override
@@ -81,6 +93,10 @@ public class PersistedConfigurationAdapter implements Configuration {
 
     public URL getConfigurationUrl() {
         return configurationUrl;
+    }
+
+    public String getNodeName() {
+        return nodeName;
     }
 
     public File getActiveMqWorkDirectory() {

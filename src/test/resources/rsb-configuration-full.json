@@ -1,4 +1,5 @@
 {
+    "nodeName": "testNodeName",
     "administratorEmail": "fake@nohost.com",
     "catalogRootDirectory": "/tmp/.rsb/catalog",
     "activeMqWorkDirectory": "/tmp/.rsb/activemq",

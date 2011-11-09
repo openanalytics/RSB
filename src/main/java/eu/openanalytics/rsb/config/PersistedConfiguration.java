@@ -268,6 +268,7 @@ public class PersistedConfiguration implements Serializable {
     }
 
     private static final long serialVersionUID = 1L;
+    private String nodeName;
     private File activeMqWorkDirectory;
     private URI defaultRserviPoolUri;
     private int jobTimeOut;
@@ -301,6 +302,7 @@ public class PersistedConfiguration implements Serializable {
         setJobStatisticsHandlerConfiguration((PersistedJobStatisticsHandlerConfiguration) configuration
                 .getJobStatisticsHandlerConfiguration());
         setJobTimeOut(configuration.getJobTimeOut());
+        setNodeName(configuration.getNodeName());
         setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
         setResultsDirectory(configuration.getResultsDirectory());
         setSmtpConfiguration((PersistedSmtpConfiguration) configuration.getSmtpConfiguration());
@@ -309,6 +311,17 @@ public class PersistedConfiguration implements Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    /**
+     * Logical name of the RSB node.
+     */
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(final String nodeName) {
+        this.nodeName = nodeName;
     }
 
     /**

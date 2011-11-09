@@ -84,6 +84,7 @@ public class Constants {
     public static final MimeType ZIP_MIME_TYPE;
     public static final MimeType DEFAULT_MIME_TYPE;
 
+    public static final String HOST_NAME;
     public static final String RSERVI_CLIENT_ID;
 
     static {
@@ -95,8 +96,8 @@ public class Constants {
             ZIP_MIME_TYPE = new MimeType(ZIP_CONTENT_TYPE);
             DEFAULT_MIME_TYPE = new MimeType("application/octet-stream");
 
-            RSERVI_CLIENT_ID = "rsb@" + InetAddress.getLocalHost().getHostName();
-
+            HOST_NAME = InetAddress.getLocalHost().getHostName();
+            RSERVI_CLIENT_ID = "rsb@" + HOST_NAME;
         } catch (final Exception mtpe) {
             throw new IllegalStateException(mtpe);
         }
