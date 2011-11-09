@@ -169,4 +169,20 @@
         <xsd:attribute name="applicationNames" type="xsd:string" use="required" />
         <xsd:attribute name="default" type="xsd:boolean" use="required" />
     </xsd:complexType>
+    
+    <!--
+      Node Information 
+    -->
+    <xsd:element name="nodeInformation" type="nodeInformationType" />
+    <xsd:complexType name="nodeInformationType">
+        <xsd:attribute name="name" type="xsd:string" use="required" />
+        <xsd:attribute name="healthy" type="xsd:boolean" use="required" />
+        <xsd:attribute name="uptime" type="xsd:long" use="required" />
+        <xsd:attribute name="uptimeText" type="xsd:string" use="required" />
+        <xsd:attribute name="servletContainerInfo" type="xsd:string" use="required" />
+        <xsd:attribute name="rsbVersion" type="xsd:string" use="required" />
+        <xsd:attribute name="jvmMaxMemory" type="xsd:long" use="required" />
+        <xsd:attribute name="jvmFreeMemory" type="xsd:long" use="required" />
+        <xsd:attribute name="osLoadAverage" type="xsd:double" use="required" />
+    </xsd:complexType>
 </xsd:schema>

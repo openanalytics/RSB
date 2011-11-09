@@ -50,7 +50,7 @@ public class Constants {
     public final static String RESULTS_PATH = "results";
     public final static String RESULT_PATH = "result";
     public final static String DATA_DIR_PATH = "data";
-    public final static String HEALTH_PATH = "system/health";
+    public final static String SYSTEM_PATH = "system";
     public final static String ADMIN_PATH = "admin";
 
     public static final String SOURCE_MESSAGE_HEADER = "source";

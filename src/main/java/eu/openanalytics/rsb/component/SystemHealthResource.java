@@ -20,20 +20,28 @@
  */
 package eu.openanalytics.rsb.component;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.servi.RServi;
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 
 /**
@@ -41,8 +49,8 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-@Component("systemHealthResource")
-@Path("/" + Constants.HEALTH_PATH)
+@Component("systemResource")
+@Path("/" + Constants.SYSTEM_PATH)
 public class SystemHealthResource extends AbstractComponent {
     @Resource
     private RServiInstanceProvider rServiInstanceProvider;
@@ -52,13 +60,6 @@ public class SystemHealthResource extends AbstractComponent {
     // exposed for unit testing
     void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider) {
         this.rServiInstanceProvider = rServiInstanceProvider;
-    }
-
-    @GET
-    @Path("/check")
-    @Produces({ Constants.TEXT_CONTENT_TYPE })
-    public Response check() {
-        return nodeHealthy.get() ? Response.ok("OK").build() : Response.status(Status.INTERNAL_SERVER_ERROR).entity("ERROR").build();
     }
 
     @Scheduled(fixedDelay = 60000)
@@ -71,6 +72,40 @@ public class SystemHealthResource extends AbstractComponent {
             getLogger().error("RSB is in bad health!", e);
             nodeHealthy.set(false);
         }
+    }
+
+    @GET
+    @Path("/health/check")
+    @Produces({ Constants.TEXT_CONTENT_TYPE })
+    public Response check() {
+        return nodeHealthy.get() ? Response.ok("OK").build() : Response.status(Status.INTERNAL_SERVER_ERROR).entity("ERROR").build();
+    }
+
+    // FIXME unit test, integration test
+    @GET
+    @Path("/info")
+    @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
+    public NodeInformation getInfo(@Context final ServletContext sc) {
+        final NodeInformation info = Util.REST_OBJECT_FACTORY.createNodeInformation();
+
+        info.setName(getConfiguration().getNodeName());
+        info.setHealthy(nodeHealthy.get());
+        info.setRsbVersion(getClass().getPackage().getImplementationVersion());
+        info.setServletContainerInfo(sc.getServerInfo());
+
+        final OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+        info.setOsLoadAverage(operatingSystemMXBean.getSystemLoadAverage());
+
+        final Runtime runtime = Runtime.getRuntime();
+        info.setJvmMaxMemory(runtime.maxMemory());
+        info.setJvmFreeMemory(runtime.freeMemory());
+
+        final RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        final long uptimeMilliseconds = runtimeMXBean.getUptime();
+        info.setUptime(uptimeMilliseconds);
+        info.setUptimeText(DurationFormatUtils.formatDurationWords(uptimeMilliseconds, true, true));
+
+        return info;
     }
 
     private void verifyRServiConnectivity() throws Exception {

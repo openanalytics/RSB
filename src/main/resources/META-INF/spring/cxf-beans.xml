@@ -60,7 +60,7 @@
             <ref bean="resultsResource" />
             <ref bean="resultResource" />
             <ref bean="dataDirectoriesResource" />
-            <ref bean="systemHealthResource"/>
+            <ref bean="systemResource"/>
             <ref bean="adminResource" />
         </jaxrs:serviceBeans>
         <jaxrs:providers>
