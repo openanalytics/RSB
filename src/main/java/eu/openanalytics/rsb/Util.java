@@ -204,7 +204,7 @@ public abstract class Util {
             }
         }
 
-        final String protocol = Util.getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HTTP_HEADER);
+        final String protocol = getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HTTP_HEADER);
         if (StringUtils.isNotBlank(protocol)) {
             uriBuilder.scheme(protocol);
         }
