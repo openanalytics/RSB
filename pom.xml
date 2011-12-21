@@ -547,7 +547,6 @@
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
-                    <archiveClasses>true</archiveClasses>
                 </configuration>
             </plugin>
         </plugins>
