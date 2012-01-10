@@ -183,14 +183,14 @@ public class JobProcessor extends AbstractComponent {
                     rserviPoolAddress.toString());
 
             getLogger().info(
-                    String.format("Successfully processed %s %s on %s in %dms", job.getType(), job.getJobId(), rserviPoolAddress,
-                            processTime));
+                    String.format("Successfully processed %s %s for %s on %s in %dms", job.getType(), job.getJobId(),
+                            job.getApplicationName(), rserviPoolAddress, processTime));
         } catch (final Throwable t) {
             // catch wide to prevent disrupting the main flow
             final long processTime = System.currentTimeMillis() - startTime;
             getLogger().error(
-                    String.format("Failed to process %s %s on %s in %dms", job.getType(), job.getJobId(), rserviPoolAddress, processTime),
-                    t);
+                    String.format("Failed to process %s %s for %s on %s in %dms", job.getType(), job.getJobId(), job.getApplicationName(),
+                            rserviPoolAddress, processTime), t);
             result = job.buildErrorResult(t, getMessages());
         } finally {
             rServi.close();
