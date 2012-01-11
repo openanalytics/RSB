@@ -72,7 +72,7 @@ http://${RSB host}/rsb/api/rest/system/health/check
         <p>If RSB generates such a default configuration file, it is recommended to review it so it uses the desired values and move it to the root of the JVM classpath, as discussed in the previous section.</p>
       </subsection>
       <subsection name="Description">
-        <p>Configuration attributes are documented on the <a href="/apidocs/index.html?eu/openanalytics/rsb/config/PersistedConfiguration.html">persisted configuration classes</a>.</p>
+        <p>Configuration attributes are documented on the <a href="./apidocs/index.html?eu/openanalytics/rsb/config/PersistedConfiguration.html">persisted configuration classes</a>.</p>
       </subsection>
       <script type="text/javascript">
         //<![CDATA[
