@@ -21,6 +21,10 @@
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+  
+  <listener>
+    <listener-class>eu.openanalytics.rsb.config.RServiEnvironmentServletContextListener</listener-class>
+  </listener>
 
   <servlet>
     <servlet-name>CxfServlet</servlet-name>
