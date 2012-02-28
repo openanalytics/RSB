@@ -51,6 +51,7 @@ function xmlTimeStampToDate(xmlDate)
 
 function loadApplicationResults(applicationName, highlightJobId) {
   $.ajax({ url: "api/rest/results/" + applicationName,
+           cache: false,
            success: function(responseXML) {
              
     var tableBody = $("#resultsTableBody");
@@ -399,7 +400,7 @@ $(document).ready(function() {
                 $.doTimeout(5000, function() { $.ajax(reAjax) });
               }
           });
-      },
+      }
   });
   
   // Setup page appearance
