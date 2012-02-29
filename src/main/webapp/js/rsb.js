@@ -352,26 +352,33 @@ $(document).ready(function() {
   $('#jobUploadForm').validate();
   
   $('#jobUploadForm').ajaxForm({
-      beforeSubmit: function(a,f,o) {
-        o.dataType = 'xml';
-      },
-      
+      dataType: 'xml',
       success: function(responseXML, textStatus, xhr) {
           // reset the file selector only
           $('#jobFileSelector').attr({ value: '' });
           $('#jobFileSelector').MultiFile('reset');
           
           var response = $('jobToken', responseXML)
-          var jobId = response.attr('jobId');
-
-          if (!jobId) {
-            // something went wrong: display the server response as-is
-            alert($(responseXML).text());
-            return;
-          }
           
+          var jobId = response.attr('jobId');
           var appName = response.attr('applicationName');
           var resultUri = response.attr('resultUri');
+
+          if (!jobId) {
+            if ($.browser.msie) {
+              var xml = new ActiveXObject("Microsoft.XMLDOM");
+              xml.async = "false";
+              xml.loadXML($(responseXML).text());
+              var attributes = xml.documentElement.attributes;
+              jobId = attributes.getNamedItem('jobId').value;
+              appName = attributes.getNamedItem('applicationName').value;
+              resultUri = attributes.getNamedItem('resultUri').value;
+            } else {
+              // something went wrong: display the server response as-is
+              alert($(responseXML).text());
+              return;
+            }
+          }
           
           $('#runningJobsPanel').show(250);
            
