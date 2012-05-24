@@ -101,14 +101,14 @@ public class RestAdminITCase extends AbstractITCase {
         assertEquals(200, response.getResponseCode());
 
         final Catalog catalog = JAXB.unmarshal(new StringReader(response.getText()), Catalog.class);
-        final List<CatalogDirectory> directories = catalog.getDirectories();
+        final List<CatalogDirectory> directories1 = catalog.getDirectories();
+        final List<CatalogDirectory> directories = directories1;
 
         // check all catalog dirs
         assertEquals(4, directories.size());
         for (final CatalogDirectory cd : directories) {
             assertEquals(cd.getType(), Configuration.Catalog.valueOf(cd.getType()).toString());
             assertTrue(StringUtils.isNotBlank(cd.getPath()));
-            assertFalse(cd.getFiles().isEmpty());
         }
 
         // check one catalog file

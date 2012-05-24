@@ -68,6 +68,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
+import eu.openanalytics.rsb.config.Configuration;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -88,7 +89,12 @@ public class RestJobsITCase extends AbstractITCase {
 
     @After
     public void cleanupResults() throws IOException {
-        final File[] testResultFiles = getConfiguration().getResultsDirectory().listFiles(new FilenameFilter() {
+        final Configuration configuration = getConfiguration();
+        if (configuration == null) {
+            return;
+        }
+
+        final File[] testResultFiles = configuration.getResultsDirectory().listFiles(new FilenameFilter() {
             public boolean accept(final File dir, final String name) {
                 return StringUtils.startsWith(name, TEST_APPLICATION_NAME_PREFIX);
             }

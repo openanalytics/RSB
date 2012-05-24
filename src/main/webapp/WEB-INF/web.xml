@@ -28,7 +28,7 @@
 
   <servlet>
     <servlet-name>CxfServlet</servlet-name>
-    <servlet-class>eu.openanalytics.rsb.cxf.ReloadableCXFServlet</servlet-class>
+    <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>

@@ -96,7 +96,11 @@ public class SuiteITCase {
     }
 
     public static void registerCreatedCatalogFile(final Configuration.Catalog catalog, final String fileName) {
-        final File fileToRegister = new File(catalog.getConfiguredDirectory(configuration), fileName);
+        if (configuration == null) {
+            return;
+        }
+        final File configuredDirectory = catalog.getConfiguredDirectory(configuration);
+        final File fileToRegister = new File(configuredDirectory, fileName);
         catalogTestFiles.add(fileToRegister);
     }
 

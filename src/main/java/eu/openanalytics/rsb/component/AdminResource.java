@@ -66,7 +66,6 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.ConfigurationFactory;
 import eu.openanalytics.rsb.config.PersistedConfiguration;
-import eu.openanalytics.rsb.cxf.ReloadableCXFServlet;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
@@ -117,7 +116,6 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
     public Response restart() {
         applicationContext.close();
         applicationContext.refresh();
-        ReloadableCXFServlet.reloadAll();
         return Response.ok("RESTARTED").build();
     }
 
