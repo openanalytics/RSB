@@ -26,15 +26,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.mail.MailHeaders;
 import org.springframework.integration.message.GenericMessage;
 import org.springframework.stereotype.Component;
+import org.stringtemplate.v4.ST;
 
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem;
@@ -62,9 +62,9 @@ public class DlqHandler extends AbstractComponent {
      */
     public void handle(final AbstractJob job) throws IOException {
         final String message = getMessages().getMessage(job.getAbortMessageId(), null, null);
-        final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
-        template.setAttribute("job", job);
-        final String descriptiveMessage = template.toString();
+        final ST template = Util.newStringTemplate(message);
+        template.add("job", job);
+        final String descriptiveMessage = template.render();
 
         logAndAlertFailure(job, descriptiveMessage);
 
@@ -79,8 +79,8 @@ public class DlqHandler extends AbstractComponent {
      */
     public void handle(final AbstractResult<?> result) {
         final String message = getMessages().getMessage("result.abort", null, null);
-        final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
-        template.setAttribute("result", result);
+        final ST template = Util.newStringTemplate(message);
+        template.add("result", result);
         final String descriptiveMessage = template.toString();
 
         logAndAlertFailure(result, descriptiveMessage);

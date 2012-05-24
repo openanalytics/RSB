@@ -70,6 +70,8 @@ public class DlqHandlerTestCase {
         dlqHandler.setMessages(messageSource);
         dlqHandler.setMessageDispatcher(messageDispatcher);
         dlqHandler.setOutboundEmailChannel(outboundEmailChannel);
+
+        when(messageSource.getMessage(anyString(), any(Object[].class), any(Locale.class))).thenReturn("fake err msg");
     }
 
     @Test
@@ -84,8 +86,6 @@ public class DlqHandlerTestCase {
                 return result;
             }
         });
-
-        when(messageSource.getMessage(anyString(), any(Object[].class), any(Locale.class))).thenReturn("fake err msg");
 
         dlqHandler.handle(job);
 

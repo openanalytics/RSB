@@ -94,7 +94,6 @@ public class UtilTestCase {
         gmtMinus8Calendar.set(GregorianCalendar.MILLISECOND, 456);
 
         final XMLGregorianCalendar xmlDate = Util.convertToXmlDate(gmtMinus8Calendar);
-        System.err.println(xmlDate.toXMLFormat());
         assertThat(xmlDate.getTimezone(), is(0));
         assertThat(xmlDate.toXMLFormat(), is("2010-07-21T18:35:48.456Z"));
     }

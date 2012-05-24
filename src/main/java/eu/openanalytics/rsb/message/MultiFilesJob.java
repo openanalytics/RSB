@@ -36,14 +36,13 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.util.FileCopyUtils;
+import org.stringtemplate.v4.ST;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
@@ -119,14 +118,14 @@ public class MultiFilesJob extends AbstractJob {
     @Override
     public MultiFilesResult buildErrorResult(final Throwable t, final MessageSource messageSource) throws IOException {
         final String message = messageSource.getMessage(getErrorMessageId(), null, null);
-        final StringTemplate template = new StringTemplate(message, DefaultTemplateLexer.class);
-        template.setAttribute("job", this);
-        template.setAttribute("throwable", t);
+        final ST template = Util.newStringTemplate(message);
+        template.add("job", this);
+        template.add("throwable", t);
 
         final MultiFilesResult result = new MultiFilesResult(getSource(), getApplicationName(), getJobId(), getSubmissionTime(), getMeta(),
                 false);
         final File resultFile = result.createNewResultFile(getJobId() + "." + Util.getResourceType(Constants.TEXT_MIME_TYPE));
-        FileCopyUtils.copy(template.toString(), new FileWriter(resultFile));
+        FileCopyUtils.copy(template.render(), new FileWriter(resultFile));
         return result;
     }
 
@@ -160,8 +159,7 @@ public class MultiFilesJob extends AbstractJob {
     }
 
     /**
-     * Adds all the files contained in a Zip archive to a job. Rejects Zips that contain
-     * sub-directories.
+     * Adds all the files contained in a Zip archive to a job. Rejects Zips that contain sub-directories.
      * 
      * @param data
      * @param job

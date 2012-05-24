@@ -111,10 +111,12 @@ public class AdminResourceTestCase {
 
     @Test
     public void getCatalog() throws Exception {
-        when(configuration.getRScriptsCatalogDirectory()).thenReturn(FileUtils.getTempDirectory());
-        when(configuration.getSweaveFilesCatalogDirectory()).thenReturn(FileUtils.getTempDirectory());
-        when(configuration.getJobConfigurationCatalogDirectory()).thenReturn(FileUtils.getTempDirectory());
-        when(configuration.getEmailRepliesCatalogDirectory()).thenReturn(FileUtils.getTempDirectory());
+        final File fakeCatalogDir = new File(FileUtils.getTempDirectory(), "rsb_test_catalog");
+        FileUtils.forceMkdir(fakeCatalogDir);
+        when(configuration.getRScriptsCatalogDirectory()).thenReturn(fakeCatalogDir);
+        when(configuration.getSweaveFilesCatalogDirectory()).thenReturn(fakeCatalogDir);
+        when(configuration.getJobConfigurationCatalogDirectory()).thenReturn(fakeCatalogDir);
+        when(configuration.getEmailRepliesCatalogDirectory()).thenReturn(fakeCatalogDir);
 
         final Catalog catalog = adminResource.getCatalog(httpHeaders, uriInfo);
         assertThat(catalog, is(not(nullValue())));

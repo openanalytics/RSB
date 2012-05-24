@@ -51,6 +51,8 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
 
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
@@ -71,11 +73,12 @@ public abstract class Util {
     private static final MimetypesFileTypeMap MIMETYPES_FILETYPE_MAP = new MimetypesFileTypeMap();
     private static final String DEFAULT_FILE_EXTENSION = "dat";
     private static final Map<String, String> DEFAULT_FILE_EXTENSIONS = new HashMap<String, String>();
+    private static final STGroup $_STRING_TEMPLATE_GROUP = new STGroup('$', '$');
 
     static {
         PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
         PRETTY_JSON_OBJECT_MAPPER.configure(Feature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        PRETTY_JSON_OBJECT_MAPPER.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+        PRETTY_JSON_OBJECT_MAPPER.setSerializationInclusion(Inclusion.NON_NULL);
 
         try {
             ERROR_RESULT_JAXB_CONTEXT = JAXBContext.newInstance(ErrorResult.class);
@@ -99,6 +102,16 @@ public abstract class Util {
 
     private Util() {
         throw new UnsupportedOperationException("do not instantiate");
+    }
+
+    /**
+     * Creates a new {@link ST} configured with a $..$ group.
+     * 
+     * @param template
+     * @return a new {@link ST}
+     */
+    public static ST newStringTemplate(final String template) {
+        return new ST($_STRING_TEMPLATE_GROUP, template);
     }
 
     /**

@@ -35,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.validator.EmailValidator;
+import org.apache.commons.validator.routines.EmailValidator;
 
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
