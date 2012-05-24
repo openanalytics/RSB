@@ -207,11 +207,8 @@ public class JobsResource extends AbstractComponent {
 
         final UUID jobId = UUID.randomUUID();
         final AbstractJob job = jobBuilder.build(applicationName, jobId, (GregorianCalendar) GregorianCalendar.getInstance());
-
         getMessageDispatcher().dispatch(job);
-
         final JobToken jobToken = buildJobToken(uriInfo, httpHeaders, job);
-
         return Response.status(Status.ACCEPTED).entity(jobToken).build();
     }
 

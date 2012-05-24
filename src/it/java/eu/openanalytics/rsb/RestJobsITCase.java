@@ -42,7 +42,6 @@ import java.util.Map.Entry;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -74,8 +73,6 @@ import eu.openanalytics.rsb.config.Configuration;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class RestJobsITCase extends AbstractITCase {
-    private static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
-
     private String restJobsUri;
     private String restResultsUri;
     private String uploadFormUri;
@@ -655,10 +652,6 @@ public class RestJobsITCase extends AbstractITCase {
 
     private static String getApplicationResultsUri(final Map<?, ?> jsonResult) {
         return jsonResult.get("applicationResultsUri").toString();
-    }
-
-    private static String newTestApplicationName() {
-        return TEST_APPLICATION_NAME_PREFIX + RandomStringUtils.randomAlphanumeric(20);
     }
 
     private static class UploadedFile {

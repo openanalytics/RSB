@@ -75,13 +75,22 @@ public class JobProcessor extends AbstractComponent {
     @Resource
     private JobStatisticsHandler jobStatisticsHandler;
 
+    public AbstractResult<?> processDirect(final AbstractFunctionCallJob job) throws Exception {
+        return process(job, new JobRunner() {
+            public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException {
+                final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
+                return job.buildSuccessResult(resultPayload);
+            }
+        }, true);
+    }
+
     public void process(final AbstractFunctionCallJob job) throws Exception {
         process(job, new JobRunner() {
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException {
                 final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
                 return job.buildSuccessResult(resultPayload);
             }
-        });
+        }, false);
     }
 
     public void process(final MultiFilesJob job) throws Exception {
@@ -142,7 +151,7 @@ public class JobProcessor extends AbstractComponent {
 
                 return result;
             }
-        });
+        }, false);
     }
 
     // exposed for unit testing
@@ -166,7 +175,8 @@ public class JobProcessor extends AbstractComponent {
         return applicationRserviPoolUri == null ? getConfiguration().getDefaultRserviPoolUri() : applicationRserviPoolUri;
     }
 
-    private void process(final AbstractJob job, final JobRunner jobRunner) throws LoginException, CoreException, IOException {
+    private AbstractResult<?> process(final AbstractJob job, final JobRunner jobRunner, final boolean direct) throws LoginException,
+            CoreException, IOException {
         AbstractResult<?> result = null;
         final long startTime = System.currentTimeMillis();
         final URI rserviPoolAddress = getRServiPoolUri(job.getApplicationName());
@@ -195,12 +205,14 @@ public class JobProcessor extends AbstractComponent {
         } finally {
             rServi.close();
 
-            if (result != null) {
+            if ((!direct) && (result != null)) {
                 getMessageDispatcher().dispatch(result);
             }
 
             job.destroy();
         }
+
+        return result;
     }
 
     private static String callFunctionOnR(final RServi rServi, final String functionName, final String argument) throws CoreException {

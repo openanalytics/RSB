@@ -38,8 +38,8 @@ import eu.openanalytics.rsb.Util;
  */
 public abstract class AbstractWorkItem implements Serializable {
     public enum Source {
-        REST("job.error", "job.abort", 4), SOAP("job.error", "job.abort", 8), EMAIL("email.job.error", "email.job.abort", 4), DIRECTORY(
-                "directory.job.error", "directory.job.abort", 4);
+        REST("job.error", "job.abort", 4), REST_IMMEDIATE("job.error", "job.abort", 4), SOAP("job.error", "job.abort", 8), EMAIL(
+                "email.job.error", "email.job.abort", 4), DIRECTORY("directory.job.error", "directory.job.abort", 4);
 
         private final String errorMessageId;
         private final String abortMessageId;

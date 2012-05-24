@@ -395,7 +395,7 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <schemaDirectory>src/main/resources/schemas</schemaDirectory>
-              <!-- exclude SOAP schemas who are indirectly picked up by wsdl2java -->
+                            <!-- exclude SOAP schemas who are indirectly picked up by wsdl2java -->
                             <schemaExcludes>
                                 <exclude>soap-*.xsd</exclude>
                             </schemaExcludes>

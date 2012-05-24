@@ -57,6 +57,7 @@
     <jaxrs:server id="jaxrsRestServer" address="/rest">
         <jaxrs:serviceBeans>
             <ref bean="jobsResource" />
+            <ref bean="processResource" />
             <ref bean="resultsResource" />
             <ref bean="resultResource" />
             <ref bean="dataDirectoriesResource" />

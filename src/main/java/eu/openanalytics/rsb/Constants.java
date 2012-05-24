@@ -47,6 +47,7 @@ public class Constants {
     public static final String JOB_FILES_MULTIPART_NAME = "X-RSB-JobFile[]";
 
     public final static String JOBS_PATH = "jobs";
+    public final static String PROCESS_PATH = "process";
     public final static String RESULTS_PATH = "results";
     public final static String RESULT_PATH = "result";
     public final static String DATA_DIR_PATH = "data";

@@ -35,6 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -47,6 +48,8 @@ import eu.openanalytics.rsb.config.Configuration;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractITCase {
+    protected static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
+
     protected final static String RSB_BASE_URI = "http://localhost:8888/rsb";
 
     @Before
@@ -94,5 +97,9 @@ public abstract class AbstractITCase {
     public static void validateErrorResult(final InputStream responseStream) throws IOException {
         final String response = IOUtils.toString(responseStream);
         assertTrue(response + " should contain 'error'", StringUtils.containsIgnoreCase(response, "error"));
+    }
+
+    protected String newTestApplicationName() {
+        return TEST_APPLICATION_NAME_PREFIX + RandomStringUtils.randomAlphanumeric(20);
     }
 }
