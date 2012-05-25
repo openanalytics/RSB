@@ -43,6 +43,7 @@ import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
+import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 
 /**
  * Handles health check requests.
@@ -109,7 +110,7 @@ public class SystemHealthResource extends AbstractComponent {
 
     private void verifyRServiConnectivity() throws Exception {
         final RServi rServi = rServiInstanceProvider.getRServiInstance(getConfiguration().getDefaultRserviPoolUri().toString(),
-                Constants.RSERVI_CLIENT_ID);
+                Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
         rServi.close();
     }
 }

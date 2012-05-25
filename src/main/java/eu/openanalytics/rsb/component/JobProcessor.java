@@ -38,7 +38,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Resource;
-import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.CoreException;
@@ -56,6 +55,7 @@ import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
+import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
@@ -75,6 +75,7 @@ public class JobProcessor extends AbstractComponent {
     @Resource
     private JobStatisticsHandler jobStatisticsHandler;
 
+    // FIXME unit test
     public AbstractResult<?> processDirect(final AbstractFunctionCallJob job) throws Exception {
         return process(job, new JobRunner() {
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException {
@@ -175,14 +176,18 @@ public class JobProcessor extends AbstractComponent {
         return applicationRserviPoolUri == null ? getConfiguration().getDefaultRserviPoolUri() : applicationRserviPoolUri;
     }
 
-    private AbstractResult<?> process(final AbstractJob job, final JobRunner jobRunner, final boolean direct) throws LoginException,
-            CoreException, IOException {
+    private AbstractResult<?> process(final AbstractJob job, final JobRunner jobRunner, final boolean direct) throws Exception {
         AbstractResult<?> result = null;
         final long startTime = System.currentTimeMillis();
         final URI rserviPoolAddress = getRServiPoolUri(job.getApplicationName());
 
+        // instanceof of is not object but defining pooling strategy is not of AbstractWorkItem business
+        final PoolingStrategy poolingStrategy = job instanceof AbstractFunctionCallJob ? PoolingStrategy.IF_POSSIBLE
+                : PoolingStrategy.NEVER;
+
         // don't catch RServi pool here so the error is propagated and the job can be retried
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), Constants.RSERVI_CLIENT_ID);
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(), Constants.RSERVI_CLIENT_ID,
+                poolingStrategy);
 
         try {
             result = jobRunner.runOn(rServi);
@@ -192,9 +197,11 @@ public class JobProcessor extends AbstractComponent {
             jobStatisticsHandler.storeJobStatistics(job.getApplicationName(), job.getJobId(), new GregorianCalendar(), processTime,
                     rserviPoolAddress.toString());
 
-            getLogger().info(
-                    String.format("Successfully processed %s %s for %s on %s in %dms", job.getType(), job.getJobId(),
-                            job.getApplicationName(), rserviPoolAddress, processTime));
+            if (getLogger().isInfoEnabled()) {
+                getLogger().info(
+                        String.format("Successfully processed %s %s for %s on %s in %dms", job.getType(), job.getJobId(),
+                                job.getApplicationName(), rserviPoolAddress, processTime));
+            }
         } catch (final Throwable t) {
             // catch wide to prevent disrupting the main flow
             final long processTime = System.currentTimeMillis() - startTime;

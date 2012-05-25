@@ -24,6 +24,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +44,7 @@ import de.walware.rj.servi.RServi;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
+import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -77,7 +79,7 @@ public class SystemHealthResourceTestCase {
     @Test
     public void defaultCheck() throws Exception {
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(rServi);
 
         final Response checkResult = systemHealthResource.check();
 
@@ -88,7 +90,7 @@ public class SystemHealthResourceTestCase {
     @Test
     public void happyCheck() throws Exception {
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenReturn(rServi);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(rServi);
 
         systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();
@@ -99,7 +101,7 @@ public class SystemHealthResourceTestCase {
 
     @Test
     public void unhappyCheck() throws Exception {
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString())).thenThrow(
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenThrow(
                 new RuntimeException("simulated RServi provider issue"));
 
         systemHealthResource.verifyNodeHealth();

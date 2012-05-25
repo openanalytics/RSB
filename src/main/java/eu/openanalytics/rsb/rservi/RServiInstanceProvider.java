@@ -20,10 +20,6 @@
  */
 package eu.openanalytics.rsb.rservi;
 
-import javax.security.auth.login.LoginException;
-
-import org.eclipse.core.runtime.CoreException;
-
 import de.walware.rj.servi.RServi;
 
 /**
@@ -32,5 +28,9 @@ import de.walware.rj.servi.RServi;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface RServiInstanceProvider {
-    RServi getRServiInstance(final String address, final String clientId) throws LoginException, CoreException;
+    public enum PoolingStrategy {
+        NEVER, IF_POSSIBLE
+    };
+
+    RServi getRServiInstance(final String address, final String clientId, PoolingStrategy poolingStrategy) throws Exception;
 }
