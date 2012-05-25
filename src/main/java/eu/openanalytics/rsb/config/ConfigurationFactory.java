@@ -77,7 +77,7 @@ public abstract class ConfigurationFactory {
         final Set<String> validationErrors = validate(pca);
         Validate.isTrue(validationErrors.isEmpty(), "Validation error(s):\n" + StringUtils.join(validationErrors, "\n")
                 + "\nfound in configuration:\n" + pca);
-        LOGGER.info("Successfully validated: " + pca);
+        LOGGER.info("Successfully validated: " + pca.exportAsJson());
     }
 
     // exposed for testing

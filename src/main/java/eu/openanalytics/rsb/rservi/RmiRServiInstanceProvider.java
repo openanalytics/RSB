@@ -173,10 +173,13 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider {
 
     @PostConstruct
     public void initialize() {
-        // FIXME add rServiClientPooling boolean to configuration
-        final Config config = new Config();
-        config.minIdle = configuration.getNumberOfConcurrentJobWorkersPerQueue();
-        config.maxActive = 2 * configuration.getNumberOfConcurrentJobWorkersPerQueue();
+        final Config config = configuration.getRServiClientPoolConfig();
+        if (config != null) {
+            initializeRServiClientPool(config);
+        }
+    }
+
+    private void initializeRServiClientPool(final Config config) {
         final KeyedPoolableObjectFactory<RServiPoolKey, PooledRServiWrapper> factory = new BaseKeyedPoolableObjectFactory<RServiPoolKey, PooledRServiWrapper>() {
             @Override
             public PooledRServiWrapper makeObject(final RServiPoolKey key) throws Exception {
@@ -197,15 +200,15 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider {
     public void terminate() throws Exception {
         if (rServiPool != null) {
             rServiPool.close();
+            LOGGER.info("RServi pool destroyed");
         }
     }
 
     public RServi getRServiInstance(final String address, final String clientId, final PoolingStrategy poolingStrategy) throws Exception {
-
-        if (rServiPool == null) {
+        if ((rServiPool == null) || (poolingStrategy == PoolingStrategy.NEVER)) {
             return RServiUtil.getRServi(address, clientId);
+        } else {
+            return rServiPool.borrowObject(new RServiPoolKey(address, clientId));
         }
-
-        return rServiPool.borrowObject(new RServiPoolKey(address, clientId));
     }
 }

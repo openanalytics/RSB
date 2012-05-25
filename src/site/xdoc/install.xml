@@ -53,6 +53,9 @@ http://${RSB host}/rsb/api/rest/system/health/check
           <li><a href="misc/rsb-configuration-redis.json">Redis statistics store</a>: a minimal configuration with an optional Redis statistics store configured:
            <pre id="redis_conf"></pre>
           </li>
+          <li><a href="misc/rsb-configuration-pooling.json">RServi client pool</a>: a minimal configuration with an optional RServi client pool for faster R function invocations:
+           <pre id="pooling_conf"></pre>
+          </li>
           <li><a href="misc/rsb-configuration-full.json">Full configuration</a>: a complete configuration with examples for all the different job deposit methods:
            <pre id="full_conf"></pre>
           </li>
@@ -78,6 +81,7 @@ http://${RSB host}/rsb/api/rest/system/health/check
         //<![CDATA[
         $('pre#min_conf').load('misc/rsb-configuration-minimal.json');
         $('pre#redis_conf').load('misc/rsb-configuration-redis.json');
+        $('pre#pooling_conf').load('misc/rsb-configuration-pooling.json');
         $('pre#full_conf').load('misc/rsb-configuration-full.json');
         $('pre#def_conf').load('misc/rsb-configuration-default.json');
         //]]>

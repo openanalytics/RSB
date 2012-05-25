@@ -29,15 +29,18 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.UUID;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.junit.Before;
 import org.junit.Test;
@@ -139,18 +142,25 @@ public class JobProcessorTestCase {
     }
 
     @Test
+    public void processDirect() throws Exception {
+        final URI defaultPoolUri = new URI("fake://default");
+        final AbstractFunctionCallJob job = setupMocksForProcessingFunctionCallJob(defaultPoolUri);
+        final AbstractFunctionCallResult result = setupResultMockForFunctionCallJob(job);
+
+        final AbstractFunctionCallResult processDirectResult = (AbstractFunctionCallResult) jobProcessor.processDirect(job);
+
+        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
+                eq(defaultPoolUri.toString()));
+        verifyZeroInteractions(messageDispatcher);
+
+        assertThat(processDirectResult, is(result));
+    }
+
+    @Test
     public void processFunctionCallJob() throws Exception {
         final URI defaultPoolUri = new URI("fake://default");
-        when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
-        final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
-        final FunctionCall functionCall = mock(FunctionCall.class);
-        when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
-        final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(new String[] { "fake_result" }));
-        when(functionCall.evalData(null)).thenReturn(rObject);
-        final AbstractFunctionCallJob job = mock(AbstractFunctionCallJob.class);
-        final AbstractFunctionCallResult result = mock(AbstractFunctionCallResult.class);
-        when(job.buildSuccessResult("fake_result")).thenReturn(result);
+        final AbstractFunctionCallJob job = setupMocksForProcessingFunctionCallJob(defaultPoolUri);
+        final AbstractFunctionCallResult result = setupResultMockForFunctionCallJob(job);
 
         jobProcessor.process(job);
 
@@ -198,5 +208,24 @@ public class JobProcessorTestCase {
         verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
                 eq(defaultPoolUri.toString()));
         verify(messageDispatcher).dispatch(eq(result));
+    }
+
+    private AbstractFunctionCallResult setupResultMockForFunctionCallJob(final AbstractFunctionCallJob job) throws IOException {
+        final AbstractFunctionCallResult result = mock(AbstractFunctionCallResult.class);
+        when(job.buildSuccessResult("fake_result")).thenReturn(result);
+        return result;
+    }
+
+    private AbstractFunctionCallJob setupMocksForProcessingFunctionCallJob(final URI defaultPoolUri) throws Exception, CoreException,
+            IOException {
+        when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
+        final RServi rServi = mock(RServi.class);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
+        final FunctionCall functionCall = mock(FunctionCall.class);
+        when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
+        final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(new String[] { "fake_result" }));
+        when(functionCall.evalData(null)).thenReturn(rObject);
+        final AbstractFunctionCallJob job = mock(AbstractFunctionCallJob.class);
+        return job;
     }
 }

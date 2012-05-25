@@ -34,10 +34,11 @@ import org.junit.Test;
 public class ConfigurationFactoryTestCase {
 
     private static final String[] TEST_JSON_CONFIGURATIONS = { "rsb-configuration.json", "rsb-configuration-minimal.json",
-            "rsb-configuration-redis.json", "rsb-configuration-full.json" };
+            "rsb-configuration-redis.json", "rsb-configuration-pooling.json", "rsb-configuration-full.json" };
 
-    // full config is expected to be invalid
-    private static final boolean[] VALIDATION_RESULTS = { true, true, true, false };
+    // full config is expected to be invalid because of missing job configuration file, response file and data
+    // directories
+    private static final boolean[] VALIDATION_RESULTS = { true, true, true, true, false };
 
     @Test
     public void validateTestJsonConfigurations() throws IOException {

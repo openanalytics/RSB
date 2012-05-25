@@ -49,5 +49,20 @@
             "port": 6379
         }
     },
-    "dataDirectories" : ["/opt/data1", "/opt/data2"]
+    "dataDirectories" : ["/opt/data1", "/opt/data2"],
+    "rServiClientPoolConfig" : {
+      "lifo" : true,
+      "maxActive" : 8,
+      "maxIdle" : 8,
+      "maxTotal" : -1,
+      "maxWait" : -1,
+      "minEvictableIdleTimeMillis" : 1800000,
+      "minIdle" : 0,
+      "numTestsPerEvictionRun" : 3,
+      "testOnBorrow" : false,
+      "testOnReturn" : false,
+      "testWhileIdle" : false,
+      "timeBetweenEvictionRunsMillis" : -1,
+      "whenExhaustedAction" : 1
+    }
 }

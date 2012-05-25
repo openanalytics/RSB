@@ -75,7 +75,6 @@ public class JobProcessor extends AbstractComponent {
     @Resource
     private JobStatisticsHandler jobStatisticsHandler;
 
-    // FIXME unit test
     public AbstractResult<?> processDirect(final AbstractFunctionCallJob job) throws Exception {
         return process(job, new JobRunner() {
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException {

@@ -22,13 +22,13 @@
 package eu.openanalytics.rsb.config;
 
 import java.io.File;
-import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
@@ -43,7 +43,7 @@ import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class PersistedConfiguration implements Serializable {
+public class PersistedConfiguration {
     public static class PersistedSmtpConfiguration implements SmtpConfiguration {
         private static final long serialVersionUID = 1L;
         private String host;
@@ -283,6 +283,7 @@ public class PersistedConfiguration implements Serializable {
     private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
     private List<File> dataDirectories;
+    private Config rServiClientPoolConfig;
 
     public PersistedConfiguration() {
         // NOOP
@@ -491,5 +492,16 @@ public class PersistedConfiguration implements Serializable {
 
     public void setDataDirectories(final List<File> dataDirectories) {
         this.dataDirectories = dataDirectories;
+    }
+
+    /**
+     * Optional pooling configuration for RServi clients.
+     */
+    public Config getrServiClientPoolConfig() {
+        return rServiClientPoolConfig;
+    }
+
+    public void setrServiClientPoolConfig(final Config rServiClientPoolConfig) {
+        this.rServiClientPoolConfig = rServiClientPoolConfig;
     }
 }

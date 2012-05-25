@@ -27,6 +27,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
+
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
@@ -274,4 +276,9 @@ public interface Configuration {
      * Optional configuration of directories where data is accessible.
      */
     List<File> getDataDirectories();
+
+    /**
+     * Optional pooling configuration for RServi clients.
+     */
+    Config getRServiClientPoolConfig();
 }

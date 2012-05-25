@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
@@ -170,8 +171,12 @@ public class PersistedConfigurationAdapter implements Configuration {
         return emailRepliesCatalogDirectory;
     }
 
-    @Override
     public List<File> getDataDirectories() {
         return persistedConfiguration.getDataDirectories();
+    }
+
+    @Override
+    public Config getRServiClientPoolConfig() {
+        return persistedConfiguration.getrServiClientPoolConfig();
     }
 }
