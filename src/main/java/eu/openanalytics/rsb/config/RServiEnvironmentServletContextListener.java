@@ -1,5 +1,6 @@
 package eu.openanalytics.rsb.config;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -13,6 +14,11 @@ import org.eclipse.core.runtime.IStatus;
 import de.walware.ecommons.ECommons;
 import de.walware.ecommons.ECommons.IAppEnvironment;
 import de.walware.ecommons.IDisposable;
+import de.walware.rj.server.RjsComConfig;
+import de.walware.rj.server.client.RClientGraphic;
+import de.walware.rj.server.client.RClientGraphicActions;
+import de.walware.rj.server.client.RClientGraphicDummy;
+import de.walware.rj.server.client.RClientGraphicFactory;
 
 /**
  * Handles the RServi runtime environment.
@@ -28,6 +34,21 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
     public void contextInitialized(final ServletContextEvent sce) {
         ECommons.init("de.walware.rj.services.eruntime", this);
         logger = LogFactory.getLog("de.walware.rj.servi.pool");
+
+        RjsComConfig.setProperty("rj.servi.graphicFactory", new RClientGraphicFactory() {
+            public Map<String, ? extends Object> getInitServerProperties() {
+                return null;
+            }
+
+            public RClientGraphic newGraphic(final int devId, final double w, final double h, final boolean active,
+                    final RClientGraphicActions actions, final int options) {
+                return new RClientGraphicDummy(devId, w, h);
+            }
+
+            public void closeGraphic(final RClientGraphic graphic) {
+                // NOOP
+            }
+        });
     }
 
     public void contextDestroyed(final ServletContextEvent sce) {
