@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
@@ -36,6 +37,7 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.soap.MTOM;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
@@ -64,7 +66,9 @@ import eu.openanalytics.rsb.soap.types.ResultType;
 @MTOM
 @WebService(endpointInterface = "eu.openanalytics.rsb.soap.jobs.MtomJobProcessor", targetNamespace = "http://soap.rsb.openanalytics.eu/jobs", serviceName = "MtomJobService", portName = "MtomJobProcessorPort", wsdlLocation = "wsdl/mtom-jobs.wsdl")
 @Component("soapMtomJobHandler")
-public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor {
+public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProcessor
+{
+    private static final String NULL_RESULT_RECEIVED = "Null result received: has the job timed out?";
     private final static ObjectFactory soapOF = new ObjectFactory();
 
     /**
@@ -72,34 +76,46 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
      * 
      * @throws IOException
      */
-    public ResultType process(final JobType job) {
-        try {
+    public ResultType process(final JobType job)
+    {
+        try
+        {
             final String applicationName = job.getApplicationName();
             final Map<String, Serializable> meta = getMeta(job);
 
-            final ResultType potentialFunctionCallResult = processPotentialFunctionCallJob(applicationName, job, meta);
-            if (potentialFunctionCallResult != null) {
+            final ResultType potentialFunctionCallResult = processPotentialFunctionCallJob(applicationName,
+                job, meta);
+            if (potentialFunctionCallResult != null)
+            {
                 return potentialFunctionCallResult;
             }
 
             return processMultiFilesJob(applicationName, job, meta);
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe)
+        {
             throw new RuntimeException(ioe);
         }
     }
 
-    private Map<String, Serializable> getMeta(final JobType job) {
+    private Map<String, Serializable> getMeta(final JobType job)
+    {
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
-        for (final Parameter parameter : job.getParameter()) {
+        for (final Parameter parameter : job.getParameter())
+        {
             meta.put(parameter.getName(), parameter.getValue());
         }
         return meta;
     }
 
-    private ResultType processPotentialFunctionCallJob(final String applicationName, final JobType job, final Map<String, Serializable> meta)
-            throws IOException {
+    private ResultType processPotentialFunctionCallJob(final String applicationName,
+                                                       final JobType job,
+                                                       final Map<String, Serializable> meta)
+        throws IOException
+    {
 
-        if (!isPotentiallyAFunctionCallJob(job, meta)) {
+        if (!isPotentiallyAFunctionCallJob(job, meta))
+        {
             return null;
         }
 
@@ -107,21 +123,27 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         final PayloadType payload = job.getPayload().get(0);
         final String contentType = payload.getContentType();
 
-        if (Constants.XML_CONTENT_TYPE.equals(contentType)) {
+        if (Constants.XML_CONTENT_TYPE.equals(contentType))
+        {
             final String argument = IOUtils.toString(payload.getData().getInputStream());
-            final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP, applicationName, UUID.randomUUID(),
-                    (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+            final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP,
+                applicationName, UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(),
+                argument);
 
-            final XmlFunctionCallResult xmlFunctionCallResult = getMessageDispatcher().process(xmlFunctionCallJob);
+            final XmlFunctionCallResult xmlFunctionCallResult = getMessageDispatcher().process(
+                xmlFunctionCallJob);
             return buildResult(xmlFunctionCallResult);
         }
 
-        if (Constants.JSON_CONTENT_TYPE.equals(payload.getContentType())) {
+        if (Constants.JSON_CONTENT_TYPE.equals(payload.getContentType()))
+        {
             final String argument = IOUtils.toString(payload.getData().getInputStream());
-            final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP, applicationName, UUID.randomUUID(),
-                    (GregorianCalendar) GregorianCalendar.getInstance(), argument);
+            final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP,
+                applicationName, UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(),
+                argument);
 
-            final JsonFunctionCallResult jsonFunctionCallResult = getMessageDispatcher().process(jsonFunctionCallJob);
+            final JsonFunctionCallResult jsonFunctionCallResult = getMessageDispatcher().process(
+                jsonFunctionCallJob);
             return buildResult(jsonFunctionCallResult);
         }
 
@@ -129,48 +151,66 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         return null;
     }
 
-    private boolean isPotentiallyAFunctionCallJob(final JobType job, final Map<String, Serializable> meta) {
+    private boolean isPotentiallyAFunctionCallJob(final JobType job, final Map<String, Serializable> meta)
+    {
         // function call jobs have a single attachment and no meta
         return (job.getPayload().size() == 1) && (meta.isEmpty());
     }
 
-    private ResultType processMultiFilesJob(final String applicationName, final JobType job, final Map<String, Serializable> meta)
-            throws IOException, FileNotFoundException {
+    private ResultType processMultiFilesJob(final String applicationName,
+                                            final JobType job,
+                                            final Map<String, Serializable> meta)
+        throws IOException, FileNotFoundException
+    {
 
-        final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName, UUID.randomUUID(),
-                (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+        final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName,
+            UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
-        for (final PayloadType payload : job.getPayload()) {
-            MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(), payload.getData().getInputStream(), multiFilesJob);
+        for (final PayloadType payload : job.getPayload())
+        {
+            MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(), payload.getData()
+                .getInputStream(), multiFilesJob);
         }
 
         final MultiFilesResult multiFilesResult = getMessageDispatcher().process(multiFilesJob);
         return buildResult(job, multiFilesResult);
     }
 
-    private ResultType buildResult(final AbstractFunctionCallResult functionCallResult) throws IOException {
+    private ResultType buildResult(final AbstractFunctionCallResult functionCallResult) throws IOException
+    {
+        Validate.notNull(functionCallResult, NULL_RESULT_RECEIVED);
+
         final String resultContentType = functionCallResult.getMimeType().toString();
 
         final PayloadType payload = soapOF.createPayloadType();
         payload.setContentType(resultContentType);
         payload.setName(functionCallResult.getResultFileName());
-        payload.setData(new DataHandler(new ByteArrayDataSource(functionCallResult.getPayload(), resultContentType)));
+        payload.setData(new DataHandler(new ByteArrayDataSource(functionCallResult.getPayload(),
+            resultContentType)));
 
         final ResultType result = createResult(functionCallResult);
         result.getPayload().add(payload);
         return result;
     }
 
-    private ResultType buildResult(final JobType job, final MultiFilesResult multiFilesResult) throws FileNotFoundException, IOException {
-        final boolean isOneZipJob = job.getPayload().size() == 1
-                && Constants.ZIP_CONTENT_TYPES.contains(job.getPayload().get(0).getContentType());
+    private ResultType buildResult(final JobType job, final MultiFilesResult multiFilesResult)
+        throws FileNotFoundException, IOException
+    {
+        Validate.notNull(multiFilesResult, NULL_RESULT_RECEIVED);
 
-        final File[] resultFiles = isOneZipJob ? new File[] { MultiFilesResult.zipResultFilesIfNotError(multiFilesResult) }
-                : multiFilesResult.getPayload();
+        final boolean isOneZipJob = job.getPayload().size() == 1
+                                    && Constants.ZIP_CONTENT_TYPES.contains(job.getPayload()
+                                        .get(0)
+                                        .getContentType());
+
+        final File[] resultFiles = isOneZipJob
+                                              ? new File[]{MultiFilesResult.zipResultFilesIfNotError(multiFilesResult)}
+                                              : multiFilesResult.getPayload();
 
         final ResultType result = createResult(multiFilesResult);
 
-        for (final File resultFile : resultFiles) {
+        for (final File resultFile : resultFiles)
+        {
             final PayloadType payload = soapOF.createPayloadType();
             payload.setContentType(Util.getContentType(resultFile));
             payload.setName(resultFile.getName());
@@ -180,7 +220,8 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         return result;
     }
 
-    private ResultType createResult(final AbstractResult<?> result) {
+    private ResultType createResult(final AbstractResult<?> result)
+    {
         final ResultType response = soapOF.createResultType();
         response.setApplicationName(result.getApplicationName());
         response.setJobId(result.getJobId().toString());
