@@ -41,11 +41,10 @@ import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatistics
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class PersistedConfigurationAdapter implements Configuration {
-    private static final long serialVersionUID = 1L;
-
-    public static final JmxConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new PersistedConfiguration.PersistedJmxConfiguration(9098, 9099,
-            8889);
+public class PersistedConfigurationAdapter implements Configuration
+{
+    public static final JmxConfiguration DEFAULT_JMX_RMI_CONFIGURATION = new PersistedConfiguration.PersistedJmxConfiguration(
+        9098, 9099, 8889);
     private final PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
     private final String nodeName;
@@ -54,23 +53,28 @@ public class PersistedConfigurationAdapter implements Configuration {
     private final File jobConfigurationCatalogDirectory;
     private final File emailRepliesCatalogDirectory;
 
-    public PersistedConfigurationAdapter(final URL configurationUrl, final PersistedConfiguration persistedConfiguration) {
+    public PersistedConfigurationAdapter(final URL configurationUrl,
+                                         final PersistedConfiguration persistedConfiguration)
+    {
         this.persistedConfiguration = persistedConfiguration;
         this.configurationUrl = configurationUrl;
 
-        nodeName = StringUtils.isNotBlank(persistedConfiguration.getNodeName()) ? persistedConfiguration.getNodeName()
-                : getDefaultNodeName();
+        nodeName = StringUtils.isNotBlank(persistedConfiguration.getNodeName())
+                                                                               ? persistedConfiguration.getNodeName()
+                                                                               : getDefaultNodeName();
 
-        rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(), Configuration.Catalog.R_SCRIPTS.getSubDir());
+        rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
+            Configuration.Catalog.R_SCRIPTS.getSubDir());
         sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-                Configuration.Catalog.SWEAVE_FILES.getSubDir());
+            Configuration.Catalog.SWEAVE_FILES.getSubDir());
         jobConfigurationCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-                Configuration.Catalog.JOB_CONFIGURATIONS.getSubDir());
+            Configuration.Catalog.JOB_CONFIGURATIONS.getSubDir());
         emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-                Configuration.Catalog.EMAIL_REPLIES.getSubDir());
+            Configuration.Catalog.EMAIL_REPLIES.getSubDir());
     }
 
-    private String getDefaultNodeName() {
+    private String getDefaultNodeName()
+    {
         // find something unique about the running node like the location of resource
         final URL resourceUrl = getClass().getResource("/META-INF/spring/core-beans.xml");
         final String uniqueId = Long.toHexString(Math.abs((long) resourceUrl.toExternalForm().hashCode()));
@@ -78,105 +82,130 @@ public class PersistedConfigurationAdapter implements Configuration {
     }
 
     @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE) + "\n" + persistedConfiguration.toString();
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE) + "\n"
+               + persistedConfiguration.toString();
     }
 
     // for JMX access
-    public String exportAsString() {
+    public String exportAsString()
+    {
         return toString();
     }
 
     // for JMX access
-    public String exportAsJson() {
+    public String exportAsJson()
+    {
         return Util.toJson(persistedConfiguration);
     }
 
-    public URL getConfigurationUrl() {
+    public URL getConfigurationUrl()
+    {
         return configurationUrl;
     }
 
-    public String getNodeName() {
+    public String getNodeName()
+    {
         return nodeName;
     }
 
-    public File getActiveMqWorkDirectory() {
+    public File getActiveMqWorkDirectory()
+    {
         return persistedConfiguration.getActiveMqWorkDirectory();
     }
 
-    public int getJobTimeOut() {
+    public int getJobTimeOut()
+    {
         return persistedConfiguration.getJobTimeOut();
     }
 
-    public int getNumberOfConcurrentJobWorkersPerQueue() {
+    public int getNumberOfConcurrentJobWorkersPerQueue()
+    {
         return persistedConfiguration.getNumberOfConcurrentJobWorkersPerQueue();
     }
 
-    public File getResultsDirectory() {
+    public File getResultsDirectory()
+    {
         return persistedConfiguration.getResultsDirectory();
     }
 
-    public Map<String, URI> getApplicationSpecificRserviPoolUris() {
+    public Map<String, URI> getApplicationSpecificRserviPoolUris()
+    {
         return persistedConfiguration.getApplicationSpecificRserviPoolUris();
     }
 
-    public URI getDefaultRserviPoolUri() {
+    public URI getDefaultRserviPoolUri()
+    {
         return persistedConfiguration.getDefaultRserviPoolUri();
     }
 
-    public String getAdministratorEmail() {
+    public String getAdministratorEmail()
+    {
         return persistedConfiguration.getAdministratorEmail();
     }
 
-    public SmtpConfiguration getSmtpConfiguration() {
+    public SmtpConfiguration getSmtpConfiguration()
+    {
         return persistedConfiguration.getSmtpConfiguration();
     }
 
-    public JmxConfiguration getJmxConfiguration() {
-        if (persistedConfiguration.getJmxConfiguration() == null) {
+    public JmxConfiguration getJmxConfiguration()
+    {
+        if (persistedConfiguration.getJmxConfiguration() == null)
+        {
             return DEFAULT_JMX_RMI_CONFIGURATION;
         }
 
         return persistedConfiguration.getJmxConfiguration();
     }
 
-    public JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration() {
+    public JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration()
+    {
         final PersistedJobStatisticsHandlerConfiguration persisted = persistedConfiguration.getJobStatisticsHandlerConfiguration();
         return persisted != null ? persisted : new PersistedJobStatisticsHandlerConfiguration();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List<DepositDirectoryConfiguration> getDepositRootDirectories() {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public List<DepositDirectoryConfiguration> getDepositRootDirectories()
+    {
         return (List) persistedConfiguration.getDepositRootDirectories();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List<DepositEmailConfiguration> getDepositEmailAccounts() {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public List<DepositEmailConfiguration> getDepositEmailAccounts()
+    {
         return (List) persistedConfiguration.getDepositEmailAccounts();
     }
 
-    public File getRScriptsCatalogDirectory() {
+    public File getRScriptsCatalogDirectory()
+    {
         return rScriptsCatalogDirectory;
     }
 
-    public File getSweaveFilesCatalogDirectory() {
+    public File getSweaveFilesCatalogDirectory()
+    {
         return sweaveFilesCatalogDirectory;
     }
 
-    public File getJobConfigurationCatalogDirectory() {
+    public File getJobConfigurationCatalogDirectory()
+    {
         return jobConfigurationCatalogDirectory;
     }
 
-    public File getEmailRepliesCatalogDirectory() {
+    public File getEmailRepliesCatalogDirectory()
+    {
         return emailRepliesCatalogDirectory;
     }
 
-    public List<File> getDataDirectories() {
+    public List<File> getDataDirectories()
+    {
         return persistedConfiguration.getDataDirectories();
     }
 
     @Override
-    public Config getRServiClientPoolConfig() {
+    public Config getRServiClientPoolConfig()
+    {
         return persistedConfiguration.getrServiClientPoolConfig();
     }
 }
