@@ -31,13 +31,27 @@
     <script src="http://code.jquery.com/jquery-1.6.1.min.js" type="text/javascript"></script>
   </head>
   <body>
-    <section name="Deployment">
-      <p>RSB should deploy fine on any Java web-container supporting Servlet 2.5.</p>
-      <p>To ensure an RSB instance is running and can access its default RServi pool, browse to or curl:</p>
-      <source>
-http://${RSB host}/rsb/api/rest/system/health/check
-      </source>
-      <p>If all is good, RSB should respond: OK</p>
+    <section name="Installation">
+     <subsection name="Prerequisites">
+        <p>RSB needs R, several R packages and also relies on RServi for interacting with R.</p>
+        <p>If you haven't installed R already, consider doing so using the <code>r-base</code> and <code>r-rj</code> packages from <a href="http://deb.openanalytics.eu">deb.openanalytics.eu</a></p>
+        <p>The R packages can be installed in two ways:</p>
+        <ul>
+            <li><source>install.packages(c("properties", "RSBXml", "RSBJson"), repos = "http://repos.openanalytics.eu", type = "source")</source></li>
+            <li>Install the Debian packages: <code>r-properties</code>, <code>r-rsbxml</code>, <code>r-rjsonio</code> and <code>r-rsbjson</code> from <a href="http://deb.openanalytics.eu">deb.openanalytics.eu</a></li>
+        </ul>
+        <p>RServi is bundled with RSB in its full distribution (which also contains a Tomcat web container).</p>
+        <p>If you chose not to use the full distribution of RSB, you'll need to install RServi yourself, which is easily done with the <code>rservi</code> package from <a href="http://deb.openanalytics.eu">deb.openanalytics.eu</a></p>
+     </subsection>
+     <subsection name="WAR-only Deployment">
+       <p>RSB should deploy fine on any Java web-container supporting Servlet 2.5.</p>
+       <p>To ensure an RSB instance is running and can access its default RServi pool, browse to or curl:</p>
+       <source>http://${RSB host}/rsb/api/rest/system/health/check</source>
+       <p>If all is good, RSB should respond: OK</p>
+     </subsection>
+     <subsection name="Full Distribution Installation">
+        <p>Simply unzip the distribution Zip archive in your preferred location and ensure the files in the bin directory are executable.</p>
+     </subsection>
     </section>
     <section name="Configuration">
       <p>

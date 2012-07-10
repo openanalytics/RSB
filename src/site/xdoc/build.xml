@@ -47,6 +47,13 @@ mvn clean install
 mvn -P-javax-dependencies clean install
             </source></p>
         </section>
+        <section name="Packaged Distribution">
+            <p>To build a complete distribution consisting of Tomcat with both the RServi and RSB web application deployed in it, run:
+                <source>
+mvn -Pjavax-dependencies,tomcat-distribution clean package
+                </source>
+            </p>
+        </section>
         <section name="Test Run">
             <p>On Linux/OS X, you can easily start RSB for a quick ride with:
             <source>
@@ -67,13 +74,6 @@ mvn -Pjavax-dependencies,tc6 cargo:start
             <p>If that is the case, then run:
                 <source>
 mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase verify
-                </source>
-            </p>
-        </section>
-        <section name="Packaged Distribution">
-            <p>To build a complete distribution consisting of Tomcat with both the RServi and RSB web application deployed in it, run:
-                <source>
-mvn -Pjavax-dependencies,tomcat-distribution clean package
                 </source>
             </p>
         </section>
