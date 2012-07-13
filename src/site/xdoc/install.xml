@@ -32,6 +32,10 @@
   </head>
   <body>
     <section name="Installation">
+     <subsection name="Snapshot Debian Packages">
+        <p>Should you want to get started with the latest RSB snapshot and have all the required packages and dependencies installed in a convenient manner, simply run the following command:</p>
+        <source>sudo apt-get install rsb-snapshot r-properties r-rsbxml r-rsbjson</source>
+     </subsection>
      <subsection name="Prerequisites">
         <p>RSB needs R, several R packages and also relies on RServi for interacting with R.</p>
         <p>If you haven't installed R already, consider doing so using the <code>r-base</code> and <code>r-rj</code> packages from <a href="http://deb.openanalytics.eu">deb.openanalytics.eu</a></p>
