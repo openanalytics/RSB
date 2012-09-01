@@ -3,6 +3,7 @@
     "administratorEmail": "fake@nohost.com",
     "catalogRootDirectory": "/tmp/.rsb/catalog",
     "activeMqWorkDirectory": "/tmp/.rsb/activemq",
+    "checkHealthOnStart": true,
     "defaultRserviPoolUri": "rmi://127.0.0.1/rservi-pool",
     "applicationSpecificRserviPoolUris": {
         "great_application": "rmi://127.0.0.1/other-pool"

@@ -338,6 +338,7 @@ public class PersistedConfiguration
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
     private List<File> dataDirectories;
     private Config rServiClientPoolConfig;
+    private boolean checkHealthOnStart;
 
     public PersistedConfiguration()
     {
@@ -351,6 +352,7 @@ public class PersistedConfiguration
         setAdministratorEmail(configuration.getAdministratorEmail());
         setApplicationSpecificRserviPoolUris(configuration.getApplicationSpecificRserviPoolUris());
         setCatalogRootDirectory(configuration.getRScriptsCatalogDirectory().getParentFile());
+        setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setDataDirectories(configuration.getDataDirectories());
         setDefaultRserviPoolUri(configuration.getDefaultRserviPoolUri());
         setDepositEmailAccounts((List) configuration.getDepositEmailAccounts());
@@ -361,6 +363,7 @@ public class PersistedConfiguration
         setNodeName(configuration.getNodeName());
         setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
         setResultsDirectory(configuration.getResultsDirectory());
+        setrServiClientPoolConfig(configuration.getRServiClientPoolConfig());
         setSmtpConfiguration((PersistedSmtpConfiguration) configuration.getSmtpConfiguration());
     }
 
@@ -602,5 +605,19 @@ public class PersistedConfiguration
     public void setrServiClientPoolConfig(final Config rServiClientPoolConfig)
     {
         this.rServiClientPoolConfig = rServiClientPoolConfig;
+    }
+
+    /**
+     * Should health be checked when RSB starts (recommended for deployments where
+     * RServi is not colocated in the same web container).
+     */
+    public boolean isCheckHealthOnStart()
+    {
+        return checkHealthOnStart;
+    }
+
+    public void setCheckHealthOnStart(final boolean checkHealthOnStart)
+    {
+        this.checkHealthOnStart = checkHealthOnStart;
     }
 }

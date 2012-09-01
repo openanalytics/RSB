@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import java.lang.management.ManagementFactory;
@@ -25,6 +26,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
@@ -52,24 +54,47 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
  */
 @Component("systemResource")
 @Path("/" + Constants.SYSTEM_PATH)
-public class SystemHealthResource extends AbstractComponent {
+public class SystemHealthResource extends AbstractComponent
+{
+    private static final long CHECK_DELAY = 60000L;
+
     @Resource
     private RServiInstanceProvider rServiInstanceProvider;
 
     private final AtomicBoolean nodeHealthy = new AtomicBoolean(true);
 
+    private long initializationTime;
+
     // exposed for unit testing
-    void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider) {
+    void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider)
+    {
         this.rServiInstanceProvider = rServiInstanceProvider;
     }
 
-    @Scheduled(fixedDelay = 60000)
-    public void verifyNodeHealth() {
-        try {
+    @PostConstruct
+    public void initialize()
+    {
+        initializationTime = System.currentTimeMillis();
+    }
+
+    @Scheduled(fixedDelay = CHECK_DELAY)
+    public void verifyNodeHealth()
+    {
+        // start delay unless health must be checked right from start
+        if ((!getConfiguration().isCheckHealthOnStart())
+            && (System.currentTimeMillis() - initializationTime < CHECK_DELAY))
+        {
+            return;
+        }
+
+        try
+        {
             verifyRServiConnectivity();
             // LATER consider other tests
             nodeHealthy.set(true);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e)
+        {
             getLogger().error("RSB is in bad health!", e);
             nodeHealthy.set(false);
         }
@@ -77,15 +102,19 @@ public class SystemHealthResource extends AbstractComponent {
 
     @GET
     @Path("/health/check")
-    @Produces({ Constants.TEXT_CONTENT_TYPE })
-    public Response check() {
-        return nodeHealthy.get() ? Response.ok("OK").build() : Response.status(Status.INTERNAL_SERVER_ERROR).entity("ERROR").build();
+    @Produces({Constants.TEXT_CONTENT_TYPE})
+    public Response check()
+    {
+        return nodeHealthy.get() ? Response.ok("OK").build() : Response.status(Status.INTERNAL_SERVER_ERROR)
+            .entity("ERROR")
+            .build();
     }
 
     @GET
     @Path("/info")
-    @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
-    public NodeInformation getInfo(@Context final ServletContext sc) {
+    @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
+    public NodeInformation getInfo(@Context final ServletContext sc)
+    {
         final NodeInformation info = Util.REST_OBJECT_FACTORY.createNodeInformation();
 
         info.setName(getConfiguration().getNodeName());
@@ -108,9 +137,11 @@ public class SystemHealthResource extends AbstractComponent {
         return info;
     }
 
-    private void verifyRServiConnectivity() throws Exception {
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(getConfiguration().getDefaultRserviPoolUri().toString(),
-                Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
+    private void verifyRServiConnectivity() throws Exception
+    {
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(
+            getConfiguration().getDefaultRserviPoolUri().toString(), Constants.RSERVI_CLIENT_ID,
+            PoolingStrategy.NEVER);
         rServi.close();
     }
 }

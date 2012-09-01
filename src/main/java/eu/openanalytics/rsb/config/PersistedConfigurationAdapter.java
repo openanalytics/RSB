@@ -203,9 +203,13 @@ public class PersistedConfigurationAdapter implements Configuration
         return persistedConfiguration.getDataDirectories();
     }
 
-    @Override
     public Config getRServiClientPoolConfig()
     {
         return persistedConfiguration.getrServiClientPoolConfig();
+    }
+
+    public boolean isCheckHealthOnStart()
+    {
+        return persistedConfiguration.isCheckHealthOnStart();
     }
 }

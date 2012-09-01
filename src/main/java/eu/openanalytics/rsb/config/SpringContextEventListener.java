@@ -35,12 +35,15 @@ import org.springframework.context.event.ContextRefreshedEvent;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class SpringContextEventListener implements ApplicationListener<ContextRefreshedEvent> {
+public class SpringContextEventListener implements ApplicationListener<ContextRefreshedEvent>
+{
     private static final Log LOGGER = LogFactory.getLog(SpringContextEventListener.class);
 
-    private static final String SPLASH = "\n\n____________________________\n" + "    ____       __     ____\n"
-            + "    /    )   /    )   /   )\n" + "---/___ /----\\-------/__ /--\n" + "  /    |      \\     /    )\n"
-            + "_/_____|__(____/___/____/___\n\n";
+    private static final String SPLASH = "\n\n____________________________\n"
+                                         + "    ____       __     ____\n" + "    /    )   /    )   /   )\n"
+                                         + "---/___ /----\\-------/__ /--\n"
+                                         + "  /    |      \\     /    )\n"
+                                         + "_/_____|__(____/___/____/___\n\n";
 
     @Resource
     private HttpAdaptor httpAdaptor;
@@ -48,14 +51,18 @@ public class SpringContextEventListener implements ApplicationListener<ContextRe
     /**
      * Perform post init operations.
      */
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
-        try {
+    public void onApplicationEvent(final ContextRefreshedEvent event)
+    {
+        try
+        {
             httpAdaptor.start();
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe)
+        {
             LOGGER.error("Failed to start MX4J HTTP adaptor", ioe);
         }
 
-        // who doesnt like ASCII art?
+        // who doesn't like ASCII art?
         LOGGER.info(SPLASH);
     }
 }

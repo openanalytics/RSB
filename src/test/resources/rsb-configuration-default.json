@@ -1,6 +1,7 @@
 {
   "activeMqWorkDirectory" : "$RSB_HOME$/activemq",
   "catalogRootDirectory" : "$RSB_HOME$/catalog",
+  "checkHealthOnStart" : false,
   "defaultRserviPoolUri" : "rmi://127.0.0.1/rservi-pool",
   "jobTimeOut" : 600000,
   "numberOfConcurrentJobWorkersPerQueue" : 5,
