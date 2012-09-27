@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.management.ObjectName;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -40,6 +41,7 @@ import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.springframework.jmx.export.MBeanExportOperations;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
@@ -48,6 +50,7 @@ import de.walware.rj.servi.RServiUtil;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
+import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
@@ -212,6 +215,9 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
     @Resource
     private Configuration configuration;
 
+    @Resource
+    private MBeanExportOperations mbeanExportOperations;
+
     private KeyedObjectPool<RServiPoolKey, PooledRServiWrapper> rServiPool;
 
     @PostConstruct
@@ -221,6 +227,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         if (config != null)
         {
             initializeRServiClientPool(config);
+            registerRServiClientPoolMBean();
         }
     }
 
@@ -245,6 +252,19 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         rServiPool = new GenericKeyedObjectPoolFactory<RServiPoolKey, PooledRServiWrapper>(factory, config).createPool();
         LOGGER.info("RServi pool instantiated and configured with: "
                     + ToStringBuilder.reflectionToString(config));
+    }
+
+    private void registerRServiClientPoolMBean()
+    {
+        try
+        {
+            mbeanExportOperations.registerManagedResource(rServiPool, new ObjectName(
+                Constants.RSERVI_CLIENT_POOL_OBJECT_NAME));
+        }
+        catch (final Exception e)
+        {
+            LOGGER.error("Failed to register RServi client pool MBean", e);
+        }
     }
 
     @PreDestroy

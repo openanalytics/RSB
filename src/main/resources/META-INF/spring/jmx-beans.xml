@@ -28,18 +28,18 @@
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-    
+
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"
           p:locateExistingServerIfPossible="true"/>
-          
+
     <bean id="mx4jXsltProcessor" class="mx4j.tools.adaptor.http.XSLTProcessor"/>      
     <bean id="mx4jHttpAdaptor" class="mx4j.tools.adaptor.http.HttpAdaptor"
           init-method="start" destroy-method="stop"
           p:host="0.0.0.0" p:port="#{configuration.jmxConfiguration.httpPort}"
           p:processor-ref="mx4jXsltProcessor">
     </bean>
-    
-    <bean id="exporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+
+    <bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
         <property name="beans">
             <map>
                 <entry key="rsb:name=Configuration" value-ref="configuration" />
@@ -57,7 +57,7 @@
         </property>
         <property name="server" ref="mbeanServer"/>
     </bean>
-    
+
     <bean
         class="org.springframework.jmx.support.ConnectorServerFactoryBean"
         depends-on="rmiRegistry">
@@ -65,7 +65,7 @@
         <property name="serviceUrl"
             value="service:jmx:rmi://127.0.0.1:#{configuration.jmxConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxConfiguration.registryPort}/myconnector" />
     </bean>
-    
+
     <bean id="rmiRegistry"
         class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
         <property name="port" value="#{configuration.jmxConfiguration.registryPort}" />

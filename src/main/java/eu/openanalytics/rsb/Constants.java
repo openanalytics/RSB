@@ -35,7 +35,8 @@ import javax.activation.MimeType;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class Constants {
+public class Constants
+{
     /**
      * This header allows support of SSL termination to happen upstream of RSB.
      */
@@ -74,8 +75,8 @@ public class Constants {
     public static final String ZIP_CONTENT_TYPE = "application/zip";
     public static final String ZIP_CONTENT_TYPE2 = "application/x-zip";
     public static final String ZIP_CONTENT_TYPE3 = "application/x-zip-compressed";
-    public static final Set<String> ZIP_CONTENT_TYPES = new HashSet<String>(Arrays.asList(ZIP_CONTENT_TYPE, ZIP_CONTENT_TYPE2,
-            ZIP_CONTENT_TYPE3));
+    public static final Set<String> ZIP_CONTENT_TYPES = new HashSet<String>(Arrays.asList(ZIP_CONTENT_TYPE,
+        ZIP_CONTENT_TYPE2, ZIP_CONTENT_TYPE3));
     public static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
 
     public static final MimeType JSON_MIME_TYPE;
@@ -87,9 +88,12 @@ public class Constants {
 
     public static final String HOST_NAME;
     public static final String RSERVI_CLIENT_ID;
+    public static final String RSERVI_CLIENT_POOL_OBJECT_NAME = "rsb:domain=rservi,name=RServiClientPool";
 
-    static {
-        try {
+    static
+    {
+        try
+        {
             JSON_MIME_TYPE = new MimeType(JSON_CONTENT_TYPE);
             XML_MIME_TYPE = new MimeType(XML_CONTENT_TYPE);
             TEXT_MIME_TYPE = new MimeType(TEXT_CONTENT_TYPE);
@@ -99,20 +103,25 @@ public class Constants {
 
             HOST_NAME = InetAddress.getLocalHost().getHostName();
             RSERVI_CLIENT_ID = "rsb@" + HOST_NAME;
-        } catch (final Exception mtpe) {
+        }
+        catch (final Exception mtpe)
+        {
             throw new IllegalStateException(mtpe);
         }
     }
 
-    private static final class FileOnlyFilter implements FileFilter {
-        public boolean accept(final File f) {
+    private static final class FileOnlyFilter implements FileFilter
+    {
+        public boolean accept(final File f)
+        {
             return f.isFile();
         }
     }
 
     public static final FileFilter FILE_ONLY_FILTER = new FileOnlyFilter();
 
-    private Constants() {
+    private Constants()
+    {
         throw new UnsupportedOperationException("do not instantiate");
     }
 }
