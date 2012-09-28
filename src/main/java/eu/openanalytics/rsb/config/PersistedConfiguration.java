@@ -34,6 +34,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
+import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
 /**
@@ -349,6 +350,7 @@ public class PersistedConfiguration
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
     private List<File> dataDirectories;
     private Config rServiClientPoolConfig;
+    private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
 
     public PersistedConfiguration()
@@ -375,6 +377,8 @@ public class PersistedConfiguration
         setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
         setResultsDirectory(configuration.getResultsDirectory());
         setrServiClientPoolConfig(configuration.getRServiClientPoolConfig());
+        setrServiClientPoolValidationStrategy(configuration.getRServiClientPoolValidationStrategy());
+        setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setSmtpConfiguration((PersistedSmtpConfiguration) configuration.getSmtpConfiguration());
     }
 
@@ -616,6 +620,19 @@ public class PersistedConfiguration
     public void setrServiClientPoolConfig(final Config rServiClientPoolConfig)
     {
         this.rServiClientPoolConfig = rServiClientPoolConfig;
+    }
+
+    public RServiClientPoolValidationStrategy getrServiClientPoolValidationStrategy()
+    {
+        return rServiClientPoolValidationStrategy;
+    }
+
+    /**
+     * Optional validation strategy for pooled RServi clients.
+     */
+    public void setrServiClientPoolValidationStrategy(final RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy)
+    {
+        this.rServiClientPoolValidationStrategy = rServiClientPoolValidationStrategy;
     }
 
     /**

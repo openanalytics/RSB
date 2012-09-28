@@ -66,5 +66,6 @@
       "testWhileIdle" : false,
       "timeBetweenEvictionRunsMillis" : -1,
       "whenExhaustedAction" : 1
-    }
+    },
+    "rServiClientPoolValidationStrategy": "ADAPTIVE"
 }

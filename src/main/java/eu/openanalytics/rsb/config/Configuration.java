@@ -205,6 +205,26 @@ public interface Configuration
         int getHttpPort();
     }
 
+    public static enum RServiClientPoolValidationStrategy
+    {
+        NONE
+        {
+            @Override
+            public void configurePool(final Config config)
+            {
+                config.testOnBorrow = false;
+                config.testOnReturn = false;
+            }
+        },
+        ADAPTIVE, FULL;
+
+        public void configurePool(final Config config)
+        {
+            config.testOnBorrow = true;
+            config.testOnReturn = true;
+        }
+    };
+
     /**
      * URL from where the configuration has been loaded.
      */
@@ -315,6 +335,11 @@ public interface Configuration
      * Optional pooling configuration for RServi clients.
      */
     Config getRServiClientPoolConfig();
+
+    /**
+     * Optional validation strategy for pooled RServi clients.
+     */
+    RServiClientPoolValidationStrategy getRServiClientPoolValidationStrategy();
 
     /**
      * Should health be checked when RSB starts (recommended for deployments where

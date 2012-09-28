@@ -53,6 +53,7 @@ import de.walware.rj.services.RPlatform;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
 
 /**
  * Provides RServi connection over RMI.
@@ -238,12 +239,22 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         final Config config = configuration.getRServiClientPoolConfig();
         if (config != null)
         {
+            configurePool(config);
             initializeRServiClientPool(config);
             registerRServiClientPoolMBean();
         }
     }
 
-    public void initializeRServiClientPool(final Config config)
+    private void configurePool(final Config config)
+    {
+        final RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy = configuration.getRServiClientPoolValidationStrategy();
+        if (rServiClientPoolValidationStrategy != null)
+        {
+            rServiClientPoolValidationStrategy.configurePool(config);
+        }
+    }
+
+    private void initializeRServiClientPool(final Config config)
     {
         final KeyedPoolableObjectFactory<RServiPoolKey, PooledRServiWrapper> factory = new BaseKeyedPoolableObjectFactory<RServiPoolKey, PooledRServiWrapper>()
         {
@@ -266,8 +277,8 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             {
                 // TODO #2008 call rServi.isOpen() when available
 
-                // TODO #2008 also execute if validation strategy is FULL
-                if (rServi.hasError())
+                if (rServi.hasError()
+                    || configuration.getRServiClientPoolValidationStrategy() == RServiClientPoolValidationStrategy.FULL)
                 {
                     return Util.isRResponding(rServi);
                 }
@@ -277,6 +288,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
                 }
             }
         };
+
         rServiPool = new GenericKeyedObjectPoolFactory<RServiPoolKey, PooledRServiWrapper>(factory, config).createPool();
         LOGGER.info("RServi pool instantiated and configured with: "
                     + ToStringBuilder.reflectionToString(config));

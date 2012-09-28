@@ -208,6 +208,11 @@ public class PersistedConfigurationAdapter implements Configuration
         return persistedConfiguration.getrServiClientPoolConfig();
     }
 
+    public RServiClientPoolValidationStrategy getRServiClientPoolValidationStrategy()
+    {
+        return persistedConfiguration.getrServiClientPoolValidationStrategy();
+    }
+
     public boolean isCheckHealthOnStart()
     {
         return persistedConfiguration.isCheckHealthOnStart();
