@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
  *
  *   ===========================================================================
@@ -51,6 +51,7 @@ import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
@@ -99,11 +100,12 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
     }
 
-    private static class PooledRServiWrapper implements RServi
+    private static class PooledRServiWrapper implements ErrorableRServi
     {
         private final KeyedObjectPool<RServiPoolKey, PooledRServiWrapper> rServiPool;
         private final RServiPoolKey key;
         private final RServi rServi;
+        private volatile boolean hasError;
 
         PooledRServiWrapper(final KeyedObjectPool<RServiPoolKey, PooledRServiWrapper> rServiPool,
                             final RServiPoolKey key,
@@ -129,6 +131,16 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         public void destroy() throws CoreException
         {
             rServi.close();
+        }
+
+        public void markError()
+        {
+            hasError = true;
+        }
+
+        public boolean hasError()
+        {
+            return hasError;
         }
 
         public RPlatform getPlatform()
@@ -243,10 +255,26 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             }
 
             @Override
-            public void destroyObject(final RServiPoolKey key, final PooledRServiWrapper rservi)
+            public void destroyObject(final RServiPoolKey key, final PooledRServiWrapper rServi)
                 throws Exception
             {
-                rservi.destroy();
+                rServi.destroy();
+            }
+
+            @Override
+            public boolean validateObject(final RServiPoolKey key, final PooledRServiWrapper rServi)
+            {
+                // TODO #2008 call rServi.isOpen() when available
+
+                // TODO #2008 also execute if validation strategy is FULL
+                if (rServi.hasError())
+                {
+                    return Util.isRResponding(rServi);
+                }
+                else
+                {
+                    return true;
+                }
             }
         };
         rServiPool = new GenericKeyedObjectPoolFactory<RServiPoolKey, PooledRServiWrapper>(factory, config).createPool();

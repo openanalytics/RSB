@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -40,7 +41,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import de.walware.rj.data.RObject;
+import de.walware.rj.data.defaultImpl.RIntegerDataImpl;
 import de.walware.rj.servi.RServi;
+import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
@@ -50,7 +54,8 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class SystemHealthResourceTestCase {
+public class SystemHealthResourceTestCase
+{
 
     private SystemHealthResource systemHealthResource;
 
@@ -60,7 +65,8 @@ public class SystemHealthResourceTestCase {
     private RServiInstanceProvider rServiInstanceProvider;
 
     @Before
-    public void prepareTest() throws URISyntaxException {
+    public void prepareTest() throws URISyntaxException
+    {
         systemHealthResource = new SystemHealthResource();
         systemHealthResource.setConfiguration(configuration);
         systemHealthResource.setRServiInstanceProvider(rServiInstanceProvider);
@@ -70,16 +76,19 @@ public class SystemHealthResourceTestCase {
     }
 
     @Test
-    public void getInfo() throws Exception {
+    public void getInfo() throws Exception
+    {
         final NodeInformation info = systemHealthResource.getInfo(mock(ServletContext.class));
 
         assertThat(info, is(notNullValue()));
     }
 
     @Test
-    public void defaultCheck() throws Exception {
+    public void defaultCheck() throws Exception
+    {
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(rServi);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(
+            rServi);
 
         final Response checkResult = systemHealthResource.check();
 
@@ -88,9 +97,18 @@ public class SystemHealthResourceTestCase {
     }
 
     @Test
-    public void happyCheck() throws Exception {
+    public void happyCheck() throws Exception
+    {
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(rServi);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(
+            rServi);
+
+        final FunctionCall functionCall = mock(FunctionCall.class);
+        when(rServi.createFunctionCall("sum")).thenReturn(functionCall);
+
+        final RObject result = mock(RObject.class);
+        when(functionCall.evalData(null)).thenReturn(result);
+        when(result.getData()).thenReturn(new RIntegerDataImpl(new int[]{3}));
 
         systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();
@@ -100,9 +118,10 @@ public class SystemHealthResourceTestCase {
     }
 
     @Test
-    public void unhappyCheck() throws Exception {
+    public void unhappyCheck() throws Exception
+    {
         when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenThrow(
-                new RuntimeException("simulated RServi provider issue"));
+            new RuntimeException("simulated RServi provider issue"));
 
         systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();

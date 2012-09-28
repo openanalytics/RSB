@@ -413,14 +413,20 @@ public abstract class Util
      * 
      * @param rServi
      * @return
-     * @throws CoreException if anything goes really bad
      */
-    public static boolean isRResponding(final RServi rServi) throws CoreException
+    public static boolean isRResponding(final RServi rServi)
     {
-        final FunctionCall functionCall = rServi.createFunctionCall("sum");
-        functionCall.addInt(1);
-        functionCall.addInt(2);
-        final RObject result = functionCall.evalData(null);
-        return result.getData().getInt(0) == 3;
+        try
+        {
+            final FunctionCall functionCall = rServi.createFunctionCall("sum");
+            functionCall.addInt(1);
+            functionCall.addInt(2);
+            final RObject result = functionCall.evalData(null);
+            return result.getData().getInt(0) == 3;
+        }
+        catch (final CoreException ce)
+        {
+            return false;
+        }
     }
 }
