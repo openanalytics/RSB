@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -37,7 +38,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
@@ -65,14 +65,15 @@ import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
+import eu.openanalytics.rsb.rservi.RServiUriSelector;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class JobProcessorTestCase {
-
+public class JobProcessorTestCase
+{
     private JobProcessor jobProcessor;
 
     @Mock
@@ -83,55 +84,71 @@ public class JobProcessorTestCase {
     private RServiInstanceProvider rServiInstanceProvider;
     @Mock
     private JobStatisticsHandler jobStatisticsHandler;
+    @Mock
+    private RServiUriSelector rServiUriSelector;
 
     @Before
-    public void prepareTest() {
+    public void prepareTest() throws URISyntaxException
+    {
         jobProcessor = new JobProcessor();
         jobProcessor.setConfiguration(configuration);
         jobProcessor.setMessageDispatcher(messageDispatcher);
+        jobProcessor.setRServiUriSelector(rServiUriSelector);
         jobProcessor.setRServiInstanceProvider(rServiInstanceProvider);
         jobProcessor.setJobStatisticsHandler(jobStatisticsHandler);
+
+        when(rServiUriSelector.getUriForApplication(anyString())).thenReturn(new URI("fake://default"));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void getRServiPoolUri() throws URISyntaxException {
-        final URI defaultPoolUri = new URI("fake://default");
-        when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
-
-        when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(null);
-        assertThat(jobProcessor.getRServiPoolUri("appname"), is(defaultPoolUri));
-
-        when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(Collections.EMPTY_MAP);
-        assertThat(jobProcessor.getRServiPoolUri("appname"), is(defaultPoolUri));
-
-        final URI appSpecificPoolUri = new URI("fake://appname");
-        when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(Collections.singletonMap("appname", appSpecificPoolUri));
-        assertThat(jobProcessor.getRServiPoolUri("appname"), is(appSpecificPoolUri));
-    }
+    // FIXME move to circular... test
+    // @SuppressWarnings("unchecked")
+    // @Test
+    // public void getRServiPoolUri() throws URISyntaxException {
+    // final URI defaultPoolUri = new URI("fake://default");
+    // when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
+    //
+    // when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(null);
+    // assertThat(jobProcessor.getRServiPoolUri("appname"), is(defaultPoolUri));
+    //
+    // when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(Collections.EMPTY_MAP);
+    // assertThat(jobProcessor.getRServiPoolUri("appname"), is(defaultPoolUri));
+    //
+    // final URI appSpecificPoolUri = new URI("fake://appname");
+    // when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(Collections.singletonMap("appname",
+    // appSpecificPoolUri));
+    // assertThat(jobProcessor.getRServiPoolUri("appname"), is(appSpecificPoolUri));
+    // }
 
     @Test(expected = RuntimeException.class)
-    public void processFunctionCallJobRserviProviderError() throws Exception {
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.IF_POSSIBLE))).thenThrow(
-                new RuntimeException("simulated RServi provider issue"));
+    public void processFunctionCallJobRserviProviderError() throws Exception
+    {
+        when(
+            rServiInstanceProvider.getRServiInstance(anyString(), anyString(),
+                eq(PoolingStrategy.IF_POSSIBLE))).thenThrow(
+            new RuntimeException("simulated RServi provider issue"));
 
         jobProcessor.process(mock(AbstractFunctionCallJob.class));
     }
 
     @Test
-    public void processRserviError() throws Exception {
+    public void processRserviError() throws Exception
+    {
         final URI defaultPoolUri = new URI("fake://default");
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
+        when(
+            rServiInstanceProvider.getRServiInstance(anyString(), anyString(),
+                eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
         final Throwable exception = new RuntimeException("simulated RServi issue");
         when(rServi.createFunctionCall(anyString())).thenThrow(exception);
         final AbstractFunctionCallJob job = mock(AbstractFunctionCallJob.class);
         @SuppressWarnings("unchecked")
         final AbstractResult<Object> result = mock(AbstractResult.class);
-        when(job.buildErrorResult(eq(exception), any(MessageSource.class))).thenAnswer(new Answer<Object>() {
+        when(job.buildErrorResult(eq(exception), any(MessageSource.class))).thenAnswer(new Answer<Object>()
+        {
             @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
+            public Object answer(final InvocationOnMock invocation) throws Throwable
+            {
                 return result;
             }
         });
@@ -142,43 +159,48 @@ public class JobProcessorTestCase {
     }
 
     @Test
-    public void processDirect() throws Exception {
+    public void processDirect() throws Exception
+    {
         final URI defaultPoolUri = new URI("fake://default");
         final AbstractFunctionCallJob job = setupMocksForProcessingFunctionCallJob(defaultPoolUri);
         final AbstractFunctionCallResult result = setupResultMockForFunctionCallJob(job);
 
         final AbstractFunctionCallResult processDirectResult = (AbstractFunctionCallResult) jobProcessor.processDirect(job);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
-                eq(defaultPoolUri.toString()));
+        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class),
+            anyLong(), eq(defaultPoolUri.toString()));
         verifyZeroInteractions(messageDispatcher);
 
         assertThat(processDirectResult, is(result));
     }
 
     @Test
-    public void processFunctionCallJob() throws Exception {
+    public void processFunctionCallJob() throws Exception
+    {
         final URI defaultPoolUri = new URI("fake://default");
         final AbstractFunctionCallJob job = setupMocksForProcessingFunctionCallJob(defaultPoolUri);
         final AbstractFunctionCallResult result = setupResultMockForFunctionCallJob(job);
 
         jobProcessor.process(job);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
-                eq(defaultPoolUri.toString()));
+        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class),
+            anyLong(), eq(defaultPoolUri.toString()));
         verify(messageDispatcher).dispatch(eq(result));
     }
 
     @Test
-    public void processMultiFilesJobNoRScript() throws Exception {
+    public void processMultiFilesJobNoRScript() throws Exception
+    {
         final URI defaultPoolUri = new URI("fake://default");
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(rServi);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(
+            rServi);
 
         final MultiFilesJob job = mock(MultiFilesJob.class);
         final MultiFilesResult result = mock(MultiFilesResult.class);
-        when(job.buildErrorResult(any(IllegalArgumentException.class), any(MessageSource.class))).thenReturn(result);
+        when(job.buildErrorResult(any(IllegalArgumentException.class), any(MessageSource.class))).thenReturn(
+            result);
 
         jobProcessor.process(job);
 
@@ -186,11 +208,13 @@ public class JobProcessorTestCase {
     }
 
     @Test
-    public void processMultiFilesJob() throws Exception {
+    public void processMultiFilesJob() throws Exception
+    {
         final URI defaultPoolUri = new URI("fake://default");
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(rServi);
+        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(
+            rServi);
         final FunctionCall functionCall = mock(FunctionCall.class);
         when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
         final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(new String[0]));
@@ -199,31 +223,37 @@ public class JobProcessorTestCase {
         final File scriptFile = File.createTempFile("rsb", "test");
         scriptFile.deleteOnExit();
         when(job.getRScriptFile()).thenReturn(scriptFile);
-        when(job.getFiles()).thenReturn(new File[] { scriptFile });
+        when(job.getFiles()).thenReturn(new File[]{scriptFile});
         final MultiFilesResult result = mock(MultiFilesResult.class);
         when(job.buildSuccessResult()).thenReturn(result);
 
         jobProcessor.process(job);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class), anyLong(),
-                eq(defaultPoolUri.toString()));
+        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class),
+            anyLong(), eq(defaultPoolUri.toString()));
         verify(messageDispatcher).dispatch(eq(result));
     }
 
-    private AbstractFunctionCallResult setupResultMockForFunctionCallJob(final AbstractFunctionCallJob job) throws IOException {
+    private AbstractFunctionCallResult setupResultMockForFunctionCallJob(final AbstractFunctionCallJob job)
+        throws IOException
+    {
         final AbstractFunctionCallResult result = mock(AbstractFunctionCallResult.class);
         when(job.buildSuccessResult("fake_result")).thenReturn(result);
         return result;
     }
 
-    private AbstractFunctionCallJob setupMocksForProcessingFunctionCallJob(final URI defaultPoolUri) throws Exception, CoreException,
-            IOException {
+    private AbstractFunctionCallJob setupMocksForProcessingFunctionCallJob(final URI defaultPoolUri)
+        throws Exception, CoreException, IOException
+    {
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
+        when(
+            rServiInstanceProvider.getRServiInstance(anyString(), anyString(),
+                eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
         final FunctionCall functionCall = mock(FunctionCall.class);
         when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
-        final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(new String[] { "fake_result" }));
+        final RObject rObject = new RVectorImpl<RCharacterDataImpl>(new RCharacterDataImpl(
+            new String[]{"fake_result"}));
         when(functionCall.evalData(null)).thenReturn(rObject);
         final AbstractFunctionCallJob job = mock(AbstractFunctionCallJob.class);
         return job;

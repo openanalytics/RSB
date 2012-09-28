@@ -50,13 +50,9 @@
     <!-- Spring components -->
     <context:annotation-config />
     <context:component-scan
-          base-package="eu.openanalytics.rsb.component,eu.openanalytics.rsb.data,eu.openanalytics.rsb.message" />
+          base-package="eu.openanalytics.rsb.component,eu.openanalytics.rsb.data,eu.openanalytics.rsb.message,eu.openanalytics.rsb.rservi" />
     <bean id="messageSource"
           class="org.springframework.context.support.ResourceBundleMessageSource"
           p:basename="messages" />
     <task:annotation-driven/>
-
-    <!-- RServi -->
-    <bean name="rServiInstanceProvider"
-          class="eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider" />
 </beans>

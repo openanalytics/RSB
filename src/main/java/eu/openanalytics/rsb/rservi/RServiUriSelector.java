@@ -18,19 +18,17 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.rservi;
 
-import de.walware.rj.servi.RServi;
+import java.net.URI;
 
 /**
- * Defines a RServi connection provider.
+ * Defines a strategy for selecting RServi URIs.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface RServiInstanceProvider {
-    public enum PoolingStrategy {
-        NEVER, IF_POSSIBLE
-    };
-
-    RServi getRServiInstance(final String address, final String clientId, PoolingStrategy poolingStrategy) throws Exception;
+public interface RServiUriSelector
+{
+    URI getUriForApplication(String applicationName);
 }

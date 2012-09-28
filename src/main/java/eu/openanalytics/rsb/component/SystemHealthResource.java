@@ -24,6 +24,10 @@ package eu.openanalytics.rsb.component;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
+import java.net.URI;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
@@ -38,6 +42,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.eclipse.core.runtime.CoreException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -140,14 +145,36 @@ public class SystemHealthResource extends AbstractComponent
 
     private void verifyRServiConnectivity() throws Exception
     {
+        // check default pool
+        final Set<URI> urisToCheck = new TreeSet<URI>();
+        urisToCheck.add(getConfiguration().getDefaultRserviPoolUri());
+
+        // and application specific pools
+        final Map<String, Set<URI>> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
+        if ((applicationSpecificRserviPoolUris != null) && (!applicationSpecificRserviPoolUris.isEmpty()))
+        {
+            for (final Set<URI> uris : applicationSpecificRserviPoolUris.values())
+            {
+                urisToCheck.addAll(uris);
+            }
+        }
+
+        // stopping at first failure
+        for (final URI uriToCheck : urisToCheck)
+        {
+            verifyRServiConnectivity(uriToCheck);
+        }
+    }
+
+    private void verifyRServiConnectivity(final URI rServiUri) throws Exception, CoreException
+    {
         // never use pooled clients to check connectivity
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(
-            getConfiguration().getDefaultRserviPoolUri().toString(), Constants.RSERVI_CLIENT_ID,
-            PoolingStrategy.NEVER);
+        final RServi rServi = rServiInstanceProvider.getRServiInstance(rServiUri.toString(),
+            Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
 
         try
         {
-            Validate.isTrue(Util.isRResponding(rServi), "R is not responding");
+            Validate.isTrue(Util.isRResponding(rServi), "R is not responding at URI: " + rServiUri);
         }
         finally
         {

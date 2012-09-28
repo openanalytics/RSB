@@ -24,8 +24,14 @@ package eu.openanalytics.rsb.config;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -130,9 +136,40 @@ public class PersistedConfigurationAdapter implements Configuration
         return persistedConfiguration.getResultsDirectory();
     }
 
-    public Map<String, URI> getApplicationSpecificRserviPoolUris()
+    public Map<String, Set<URI>> getApplicationSpecificRserviPoolUris()
     {
-        return persistedConfiguration.getApplicationSpecificRserviPoolUris();
+        final Map<String, ?> sourcePoolUris = persistedConfiguration.getApplicationSpecificRserviPoolUris();
+        if ((sourcePoolUris == null) || (sourcePoolUris.isEmpty()))
+        {
+            return Collections.emptyMap();
+        }
+
+        final Map<String, Set<URI>> applicationSpecificRserviPoolUris = new HashMap<String, Set<URI>>();
+
+        for (final Entry<String, ?> sourcePoolUri : sourcePoolUris.entrySet())
+        {
+            if (sourcePoolUri.getValue() instanceof String)
+            {
+                applicationSpecificRserviPoolUris.put(sourcePoolUri.getKey(),
+                    Collections.singleton(Util.newURI((String) sourcePoolUri.getValue())));
+            }
+            else
+            {
+                // assuming array of string, will die otherwise
+                @SuppressWarnings("unchecked")
+                final Collection<String> urisForOneApplication = (Collection<String>) sourcePoolUri.getValue();
+                final Set<URI> uris = new HashSet<URI>();
+                for (final String uri : urisForOneApplication)
+                {
+                    uris.add(Util.newURI(uri));
+                }
+
+                applicationSpecificRserviPoolUris.put(sourcePoolUri.getKey(),
+                    Collections.unmodifiableSet(uris));
+            }
+        }
+
+        return applicationSpecificRserviPoolUris;
     }
 
     public URI getDefaultRserviPoolUri()

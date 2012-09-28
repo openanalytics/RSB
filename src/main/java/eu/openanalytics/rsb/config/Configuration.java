@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 
@@ -273,7 +274,7 @@ public interface Configuration
     /**
      * Optional mapping of application names and RServi RMI pool URIs.
      */
-    Map<String, URI> getApplicationSpecificRserviPoolUris();
+    Map<String, Set<URI>> getApplicationSpecificRserviPoolUris();
 
     /**
      * Maximum time a job request can be pending its response (in milliseconds).

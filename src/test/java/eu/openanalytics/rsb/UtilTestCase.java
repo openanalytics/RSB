@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -41,9 +44,11 @@ import org.junit.Test;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class UtilTestCase {
+public class UtilTestCase
+{
     @Test
-    public void isValidApplicationName() {
+    public void isValidApplicationName()
+    {
         assertThat(Util.isValidApplicationName("test123"), is(true));
         assertThat(Util.isValidApplicationName("123ABC"), is(true));
         assertThat(Util.isValidApplicationName("123_ABC"), is(true));
@@ -56,7 +61,8 @@ public class UtilTestCase {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void getSingleHeader() {
+    public void getSingleHeader()
+    {
         final HttpHeaders httpHeaders = mock(HttpHeaders.class);
         assertThat(Util.getSingleHeader(httpHeaders, "missing"), is(nullValue()));
 
@@ -71,15 +77,18 @@ public class UtilTestCase {
     }
 
     @Test
-    public void getMimeType() {
+    public void getMimeType()
+    {
         assertThat(Util.getMimeType(new File("test.zip")).toString(), is(Constants.ZIP_MIME_TYPE.toString()));
-        assertThat(Util.getMimeType(new File("test.err.txt")).toString(), is(Constants.TEXT_MIME_TYPE.toString()));
+        assertThat(Util.getMimeType(new File("test.err.txt")).toString(),
+            is(Constants.TEXT_MIME_TYPE.toString()));
         assertThat(Util.getMimeType(new File("test.pdf")).toString(), is(Constants.PDF_MIME_TYPE.toString()));
         assertThat(Util.getMimeType(new File("test.foo")).toString(), is("application/octet-stream"));
     }
 
     @Test
-    public void getResourceType() {
+    public void getResourceType()
+    {
         assertThat(Util.getResourceType(Constants.ZIP_MIME_TYPE), is("zip"));
         assertThat(Util.getResourceType(Constants.PDF_MIME_TYPE), is("pdf"));
         assertThat(Util.getResourceType(Constants.TEXT_MIME_TYPE), is("txt"));
@@ -87,14 +96,27 @@ public class UtilTestCase {
     }
 
     @Test
-    public void convertToXmlDate() {
-        final GregorianCalendar gmtMinus8Calendar = new GregorianCalendar(TimeZone.getTimeZone(TimeZone
-                .getAvailableIDs(-8 * 60 * 60 * 1000)[0]));
+    public void convertToXmlDate()
+    {
+        final GregorianCalendar gmtMinus8Calendar = new GregorianCalendar(
+            TimeZone.getTimeZone(TimeZone.getAvailableIDs(-8 * 60 * 60 * 1000)[0]));
         gmtMinus8Calendar.set(2010, Calendar.JULY, 21, 11, 35, 48);
         gmtMinus8Calendar.set(GregorianCalendar.MILLISECOND, 456);
 
         final XMLGregorianCalendar xmlDate = Util.convertToXmlDate(gmtMinus8Calendar);
         assertThat(xmlDate.getTimezone(), is(0));
         assertThat(xmlDate.toXMLFormat(), is("2010-07-21T18:35:48.456Z"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void newURIFailure()
+    {
+        Util.newURI(" a b c ");
+    }
+
+    @Test
+    public void newURISuccess() throws URISyntaxException
+    {
+        assertThat(Util.newURI("foo://bar"), is(new URI("foo://bar")));
     }
 }

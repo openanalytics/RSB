@@ -429,4 +429,23 @@ public abstract class Util
             return false;
         }
     }
+
+    /**
+     * Creates a new {@link URI} from String, throwing an
+     * {@link IllegalArgumentException} in case of issue.
+     * 
+     * @param uri
+     * @return
+     */
+    public static URI newURI(final String uri)
+    {
+        try
+        {
+            return new URI(uri);
+        }
+        catch (final URISyntaxException urise)
+        {
+            throw new IllegalArgumentException(uri + " is not a valid URI", urise);
+        }
+    }
 }

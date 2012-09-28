@@ -27,8 +27,7 @@
         {
             "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-2",
             "applicationName": "lab",
-            "pollingPeriod": 60000,
-            "jobConfigurationFileName": "custom-configuration.txt"
+            "pollingPeriod": 60000
         }
     ],
     "depositEmailAccounts": [
@@ -40,9 +39,7 @@
         {
             "accountURI":"imap://usr:pwd@host:456/INBOX",
             "applicationName": "scientist",
-            "pollingPeriod": 30000,
-            "responseFileName": "custom-response.txt",
-            "jobConfigurationFileName": "custom-configuration.txt"
+            "pollingPeriod": 30000
         }
     ],
     "jobStatisticsHandlerConfiguration" : {
@@ -52,7 +49,6 @@
             "port": 6379
         }
     },
-    "dataDirectories" : ["/opt/data1", "/opt/data2"],
     "rServiClientPoolConfig" : {
       "lifo" : true,
       "maxActive" : 8,

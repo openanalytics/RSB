@@ -42,6 +42,7 @@ import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.springframework.jmx.export.MBeanExportOperations;
+import org.springframework.stereotype.Component;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
@@ -60,6 +61,7 @@ import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrat
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@Component
 public class RmiRServiInstanceProvider implements RServiInstanceProvider
 {
     private static class RServiPoolKey

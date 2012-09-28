@@ -58,6 +58,7 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.ErrorableRServi;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
+import eu.openanalytics.rsb.rservi.RServiUriSelector;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
@@ -78,6 +79,9 @@ public class JobProcessor extends AbstractComponent
 
     @Resource
     private JobStatisticsHandler jobStatisticsHandler;
+
+    @Resource
+    private RServiUriSelector rServiUriSelector;
 
     public AbstractResult<?> processDirect(final AbstractFunctionCallJob job) throws Exception
     {
@@ -183,7 +187,7 @@ public class JobProcessor extends AbstractComponent
         }, false);
     }
 
-    // exposed for unit testing
+    // setters exposed for unit testing
     void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider)
     {
         this.rServiInstanceProvider = rServiInstanceProvider;
@@ -194,20 +198,9 @@ public class JobProcessor extends AbstractComponent
         this.jobStatisticsHandler = jobStatisticsHandler;
     }
 
-    URI getRServiPoolUri(final String applicationName)
+    void setRServiUriSelector(final RServiUriSelector rServiUriSelector)
     {
-        final Map<String, URI> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
-
-        if (applicationSpecificRserviPoolUris == null)
-        {
-            return getConfiguration().getDefaultRserviPoolUri();
-        }
-
-        final URI applicationRserviPoolUri = applicationSpecificRserviPoolUris.get(applicationName);
-
-        return applicationRserviPoolUri == null
-                                               ? getConfiguration().getDefaultRserviPoolUri()
-                                               : applicationRserviPoolUri;
+        this.rServiUriSelector = rServiUriSelector;
     }
 
     private AbstractResult<?> process(final AbstractJob job, final JobRunner jobRunner, final boolean direct)
@@ -215,7 +208,7 @@ public class JobProcessor extends AbstractComponent
     {
         AbstractResult<?> result = null;
         final long startTime = System.currentTimeMillis();
-        final URI rserviPoolAddress = getRServiPoolUri(job.getApplicationName());
+        final URI rserviPoolAddress = rServiUriSelector.getUriForApplication(job.getApplicationName());
 
         // instanceof of is not object but defining pooling strategy is not of
         // AbstractWorkItem business

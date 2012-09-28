@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.config;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -31,21 +32,27 @@ import org.junit.Test;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class ConfigurationFactoryTestCase {
+public class ConfigurationFactoryTestCase
+{
 
-    private static final String[] TEST_JSON_CONFIGURATIONS = { "rsb-configuration.json", "rsb-configuration-minimal.json",
-            "rsb-configuration-redis.json", "rsb-configuration-pooling.json", "rsb-configuration-full.json" };
+    private static final String[] TEST_JSON_CONFIGURATIONS = {"rsb-configuration.json",
+        "rsb-configuration-minimal.json", "rsb-configuration-redis.json", "rsb-configuration-pooling.json",
+        "rsb-configuration-extended.json", "rsb-configuration-full.json"};
 
-    // full config is expected to be invalid because of missing job configuration file, response file and data
+    // full config is expected to be invalid because of missing job configuration
+    // file, response file and data
     // directories
-    private static final boolean[] VALIDATION_RESULTS = { true, true, true, true, false };
+    private static final boolean[] VALIDATION_RESULTS = {true, true, true, true, true, false};
 
     @Test
-    public void validateTestJsonConfigurations() throws IOException {
+    public void validateTestJsonConfigurations() throws IOException
+    {
         int i = 0;
-        for (final String configurationFile : TEST_JSON_CONFIGURATIONS) {
+        for (final String configurationFile : TEST_JSON_CONFIGURATIONS)
+        {
             final Set<String> validationResult = ConfigurationFactory.validate(ConfigurationFactory.load(configurationFile));
-            assertThat(configurationFile, validationResult.isEmpty(), is(VALIDATION_RESULTS[i++]));
+            assertThat(configurationFile + " yielded: " + validationResult, validationResult.isEmpty(),
+                is(VALIDATION_RESULTS[i++]));
         }
     }
 }

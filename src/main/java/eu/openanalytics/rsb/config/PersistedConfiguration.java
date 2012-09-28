@@ -341,7 +341,7 @@ public class PersistedConfiguration
     private int numberOfConcurrentJobWorkersPerQueue;
     private File catalogRootDirectory;
     private File resultsDirectory;
-    private Map<String, URI> applicationSpecificRserviPoolUris;
+    private Map<String, ?> applicationSpecificRserviPoolUris;
     private PersistedJobStatisticsHandlerConfiguration jobStatisticsHandlerConfiguration;
     private String administratorEmail;
     private PersistedSmtpConfiguration smtpConfiguration;
@@ -499,12 +499,12 @@ public class PersistedConfiguration
      * Mapping of application names and RServi RMI pool URIs, or null if no specific
      * mapping is required.
      */
-    public Map<String, URI> getApplicationSpecificRserviPoolUris()
+    public Map<String, ?> getApplicationSpecificRserviPoolUris()
     {
         return applicationSpecificRserviPoolUris;
     }
 
-    public void setApplicationSpecificRserviPoolUris(final Map<String, URI> applicationSpecificRserviPoolUris)
+    public void setApplicationSpecificRserviPoolUris(final Map<String, ?> applicationSpecificRserviPoolUris)
     {
         this.applicationSpecificRserviPoolUris = applicationSpecificRserviPoolUris;
     }

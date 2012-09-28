@@ -77,29 +77,34 @@ import eu.openanalytics.rsb.rest.types.RServiPools;
  */
 @Component("adminResource")
 @Path("/" + Constants.ADMIN_PATH)
-public class AdminResource extends AbstractComponent implements ApplicationContextAware {
+public class AdminResource extends AbstractComponent implements ApplicationContextAware
+{
 
     private static final String CATALOG_SUBPATH = "catalog";
     private static final String SYSTEM_SUBPATH = "system";
 
     private ConfigurableApplicationContext applicationContext;
 
-    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException
+    {
         this.applicationContext = (ConfigurableApplicationContext) applicationContext;
     }
 
     @Path("/" + SYSTEM_SUBPATH + "/configuration")
     @GET
     @Produces(Constants.JSON_CONTENT_TYPE)
-    public Response getSystemConfiguration() {
+    public Response getSystemConfiguration()
+    {
         return Response.ok(Util.toJson(new PersistedConfiguration(getConfiguration()))).build();
     }
 
     @Path("/" + SYSTEM_SUBPATH + "/configuration")
     @PUT
     @Consumes(Constants.JSON_CONTENT_TYPE)
-    public Response putSystemConfiguration(final InputStream in) throws IOException, URISyntaxException {
-        Validate.notNull(getConfiguration().getConfigurationUrl(), "Transient configuration can't be PUT over the API");
+    public Response putSystemConfiguration(final InputStream in) throws IOException, URISyntaxException
+    {
+        Validate.notNull(getConfiguration().getConfigurationUrl(),
+            "Transient configuration can't be PUT over the API");
         final Configuration newConfiguration = ConfigurationFactory.loadJsonConfiguration(in);
         final String reformattedNewConfiguration = Util.toJson(new PersistedConfiguration(newConfiguration));
         final File newConfigurationFile = new File(getConfiguration().getConfigurationUrl().toURI());
@@ -107,13 +112,15 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         IOUtils.copy(new StringReader(reformattedNewConfiguration), fw);
         IOUtils.closeQuietly(fw);
         getLogger().warn(
-                "Configuration stored in: " + newConfigurationFile + ". System needs restart in order to activate this new configuration!");
+            "Configuration stored in: " + newConfigurationFile
+                            + ". System needs restart in order to activate this new configuration!");
         return Response.noContent().build();
     }
 
     @Path("/" + SYSTEM_SUBPATH + "/restart")
     @POST
-    public Response restart() {
+    public Response restart()
+    {
         applicationContext.close();
         applicationContext.refresh();
         return Response.ok("RESTARTED").build();
@@ -121,21 +128,28 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
 
     @Path("/" + SYSTEM_SUBPATH + "/rservi_pools")
     @GET
-    @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
-    public RServiPools getRServiPools() {
+    @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
+    public RServiPools getRServiPools()
+    {
         final Map<URI, Set<String>> pools = new HashMap<URI, Set<String>>();
 
         addToPools(getConfiguration().getDefaultRserviPoolUri(), null, pools);
 
-        final Map<String, URI> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
-        if (applicationSpecificRserviPoolUris != null) {
-            for (final Entry<String, URI> pool : applicationSpecificRserviPoolUris.entrySet()) {
-                addToPools(pool.getValue(), pool.getKey(), pools);
+        final Map<String, Set<URI>> applicationSpecificRserviPoolUris = getConfiguration().getApplicationSpecificRserviPoolUris();
+        if (applicationSpecificRserviPoolUris != null)
+        {
+            for (final Entry<String, Set<URI>> pool : applicationSpecificRserviPoolUris.entrySet())
+            {
+                for (final URI uri : pool.getValue())
+                {
+                    addToPools(uri, pool.getKey(), pools);
+                }
             }
         }
 
         final RServiPools result = Util.REST_OBJECT_FACTORY.createRServiPools();
-        for (final Entry<URI, Set<String>> pool : pools.entrySet()) {
+        for (final Entry<URI, Set<String>> pool : pools.entrySet())
+        {
             final RServiPoolType rServiPool = Util.REST_OBJECT_FACTORY.createRServiPoolType();
             rServiPool.setPoolUri(pool.getKey().toString());
             rServiPool.setApplicationNames(StringUtils.join(pool.getValue(), ','));
@@ -147,13 +161,15 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
 
     @Path("/" + CATALOG_SUBPATH)
     @GET
-    @Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
-    public Catalog getCatalog(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException,
-            URISyntaxException {
+    @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
+    public Catalog getCatalog(@Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
+        throws IOException, URISyntaxException
+    {
 
         final Catalog result = Util.REST_OBJECT_FACTORY.createCatalog();
 
-        for (final Configuration.Catalog catalog : Configuration.Catalog.values()) {
+        for (final Configuration.Catalog catalog : Configuration.Catalog.values())
+        {
             final CatalogDirectory catalogDirectory = createCatalogDirectory(catalog, httpHeaders, uriInfo);
             result.getDirectories().add(catalogDirectory);
         }
@@ -163,20 +179,26 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
 
     @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
     @GET
-    public Response getCatalogFile(@PathParam("catalogName") final String catalogName, @PathParam("fileName") final String fileName,
-            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException, URISyntaxException {
+    public Response getCatalogFile(@PathParam("catalogName") final String catalogName,
+                                   @PathParam("fileName") final String fileName,
+                                   @Context final HttpHeaders httpHeaders,
+                                   @Context final UriInfo uriInfo) throws IOException, URISyntaxException
+    {
 
         final Configuration.Catalog catalog = Configuration.Catalog.valueOf(catalogName);
         final File catalogFile = new File(catalog.getConfiguredDirectory(getConfiguration()), fileName);
 
-        if (!catalogFile.isFile()) {
+        if (!catalogFile.isFile())
+        {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
         final ResponseBuilder rb = Response.ok();
         rb.type(Util.getContentType(catalogFile));
-        rb.entity(new StreamingOutput() {
-            public void write(final OutputStream output) throws IOException {
+        rb.entity(new StreamingOutput()
+        {
+            public void write(final OutputStream output) throws IOException
+            {
                 final FileInputStream fis = new FileInputStream(catalogFile);
                 IOUtils.copy(fis, output);
                 IOUtils.closeQuietly(fis);
@@ -189,9 +211,12 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
     @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
     @PUT
     @Consumes(Constants.TEXT_CONTENT_TYPE)
-    public Response putCatalogFile(@PathParam("catalogName") final String catalogName, @PathParam("fileName") final String fileName,
-            final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws IOException,
-            URISyntaxException {
+    public Response putCatalogFile(@PathParam("catalogName") final String catalogName,
+                                   @PathParam("fileName") final String fileName,
+                                   final InputStream in,
+                                   @Context final HttpHeaders httpHeaders,
+                                   @Context final UriInfo uriInfo) throws IOException, URISyntaxException
+    {
 
         final Configuration.Catalog catalog = Configuration.Catalog.valueOf(catalogName);
         final File catalogFile = new File(catalog.getConfiguredDirectory(getConfiguration()), fileName);
@@ -201,7 +226,8 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         IOUtils.copy(in, fw);
         IOUtils.closeQuietly(fw);
 
-        if (preExistingFile) {
+        if (preExistingFile)
+        {
             return Response.noContent().build();
         }
 
@@ -209,19 +235,27 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         return Response.created(location).build();
     }
 
-    private void addToPools(final URI rServiPoolUri, final String applicationName, final Map<URI, Set<String>> pools) {
+    private void addToPools(final URI rServiPoolUri,
+                            final String applicationName,
+                            final Map<URI, Set<String>> pools)
+    {
         Set<String> applicationNames = pools.get(rServiPoolUri);
-        if (applicationNames == null) {
+        if (applicationNames == null)
+        {
             applicationNames = new HashSet<String>();
         }
-        if (StringUtils.isNotBlank(applicationName)) {
+        if (StringUtils.isNotBlank(applicationName))
+        {
             applicationNames.add(applicationName);
         }
         pools.put(rServiPoolUri, applicationNames);
     }
 
     private CatalogDirectory createCatalogDirectory(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType,
-            final HttpHeaders httpHeaders, final UriInfo uriInfo) throws IOException, URISyntaxException {
+                                                    final HttpHeaders httpHeaders,
+                                                    final UriInfo uriInfo)
+        throws IOException, URISyntaxException
+    {
 
         final String catalogTypeAsString = catalogType.toString();
         final File configuredDirectory = catalogType.getConfiguredDirectory(getConfiguration());
@@ -230,7 +264,9 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         catalogDirectory.setType(catalogTypeAsString);
         catalogDirectory.setPath(configuredDirectory.getCanonicalPath());
 
-        for (final File file : catalogType.getConfiguredDirectory(getConfiguration()).listFiles(Constants.FILE_ONLY_FILTER)) {
+        for (final File file : catalogType.getConfiguredDirectory(getConfiguration()).listFiles(
+            Constants.FILE_ONLY_FILTER))
+        {
             final URI dataUri = buildCatalogFileUri(catalogType, file, httpHeaders, uriInfo);
             final CatalogFileType catalogFile = Util.REST_OBJECT_FACTORY.createCatalogFileType();
             catalogFile.setName(file.getName());
@@ -241,10 +277,17 @@ public class AdminResource extends AbstractComponent implements ApplicationConte
         return catalogDirectory;
     }
 
-    public URI buildCatalogFileUri(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType, final File file,
-            final HttpHeaders httpHeaders, final UriInfo uriInfo) throws URISyntaxException {
+    public URI buildCatalogFileUri(final eu.openanalytics.rsb.config.Configuration.Catalog catalogType,
+                                   final File file,
+                                   final HttpHeaders httpHeaders,
+                                   final UriInfo uriInfo) throws URISyntaxException
+    {
 
-        return Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.ADMIN_PATH).path(CATALOG_SUBPATH).path(catalogType.toString())
-                .path(file.getName()).build();
+        return Util.getUriBuilder(uriInfo, httpHeaders)
+            .path(Constants.ADMIN_PATH)
+            .path(CATALOG_SUBPATH)
+            .path(catalogType.toString())
+            .path(file.getName())
+            .build();
     }
 }
