@@ -239,6 +239,11 @@ public class JobProcessor extends AbstractComponent
         }
         catch (final Throwable t)
         {
+            if (rServi instanceof ErrorableRServi)
+            {
+                ((ErrorableRServi) rServi).markError();
+            }
+
             // catch wide to prevent disrupting the main flow
             final long processTime = System.currentTimeMillis() - startTime;
             getLogger().error(
@@ -248,11 +253,6 @@ public class JobProcessor extends AbstractComponent
         }
         finally
         {
-            if (rServi instanceof ErrorableRServi)
-            {
-                ((ErrorableRServi) rServi).markError();
-            }
-
             rServi.close();
 
             if ((!direct) && (result != null))

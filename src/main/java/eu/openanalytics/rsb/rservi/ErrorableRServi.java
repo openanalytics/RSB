@@ -28,6 +28,8 @@ import de.walware.rj.servi.RServi;
  */
 public interface ErrorableRServi extends RServi
 {
+    void resetError();
+
     void markError();
 
     boolean hasError();

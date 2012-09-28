@@ -46,7 +46,7 @@
         <spring-integration.version>2.1.3.RELEASE</spring-integration.version>
         <activemq.version>5.6.0</activemq.version>
         <cxf.version>2.6.0</cxf.version>
-        <jetty-plugin.version>7.2.2.v20101205</jetty-plugin.version>
+        <jetty-plugin.version>8.1.5.v20120716</jetty-plugin.version>
         <soapui.version>3.6.1</soapui.version>
         <tomcat.version>6.0.32</tomcat.version>
         <rj.version>1.1.0-SNAPSHOT</rj.version>
@@ -442,12 +442,6 @@
                             <maxIdleTime>0</maxIdleTime>
                         </connector>
                     </connectors>
-                    <systemProperties>
-                        <systemProperty>
-                            <name>org.eclipse.jetty.util.log.INFO</name>
-                            <value>true</value>
-                        </systemProperty>
-                    </systemProperties>
                 </configuration>
             </plugin>
             <plugin>

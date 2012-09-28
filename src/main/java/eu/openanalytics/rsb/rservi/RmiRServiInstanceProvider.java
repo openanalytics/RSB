@@ -136,6 +136,11 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             rServi.close();
         }
 
+        public void resetError()
+        {
+            hasError = false;
+        }
+
         public void markError()
         {
             hasError = true;
@@ -282,7 +287,20 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
                 if (rServi.hasError()
                     || configuration.getRServiClientPoolValidationStrategy() == RServiClientPoolValidationStrategy.FULL)
                 {
-                    return Util.isRResponding(rServi);
+                    final boolean responding = Util.isRResponding(rServi);
+
+                    if (rServi.hasError() && LOGGER.isInfoEnabled())
+                    {
+                        LOGGER.info(String.format("RServi @ %s has been found %svalid after error",
+                            key.getAddress(), responding ? "" : "in"));
+                    }
+
+                    if (responding)
+                    {
+                        rServi.resetError();
+                    }
+
+                    return responding;
                 }
                 else
                 {
@@ -329,7 +347,10 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
         else
         {
-            return rServiPool.borrowObject(new RServiPoolKey(address, "pooled-" + clientId));
+            final PooledRServiWrapper rServi = rServiPool.borrowObject(new RServiPoolKey(address, "pooled-"
+                                                                                                  + clientId));
+            rServi.resetError();
+            return rServi;
         }
     }
 }
