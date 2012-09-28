@@ -7,7 +7,7 @@
     "resultsDirectory": "/tmp/.rsb/results",
     "depositRootDirectories": [
         {
-            "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-1",
+            "rootDirectory": "/tmp/.rsb/deposit/lab-equipment",
             "applicationName": "lab",
             "pollingPeriod": 10000
         }

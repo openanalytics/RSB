@@ -47,7 +47,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
 
-import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
@@ -59,7 +58,8 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DirectoryDepositHandlerTestCase {
+public class DirectoryDepositHandlerTestCase
+{
     private static final String TEST_APPLICATION_NAME = "test_app_name";
     @Mock
     private Configuration configuration;
@@ -71,7 +71,8 @@ public class DirectoryDepositHandlerTestCase {
     private DirectoryDepositHandler directoryDepositHandler;
 
     @Before
-    public void prepareTest() throws UnknownHostException {
+    public void prepareTest() throws UnknownHostException
+    {
         directoryDepositHandler = new DirectoryDepositHandler();
         directoryDepositHandler.setConfiguration(configuration);
         directoryDepositHandler.setMessageDispatcher(messageDispatcher);
@@ -79,18 +80,23 @@ public class DirectoryDepositHandlerTestCase {
     }
 
     @Test
-    public void setupChannelAdapters() {
+    public void setupChannelAdapters()
+    {
         directoryDepositHandler.setupChannelAdapters();
     }
 
     @Test
-    public void closeChannelAdapters() {
+    public void closeChannelAdapters()
+    {
         directoryDepositHandler.closeChannelAdapters();
     }
 
     @Test
-    public void handleZipJob() throws Exception {
-        final URL jobSample = Thread.currentThread().getContextClassLoader().getResource("data/r-job-sample.zip");
+    public void handleZipJob() throws Exception
+    {
+        final URL jobSample = Thread.currentThread()
+            .getContextClassLoader()
+            .getResource("data/r-job-sample.zip");
 
         final File jobParentFile = mock(File.class);
         when(jobParentFile.getParentFile()).thenReturn(FileUtils.getTempDirectory());
@@ -106,10 +112,12 @@ public class DirectoryDepositHandlerTestCase {
 
         final DepositDirectoryConfiguration depositRootDirectoryConfig = mock(DepositDirectoryConfiguration.class);
         when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
-        when(configuration.getDepositRootDirectories()).thenReturn(Collections.singletonList(depositRootDirectoryConfig));
+        when(configuration.getDepositRootDirectories()).thenReturn(
+            Collections.singletonList(depositRootDirectoryConfig));
 
         final Message<File> message = MessageBuilder.withPayload(zipJobFile)
-                .setHeader(Constants.APPLICATION_NAME_MESSAGE_HEADER, TEST_APPLICATION_NAME).build();
+            .setHeader(DirectoryDepositHandler.DIRECTORY_CONFIG_HEADER_NAME, depositRootDirectoryConfig)
+            .build();
 
         directoryDepositHandler.handleZipJob(message);
 
@@ -118,7 +126,8 @@ public class DirectoryDepositHandlerTestCase {
 
         final MultiFilesJob job = jobCaptor.getValue();
         assertThat(job.getApplicationName(), is(TEST_APPLICATION_NAME));
-        assertThat(job.getMeta().containsKey(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME), is(true));
+        assertThat(job.getMeta().containsKey(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME),
+            is(true));
         assertThat(job.getMeta().containsKey(DirectoryDepositHandler.INBOX_DIRECTORY_META_NAME), is(true));
         assertThat(job.getMeta().containsKey(DirectoryDepositHandler.ORIGINAL_FILENAME_META_NAME), is(true));
         assertThat(job.getSource(), is(Source.DIRECTORY));
@@ -126,7 +135,8 @@ public class DirectoryDepositHandlerTestCase {
     }
 
     @Test
-    public void handleZipResult() throws IOException {
+    public void handleZipResult() throws IOException
+    {
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
         meta.put(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME, FileUtils.getTempDirectory());
 

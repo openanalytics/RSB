@@ -218,6 +218,7 @@ public class PersistedConfiguration
         private File rootDirectory;
         private String applicationName;
         private long pollingPeriod;
+        private String jobConfigurationFileName;
 
         @Override
         public String toString()
@@ -253,6 +254,16 @@ public class PersistedConfiguration
         public void setPollingPeriod(final long pollingPeriod)
         {
             this.pollingPeriod = pollingPeriod;
+        }
+
+        public String getJobConfigurationFileName()
+        {
+            return jobConfigurationFileName;
+        }
+
+        public void setJobConfigurationFileName(final String jobConfigurationFileName)
+        {
+            this.jobConfigurationFileName = jobConfigurationFileName;
         }
     }
 

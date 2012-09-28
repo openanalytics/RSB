@@ -129,6 +129,13 @@ public interface Configuration
          * Interval of time between to email account polling, in milliseconds.
          */
         long getPollingPeriod();
+
+        /**
+         * Optional filename of a ready-made job configuration found in the catalog.
+         * 
+         * @see Configuration#getJobConfigurationCatalogDirectory()
+         */
+        String getJobConfigurationFileName();
     }
 
     /**

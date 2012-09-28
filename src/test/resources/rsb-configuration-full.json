@@ -26,7 +26,8 @@
         {
             "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-2",
             "applicationName": "lab",
-            "pollingPeriod": 60000
+            "pollingPeriod": 60000,
+            "jobConfigurationFileName": "custom-configuration.txt"
         }
     ],
     "depositEmailAccounts": [

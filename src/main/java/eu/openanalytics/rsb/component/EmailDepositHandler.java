@@ -118,19 +118,19 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
 
     @PostConstruct
     public void setupChannelAdapters() throws URISyntaxException {
-        final List<DepositEmailConfiguration> depositEmailAccounts = getConfiguration().getDepositEmailAccounts();
+        final List<DepositEmailConfiguration> depositEmailConfigurations = getConfiguration().getDepositEmailAccounts();
 
-        if ((depositEmailAccounts == null) || (depositEmailAccounts.isEmpty())) {
+        if ((depositEmailConfigurations == null) || (depositEmailConfigurations.isEmpty())) {
             return;
         }
 
-        for (final DepositEmailConfiguration depositEmailAccount : depositEmailAccounts) {
-            final PeriodicTrigger trigger = new PeriodicTrigger(depositEmailAccount.getPollingPeriod(), TimeUnit.MILLISECONDS);
+        for (final DepositEmailConfiguration depositEmailConfiguration : depositEmailConfigurations) {
+            final PeriodicTrigger trigger = new PeriodicTrigger(depositEmailConfiguration.getPollingPeriod(), TimeUnit.MILLISECONDS);
             trigger.setInitialDelay(5000L);
 
             AbstractMailReceiver mailReceiver = null;
 
-            final URI emailAccountURI = depositEmailAccount.getAccountURI();
+            final URI emailAccountURI = depositEmailConfiguration.getAccountURI();
             if (StringUtils.equals(emailAccountURI.getScheme(), "pop3")) {
                 mailReceiver = new Pop3MailReceiver(emailAccountURI.toString());
             } else if (StringUtils.equals(emailAccountURI.getScheme(), "imap")) {
@@ -147,7 +147,7 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
             mailReceiver.afterPropertiesSet();
             final MailReceivingMessageSource fileMessageSource = new MailReceivingMessageSource(mailReceiver);
             final HeaderSettingMessageSourceWrapper<javax.mail.Message> messageSource = new HeaderSettingMessageSourceWrapper<javax.mail.Message>(
-                    fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailAccount);
+                    fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailConfiguration);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);

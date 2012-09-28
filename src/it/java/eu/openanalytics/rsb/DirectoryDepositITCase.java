@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
  *
  *   ===========================================================================
@@ -26,6 +26,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
@@ -34,18 +35,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class DirectoryDepositITCase extends AbstractITCase {
-    private File jobsDirectory;
-    private File acceptedDirectory;
-    private File resultsDirectory;
+public class DirectoryDepositITCase extends AbstractITCase
+{
+    protected File jobsDirectory;
+    protected File acceptedDirectory;
+    protected File resultsDirectory;
 
     @Before
-    public void prepareTests() throws IOException {
-        final File depositRootDirectory = getConfiguration().getDepositRootDirectories().get(0).getRootDirectory();
+    public void prepareTests() throws IOException
+    {
+        final File depositRootDirectory = findDepositDirectoryConfiguration(getApplicationName()).getRootDirectory();
         jobsDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_JOBS_SUBDIR);
         acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
         resultsDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_RESULTS_SUBDIR);
@@ -55,10 +59,45 @@ public class DirectoryDepositITCase extends AbstractITCase {
         FileUtils.cleanDirectory(resultsDirectory);
     }
 
-    @Test
-    public void validZipDeposit() throws IOException, InterruptedException {
-        final String jobFileName = "r-job-sample.zip";
+    protected String getApplicationName()
+    {
+        return "lab1";
+    }
 
+    private DepositDirectoryConfiguration findDepositDirectoryConfiguration(final String applicationName)
+    {
+        for (final DepositDirectoryConfiguration depositDirectoryConfiguration : getConfiguration().getDepositRootDirectories())
+        {
+            if (depositDirectoryConfiguration.getApplicationName().equals(applicationName))
+            {
+                return depositDirectoryConfiguration;
+            }
+        }
+
+        throw new IllegalArgumentException(applicationName + " not found!");
+    }
+
+    @Test
+    public void validZipDeposit() throws IOException, InterruptedException
+    {
+        doTestValidZipDeposit("r-job-sample.zip");
+    }
+
+    @Test
+    public void invalidZipDeposit() throws IOException, InterruptedException
+    {
+        doInvalidZipDeposit("invalid-job-subdir.zip");
+    }
+
+    @Test
+    public void dataOnlyZipDeposit() throws IOException, InterruptedException
+    {
+        doInvalidZipDeposit("r-job-data-only.zip");
+    }
+
+    protected void doTestValidZipDeposit(final String jobFileName)
+        throws IOException, InterruptedException, FileNotFoundException
+    {
         FileUtils.copyFileToDirectory(getTestFile(jobFileName), jobsDirectory);
 
         final File acceptedFile = ponderUntilJobAccepted(jobFileName);
@@ -70,10 +109,9 @@ public class DirectoryDepositITCase extends AbstractITCase {
         validateZipResult(new FileInputStream(resultFile));
     }
 
-    @Test
-    public void invalidZipDeposit() throws IOException, InterruptedException {
-        final String jobFileName = "invalid-job-subdir.zip";
-
+    protected void doInvalidZipDeposit(final String jobFileName)
+        throws IOException, InterruptedException, FileNotFoundException
+    {
         FileUtils.copyFileToDirectory(getTestFile(jobFileName), jobsDirectory);
 
         final File acceptedFile = ponderUntilJobAccepted(jobFileName);
@@ -85,29 +123,37 @@ public class DirectoryDepositITCase extends AbstractITCase {
         validateErrorResult(new FileInputStream(resultFile));
     }
 
-    private File ponderUntilJobAccepted(final String jobFileName) throws InterruptedException {
+    protected File ponderUntilJobAccepted(final String jobFileName) throws InterruptedException
+    {
         final File expectedAcceptedFile = new File(acceptedDirectory, jobFileName);
         ponderForFile(expectedAcceptedFile);
         return expectedAcceptedFile;
     }
 
-    private File ponderUntilJobResult(final String jobFileName) throws InterruptedException {
+    protected File ponderUntilJobResult(final String jobFileName) throws InterruptedException
+    {
         final File expectedAcceptedFile = new File(resultsDirectory, "result-" + jobFileName);
         ponderForFile(expectedAcceptedFile);
         return expectedAcceptedFile;
     }
 
-    private File ponderUntilJobError(final String jobFileName) throws InterruptedException {
-        final File expectedAcceptedFile = new File(resultsDirectory, "result-" + FilenameUtils.getBaseName(jobFileName) + ".txt");
+    protected File ponderUntilJobError(final String jobFileName) throws InterruptedException
+    {
+        final File expectedAcceptedFile = new File(resultsDirectory, "result-"
+                                                                     + FilenameUtils.getBaseName(jobFileName)
+                                                                     + ".txt");
         ponderForFile(expectedAcceptedFile);
         return expectedAcceptedFile;
     }
 
-    private void ponderForFile(final File expectedFile) throws InterruptedException {
+    private void ponderForFile(final File expectedFile) throws InterruptedException
+    {
         int attempts = 0;
-        while (attempts++ < 120) {
+        while (attempts++ < 120)
+        {
             Thread.sleep(500L);
-            if (expectedFile.isFile()) {
+            if (expectedFile.isFile())
+            {
                 break;
             }
         }

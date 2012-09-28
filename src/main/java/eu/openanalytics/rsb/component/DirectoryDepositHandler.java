@@ -39,6 +39,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -65,7 +66,9 @@ import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("directoryDepositHandler")
-public class DirectoryDepositHandler extends AbstractComponent implements BeanFactoryAware {
+public class DirectoryDepositHandler extends AbstractComponent implements BeanFactoryAware
+{
+    public static final String DIRECTORY_CONFIG_HEADER_NAME = DirectoryDepositHandler.class.getName();
     public static final String INBOX_DIRECTORY_META_NAME = "inboxDirectory";
     public static final String ORIGINAL_FILENAME_META_NAME = "originalFilename";
     public static final String DEPOSIT_ROOT_DIRECTORY_META_NAME = "depositRootDirectory";
@@ -80,30 +83,36 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
 
     private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<SourcePollingChannelAdapter>();
 
-    public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
+    public void setBeanFactory(final BeanFactory beanFactory) throws BeansException
+    {
         this.beanFactory = beanFactory;
     }
 
     // exposed for testing
-    void setZipJobFilter(final FileListFilter<File> zipJobFilter) {
+    void setZipJobFilter(final FileListFilter<File> zipJobFilter)
+    {
         this.zipJobFilter = zipJobFilter;
     }
 
     @PostConstruct
-    public void setupChannelAdapters() {
-        final List<DepositDirectoryConfiguration> depositRootDirectories = getConfiguration().getDepositRootDirectories();
+    public void setupChannelAdapters()
+    {
+        final List<DepositDirectoryConfiguration> depositDirectoryConfigurations = getConfiguration().getDepositRootDirectories();
 
-        if ((depositRootDirectories == null) || (depositRootDirectories.isEmpty())) {
+        if ((depositDirectoryConfigurations == null) || (depositDirectoryConfigurations.isEmpty()))
+        {
             return;
         }
 
         final NioFileLocker nioFileLocker = new NioFileLocker();
 
-        for (final DepositDirectoryConfiguration depositRootDirectoryConfig : depositRootDirectories) {
-            final PeriodicTrigger fileTrigger = new PeriodicTrigger(depositRootDirectoryConfig.getPollingPeriod(), TimeUnit.MILLISECONDS);
+        for (final DepositDirectoryConfiguration depositDirectoryConfiguration : depositDirectoryConfigurations)
+        {
+            final PeriodicTrigger fileTrigger = new PeriodicTrigger(
+                depositDirectoryConfiguration.getPollingPeriod(), TimeUnit.MILLISECONDS);
             fileTrigger.setInitialDelay(5000L);
 
-            final File depositRootDirectory = depositRootDirectoryConfig.getRootDirectory();
+            final File depositRootDirectory = depositDirectoryConfiguration.getRootDirectory();
 
             final FileReadingMessageSource fileMessageSource = new FileReadingMessageSource();
             fileMessageSource.setAutoCreateDirectory(true);
@@ -114,8 +123,8 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
             fileMessageSource.setLocker(nioFileLocker);
             fileMessageSource.afterPropertiesSet();
 
-            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<File>(fileMessageSource,
-                    Constants.APPLICATION_NAME_MESSAGE_HEADER, depositRootDirectoryConfig.getApplicationName());
+            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<File>(
+                fileMessageSource, DIRECTORY_CONFIG_HEADER_NAME, depositDirectoryConfiguration);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
             channelAdapter.setBeanFactory(beanFactory);
@@ -133,22 +142,29 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
     }
 
     @PreDestroy
-    public void closeChannelAdapters() {
-        for (final SourcePollingChannelAdapter channelAdapter : channelAdapters) {
+    public void closeChannelAdapters()
+    {
+        for (final SourcePollingChannelAdapter channelAdapter : channelAdapters)
+        {
             channelAdapter.stop();
             getLogger().info("Stopped channel adapter: " + channelAdapter);
         }
     }
 
-    public void handleZipJob(final Message<File> message) throws IOException {
-        final String applicationName = message.getHeaders().get(Constants.APPLICATION_NAME_MESSAGE_HEADER, String.class);
+    public void handleZipJob(final Message<File> message) throws IOException
+    {
+        final DepositDirectoryConfiguration depositDirectoryConfiguration = message.getHeaders().get(
+            DIRECTORY_CONFIG_HEADER_NAME, DepositDirectoryConfiguration.class);
+
+        final String applicationName = depositDirectoryConfiguration.getApplicationName();
         final File zipJobFile = message.getPayload();
 
         final File depositRootDirectory = zipJobFile.getParentFile().getParentFile();
         final File acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
 
         final File acceptedFile = new File(acceptedDirectory, zipJobFile.getName());
-        FileUtils.deleteQuietly(acceptedFile); // in case a similar job already exists
+        FileUtils.deleteQuietly(acceptedFile); // in case a similar job already
+                                               // exists
         FileUtils.moveFile(zipJobFile, acceptedFile);
 
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
@@ -157,27 +173,42 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
         meta.put(INBOX_DIRECTORY_META_NAME, zipJobFile.getParent());
 
         final MultiFilesJob job = new MultiFilesJob(Source.DIRECTORY, applicationName, UUID.randomUUID(),
-                (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+            (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
-        try {
+        try
+        {
             MultiFilesJob.addZipFilesToJob(new FileInputStream(acceptedFile), job);
+
+            if (StringUtils.isNotBlank(depositDirectoryConfiguration.getJobConfigurationFileName()))
+            {
+                final File jobConfigurationFile = new File(
+                    getConfiguration().getJobConfigurationCatalogDirectory(),
+                    depositDirectoryConfiguration.getJobConfigurationFileName());
+                job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(
+                    jobConfigurationFile));
+            }
+
             getMessageDispatcher().dispatch(job);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e)
+        {
             final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
             handleZipResult(errorResult);
         }
     }
 
-    public void handleZipResult(final MultiFilesResult result) throws IOException {
+    public void handleZipResult(final MultiFilesResult result) throws IOException
+    {
         final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
         final File resultsDirectory = new File((File) result.getMeta().get(DEPOSIT_ROOT_DIRECTORY_META_NAME),
-                Configuration.DEPOSIT_RESULTS_SUBDIR);
+            Configuration.DEPOSIT_RESULTS_SUBDIR);
 
-        final File outboxResultFile = new File(resultsDirectory, "result-"
-                + FilenameUtils.getBaseName((String) result.getMeta().get(ORIGINAL_FILENAME_META_NAME)) + "."
-                + FilenameUtils.getExtension(resultFile.getName()));
+        final File outboxResultFile = new File(resultsDirectory,
+            "result-" + FilenameUtils.getBaseName((String) result.getMeta().get(ORIGINAL_FILENAME_META_NAME))
+                            + "." + FilenameUtils.getExtension(resultFile.getName()));
 
-        FileUtils.deleteQuietly(outboxResultFile); // in case a similar result already exists
+        FileUtils.deleteQuietly(outboxResultFile); // in case a similar result
+                                                   // already exists
         FileUtils.moveFile(resultFile, outboxResultFile);
         result.destroy();
     }

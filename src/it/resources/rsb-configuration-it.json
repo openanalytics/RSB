@@ -27,8 +27,14 @@
     "depositRootDirectories": [
         {
             "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-1",
-            "applicationName": "lab2",
+            "applicationName": "lab1",
             "pollingPeriod": 5000
+        },
+        {
+            "rootDirectory": "/tmp/.rsb/deposit/lab-equipment-2",
+            "applicationName": "lab2",
+            "pollingPeriod": 5000,
+            "jobConfigurationFileName": "test-configuration.txt"
         }
     ],
     "smtpConfiguration": {
