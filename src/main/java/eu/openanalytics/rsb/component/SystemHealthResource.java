@@ -36,6 +36,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -139,9 +140,18 @@ public class SystemHealthResource extends AbstractComponent
 
     private void verifyRServiConnectivity() throws Exception
     {
+        // never use pooled clients to check connectivity
         final RServi rServi = rServiInstanceProvider.getRServiInstance(
             getConfiguration().getDefaultRserviPoolUri().toString(), Constants.RSERVI_CLIENT_ID,
             PoolingStrategy.NEVER);
-        rServi.close();
+
+        try
+        {
+            Validate.isTrue(Util.isRResponding(rServi), "R is not responding");
+        }
+        finally
+        {
+            rServi.close();
+        }
     }
 }

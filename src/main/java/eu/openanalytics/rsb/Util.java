@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb;
 
 import java.io.File;
@@ -51,9 +52,13 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.eclipse.core.runtime.CoreException;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import de.walware.rj.data.RObject;
+import de.walware.rj.servi.RServi;
+import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
@@ -62,7 +67,8 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class Util {
+public abstract class Util
+{
     private final static Pattern APPLICATION_NAME_VALIDATOR = Pattern.compile("\\w+");
 
     private final static ObjectMapper JSON_OBJECT_MAPPER = new ObjectMapper();
@@ -75,18 +81,26 @@ public abstract class Util {
     private static final Map<String, String> DEFAULT_FILE_EXTENSIONS = new HashMap<String, String>();
     private static final STGroup $_STRING_TEMPLATE_GROUP = new STGroup('$', '$');
 
-    static {
+    static
+    {
         PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
         PRETTY_JSON_OBJECT_MAPPER.configure(Feature.SORT_PROPERTIES_ALPHABETICALLY, true);
         PRETTY_JSON_OBJECT_MAPPER.setSerializationInclusion(Inclusion.NON_NULL);
 
-        try {
+        try
+        {
             ERROR_RESULT_JAXB_CONTEXT = JAXBContext.newInstance(ErrorResult.class);
             XML_DATATYPE_FACTORY = DatatypeFactory.newInstance();
-            MIMETYPES_FILETYPE_MAP.addMimeTypes(Constants.JSON_CONTENT_TYPE + " json\n" + Constants.XML_CONTENT_TYPE + " xml\n"
-                    + Constants.TEXT_CONTENT_TYPE + " txt\n" + Constants.TEXT_CONTENT_TYPE + " R\n" + Constants.TEXT_CONTENT_TYPE
-                    + " Rnw\n" + Constants.PDF_CONTENT_TYPE + " pdf\n" + Constants.ZIP_CONTENT_TYPE + " zip");
-        } catch (final Exception e) {
+            MIMETYPES_FILETYPE_MAP.addMimeTypes(Constants.JSON_CONTENT_TYPE + " json\n"
+                                                + Constants.XML_CONTENT_TYPE + " xml\n"
+                                                + Constants.TEXT_CONTENT_TYPE + " txt\n"
+                                                + Constants.TEXT_CONTENT_TYPE + " R\n"
+                                                + Constants.TEXT_CONTENT_TYPE + " Rnw\n"
+                                                + Constants.PDF_CONTENT_TYPE + " pdf\n"
+                                                + Constants.ZIP_CONTENT_TYPE + " zip");
+        }
+        catch (final Exception e)
+        {
             throw new IllegalStateException(e);
         }
 
@@ -100,7 +114,8 @@ public abstract class Util {
     public final static ObjectFactory REST_OBJECT_FACTORY = new ObjectFactory();
     public final static eu.openanalytics.rsb.soap.types.ObjectFactory SOAP_OBJECT_FACTORY = new eu.openanalytics.rsb.soap.types.ObjectFactory();
 
-    private Util() {
+    private Util()
+    {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
@@ -110,7 +125,8 @@ public abstract class Util {
      * @param template
      * @return a new {@link ST}
      */
-    public static ST newStringTemplate(final String template) {
+    public static ST newStringTemplate(final String template)
+    {
         return new ST($_STRING_TEMPLATE_GROUP, template);
     }
 
@@ -120,7 +136,8 @@ public abstract class Util {
      * @param mimeType
      * @return
      */
-    public static String getResourceType(final MimeType mimeType) {
+    public static String getResourceType(final MimeType mimeType)
+    {
         final String result = DEFAULT_FILE_EXTENSIONS.get(mimeType.toString());
         return result != null ? result : DEFAULT_FILE_EXTENSION;
     }
@@ -131,7 +148,8 @@ public abstract class Util {
      * @param file
      * @return "application/octet-stream" if unknown.
      */
-    public static String getContentType(final File file) {
+    public static String getContentType(final File file)
+    {
         return MIMETYPES_FILETYPE_MAP.getContentType(file);
     }
 
@@ -141,10 +159,14 @@ public abstract class Util {
      * @param file
      * @return {@link eu.openanalytics.rsb.Constants#DEFAULT_MIME_TYPE} if unknown.
      */
-    public static MimeType getMimeType(final File file) {
-        try {
+    public static MimeType getMimeType(final File file)
+    {
+        try
+        {
             return new MimeType(getContentType(file));
-        } catch (final MimeTypeParseException mtpe) {
+        }
+        catch (final MimeTypeParseException mtpe)
+        {
             return Constants.DEFAULT_MIME_TYPE;
         }
     }
@@ -159,9 +181,15 @@ public abstract class Util {
      * @return
      * @throws URISyntaxException
      */
-    public static URI buildResultUri(final String applicationName, final String jobId, final HttpHeaders httpHeaders, final UriInfo uriInfo)
-            throws URISyntaxException {
-        return getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULTS_PATH).path(applicationName).path(jobId).build();
+    public static URI buildResultUri(final String applicationName,
+                                     final String jobId,
+                                     final HttpHeaders httpHeaders,
+                                     final UriInfo uriInfo) throws URISyntaxException
+    {
+        return getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULTS_PATH)
+            .path(applicationName)
+            .path(jobId)
+            .build();
     }
 
     /**
@@ -174,11 +202,15 @@ public abstract class Util {
      * @return
      * @throws URISyntaxException
      */
-    public static URI buildDataDirectoryUri(final HttpHeaders httpHeaders, final UriInfo uriInfo, final String... directoryPathElements)
-            throws URISyntaxException {
+    public static URI buildDataDirectoryUri(final HttpHeaders httpHeaders,
+                                            final UriInfo uriInfo,
+                                            final String... directoryPathElements) throws URISyntaxException
+    {
         UriBuilder uriBuilder = getUriBuilder(uriInfo, httpHeaders).path(Constants.DATA_DIR_PATH);
-        for (final String directoryPathElement : directoryPathElements) {
-            if (StringUtils.isNotEmpty(directoryPathElement)) {
+        for (final String directoryPathElement : directoryPathElements)
+        {
+            if (StringUtils.isNotEmpty(directoryPathElement))
+            {
                 uriBuilder = uriBuilder.path(directoryPathElement);
             }
         }
@@ -191,34 +223,41 @@ public abstract class Util {
      * @param name
      * @return
      */
-    public static boolean isValidApplicationName(final String name) {
+    public static boolean isValidApplicationName(final String name)
+    {
         return StringUtils.isNotBlank(name) && APPLICATION_NAME_VALIDATOR.matcher(name).matches();
     }
 
     /**
-     * Extracts an UriBuilder for the current request, taking into account the possibility of header-based URI override.
+     * Extracts an UriBuilder for the current request, taking into account the
+     * possibility of header-based URI override.
      * 
      * @param uriInfo
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
      */
-    public static UriBuilder getUriBuilder(final UriInfo uriInfo, final HttpHeaders httpHeaders) throws URISyntaxException {
+    public static UriBuilder getUriBuilder(final UriInfo uriInfo, final HttpHeaders httpHeaders)
+        throws URISyntaxException
+    {
         final UriBuilder uriBuilder = uriInfo.getBaseUriBuilder();
 
         final List<String> hosts = httpHeaders.getRequestHeader(HttpHeaders.HOST);
-        if ((hosts != null) && (!hosts.isEmpty())) {
+        if ((hosts != null) && (!hosts.isEmpty()))
+        {
             final String host = hosts.get(0);
             uriBuilder.host(StringUtils.substringBefore(host, ":"));
 
             final String port = StringUtils.substringAfter(host, ":");
-            if (StringUtils.isNotBlank(port)) {
+            if (StringUtils.isNotBlank(port))
+            {
                 uriBuilder.port(Integer.valueOf(port));
             }
         }
 
         final String protocol = getSingleHeader(httpHeaders, Constants.FORWARDED_PROTOCOL_HTTP_HEADER);
-        if (StringUtils.isNotBlank(protocol)) {
+        if (StringUtils.isNotBlank(protocol))
+        {
             uriBuilder.scheme(protocol);
         }
 
@@ -231,7 +270,8 @@ public abstract class Util {
      * @param calendar
      * @return
      */
-    public static XMLGregorianCalendar convertToXmlDate(final GregorianCalendar calendar) {
+    public static XMLGregorianCalendar convertToXmlDate(final GregorianCalendar calendar)
+    {
         final GregorianCalendar zuluDate = new GregorianCalendar();
         zuluDate.setTimeZone(TimeZone.getTimeZone("UTC"));
         zuluDate.setTimeInMillis(calendar.getTimeInMillis());
@@ -241,16 +281,19 @@ public abstract class Util {
     }
 
     /**
-     * Gets the first header of multiple HTTP headers, returning null if no header is found for the name.
+     * Gets the first header of multiple HTTP headers, returning null if no header is
+     * found for the name.
      * 
      * @param httpHeaders
      * @param headerName
      * @return
      */
-    public static String getSingleHeader(final HttpHeaders httpHeaders, final String headerName) {
+    public static String getSingleHeader(final HttpHeaders httpHeaders, final String headerName)
+    {
         final List<String> headers = httpHeaders.getRequestHeader(headerName);
 
-        if ((headers == null) || (headers.isEmpty())) {
+        if ((headers == null) || (headers.isEmpty()))
+        {
             return null;
         }
 
@@ -259,21 +302,25 @@ public abstract class Util {
 
     /**
      * Creates a temporary directory. Lifted from:
-     * http://stackoverflow.com/questions/617414/create-a-temporary-directory-in-java/617438#617438
+     * http://stackoverflow.com/questions/
+     * 617414/create-a-temporary-directory-in-java/617438#617438
      * 
      * @return
      * @throws IOException
      */
-    public static File createTemporaryDirectory(final String type) throws IOException {
+    public static File createTemporaryDirectory(final String type) throws IOException
+    {
         final File temp;
 
         temp = File.createTempFile("rsb_", type);
 
-        if (!(temp.delete())) {
+        if (!(temp.delete()))
+        {
             throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
         }
 
-        if (!(temp.mkdir())) {
+        if (!(temp.mkdir()))
+        {
             throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
         }
 
@@ -286,14 +333,19 @@ public abstract class Util {
      * @param errorResult
      * @return
      */
-    public static String toXml(final ErrorResult errorResult) {
-        try {
+    public static String toXml(final ErrorResult errorResult)
+    {
+        try
+        {
             final Marshaller marshaller = ERROR_RESULT_JAXB_CONTEXT.createMarshaller();
             final StringWriter sw = new StringWriter();
             marshaller.marshal(errorResult, sw);
             return sw.toString();
-        } catch (final JAXBException je) {
-            final String objectAsString = ToStringBuilder.reflectionToString(errorResult, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+        catch (final JAXBException je)
+        {
+            final String objectAsString = ToStringBuilder.reflectionToString(errorResult,
+                ToStringStyle.SHORT_PREFIX_STYLE);
             throw new RuntimeException("Failed to XML marshall: " + objectAsString, je);
         }
     }
@@ -304,11 +356,16 @@ public abstract class Util {
      * @param o
      * @return
      */
-    public static String toJson(final Object o) {
-        try {
+    public static String toJson(final Object o)
+    {
+        try
+        {
             return PRETTY_JSON_OBJECT_MAPPER.writeValueAsString(o);
-        } catch (final IOException ioe) {
-            final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+        catch (final IOException ioe)
+        {
+            final String objectAsString = ToStringBuilder.reflectionToString(o,
+                ToStringStyle.SHORT_PREFIX_STYLE);
             throw new RuntimeException("Failed to JSON marshall: " + objectAsString, ioe);
         }
     }
@@ -319,11 +376,16 @@ public abstract class Util {
      * @param o
      * @throws IOException
      */
-    public static void toPrettyJsonFile(final Object o, final File f) throws IOException {
-        try {
+    public static void toPrettyJsonFile(final Object o, final File f) throws IOException
+    {
+        try
+        {
             PRETTY_JSON_OBJECT_MAPPER.writeValue(f, o);
-        } catch (final JsonProcessingException jpe) {
-            final String objectAsString = ToStringBuilder.reflectionToString(o, ToStringStyle.SHORT_PREFIX_STYLE);
+        }
+        catch (final JsonProcessingException jpe)
+        {
+            final String objectAsString = ToStringBuilder.reflectionToString(o,
+                ToStringStyle.SHORT_PREFIX_STYLE);
             throw new RuntimeException("Failed to JSON marshall: " + objectAsString, jpe);
         }
     }
@@ -334,11 +396,31 @@ public abstract class Util {
      * @param s
      * @return
      */
-    public static <T> T fromJson(final String s, final Class<T> clazz) {
-        try {
+    public static <T> T fromJson(final String s, final Class<T> clazz)
+    {
+        try
+        {
             return JSON_OBJECT_MAPPER.readValue(s, clazz);
-        } catch (final IOException ioe) {
+        }
+        catch (final IOException ioe)
+        {
             throw new RuntimeException("Failed to JSON unmarshall: " + s, ioe);
         }
+    }
+
+    /**
+     * Perform a simple mathematic computation on R to ensure it responds correctly.
+     * 
+     * @param rServi
+     * @return
+     * @throws CoreException if anything goes really bad
+     */
+    public static boolean isRResponding(final RServi rServi) throws CoreException
+    {
+        final FunctionCall functionCall = rServi.createFunctionCall("sum");
+        functionCall.addInt(1);
+        functionCall.addInt(2);
+        final RObject result = functionCall.evalData(null);
+        return result.getData().getInt(0) == 3;
     }
 }
