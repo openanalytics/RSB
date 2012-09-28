@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
  *
  *   ===========================================================================
@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.message;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
@@ -36,32 +37,37 @@ import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class XmlFunctionCallJobTestCase {
+public class XmlFunctionCallJobTestCase
+{
 
     private XmlFunctionCallJob xmlFunctionCallJob;
 
     @Before
-    public void prepareTest() {
+    public void prepareTest()
+    {
         xmlFunctionCallJob = new XmlFunctionCallJob(Source.REST, "app_name", UUID.randomUUID(),
-                (GregorianCalendar) GregorianCalendar.getInstance(), "<fake_job/>");
+            (GregorianCalendar) GregorianCalendar.getInstance(), "<fake_job/>");
     }
 
     @Test
-    public void getFunctionName() {
+    public void getFunctionName()
+    {
         assertThat(xmlFunctionCallJob.getFunctionName(), notNullValue());
     }
 
     @Test
-    public void buildSuccessResultString() {
+    public void buildSuccessResultString()
+    {
         final XmlFunctionCallResult xmlFunctionCallResult = xmlFunctionCallJob.buildSuccessResult("<fake_result/>");
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(true));
     }
 
     @Test
-    public void buildErrorResultThrowable() throws Exception {
-        final XmlFunctionCallResult xmlFunctionCallResult = xmlFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"),
-                null);
+    public void buildErrorResultThrowable() throws Exception
+    {
+        final XmlFunctionCallResult xmlFunctionCallResult = xmlFunctionCallJob.buildErrorResult(
+            new RuntimeException("simulated error"), null);
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(false));
         assertXpathEvaluatesTo("errorResult", "name(/node())", xmlFunctionCallResult.getPayload());

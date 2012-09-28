@@ -44,12 +44,18 @@ import eu.openanalytics.rsb.config.Configuration;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
-public class CircurlarRServiUriSelector implements RServiUriSelector
+public class CircularRServiUriSelector implements RServiUriSelector
 {
     @Resource
     private Configuration configuration;
 
     private Map<String, Deque<URI>> circularApplicationUris;
+
+    // exposed for unit testing
+    void setConfiguration(final Configuration configuration)
+    {
+        this.configuration = configuration;
+    }
 
     @PostConstruct
     public void initialize()
@@ -71,20 +77,28 @@ public class CircurlarRServiUriSelector implements RServiUriSelector
 
     public URI getUriForApplication(final String applicationName)
     {
-        if (circularApplicationUris.isEmpty())
+        if ((circularApplicationUris == null) || (circularApplicationUris.isEmpty()))
         {
             return configuration.getDefaultRserviPoolUri();
         }
 
         final Deque<URI> applicationRserviPoolUris = circularApplicationUris.get(applicationName);
 
-        return applicationRserviPoolUris == null
-                                                ? configuration.getDefaultRserviPoolUri()
-                                                : getCircular(applicationRserviPoolUris);
+        final boolean applicationHasNoSpecificUris = applicationRserviPoolUris == null
+                                                     || applicationRserviPoolUris.isEmpty();
+
+        return applicationHasNoSpecificUris
+                                           ? configuration.getDefaultRserviPoolUri()
+                                           : getCircular(applicationRserviPoolUris);
     }
 
     private URI getCircular(final Deque<URI> applicationRserviPoolUris)
     {
+        if (applicationRserviPoolUris.size() == 1)
+        {
+            return applicationRserviPoolUris.peek();
+        }
+
         synchronized (applicationRserviPoolUris)
         {
             final URI uri = applicationRserviPoolUris.poll();

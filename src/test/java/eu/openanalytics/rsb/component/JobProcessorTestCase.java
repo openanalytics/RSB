@@ -100,25 +100,6 @@ public class JobProcessorTestCase
         when(rServiUriSelector.getUriForApplication(anyString())).thenReturn(new URI("fake://default"));
     }
 
-    // FIXME move to circular... test
-    // @SuppressWarnings("unchecked")
-    // @Test
-    // public void getRServiPoolUri() throws URISyntaxException {
-    // final URI defaultPoolUri = new URI("fake://default");
-    // when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
-    //
-    // when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(null);
-    // assertThat(jobProcessor.getRServiPoolUri("appname"), is(defaultPoolUri));
-    //
-    // when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(Collections.EMPTY_MAP);
-    // assertThat(jobProcessor.getRServiPoolUri("appname"), is(defaultPoolUri));
-    //
-    // final URI appSpecificPoolUri = new URI("fake://appname");
-    // when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(Collections.singletonMap("appname",
-    // appSpecificPoolUri));
-    // assertThat(jobProcessor.getRServiPoolUri("appname"), is(appSpecificPoolUri));
-    // }
-
     @Test(expected = RuntimeException.class)
     public void processFunctionCallJobRserviProviderError() throws Exception
     {
