@@ -54,15 +54,14 @@ import eu.openanalytics.rsb.config.ConfigurationFactory;
     RestAdminITCase.class, RestMiscITCase.class, SoapMtomITCase.class})
 public class SuiteITCase
 {
-
-    static Configuration configuration;
-    static Properties rawMessages;
-    static GreenMail greenMail;
-    static GreenMailUser userAccount;
-    static GreenMailUser rsbAccountWithDefaultSettings;
-    static GreenMailUser rsbAccountWithJobConfiguration;
-    static GreenMailUser rsbAccountWithResponseFile;
-    static final String TEST_USER_EMAIL_DOMAIN = "host.tld";
+    protected static Configuration configuration;
+    protected static Properties rawMessages;
+    protected static GreenMail greenMail;
+    protected static GreenMailUser userAccount;
+    protected static GreenMailUser rsbAccountWithDefaultSettings;
+    protected static GreenMailUser rsbAccountWithJobConfiguration;
+    protected static GreenMailUser rsbAccountWithResponseFile;
+    protected static final String TEST_USER_EMAIL_DOMAIN = "host.tld";
 
     private static Set<File> catalogTestFiles = new HashSet<File>();
 

@@ -33,8 +33,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Test;
 
@@ -45,63 +45,83 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class EmailDepositITCase extends AbstractITCase {
+public class EmailDepositITCase extends AbstractITCase
+{
     @After
-    public void purgeReceivedEmails() throws FolderException {
-        SuiteITCase.greenMail.getManagers().getImapHostManager().getInbox(SuiteITCase.userAccount).deleteAllMessages();
+    public void purgeReceivedEmails() throws FolderException
+    {
+        SuiteITCase.greenMail.getManagers()
+            .getImapHostManager()
+            .getInbox(SuiteITCase.userAccount)
+            .deleteAllMessages();
     }
 
     @Test
-    public void submissionToAccountWithDefaultSettings() throws Exception {
+    public void submissionToAccountWithDefaultSettings() throws Exception
+    {
         final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithDefaultSettings, "r-job-sample.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
         verifyValidResultWithDefaultResponse(rsbResponseMessage);
     }
 
     @Test
-    public void submissionToAccountWithJobConfiguration() throws Exception {
+    public void submissionToAccountWithResponseFile() throws Exception
+    {
         final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "r-job-sample.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
         verifyValidResult(rsbResponseMessage, IOUtils.toString(getTestData("test-email-response.txt")));
     }
 
     @Test
-    public void submissionToAccountWithResponseFile() throws Exception {
-        final String subject = sendJobEmail(SuiteITCase.rsbAccountWithJobConfiguration, "fake data".getBytes(), "application/octet-stream",
-                "data.bin");
+    public void submissionToAccountWithJobConfiguration() throws Exception
+    {
+        final String subject = sendJobEmail(SuiteITCase.rsbAccountWithJobConfiguration,
+            "fake data".getBytes(), "application/octet-stream", "data.bin");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
         verifyValidResultWithDefaultResponse(rsbResponseMessage);
     }
 
     @Test
-    public void submissionOfUnprocessableJob() throws Exception {
-        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "r-job-meta-required.zip");
+    public void submissionOfUnprocessableJob() throws Exception
+    {
+        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile,
+            "r-job-meta-required.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
         verifyErrorResult(rsbResponseMessage);
     }
 
     @Test
-    public void submissionOfInvalidZip() throws Exception {
-        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "invalid-job-subdir.zip");
+    public void submissionOfInvalidZip() throws Exception
+    {
+        final String subject = sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile,
+            "invalid-job-subdir.zip");
         final MimeMessage rsbResponseMessage = ponderForRsbResponse(subject);
         verifyErrorResult(rsbResponseMessage);
     }
 
-    private String sendZipJobEmail(final GreenMailUser rsbAccount, final String zipFile) throws MessagingException, IOException {
+    private String sendZipJobEmail(final GreenMailUser rsbAccount, final String zipFile)
+        throws MessagingException, IOException
+    {
         return sendJobEmail(rsbAccount, IOUtils.toByteArray(getTestData(zipFile)), "application/zip", zipFile);
     }
 
-    private String sendJobEmail(final GreenMailUser rsbAccount, final byte[] data, final String contentType, final String filename)
-            throws MessagingException, IOException {
+    private String sendJobEmail(final GreenMailUser rsbAccount,
+                                final byte[] data,
+                                final String contentType,
+                                final String filename) throws MessagingException, IOException
+    {
         final String subject = RandomStringUtils.randomAlphanumeric(20);
 
-        GreenMailUtil.sendAttachmentEmail(rsbAccount.getEmail(), SuiteITCase.userAccount.getEmail(), subject, "some work for you", data,
-                contentType, filename, "test job", SuiteITCase.greenMail.getSmtp().getServerSetup());
+        GreenMailUtil.sendAttachmentEmail(rsbAccount.getEmail(), SuiteITCase.userAccount.getEmail(), subject,
+            "some work for you", data, contentType, filename, "test job", SuiteITCase.greenMail.getSmtp()
+                .getServerSetup());
 
         return subject;
     }
 
-    private MimeMessage ponderForRsbResponse(final String subject) throws InterruptedException, MessagingException {
+    private MimeMessage ponderForRsbResponse(final String subject)
+        throws InterruptedException, MessagingException
+    {
         final MimeMessage[] rsbResponseMessages = waitForRsbResponse();
         assertThat(rsbResponseMessages.length, is(1));
         final MimeMessage rsbResponseMessage = rsbResponseMessages[0];
@@ -109,44 +129,57 @@ public class EmailDepositITCase extends AbstractITCase {
         return rsbResponseMessage;
     }
 
-    private void verifyValidResultWithDefaultResponse(final MimeMessage rsbResponseMessage) throws IOException, MessagingException {
+    private void verifyValidResultWithDefaultResponse(final MimeMessage rsbResponseMessage)
+        throws IOException, MessagingException
+    {
         final String exceptedResponseBody = getRawMessages().getProperty("email.result.body");
         verifyValidResult(rsbResponseMessage, exceptedResponseBody);
     }
 
-    private void verifyValidResult(final MimeMessage rsbResponseMessage, final String exceptedResponseBody) throws IOException,
-            MessagingException {
+    private void verifyValidResult(final MimeMessage rsbResponseMessage, final String exceptedResponseBody)
+        throws IOException, MessagingException
+    {
         final Multipart parts = (Multipart) rsbResponseMessage.getContent();
         assertThat(
-                StringUtils.normalizeSpace(((MimeMultipart) getMailBodyPart(parts, "multipart/related").getContent()).getBodyPart(0)
-                        .getContent().toString()), is(StringUtils.normalizeSpace(exceptedResponseBody)));
+            StringUtils.normalizeSpace(((MimeMultipart) getMailBodyPart(parts, "multipart/related").getContent()).getBodyPart(
+                0)
+                .getContent()
+                .toString()), is(StringUtils.normalizeSpace(exceptedResponseBody)));
 
         assertThat(getMailBodyPart(parts, "application/pdf").getFileName(), is("rnorm.pdf"));
     }
 
-    private void verifyErrorResult(final MimeMessage rsbResponseMessage) throws IOException, MessagingException {
+    private void verifyErrorResult(final MimeMessage rsbResponseMessage)
+        throws IOException, MessagingException
+    {
         final Multipart parts = (Multipart) rsbResponseMessage.getContent();
 
-        final String responseBody = StringUtils.normalizeSpace(((MimeMultipart) getMailBodyPart(parts, "multipart/related").getContent())
-                .getBodyPart(0).getContent().toString());
+        final String responseBody = StringUtils.normalizeSpace(((MimeMultipart) getMailBodyPart(parts,
+            "multipart/related").getContent()).getBodyPart(0).getContent().toString());
         assertThat(StringUtils.containsIgnoreCase(responseBody, "error"), is(true));
     }
 
-    private BodyPart getMailBodyPart(final Multipart parts, final String contentType) throws MessagingException {
-        for (int i = 0; i < parts.getCount(); i++) {
+    private BodyPart getMailBodyPart(final Multipart parts, final String contentType)
+        throws MessagingException
+    {
+        for (int i = 0; i < parts.getCount(); i++)
+        {
             final BodyPart part = parts.getBodyPart(i);
-            if (StringUtils.startsWith(part.getContentType(), contentType)) {
+            if (StringUtils.startsWith(part.getContentType(), contentType))
+            {
                 return part;
             }
         }
         throw new IllegalStateException("No part of type " + contentType + " found");
     }
 
-    private MimeMessage[] waitForRsbResponse() throws InterruptedException {
+    private MimeMessage[] waitForRsbResponse() throws InterruptedException
+    {
         MimeMessage[] receivedMessages = fetchMessagesFromUserMailBox();
 
         int attemptCount = 0;
-        while ((receivedMessages.length == 0) && (attemptCount++ < 120)) {
+        while ((receivedMessages.length == 0) && (attemptCount++ < 120))
+        {
             Thread.yield();
             Thread.sleep(250);
             receivedMessages = fetchMessagesFromUserMailBox();
@@ -154,7 +187,8 @@ public class EmailDepositITCase extends AbstractITCase {
         return receivedMessages;
     }
 
-    private MimeMessage[] fetchMessagesFromUserMailBox() {
+    private MimeMessage[] fetchMessagesFromUserMailBox()
+    {
         return SuiteITCase.greenMail.getReceviedMessagesForDomain(SuiteITCase.TEST_USER_EMAIL_DOMAIN);
     }
 }

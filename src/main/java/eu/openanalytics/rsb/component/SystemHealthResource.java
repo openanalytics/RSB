@@ -36,8 +36,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

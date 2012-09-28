@@ -37,7 +37,7 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.soap.MTOM;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;

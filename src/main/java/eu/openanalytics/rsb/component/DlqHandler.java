@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.integration.Message;
 import org.springframework.integration.MessageChannel;
 import org.springframework.integration.mail.MailHeaders;

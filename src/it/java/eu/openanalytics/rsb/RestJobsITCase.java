@@ -42,7 +42,7 @@ import java.util.Map.Entry;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.After;

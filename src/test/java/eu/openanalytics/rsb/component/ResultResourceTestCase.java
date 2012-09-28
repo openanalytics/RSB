@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -38,8 +39,8 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.activemq.util.ByteArrayOutputStream;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.math3.random.RandomDataImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +55,8 @@ import eu.openanalytics.rsb.data.ResultStore;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ResultResourceTestCase {
+public class ResultResourceTestCase
+{
     public static final String TEST_APP_NAME = "app_name";
     public static final UUID TEST_JOB_ID = UUID.randomUUID();
     public static final String TEST_RESULT_RESOURCE = TEST_JOB_ID.toString() + ".tst";
@@ -66,20 +68,23 @@ public class ResultResourceTestCase {
     private String testResultPayload;
 
     @Before
-    public void prepareTest() {
-        testResultPayload = RandomStringUtils.randomAlphanumeric(25 + RandomUtils.nextInt(25));
+    public void prepareTest()
+    {
+        testResultPayload = RandomStringUtils.randomAlphanumeric(25 + new RandomDataImpl().nextInt(0, 25));
 
         resultResource = new ResultResource();
         resultResource.setResultStore(resultStore);
     }
 
     @Test(expected = WebApplicationException.class)
-    public void getResultNotFound() throws IOException {
+    public void getResultNotFound() throws IOException
+    {
         resultResource.getResult(TEST_APP_NAME, TEST_RESULT_RESOURCE);
     }
 
     @Test
-    public void getResult() throws IOException {
+    public void getResult() throws IOException
+    {
         setupMockResultStore();
 
         final Response response = resultResource.getResult(TEST_APP_NAME, TEST_RESULT_RESOURCE);
@@ -94,12 +99,14 @@ public class ResultResourceTestCase {
     }
 
     @Test(expected = WebApplicationException.class)
-    public void getResultMetaNotFound() throws IOException {
+    public void getResultMetaNotFound() throws IOException
+    {
         resultResource.getResultMeta(TEST_APP_NAME, TEST_RESULT_RESOURCE);
     }
 
     @Test
-    public void getResultMeta() throws IOException {
+    public void getResultMeta() throws IOException
+    {
         setupMockResultStore();
 
         final Response response = resultResource.getResultMeta(TEST_APP_NAME, TEST_RESULT_RESOURCE);
@@ -109,22 +116,28 @@ public class ResultResourceTestCase {
         assertThat(response.getMetadata().get(HttpHeaders.ETAG), notNullValue());
     }
 
-    private void setupMockResultStore() {
+    private void setupMockResultStore()
+    {
         final PersistedResult persistedResult = buildPersistedResult(testResultPayload);
-        when(resultStore.findByApplicationNameAndJobId(TEST_APP_NAME, TEST_JOB_ID)).thenReturn(persistedResult);
+        when(resultStore.findByApplicationNameAndJobId(TEST_APP_NAME, TEST_JOB_ID)).thenReturn(
+            persistedResult);
     }
 
-    public static PersistedResult buildPersistedResult(final String resultPayload) {
+    public static PersistedResult buildPersistedResult(final String resultPayload)
+    {
         final PersistedResult persistedResult = new PersistedResult(TEST_APP_NAME, TEST_JOB_ID,
-                (GregorianCalendar) GregorianCalendar.getInstance(), true, Constants.DEFAULT_MIME_TYPE) {
+            (GregorianCalendar) GregorianCalendar.getInstance(), true, Constants.DEFAULT_MIME_TYPE)
+        {
 
             @Override
-            public long getDataLength() throws IOException {
+            public long getDataLength() throws IOException
+            {
                 return 1;
             }
 
             @Override
-            public InputStream getData() throws IOException {
+            public InputStream getData() throws IOException
+            {
                 return new ByteArrayInputStream(resultPayload.getBytes());
             }
         };
