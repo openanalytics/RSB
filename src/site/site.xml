@@ -24,7 +24,7 @@
 <project>
   <body>
     <menu name="Getting Started">
-      <item name="Building" href="build.html" />
+      <item name="Building / Testing" href="build.html" />
       <item name="Installation / Configuration" href="install.html" />
       <item name="Administration" href="admin.html" />
     </menu>

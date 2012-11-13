@@ -119,6 +119,11 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             this.rServi = rServi;
         }
 
+        public boolean isClosed()
+        {
+            return rServi.isClosed();
+        }
+
         public void close() throws CoreException
         {
             try
@@ -282,7 +287,10 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             @Override
             public boolean validateObject(final RServiPoolKey key, final PooledRServiWrapper rServi)
             {
-                // TODO #2008 call rServi.isOpen() when available
+                if (rServi.isClosed())
+                {
+                    return false;
+                }
 
                 if (rServi.hasError()
                     || configuration.getRServiClientPoolValidationStrategy() == RServiClientPoolValidationStrategy.FULL)
