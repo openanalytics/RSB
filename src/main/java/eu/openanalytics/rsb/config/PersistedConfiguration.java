@@ -25,11 +25,13 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 
+import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
@@ -334,6 +336,33 @@ public class PersistedConfiguration
         }
     }
 
+    public static class PersistedApplicationSecurityAuthorization implements ApplicationSecurityAuthorization
+    {
+        private static final long serialVersionUID = 1L;
+        private Set<String> authorizedPrincipals;
+        private Set<String> authorizedRoles;
+
+        public Set<String> getAuthorizedPrincipals()
+        {
+            return authorizedPrincipals;
+        }
+
+        public void setAuthorizedPrincipals(final Set<String> authorizedPrincipals)
+        {
+            this.authorizedPrincipals = authorizedPrincipals;
+        }
+
+        public Set<String> getAuthorizedRoles()
+        {
+            return authorizedRoles;
+        }
+
+        public void setAuthorizedRoles(final Set<String> authorizedRoles)
+        {
+            this.authorizedRoles = authorizedRoles;
+        }
+    }
+
     private String nodeName;
     private File activeMqWorkDirectory;
     private URI defaultRserviPoolUri;
@@ -352,6 +381,7 @@ public class PersistedConfiguration
     private Config rServiClientPoolConfig;
     private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
+    private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
 
     public PersistedConfiguration()
     {
@@ -647,5 +677,18 @@ public class PersistedConfiguration
     public void setCheckHealthOnStart(final boolean checkHealthOnStart)
     {
         this.checkHealthOnStart = checkHealthOnStart;
+    }
+
+    /**
+     * Optional application security.
+     */
+    public Map<String, PersistedApplicationSecurityAuthorization> getApplicationSecurityConfiguration()
+    {
+        return applicationSecurityConfiguration;
+    }
+
+    public void setApplicationSecurityConfiguration(final Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration)
+    {
+        this.applicationSecurityConfiguration = applicationSecurityConfiguration;
     }
 }

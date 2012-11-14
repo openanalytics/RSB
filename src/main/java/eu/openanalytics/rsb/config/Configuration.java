@@ -226,6 +226,13 @@ public interface Configuration
         }
     };
 
+    public interface ApplicationSecurityAuthorization extends Serializable
+    {
+        Set<String> getAuthorizedPrincipals();
+
+        Set<String> getAuthorizedRoles();
+    }
+
     /**
      * URL from where the configuration has been loaded.
      */
@@ -347,4 +354,9 @@ public interface Configuration
      * RServi is not colocated in the same web container).
      */
     boolean isCheckHealthOnStart();
+
+    /**
+     * Optional application security.
+     */
+    Map<String, ApplicationSecurityAuthorization> getApplicationSecurityConfiguration();
 }

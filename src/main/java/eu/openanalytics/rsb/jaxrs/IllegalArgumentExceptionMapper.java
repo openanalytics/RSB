@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
  *
  *   ===========================================================================
@@ -33,31 +33,39 @@ import javax.ws.rs.ext.ExceptionMapper;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException> {
-    private final static class BadRequestStatus implements StatusType {
+public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalArgumentException>
+{
+    private final static class BadRequestStatus implements StatusType
+    {
         private final String reasonPhrase;
 
-        private BadRequestStatus(final String reasonPhrase) {
+        private BadRequestStatus(final String reasonPhrase)
+        {
             this.reasonPhrase = reasonPhrase;
         }
 
-        public int getStatusCode() {
+        public int getStatusCode()
+        {
             return Status.BAD_REQUEST.getStatusCode();
         }
 
-        public Family getFamily() {
+        public Family getFamily()
+        {
             return Status.BAD_REQUEST.getFamily();
         }
 
-        public String getReasonPhrase() {
+        public String getReasonPhrase()
+        {
             return reasonPhrase;
         }
     };
 
     @Override
-    public Response toResponse(final IllegalArgumentException iae) {
+    public Response toResponse(final IllegalArgumentException iae)
+    {
         final BadRequestStatus status = new BadRequestStatus("Bad request - " + iae.getMessage());
-        // JAX-RS doesn't seem to propagate the reason phrase to the ultimate HTTP response status
+        // JAX-RS doesn't seem to propagate the reason phrase to the ultimate HTTP
+        // response status
         // line, hence add it to the response body too
         return Response.status(status).type(MediaType.TEXT_PLAIN).entity(status.getReasonPhrase()).build();
     }

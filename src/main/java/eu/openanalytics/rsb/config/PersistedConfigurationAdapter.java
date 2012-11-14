@@ -254,4 +254,10 @@ public class PersistedConfigurationAdapter implements Configuration
     {
         return persistedConfiguration.isCheckHealthOnStart();
     }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public Map<String, ApplicationSecurityAuthorization> getApplicationSecurityConfiguration()
+    {
+        return (Map) persistedConfiguration.getApplicationSecurityConfiguration();
+    }
 }
