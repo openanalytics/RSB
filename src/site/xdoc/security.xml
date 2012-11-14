@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu
+-->
+<document
+    xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Security</title>
+        <author
+            email="rsb.development@openanalytics.eu">RSB Development</author>
+    </properties>
+    <body>
+        <section name="Application Level Security">
+          <p>It is possible to run RSB in secure mode where only authorized users can use certain applications</p>
+          <p>This is done by doing the following:</p>
+          <ul>
+          <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
+          <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
+          <li>Configure RSB to associate applications with authorized users and/or roles.</li>
+          </ul>
+          <p>The following demonstrate how to configure RSB</p>
+          <pre>
+    "applicationSecurityConfiguration": {
+      "secure_app_1": {
+        "authorizedPrincipals":["bob","dan"]
+      },
+      "secure_app_2": {
+        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ADMIN"]
+      },
+      "secure_app_3": {
+        "authorizedPrincipals":["bob","dan"],
+        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ADMIN"]
+      }
+    }
+          </pre>
+        </section>
+    </body>
+</document>

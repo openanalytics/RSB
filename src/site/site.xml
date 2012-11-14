@@ -33,6 +33,7 @@
       <item name="Scalability" href="scalability.html" />
       <item name="HA" href="ha.html" />
       <item name="Statistics" href="stats.html" />
+      <item name="Security" href="security.html" />
     </menu>
     <menu name="Usage">
       <item name="API &amp; Clients" href="wsdocs/index.html" />
