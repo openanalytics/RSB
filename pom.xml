@@ -55,6 +55,10 @@
     <scm>
         <url>https://github.com/openanalytics/RSB</url>
     </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/openanalytics/RSB/issues</url>
+    </issueManagement>
     <repositories>
         <repository>
             <id>oa-public</id>
@@ -505,7 +509,20 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.3.1</version>
+                            <version>2.6</version>
+                            <reportSets>
+                                <reportSet>
+                                    <reports>
+                                        <report>summary</report>
+                                        <report>license</report>
+                                        <report>scm</report>
+                                        <report>issue-tracking</report>
+                                        <report>dependencies</report>
+                                        <report>plugins</report>
+                                        <report>plugin-management</report>
+                                    </reports>
+                                </reportSet>
+                            </reportSets>
                         </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
