@@ -23,6 +23,7 @@ package eu.openanalytics.rsb;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,6 +31,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -447,5 +449,33 @@ public abstract class Util
         {
             throw new IllegalArgumentException(uri + " is not a valid URI", urise);
         }
+    }
+
+    /**
+     * Rename well known meta properties to their canonical names.
+     * 
+     * @param meta
+     * @return
+     */
+    public static Map<String, Serializable> normalizeJobMeta(final Map<String, Serializable> meta)
+    {
+        final Map<String, Serializable> normalized = new HashMap<String, Serializable>(meta.size());
+
+        for (final Entry<String, Serializable> entry : meta.entrySet())
+        {
+            final String normalizedName = Constants.WELL_KNOWN_CONFIGURATION_KEYS.get(entry.getKey()
+                .toLowerCase());
+
+            if (normalizedName != null)
+            {
+                normalized.put(normalizedName, entry.getValue());
+            }
+            else
+            {
+                normalized.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return normalized;
     }
 }

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
@@ -63,17 +64,20 @@ import eu.openanalytics.rsb.rest.types.JobToken;
  */
 @Component("jobsResource")
 @Path("/" + Constants.JOBS_PATH)
-@Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
-public class JobsResource extends AbstractComponent {
-    private interface JobBuilder {
-        AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) throws IOException;
+@Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
+public class JobsResource extends AbstractComponent
+{
+    private interface JobBuilder
+    {
+        AbstractJob build(final String applicationName,
+                          final UUID jobId,
+                          final GregorianCalendar submissionTime) throws IOException;
     }
 
     /**
      * Handles a function call job with a JSON payload.
      * 
-     * @param jsonArgument
-     *            Argument passed to the function called on RServi.
+     * @param jsonArgument Argument passed to the function called on RServi.
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
@@ -81,11 +85,19 @@ public class JobsResource extends AbstractComponent {
      */
     @POST
     @Consumes(Constants.JSON_CONTENT_TYPE)
-    public Response handleJsonFunctionCallJob(final String jsonArgument, @Context final HttpHeaders httpHeaders,
-            @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
-        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
-            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
-                return new JsonFunctionCallJob(Source.REST, applicationName, jobId, submissionTime, jsonArgument);
+    public Response handleJsonFunctionCallJob(final String jsonArgument,
+                                              @Context final HttpHeaders httpHeaders,
+                                              @Context final UriInfo uriInfo)
+        throws URISyntaxException, IOException
+    {
+        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder()
+        {
+            public AbstractJob build(final String applicationName,
+                                     final UUID jobId,
+                                     final GregorianCalendar submissionTime)
+            {
+                return new JsonFunctionCallJob(Source.REST, applicationName, jobId, submissionTime,
+                    jsonArgument);
             }
         });
     }
@@ -93,8 +105,7 @@ public class JobsResource extends AbstractComponent {
     /**
      * Handles a function call job with a XML payload.
      * 
-     * @param xmlArgument
-     *            Argument passed to the function called on RServi.
+     * @param xmlArgument Argument passed to the function called on RServi.
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
@@ -102,12 +113,20 @@ public class JobsResource extends AbstractComponent {
      */
     @POST
     @Consumes(Constants.XML_CONTENT_TYPE)
-    public Response handleXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders,
-            @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+    public Response handleXmlFunctionCallJob(final String xmlArgument,
+                                             @Context final HttpHeaders httpHeaders,
+                                             @Context final UriInfo uriInfo)
+        throws URISyntaxException, IOException
+    {
 
-        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
-            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime) {
-                return new XmlFunctionCallJob(Source.REST, applicationName, jobId, submissionTime, xmlArgument);
+        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder()
+        {
+            public AbstractJob build(final String applicationName,
+                                     final UUID jobId,
+                                     final GregorianCalendar submissionTime)
+            {
+                return new XmlFunctionCallJob(Source.REST, applicationName, jobId, submissionTime,
+                    xmlArgument);
             }
         });
     }
@@ -115,23 +134,28 @@ public class JobsResource extends AbstractComponent {
     /**
      * Handles a function call job with a ZIP payload.
      * 
-     * @param in
-     *            Input stream of the ZIP data.
+     * @param in Input stream of the ZIP data.
      * @param httpHeaders
      * @return
      * @throws URISyntaxException
      * @throws IOException
      */
     @POST
-    @Consumes({ Constants.ZIP_CONTENT_TYPE, Constants.ZIP_CONTENT_TYPE2, Constants.ZIP_CONTENT_TYPE3 })
-    public Response handleZipJob(final InputStream in, @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo)
-            throws URISyntaxException, IOException {
+    @Consumes({Constants.ZIP_CONTENT_TYPE, Constants.ZIP_CONTENT_TYPE2, Constants.ZIP_CONTENT_TYPE3})
+    public Response handleZipJob(final InputStream in,
+                                 @Context final HttpHeaders httpHeaders,
+                                 @Context final UriInfo uriInfo) throws URISyntaxException, IOException
+    {
 
-        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder() {
-            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
-                    throws IOException {
+        return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder()
+        {
+            public AbstractJob build(final String applicationName,
+                                     final UUID jobId,
+                                     final GregorianCalendar submissionTime) throws IOException
+            {
 
-                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId, submissionTime, getJobMeta(httpHeaders));
+                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId,
+                    submissionTime, getJobMeta(httpHeaders));
                 MultiFilesJob.addZipFilesToJob(in, job);
                 return job;
             }
@@ -151,21 +175,30 @@ public class JobsResource extends AbstractComponent {
     @POST
     @Consumes(Constants.MULTIPART_CONTENT_TYPE)
     // force content type to plain XML and JSON (browsers choke on subtypes)
-    @Produces({ Constants.XML_CONTENT_TYPE, Constants.JSON_CONTENT_TYPE })
-    public Response handleMultipartFormJob(final List<Attachment> parts, @Context final HttpHeaders httpHeaders,
-            @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+    @Produces({Constants.XML_CONTENT_TYPE, Constants.JSON_CONTENT_TYPE})
+    public Response handleMultipartFormJob(final List<Attachment> parts,
+                                           @Context final HttpHeaders httpHeaders,
+                                           @Context final UriInfo uriInfo)
+        throws URISyntaxException, IOException
+    {
 
         String applicationName = null;
         final Map<String, Serializable> jobMeta = new HashMap<String, Serializable>();
 
-        for (final Attachment part : parts) {
+        for (final Attachment part : parts)
+        {
             final String partName = getPartName(part);
-            if (StringUtils.equals(partName, Constants.APPLICATION_NAME_HTTP_HEADER)) {
+            if (StringUtils.equals(partName, Constants.APPLICATION_NAME_HTTP_HEADER))
+            {
                 applicationName = part.getObject(String.class);
-            } else if (StringUtils.startsWith(partName, Constants.RSB_META_HEADER_HTTP_PREFIX)) {
-                final String metaName = StringUtils.substringAfter(partName, Constants.RSB_META_HEADER_HTTP_PREFIX);
+            }
+            else if (StringUtils.startsWith(partName, Constants.RSB_META_HEADER_HTTP_PREFIX))
+            {
+                final String metaName = StringUtils.substringAfter(partName,
+                    Constants.RSB_META_HEADER_HTTP_PREFIX);
                 final String metaValue = part.getObject(String.class);
-                if (StringUtils.isNotEmpty(metaValue)) {
+                if (StringUtils.isNotEmpty(metaValue))
+                {
                     jobMeta.put(metaName, metaValue);
                 }
             }
@@ -173,20 +206,29 @@ public class JobsResource extends AbstractComponent {
 
         final String finalApplicationName = applicationName;
 
-        return handleNewJob(finalApplicationName, httpHeaders, uriInfo, new JobBuilder() {
-            public AbstractJob build(final String applicationName, final UUID jobId, final GregorianCalendar submissionTime)
-                    throws IOException {
+        return handleNewJob(finalApplicationName, httpHeaders, uriInfo, new JobBuilder()
+        {
+            public AbstractJob build(final String applicationName,
+                                     final UUID jobId,
+                                     final GregorianCalendar submissionTime) throws IOException
+            {
 
-                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId, submissionTime, jobMeta);
+                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId,
+                    submissionTime, jobMeta);
 
-                for (final Attachment part : parts) {
-                    if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
+                for (final Attachment part : parts)
+                {
+                    if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME))
+                    {
                         final InputStream data = part.getDataHandler().getInputStream();
-                        if (data.available() == 0) {
-                            // if the form is submitted with no file attached, we get an empty part
+                        if (data.available() == 0)
+                        {
+                            // if the form is submitted with no file attached, we get
+                            // an empty part
                             continue;
                         }
-                        MultiFilesJob.addDataToJob(part.getContentType().toString(), getPartFileName(part), data, job);
+                        MultiFilesJob.addDataToJob(part.getContentType().toString(), getPartFileName(part),
+                            data, job);
                     }
                 }
 
@@ -195,42 +237,58 @@ public class JobsResource extends AbstractComponent {
         });
     }
 
-    private Response handleNewRestJob(final HttpHeaders httpHeaders, final UriInfo uriInfo, final JobBuilder jobBuilder)
-            throws URISyntaxException, IOException {
+    private Response handleNewRestJob(final HttpHeaders httpHeaders,
+                                      final UriInfo uriInfo,
+                                      final JobBuilder jobBuilder) throws URISyntaxException, IOException
+    {
 
-        final String applicationName = Util.getSingleHeader(httpHeaders, Constants.APPLICATION_NAME_HTTP_HEADER);
+        final String applicationName = Util.getSingleHeader(httpHeaders,
+            Constants.APPLICATION_NAME_HTTP_HEADER);
         return handleNewJob(applicationName, httpHeaders, uriInfo, jobBuilder);
     }
 
-    private Response handleNewJob(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo,
-            final JobBuilder jobBuilder) throws IOException, URISyntaxException {
+    private Response handleNewJob(final String applicationName,
+                                  final HttpHeaders httpHeaders,
+                                  final UriInfo uriInfo,
+                                  final JobBuilder jobBuilder) throws IOException, URISyntaxException
+    {
 
         final UUID jobId = UUID.randomUUID();
-        final AbstractJob job = jobBuilder.build(applicationName, jobId, (GregorianCalendar) GregorianCalendar.getInstance());
+        final AbstractJob job = jobBuilder.build(applicationName, jobId,
+            (GregorianCalendar) GregorianCalendar.getInstance());
         getMessageDispatcher().dispatch(job);
         final JobToken jobToken = buildJobToken(uriInfo, httpHeaders, job);
         return Response.status(Status.ACCEPTED).entity(jobToken).build();
     }
 
-    private Map<String, Serializable> getJobMeta(final HttpHeaders httpHeaders) {
+    private Map<String, Serializable> getJobMeta(final HttpHeaders httpHeaders)
+    {
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
 
-        for (final Entry<String, List<String>> multiValues : httpHeaders.getRequestHeaders().entrySet()) {
-            if (!StringUtils.startsWithIgnoreCase(multiValues.getKey(), Constants.RSB_META_HEADER_HTTP_PREFIX)) {
+        for (final Entry<String, List<String>> multiValues : httpHeaders.getRequestHeaders().entrySet())
+        {
+            if (!StringUtils.startsWithIgnoreCase(multiValues.getKey(), Constants.RSB_META_HEADER_HTTP_PREFIX))
+            {
                 continue;
             }
 
-            if (multiValues.getValue().size() > 1) {
-                throw new IllegalArgumentException("Multiple values found for header: " + multiValues.getKey());
+            if (multiValues.getValue().size() > 1)
+            {
+                throw new IllegalArgumentException("Multiple values found for header: "
+                                                   + multiValues.getKey());
             }
 
-            meta.put(StringUtils.substringAfter(multiValues.getKey(), Constants.RSB_META_HEADER_HTTP_PREFIX), multiValues.getValue().get(0));
+            meta.put(
+                StringUtils.substring(multiValues.getKey(), Constants.RSB_META_HEADER_HTTP_PREFIX.length()),
+                multiValues.getValue().get(0));
         }
 
-        return meta;
+        return Util.normalizeJobMeta(meta);
     }
 
-    private JobToken buildJobToken(final UriInfo uriInfo, final HttpHeaders httpHeaders, final AbstractJob job) throws URISyntaxException {
+    private JobToken buildJobToken(final UriInfo uriInfo, final HttpHeaders httpHeaders, final AbstractJob job)
+        throws URISyntaxException
+    {
         final JobToken jobToken = Util.REST_OBJECT_FACTORY.createJobToken();
         jobToken.setApplicationName(job.getApplicationName());
         jobToken.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
@@ -238,17 +296,23 @@ public class JobsResource extends AbstractComponent {
         final String jobIdAsString = job.getJobId().toString();
         jobToken.setJobId(jobIdAsString);
 
-        final URI uriBuilder = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULTS_PATH).path(job.getApplicationName()).build();
+        final URI uriBuilder = Util.getUriBuilder(uriInfo, httpHeaders)
+            .path(Constants.RESULTS_PATH)
+            .path(job.getApplicationName())
+            .build();
         jobToken.setApplicationResultsUri(uriBuilder.toString());
-        jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders, uriInfo).toString());
+        jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders,
+            uriInfo).toString());
         return jobToken;
     }
 
-    private static String getPartName(final Attachment part) {
+    private static String getPartName(final Attachment part)
+    {
         return part.getContentDisposition().getParameter("name");
     }
 
-    private static String getPartFileName(final Attachment part) {
+    private static String getPartFileName(final Attachment part)
+    {
         return FilenameUtils.getName(part.getContentDisposition().getParameter("filename"));
     }
 }

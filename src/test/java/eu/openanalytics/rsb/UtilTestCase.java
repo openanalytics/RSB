@@ -28,12 +28,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -118,5 +121,21 @@ public class UtilTestCase
     public void newURISuccess() throws URISyntaxException
     {
         assertThat(Util.newURI("foo://bar"), is(new URI("foo://bar")));
+    }
+
+    @Test
+    public void normalizeJobMeta()
+    {
+        final Map<String, Serializable> source = new HashMap<String, Serializable>();
+        source.put("foo", "bar");
+        source.put(Constants.R_SCRIPT_CONFIGURATION_KEY.toLowerCase(), "r");
+        source.put(Constants.SWEAVE_FILE_CONFIGURATION_KEY, "sweave");
+
+        final Map<String, Serializable> expected = new HashMap<String, Serializable>();
+        expected.put("foo", "bar");
+        expected.put(Constants.R_SCRIPT_CONFIGURATION_KEY, "r");
+        expected.put(Constants.SWEAVE_FILE_CONFIGURATION_KEY, "sweave");
+
+        assertThat(Util.normalizeJobMeta(source), is(expected));
     }
 }

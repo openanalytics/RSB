@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.activation.MimeType;
@@ -63,6 +65,17 @@ public class Constants
     public static final String R_SCRIPT_FILE_EXTENSION = "R";
     public static final String R_SCRIPT_CONFIGURATION_KEY = "rScript";
     public static final String SWEAVE_FILE_CONFIGURATION_KEY = "sweaveFile";
+
+    public static final Map<String, String> WELL_KNOWN_CONFIGURATION_KEYS;
+    static
+    {
+        WELL_KNOWN_CONFIGURATION_KEYS = new HashMap<String, String>();
+        WELL_KNOWN_CONFIGURATION_KEYS.put(R_SCRIPT_CONFIGURATION_KEY.toLowerCase(),
+            R_SCRIPT_CONFIGURATION_KEY);
+        WELL_KNOWN_CONFIGURATION_KEYS.put(SWEAVE_FILE_CONFIGURATION_KEY.toLowerCase(),
+            SWEAVE_FILE_CONFIGURATION_KEY);
+    }
+
     public static final String DEFAULT_R_LOG_FILE = "out.log";
 
     public static final String RSB_JSON_CONTENT_TYPE = "application/vnd.rsb+json";
