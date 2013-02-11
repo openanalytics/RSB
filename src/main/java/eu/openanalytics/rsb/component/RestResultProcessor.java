@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.data.PersistedResult;
-import eu.openanalytics.rsb.data.ResultStore;
+import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
@@ -46,39 +46,48 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("restResultProcessor")
-public class RestResultProcessor extends AbstractComponent {
+public class RestResultProcessor extends AbstractComponent
+{
     @Resource
-    private ResultStore resultStore;
+    private SecureResultStore resultStore;
 
     // exposed for testing
-    void setResultStore(final ResultStore resultStore) {
+    void setResultStore(final SecureResultStore resultStore)
+    {
         this.resultStore = resultStore;
     }
 
-    public void process(final AbstractFunctionCallResult result) throws IOException {
+    public void process(final AbstractFunctionCallResult result) throws IOException
+    {
         persistResult(result, result.getMimeType(), new ByteArrayInputStream(result.getPayload().getBytes()));
     }
 
-    public void process(final MultiFilesResult result) throws IOException {
+    public void process(final MultiFilesResult result) throws IOException
+    {
         final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
         persistResult(result, Util.getMimeType(resultFile), new FileInputStream(resultFile));
     }
 
-    private <T> void persistResult(final AbstractResult<?> result, final MimeType resultMimeType, final InputStream resultData)
-            throws IOException {
+    private <T> void persistResult(final AbstractResult<?> result,
+                                   final MimeType resultMimeType,
+                                   final InputStream resultData) throws IOException
+    {
 
         final GregorianCalendar resultTime = (GregorianCalendar) GregorianCalendar.getInstance();
 
-        final PersistedResult persistedResult = new PersistedResult(result.getApplicationName(), result.getJobId(), resultTime,
-                result.isSuccess(), resultMimeType) {
+        final PersistedResult persistedResult = new PersistedResult(result.getApplicationName(),
+            result.getUserName(), result.getJobId(), resultTime, result.isSuccess(), resultMimeType)
+        {
 
             @Override
-            public long getDataLength() throws IOException {
+            public long getDataLength() throws IOException
+            {
                 return resultData.available();
             }
 
             @Override
-            public InputStream getData() {
+            public InputStream getData()
+            {
                 return resultData;
             }
         };

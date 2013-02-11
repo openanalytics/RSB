@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -40,7 +41,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.openanalytics.rsb.config.Configuration;
-import eu.openanalytics.rsb.data.ResultStore;
+import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.rest.types.Result;
 import eu.openanalytics.rsb.rest.types.Results;
 
@@ -48,10 +49,11 @@ import eu.openanalytics.rsb.rest.types.Results;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ResultsResourceTestCase {
+public class ResultsResourceTestCase
+{
     private ResultsResource resultsResource;
     @Mock
-    private ResultStore resultStore;
+    private SecureResultStore resultStore;
     @Mock
     private Configuration configuration;
     @Mock
@@ -60,41 +62,48 @@ public class ResultsResourceTestCase {
     private UriInfo uriInfo;
 
     @Before
-    public void prepareTest() {
+    public void prepareTest()
+    {
         resultsResource = new ResultsResource();
         resultsResource.setConfiguration(configuration);
         resultsResource.setResultStore(resultStore);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getAllResultsInvalidApplicationName() throws URISyntaxException {
+    public void getAllResultsInvalidApplicationName() throws URISyntaxException
+    {
         resultsResource.getAllResults("I'm bad :)", httpHeaders, uriInfo);
     }
 
     @Test
-    public void getAllResults() throws URISyntaxException {
-        final Results allResults = resultsResource.getAllResults(ResultResourceTestCase.TEST_APP_NAME, httpHeaders, uriInfo);
+    public void getAllResults() throws URISyntaxException
+    {
+        final Results allResults = resultsResource.getAllResults(ResultResourceTestCase.TEST_APP_NAME,
+            httpHeaders, uriInfo);
         assertThat(allResults, is(notNullValue()));
     }
 
     @Test(expected = WebApplicationException.class)
-    public void getSingleResultNotFound() throws URISyntaxException, IOException {
-        resultsResource.getSingleResult(ResultResourceTestCase.TEST_APP_NAME, ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders,
-                uriInfo);
+    public void getSingleResultNotFound() throws URISyntaxException, IOException
+    {
+        resultsResource.getSingleResult(ResultResourceTestCase.TEST_APP_NAME,
+            ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders, uriInfo);
     }
 
     @Test(expected = WebApplicationException.class)
-    public void deleteSingleResultNotFound() throws URISyntaxException, IOException {
-        resultsResource.deleteSingleResult(ResultResourceTestCase.TEST_APP_NAME, ResultResourceTestCase.TEST_JOB_ID.toString(),
-                httpHeaders, uriInfo);
+    public void deleteSingleResultNotFound() throws URISyntaxException, IOException
+    {
+        resultsResource.deleteSingleResult(ResultResourceTestCase.TEST_APP_NAME,
+            ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders, uriInfo);
     }
 
     @Test
-    public void buildResult() throws URISyntaxException {
+    public void buildResult() throws URISyntaxException
+    {
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 
-        final Result result = resultsResource.buildResult(ResultResourceTestCase.TEST_APP_NAME, httpHeaders, uriInfo,
-                ResultResourceTestCase.buildPersistedResult("fake data"));
+        final Result result = resultsResource.buildResult(ResultResourceTestCase.TEST_APP_NAME, httpHeaders,
+            uriInfo, ResultResourceTestCase.buildPersistedResult("fake data"));
         assertThat(result, is(notNullValue()));
         assertThat(result.getApplicationName(), is(ResultResourceTestCase.TEST_APP_NAME));
         assertThat(result.getJobId(), is(ResultResourceTestCase.TEST_JOB_ID.toString()));

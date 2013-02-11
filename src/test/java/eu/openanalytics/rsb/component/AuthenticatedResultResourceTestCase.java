@@ -35,6 +35,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.activemq.util.ByteArrayInputStream;
@@ -46,24 +47,28 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.data.PersistedResult;
 import eu.openanalytics.rsb.data.SecureResultStore;
-import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ResultResourceTestCase
+public class AuthenticatedResultResourceTestCase
 {
     public static final String TEST_APP_NAME = "app_name";
+    private static final String TEST_USER_NAME = "test_username";
     public static final UUID TEST_JOB_ID = UUID.randomUUID();
     public static final String TEST_RESULT_RESOURCE = TEST_JOB_ID.toString() + ".tst";
 
     @Mock
     private SecureResultStore resultStore;
+
+    @Mock
+    private SecurityContext securityContext;
 
     private ResultResource resultResource;
     private String testResultPayload;
@@ -73,8 +78,12 @@ public class ResultResourceTestCase
     {
         testResultPayload = RandomStringUtils.randomAlphanumeric(25 + new RandomDataImpl().nextInt(0, 25));
 
+        when(securityContext.getUserPrincipal()).thenReturn(
+            new TestingAuthenticationToken(TEST_USER_NAME, null));
+
         resultResource = new ResultResource();
         resultResource.setResultStore(resultStore);
+        resultResource.setSecurityContext(securityContext);
     }
 
     @Test(expected = WebApplicationException.class)
@@ -120,17 +129,15 @@ public class ResultResourceTestCase
     private void setupMockResultStore()
     {
         final PersistedResult persistedResult = buildPersistedResult(testResultPayload);
-        when(
-            resultStore.findByApplicationNameAndJobId(TEST_APP_NAME,
-                ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, TEST_JOB_ID)).thenReturn(
+        when(resultStore.findByApplicationNameAndJobId(TEST_APP_NAME, TEST_USER_NAME, TEST_JOB_ID)).thenReturn(
             persistedResult);
     }
 
     public static PersistedResult buildPersistedResult(final String resultPayload)
     {
-        final PersistedResult persistedResult = new PersistedResult(TEST_APP_NAME,
-            ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, TEST_JOB_ID,
-            (GregorianCalendar) GregorianCalendar.getInstance(), true, Constants.DEFAULT_MIME_TYPE)
+        final PersistedResult persistedResult = new PersistedResult(TEST_APP_NAME, TEST_USER_NAME,
+            TEST_JOB_ID, (GregorianCalendar) GregorianCalendar.getInstance(), true,
+            Constants.DEFAULT_MIME_TYPE)
         {
 
             @Override

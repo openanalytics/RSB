@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
@@ -31,18 +32,26 @@ import java.util.UUID;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResult<T> extends AbstractWorkItem {
+public abstract class AbstractResult<T> extends AbstractWorkItem
+{
     private static final long serialVersionUID = 1L;
 
     private final boolean success;
 
-    public AbstractResult(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, Serializable> meta, final boolean success) {
-        super(source, applicationName, jobId, submissionTime, meta);
+    public AbstractResult(final Source source,
+                          final String applicationName,
+                          final String userName,
+                          final UUID jobId,
+                          final GregorianCalendar submissionTime,
+                          final Map<String, Serializable> meta,
+                          final boolean success)
+    {
+        super(source, applicationName, userName, jobId, submissionTime, meta);
         this.success = success;
     }
 
-    public boolean isSuccess() {
+    public boolean isSuccess()
+    {
         return success;
     }
 

@@ -65,7 +65,7 @@ import eu.openanalytics.rsb.rest.types.JobToken;
 @Component("jobsResource")
 @Path("/" + Constants.JOBS_PATH)
 @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
-public class JobsResource extends AbstractComponent
+public class JobsResource extends AbstractResource
 {
     private interface JobBuilder
     {
@@ -96,8 +96,8 @@ public class JobsResource extends AbstractComponent
                                      final UUID jobId,
                                      final GregorianCalendar submissionTime)
             {
-                return new JsonFunctionCallJob(Source.REST, applicationName, jobId, submissionTime,
-                    jsonArgument);
+                return new JsonFunctionCallJob(Source.REST, applicationName, getUserName(), jobId,
+                    submissionTime, jsonArgument);
             }
         });
     }
@@ -125,8 +125,8 @@ public class JobsResource extends AbstractComponent
                                      final UUID jobId,
                                      final GregorianCalendar submissionTime)
             {
-                return new XmlFunctionCallJob(Source.REST, applicationName, jobId, submissionTime,
-                    xmlArgument);
+                return new XmlFunctionCallJob(Source.REST, applicationName, getUserName(), jobId,
+                    submissionTime, xmlArgument);
             }
         });
     }
@@ -154,8 +154,8 @@ public class JobsResource extends AbstractComponent
                                      final GregorianCalendar submissionTime) throws IOException
             {
 
-                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId,
-                    submissionTime, getJobMeta(httpHeaders));
+                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, getUserName(),
+                    jobId, submissionTime, getJobMeta(httpHeaders));
                 MultiFilesJob.addZipFilesToJob(in, job);
                 return job;
             }
@@ -213,8 +213,8 @@ public class JobsResource extends AbstractComponent
                                      final GregorianCalendar submissionTime) throws IOException
             {
 
-                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, jobId,
-                    submissionTime, jobMeta);
+                final MultiFilesJob job = new MultiFilesJob(Source.REST, applicationName, getUserName(),
+                    jobId, submissionTime, jobMeta);
 
                 for (final Attachment part : parts)
                 {

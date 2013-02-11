@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.message;
 
 import java.util.GregorianCalendar;
@@ -32,16 +33,24 @@ import eu.openanalytics.rsb.Constants;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class JsonFunctionCallResult extends AbstractFunctionCallResult {
+public class JsonFunctionCallResult extends AbstractFunctionCallResult
+{
     private static final long serialVersionUID = 1L;
 
-    public JsonFunctionCallResult(final Source source, final String applicationName, final UUID jobId,
-            final GregorianCalendar submissionTime, final boolean success, final String result) {
-        super(source, applicationName, jobId, submissionTime, success, result);
+    public JsonFunctionCallResult(final Source source,
+                                  final String applicationName,
+                                  final String userName,
+                                  final UUID jobId,
+                                  final GregorianCalendar submissionTime,
+                                  final boolean success,
+                                  final String result)
+    {
+        super(source, applicationName, userName, jobId, submissionTime, success, result);
     }
 
     @Override
-    public MimeType getMimeType() {
+    public MimeType getMimeType()
+    {
         return Constants.JSON_MIME_TYPE;
     }
 }

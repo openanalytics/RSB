@@ -36,16 +36,24 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class PersistedResult {
+public abstract class PersistedResult
+{
     private final String applicationName;
+    private final String userName;
     private final UUID jobId;
     private final GregorianCalendar resultTime;
     private final boolean success;
     private final MimeType mimeType;
 
-    public PersistedResult(final String applicationName, final UUID jobId, final GregorianCalendar resultTime, final boolean success,
-            final MimeType mimeType) {
+    public PersistedResult(final String applicationName,
+                           final String userName,
+                           final UUID jobId,
+                           final GregorianCalendar resultTime,
+                           final boolean success,
+                           final MimeType mimeType)
+    {
         this.applicationName = applicationName;
+        this.userName = userName;
         this.jobId = jobId;
         this.resultTime = resultTime;
         this.success = success;
@@ -53,27 +61,38 @@ public abstract class PersistedResult {
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
-    public String getApplicationName() {
+    public String getApplicationName()
+    {
         return applicationName;
     }
 
-    public UUID getJobId() {
+    public String getUserName()
+    {
+        return userName;
+    }
+
+    public UUID getJobId()
+    {
         return jobId;
     }
 
-    public GregorianCalendar getResultTime() {
+    public GregorianCalendar getResultTime()
+    {
         return resultTime;
     }
 
-    public boolean isSuccess() {
+    public boolean isSuccess()
+    {
         return success;
     }
 
-    public MimeType getMimeType() {
+    public MimeType getMimeType()
+    {
         return mimeType;
     }
 

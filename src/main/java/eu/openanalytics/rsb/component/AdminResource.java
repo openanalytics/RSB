@@ -77,7 +77,7 @@ import eu.openanalytics.rsb.rest.types.RServiPools;
  */
 @Component("adminResource")
 @Path("/" + Constants.ADMIN_PATH)
-public class AdminResource extends AbstractComponent implements ApplicationContextAware
+public class AdminResource extends AbstractResource implements ApplicationContextAware
 {
     private static final String CATALOG_SUBPATH = "catalog";
     private static final String SYSTEM_SUBPATH = "system";

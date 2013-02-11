@@ -38,7 +38,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.data.PersistedResult;
-import eu.openanalytics.rsb.data.ResultStore;
+import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 
@@ -46,21 +46,24 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RestResultProcessorTestCase {
+public class RestResultProcessorTestCase
+{
 
     private RestResultProcessor restResultProcessor;
 
     @Mock
-    private ResultStore resultStore;
+    private SecureResultStore resultStore;
 
     @Before
-    public void prepareTest() {
+    public void prepareTest()
+    {
         restResultProcessor = new RestResultProcessor();
         restResultProcessor.setResultStore(resultStore);
     }
 
     @Test
-    public void processFunctionCallResultSuccess() throws IOException {
+    public void processFunctionCallResultSuccess() throws IOException
+    {
         final AbstractFunctionCallResult functionCallResult = buildMockFunctionCallResult();
         when(functionCallResult.isSuccess()).thenReturn(true);
 
@@ -71,7 +74,8 @@ public class RestResultProcessorTestCase {
     }
 
     @Test
-    public void processFunctionCallResultFailure() throws IOException {
+    public void processFunctionCallResultFailure() throws IOException
+    {
         final AbstractFunctionCallResult functionCallResult = buildMockFunctionCallResult();
         when(functionCallResult.isSuccess()).thenReturn(false);
 
@@ -82,7 +86,8 @@ public class RestResultProcessorTestCase {
     }
 
     @Test
-    public void processMultiFilesResultSuccess() throws IOException {
+    public void processMultiFilesResultSuccess() throws IOException
+    {
         final MultiFilesResult multiFilesResult = buildMockMultiFilesCallResult();
         when(multiFilesResult.isSuccess()).thenReturn(true);
 
@@ -93,7 +98,8 @@ public class RestResultProcessorTestCase {
     }
 
     @Test
-    public void processMultiFilesResultFailure() throws IOException {
+    public void processMultiFilesResultFailure() throws IOException
+    {
         final MultiFilesResult multiFilesResult = buildMockMultiFilesCallResult();
         when(multiFilesResult.isSuccess()).thenReturn(false);
 
@@ -103,7 +109,8 @@ public class RestResultProcessorTestCase {
         verify(multiFilesResult).destroy();
     }
 
-    private MultiFilesResult buildMockMultiFilesCallResult() throws IOException {
+    private MultiFilesResult buildMockMultiFilesCallResult() throws IOException
+    {
         final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
         when(multiFilesResult.getApplicationName()).thenReturn("test_app_name");
         when(multiFilesResult.getPayload()).thenReturn(new File[0]);
@@ -111,7 +118,8 @@ public class RestResultProcessorTestCase {
         return multiFilesResult;
     }
 
-    private AbstractFunctionCallResult buildMockFunctionCallResult() {
+    private AbstractFunctionCallResult buildMockFunctionCallResult()
+    {
         final AbstractFunctionCallResult functionCallResult = mock(AbstractFunctionCallResult.class);
         when(functionCallResult.getApplicationName()).thenReturn("test_app_name");
         when(functionCallResult.getMimeType()).thenReturn(Constants.XML_MIME_TYPE);

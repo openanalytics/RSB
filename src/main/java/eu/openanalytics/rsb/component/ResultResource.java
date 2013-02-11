@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
@@ -46,23 +47,26 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.data.PersistedResult;
-import eu.openanalytics.rsb.data.ResultStore;
+import eu.openanalytics.rsb.data.SecureResultStore;
 
 /**
  * Serves R job process result files.<br/>
- * <i>NB. Could very well be replaced with a static file serving context on a frontal web server.</i>
+ * <i>NB. Could very well be replaced with a static file serving context on a frontal
+ * web server.</i>
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("resultResource")
 @Produces("application/octet-stream")
 @Path("/" + Constants.RESULT_PATH + "/{applicationName}/{resourceName}")
-public class ResultResource extends AbstractComponent {
+public class ResultResource extends AbstractResource
+{
     @Resource
-    private ResultStore resultStore;
+    private SecureResultStore resultStore;
 
     // exposed for testing
-    void setResultStore(final ResultStore resultStore) {
+    void setResultStore(final SecureResultStore resultStore)
+    {
         this.resultStore = resultStore;
     }
 
@@ -76,14 +80,17 @@ public class ResultResource extends AbstractComponent {
      */
     @GET
     public Response getResult(@PathParam("applicationName") final String applicationName,
-            @PathParam("resourceName") final String resourceName) throws IOException {
+                              @PathParam("resourceName") final String resourceName) throws IOException
+    {
 
         final PersistedResult persistedResult = getPersistedResultOrDie(applicationName, resourceName);
 
         final ResponseBuilder rb = Response.ok();
         addEtagHeader(persistedResult, rb);
-        rb.entity(new StreamingOutput() {
-            public void write(final OutputStream output) throws IOException {
+        rb.entity(new StreamingOutput()
+        {
+            public void write(final OutputStream output) throws IOException
+            {
                 final InputStream data = persistedResult.getData();
                 IOUtils.copy(data, output);
                 IOUtils.closeQuietly(data);
@@ -103,7 +110,8 @@ public class ResultResource extends AbstractComponent {
      */
     @HEAD
     public Response getResultMeta(@PathParam("applicationName") final String applicationName,
-            @PathParam("resourceName") final String resourceName) throws IOException {
+                                  @PathParam("resourceName") final String resourceName) throws IOException
+    {
 
         final PersistedResult persistedResult = getPersistedResultOrDie(applicationName, resourceName);
 
@@ -113,24 +121,31 @@ public class ResultResource extends AbstractComponent {
         return rb.build();
     }
 
-    private void addEtagHeader(final PersistedResult persistedResult, final ResponseBuilder rb) {
+    private void addEtagHeader(final PersistedResult persistedResult, final ResponseBuilder rb)
+    {
         rb.header(HttpHeaders.ETAG, getEtag(persistedResult));
     }
 
-    private void addContentLengthHeader(final PersistedResult persistedResult, final ResponseBuilder rb) throws IOException {
+    private void addContentLengthHeader(final PersistedResult persistedResult, final ResponseBuilder rb)
+        throws IOException
+    {
         rb.header(HttpHeaders.CONTENT_LENGTH, Long.toString(persistedResult.getDataLength()));
     }
 
-    private PersistedResult getPersistedResultOrDie(final String applicationName, final String resourceName) {
-        if (!Util.isValidApplicationName(applicationName)) {
+    private PersistedResult getPersistedResultOrDie(final String applicationName, final String resourceName)
+    {
+        if (!Util.isValidApplicationName(applicationName))
+        {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
 
         final UUID jobId = UUID.fromString(FilenameUtils.getBaseName(resourceName));
 
-        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName, jobId);
+        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName,
+            getUserName(), jobId);
 
-        if (persistedResult == null) {
+        if (persistedResult == null)
+        {
             throw new WebApplicationException(Response.status(Status.NOT_FOUND).build());
         }
 
@@ -138,7 +153,8 @@ public class ResultResource extends AbstractComponent {
     }
 
     // exposed for unit testing
-    static String getEtag(final PersistedResult persistedResult) {
+    static String getEtag(final PersistedResult persistedResult)
+    {
         return Base64Utility.encode((persistedResult.getApplicationName() + "/" + persistedResult.getJobId()).getBytes());
     }
 }

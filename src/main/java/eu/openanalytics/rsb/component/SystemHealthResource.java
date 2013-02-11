@@ -60,7 +60,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
  */
 @Component("systemResource")
 @Path("/" + Constants.SYSTEM_PATH)
-public class SystemHealthResource extends AbstractComponent
+public class SystemHealthResource extends AbstractResource
 {
     private static final long CHECK_DELAY = 60000L;
 

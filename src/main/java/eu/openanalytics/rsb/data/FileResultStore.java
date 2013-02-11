@@ -42,6 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -53,10 +54,27 @@ import eu.openanalytics.rsb.component.AbstractComponent;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-@Component("resultStore")
-public class FileResultStore extends AbstractComponent implements ResultStore
+@Component("secureResultStore")
+public class FileResultStore extends AbstractComponent implements SecureResultStore
 {
+    private static final String ERROR_MESSAGE = "This method shouldn't have been called: please report the issue.";
     private static final String ERROR_FILE_INFIX_EXTENSION = ".err";
+
+    public boolean deleteByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+        throws IOException
+    {
+        throw new UnsupportedOperationException(ERROR_MESSAGE);
+    }
+
+    public Collection<PersistedResult> findByApplicationName(final String applicationName)
+    {
+        throw new UnsupportedOperationException(ERROR_MESSAGE);
+    }
+
+    public PersistedResult findByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+    {
+        throw new UnsupportedOperationException(ERROR_MESSAGE);
+    }
 
     public void store(final PersistedResult result) throws IOException
     {
@@ -64,9 +82,9 @@ public class FileResultStore extends AbstractComponent implements ResultStore
                                       + (result.isSuccess() ? "" : ERROR_FILE_INFIX_EXTENSION) + "."
                                       + Util.getResourceType(result.getMimeType());
 
-        final File applicationResultDirectory = getApplicationResultDirectory(result.getApplicationName());
-        FileUtils.forceMkdir(applicationResultDirectory);
-        final File resultFile = new File(applicationResultDirectory, resultFileName);
+        final File resultsDirectory = getResultsDirectory(result.getApplicationName(), result.getUserName());
+        FileUtils.forceMkdir(resultsDirectory);
+        final File resultFile = new File(resultsDirectory, resultFileName);
 
         final InputStream resultData = result.getData();
         final FileOutputStream fos = new FileOutputStream(resultFile);
@@ -76,10 +94,11 @@ public class FileResultStore extends AbstractComponent implements ResultStore
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
-    public boolean deleteByApplicationNameAndJobId(final String applicationName, final UUID jobId)
-        throws IOException
+    public boolean deleteByApplicationNameAndJobId(final String applicationName,
+                                                   final String userName,
+                                                   final UUID jobId) throws IOException
     {
-        final File resultFile = getResultFile(applicationName, jobId);
+        final File resultFile = getResultFile(applicationName, userName, jobId);
 
         if (resultFile == null)
         {
@@ -91,9 +110,10 @@ public class FileResultStore extends AbstractComponent implements ResultStore
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
-    public Collection<PersistedResult> findByApplicationName(final String applicationName)
+    public Collection<PersistedResult> findByApplicationName(final String applicationName,
+                                                             final String userName)
     {
-        final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles();
+        final File[] resultFiles = getResultsDirectory(applicationName, userName).listFiles();
 
         if ((resultFiles == null) || (resultFiles.length == 0))
         {
@@ -107,24 +127,29 @@ public class FileResultStore extends AbstractComponent implements ResultStore
 
         for (final File resultFile : sortedFiles)
         {
-            final UUID jobId = UUID.fromString(StringUtils.substringBefore(resultFile.getName(), "."));
-            persistedResults.add(buildPersistedResult(applicationName, jobId, resultFile));
+            final UUID jobId = Util.safeUuidFromString(StringUtils.substringBefore(resultFile.getName(), "."));
+            if (jobId != null)
+            {
+                persistedResults.add(buildPersistedResult(applicationName, userName, jobId, resultFile));
+            }
         }
 
         return persistedResults;
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
-    public PersistedResult findByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+    public PersistedResult findByApplicationNameAndJobId(final String applicationName,
+                                                         final String userName,
+                                                         final UUID jobId)
     {
-        final File resultFile = getResultFile(applicationName, jobId);
-        return resultFile == null ? null : buildPersistedResult(applicationName, jobId, resultFile);
+        final File resultFile = getResultFile(applicationName, userName, jobId);
+        return resultFile == null ? null : buildPersistedResult(applicationName, userName, jobId, resultFile);
     }
 
-    private File getResultFile(final String applicationName, final UUID jobId)
+    private File getResultFile(final String applicationName, final String userName, final UUID jobId)
     {
         final String jobIdAsString = jobId.toString();
-        final File[] resultFiles = getApplicationResultDirectory(applicationName).listFiles(
+        final File[] resultFiles = getResultsDirectory(applicationName, userName).listFiles(
             new FilenameFilter()
             {
                 public boolean accept(final File dir, final String name)
@@ -147,6 +172,7 @@ public class FileResultStore extends AbstractComponent implements ResultStore
     }
 
     private PersistedResult buildPersistedResult(final String applicationName,
+                                                 final String userName,
                                                  final UUID jobId,
                                                  final File resultFile)
     {
@@ -156,7 +182,7 @@ public class FileResultStore extends AbstractComponent implements ResultStore
         final boolean success = !StringUtils.contains(resultFile.getName(), ERROR_FILE_INFIX_EXTENSION + ".");
         final MimeType mimeType = Util.getMimeType(resultFile);
 
-        return new PersistedResult(applicationName, jobId, resultTime, success, mimeType)
+        return new PersistedResult(applicationName, userName, jobId, resultTime, success, mimeType)
         {
             @Override
             public InputStream getData()
@@ -179,8 +205,17 @@ public class FileResultStore extends AbstractComponent implements ResultStore
         };
     }
 
-    private File getApplicationResultDirectory(final String applicationName)
+    private File getResultsDirectory(final String applicationName, final String userName)
     {
-        return new File(getConfiguration().getResultsDirectory(), applicationName);
+        // this is to prevent trying to use application names with / or \ in order to
+        // reach disallowed directories
+        Validate.isTrue(Util.isValidApplicationName(applicationName), "Invalid application name: "
+                                                                      + applicationName);
+
+        final File applicationResultsDirectory = new File(getConfiguration().getResultsDirectory(),
+            applicationName);
+
+        return StringUtils.isBlank(userName) ? applicationResultsDirectory : new File(
+            applicationResultsDirectory, userName);
     }
 }

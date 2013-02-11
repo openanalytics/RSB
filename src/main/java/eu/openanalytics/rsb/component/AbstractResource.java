@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
  *
  *   ===========================================================================
@@ -19,38 +19,32 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.openanalytics.rsb.message;
+package eu.openanalytics.rsb.component;
 
-import java.util.GregorianCalendar;
-import java.util.UUID;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
 
-import javax.activation.MimeType;
-
-import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 
 /**
- * Represents the result of a {@link XmlFunctionCallJob}.
- * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class XmlFunctionCallResult extends AbstractFunctionCallResult
+public abstract class AbstractResource extends AbstractComponent
 {
-    private static final long serialVersionUID = 1L;
+    @Context
+    private SecurityContext securityContext;
 
-    public XmlFunctionCallResult(final Source source,
-                                 final String applicationName,
-                                 final String userName,
-                                 final UUID jobId,
-                                 final GregorianCalendar submissionTime,
-                                 final boolean success,
-                                 final String result)
+    protected String getUserName()
     {
-        super(source, applicationName, userName, jobId, submissionTime, success, result);
+        return securityContext != null && securityContext.getUserPrincipal() != null
+                                                                                    ? securityContext.getUserPrincipal()
+                                                                                        .getName()
+                                                                                    : ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME;
     }
 
-    @Override
-    public MimeType getMimeType()
+    // exposed for unit testing
+    void setSecurityContext(final SecurityContext securityContext)
     {
-        return Constants.XML_MIME_TYPE;
+        this.securityContext = securityContext;
     }
 }

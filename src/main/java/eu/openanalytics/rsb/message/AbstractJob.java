@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
@@ -36,19 +37,27 @@ import eu.openanalytics.rsb.rest.types.ErrorResult;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractJob extends AbstractWorkItem {
+public abstract class AbstractJob extends AbstractWorkItem
+{
     private static final long serialVersionUID = 1L;
 
-    public AbstractJob(final Source source, final String applicationName, final UUID jobId, final GregorianCalendar submissionTime,
-            final Map<String, Serializable> meta) {
-        super(source, applicationName, jobId, submissionTime, meta);
+    public AbstractJob(final Source source,
+                       final String applicationName,
+                       final String userName,
+                       final UUID jobId,
+                       final GregorianCalendar submissionTime,
+                       final Map<String, Serializable> meta)
+    {
+        super(source, applicationName, userName, jobId, submissionTime, meta);
     }
 
-    public String getType() {
+    public String getType()
+    {
         return getClass().getSimpleName();
     }
 
-    public abstract AbstractResult<?> buildErrorResult(Throwable t, MessageSource messageSource) throws IOException;
+    public abstract AbstractResult<?> buildErrorResult(Throwable t, MessageSource messageSource)
+        throws IOException;
 
     /**
      * Builds an {@link ErrorResult} for a job whose processing has failed.
@@ -57,7 +66,8 @@ public abstract class AbstractJob extends AbstractWorkItem {
      * @param error
      * @return
      */
-    public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job, final Throwable error) {
+    public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job, final Throwable error)
+    {
         final ErrorResult errorResult = Util.REST_OBJECT_FACTORY.createErrorResult();
         errorResult.setApplicationName(job.getApplicationName());
         errorResult.setJobId(job.getJobId().toString());

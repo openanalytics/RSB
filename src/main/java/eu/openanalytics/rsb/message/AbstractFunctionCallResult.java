@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.message;
 
 import java.util.Collections;
@@ -31,32 +32,42 @@ import javax.activation.MimeType;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractFunctionCallResult extends AbstractResult<String> {
+public abstract class AbstractFunctionCallResult extends AbstractResult<String>
+{
     private static final long serialVersionUID = 1L;
 
     private final String result;
 
     @SuppressWarnings("unchecked")
-    public AbstractFunctionCallResult(final Source source, final String applicationName, final UUID jobId,
-            final GregorianCalendar submissionTime, final boolean success, final String result) {
+    public AbstractFunctionCallResult(final Source source,
+                                      final String applicationName,
+                                      final String userName,
+                                      final UUID jobId,
+                                      final GregorianCalendar submissionTime,
+                                      final boolean success,
+                                      final String result)
+    {
         // function call jobs and results have no meta
-        super(source, applicationName, jobId, submissionTime, Collections.EMPTY_MAP, success);
+        super(source, applicationName, userName, jobId, submissionTime, Collections.EMPTY_MAP, success);
         this.result = result;
     }
 
     public abstract MimeType getMimeType();
 
     @Override
-    protected void releaseResources() {
+    protected void releaseResources()
+    {
         // NOOP
     }
 
     @Override
-    public String getPayload() {
+    public String getPayload()
+    {
         return result;
     }
 
-    public String getResultFileName() {
+    public String getResultFileName()
+    {
         final String resultFileExtension = (isSuccess() ? "" : "err.") + getMimeType().getSubType();
         return getJobId() + "." + resultFileExtension;
     }

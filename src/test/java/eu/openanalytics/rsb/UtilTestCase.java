@@ -38,6 +38,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -137,5 +138,16 @@ public class UtilTestCase
         expected.put(Constants.SWEAVE_FILE_CONFIGURATION_KEY, "sweave");
 
         assertThat(Util.normalizeJobMeta(source), is(expected));
+    }
+
+    @Test
+    public void safeUuidFromString()
+    {
+        assertThat(Util.safeUuidFromString(null), is(nullValue()));
+        assertThat(Util.safeUuidFromString(""), is(nullValue()));
+        assertThat(Util.safeUuidFromString("bad"), is(nullValue()));
+
+        final UUID testUuid = UUID.randomUUID();
+        assertThat(Util.safeUuidFromString(testUuid.toString()), is(testUuid));
     }
 }

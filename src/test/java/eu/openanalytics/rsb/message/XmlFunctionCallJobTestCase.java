@@ -45,7 +45,7 @@ public class XmlFunctionCallJobTestCase
     @Before
     public void prepareTest()
     {
-        xmlFunctionCallJob = new XmlFunctionCallJob(Source.REST, "app_name", UUID.randomUUID(),
+        xmlFunctionCallJob = new XmlFunctionCallJob(Source.REST, "app_name", null, UUID.randomUUID(),
             (GregorianCalendar) GregorianCalendar.getInstance(), "<fake_job/>");
     }
 

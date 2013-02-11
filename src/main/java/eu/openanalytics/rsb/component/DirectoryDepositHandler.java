@@ -66,7 +66,7 @@ import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("directoryDepositHandler")
-public class DirectoryDepositHandler extends AbstractComponent implements BeanFactoryAware
+public class DirectoryDepositHandler extends AbstractResource implements BeanFactoryAware
 {
     public static final String DIRECTORY_CONFIG_HEADER_NAME = DirectoryDepositHandler.class.getName();
     public static final String INBOX_DIRECTORY_META_NAME = "inboxDirectory";
@@ -172,8 +172,8 @@ public class DirectoryDepositHandler extends AbstractComponent implements BeanFa
         meta.put(ORIGINAL_FILENAME_META_NAME, zipJobFile.getName());
         meta.put(INBOX_DIRECTORY_META_NAME, zipJobFile.getParent());
 
-        final MultiFilesJob job = new MultiFilesJob(Source.DIRECTORY, applicationName, UUID.randomUUID(),
-            (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+        final MultiFilesJob job = new MultiFilesJob(Source.DIRECTORY, applicationName, getUserName(),
+            UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
         try
         {

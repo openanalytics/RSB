@@ -56,12 +56,12 @@ import eu.openanalytics.rsb.rest.types.FileType;
  */
 @Component("dataDirectoriesResource")
 @Path("/" + Constants.DATA_DIR_PATH)
-// Produces "regular" XML/JSON content types as browsers don't understand subtypes correctly
+// Produces "regular" XML/JSON content types as browsers don't understand subtypes
+// correctly
 @Produces({Constants.JSON_CONTENT_TYPE, Constants.XML_CONTENT_TYPE, Constants.RSB_XML_CONTENT_TYPE,
     Constants.RSB_JSON_CONTENT_TYPE})
-public class DataDirectoriesResource extends AbstractComponent
+public class DataDirectoriesResource extends AbstractResource
 {
-
     private final Map<String, File> rootMap = new HashMap<String, File>();
 
     // exposed for unit testing

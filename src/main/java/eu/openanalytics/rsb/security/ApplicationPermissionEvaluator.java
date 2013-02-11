@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 
 import eu.openanalytics.rsb.config.Configuration;
@@ -46,6 +47,8 @@ import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorizatio
  */
 public class ApplicationPermissionEvaluator implements PermissionEvaluator
 {
+    public static final String NO_AUTHENTICATED_USERNAME = null;
+
     private static final Set<String> SUPPORTED_PERMISSIONS = new HashSet<String>(
         Collections.singleton("APPLICATION_USER"));
 
@@ -73,12 +76,11 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             return false;
         }
 
-        final String principal = authentication.getPrincipal() == null ? null : authentication.getPrincipal()
-            .toString();
+        final String userName = getUserName(authentication);
 
-        if ((StringUtils.isNotBlank(principal))
-            && (CollectionUtils.containsInstance(applicationSecurityAuthorization.getAuthorizedPrincipals(),
-                principal)))
+        if ((StringUtils.isNotBlank(userName))
+            && (!CollectionUtils.isEmpty(applicationSecurityAuthorization.getAuthorizedPrincipals()))
+            && (applicationSecurityAuthorization.getAuthorizedPrincipals().contains(userName)))
         {
             return true;
         }
@@ -90,6 +92,18 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
 
         return CollectionUtils.containsAny(applicationSecurityAuthorization.getAuthorizedRoles(), roles);
+    }
+
+    private String getUserName(final Authentication authentication)
+    {
+        if (authentication.getPrincipal() instanceof UserDetails)
+        {
+            return ((UserDetails) authentication.getPrincipal()).getUsername();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override

@@ -51,6 +51,7 @@ import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallResult;
+import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 import eu.openanalytics.rsb.soap.jobs.MtomJobProcessor;
 import eu.openanalytics.rsb.soap.types.JobType;
 import eu.openanalytics.rsb.soap.types.JobType.Parameter;
@@ -127,8 +128,8 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         {
             final String argument = IOUtils.toString(payload.getData().getInputStream());
             final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP,
-                applicationName, UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(),
-                argument);
+                applicationName, ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
+                (GregorianCalendar) GregorianCalendar.getInstance(), argument);
 
             final XmlFunctionCallResult xmlFunctionCallResult = getMessageDispatcher().process(
                 xmlFunctionCallJob);
@@ -139,8 +140,8 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         {
             final String argument = IOUtils.toString(payload.getData().getInputStream());
             final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP,
-                applicationName, UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(),
-                argument);
+                applicationName, ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
+                (GregorianCalendar) GregorianCalendar.getInstance(), argument);
 
             final JsonFunctionCallResult jsonFunctionCallResult = getMessageDispatcher().process(
                 jsonFunctionCallJob);
@@ -164,7 +165,8 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
     {
 
         final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName,
-            UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+            ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
+            (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
         for (final PayloadType payload : job.getPayload())
         {

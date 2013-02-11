@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
  *
  *   ===========================================================================
@@ -19,38 +19,29 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.openanalytics.rsb.message;
+package eu.openanalytics.rsb.data;
 
-import java.util.GregorianCalendar;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.UUID;
 
-import javax.activation.MimeType;
-
-import eu.openanalytics.rsb.Constants;
-
 /**
- * Represents the result of a {@link XmlFunctionCallJob}.
+ * Defines a username-aware result store.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class XmlFunctionCallResult extends AbstractFunctionCallResult
+public interface SecureResultStore extends ResultStore
 {
-    private static final long serialVersionUID = 1L;
+    boolean deleteByApplicationNameAndJobId(String applicationName, String userName, UUID jobId)
+        throws IOException;
 
-    public XmlFunctionCallResult(final Source source,
-                                 final String applicationName,
-                                 final String userName,
-                                 final UUID jobId,
-                                 final GregorianCalendar submissionTime,
-                                 final boolean success,
-                                 final String result)
-    {
-        super(source, applicationName, userName, jobId, submissionTime, success, result);
-    }
+    /**
+     * @return an empty collection if no result was found.
+     */
+    Collection<PersistedResult> findByApplicationName(String applicationName, String userName);
 
-    @Override
-    public MimeType getMimeType()
-    {
-        return Constants.XML_MIME_TYPE;
-    }
+    /**
+     * @return null if no result was found.
+     */
+    PersistedResult findByApplicationNameAndJobId(String applicationName, String userName, UUID jobId);
 }

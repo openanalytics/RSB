@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import javax.activation.MimeType;
@@ -477,5 +478,28 @@ public abstract class Util
         }
 
         return normalized;
+    }
+
+    /**
+     * Safely decodes a {@link String} into an {@link UUID} instance.
+     * 
+     * @param uuid a {@link String} the potentially contains a UUID. Can be null.
+     * @return the decoded UUID or null if the format is invalid.
+     */
+    public static UUID safeUuidFromString(final String uuid)
+    {
+        if (StringUtils.isBlank(uuid))
+        {
+            return null;
+        }
+
+        try
+        {
+            return UUID.fromString(uuid);
+        }
+        catch (final RuntimeException re)
+        {
+            return null;
+        }
     }
 }

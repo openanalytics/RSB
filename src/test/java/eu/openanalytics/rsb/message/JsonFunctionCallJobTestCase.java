@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.message;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -37,32 +38,37 @@ import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class JsonFunctionCallJobTestCase {
+public class JsonFunctionCallJobTestCase
+{
 
     private JsonFunctionCallJob jsonFunctionCallJob;
 
     @Before
-    public void prepareTest() {
-        jsonFunctionCallJob = new JsonFunctionCallJob(Source.REST, "appName", UUID.randomUUID(),
-                (GregorianCalendar) GregorianCalendar.getInstance(), "\\\"fake_job\\\"");
+    public void prepareTest()
+    {
+        jsonFunctionCallJob = new JsonFunctionCallJob(Source.REST, "appName", null, UUID.randomUUID(),
+            (GregorianCalendar) GregorianCalendar.getInstance(), "\\\"fake_job\\\"");
     }
 
     @Test
-    public void getFunctionName() {
+    public void getFunctionName()
+    {
         assertThat(jsonFunctionCallJob.getFunctionName(), notNullValue());
     }
 
     @Test
-    public void buildSuccessResultString() {
+    public void buildSuccessResultString()
+    {
         final JsonFunctionCallResult xmlFunctionCallResult = jsonFunctionCallJob.buildSuccessResult("\\\"fake_result\\\"");
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(true));
     }
 
     @Test
-    public void buildErrorResultThrowable() throws Exception {
-        final JsonFunctionCallResult xmlFunctionCallResult = jsonFunctionCallJob.buildErrorResult(new RuntimeException("simulated error"),
-                null);
+    public void buildErrorResultThrowable() throws Exception
+    {
+        final JsonFunctionCallResult xmlFunctionCallResult = jsonFunctionCallJob.buildErrorResult(
+            new RuntimeException("simulated error"), null);
         assertThat(xmlFunctionCallResult, notNullValue());
         assertThat(xmlFunctionCallResult.isSuccess(), is(false));
         assertThat(Util.fromJson(xmlFunctionCallResult.getPayload(), Map.class), notNullValue());

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.data.PersistedResult;
-import eu.openanalytics.rsb.data.ResultStore;
+import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.rest.types.Result;
 import eu.openanalytics.rsb.rest.types.Results;
 
@@ -54,26 +55,31 @@ import eu.openanalytics.rsb.rest.types.Results;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("resultsResource")
-@Produces({ Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE })
+@Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
 @Path("/" + Constants.RESULTS_PATH + "/{applicationName}")
-public class ResultsResource extends AbstractComponent {
+public class ResultsResource extends AbstractResource
+{
     @Resource
-    private ResultStore resultStore;
+    private SecureResultStore resultStore;
 
     // exposed for testing
-    void setResultStore(final ResultStore resultStore) {
+    void setResultStore(final SecureResultStore resultStore)
+    {
         this.resultStore = resultStore;
     }
 
     @GET
-    public Results getAllResults(@PathParam("applicationName") final String applicationName, @Context final HttpHeaders httpHeaders,
-            @Context final UriInfo uriInfo) throws URISyntaxException {
-
+    public Results getAllResults(@PathParam("applicationName") final String applicationName,
+                                 @Context final HttpHeaders httpHeaders,
+                                 @Context final UriInfo uriInfo) throws URISyntaxException
+    {
         validateApplicationName(applicationName);
 
         final Results results = Util.REST_OBJECT_FACTORY.createResults();
 
-        for (final PersistedResult persistedResult : resultStore.findByApplicationName(applicationName)) {
+        for (final PersistedResult persistedResult : resultStore.findByApplicationName(applicationName,
+            getUserName()))
+        {
             final Result result = buildResult(applicationName, httpHeaders, uriInfo, persistedResult);
             results.getContents().add(result);
         }
@@ -83,14 +89,19 @@ public class ResultsResource extends AbstractComponent {
 
     @Path("/{jobId}")
     @GET
-    public Result getSingleResult(@PathParam("applicationName") final String applicationName, @PathParam("jobId") final String jobId,
-            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+    public Result getSingleResult(@PathParam("applicationName") final String applicationName,
+                                  @PathParam("jobId") final String jobId,
+                                  @Context final HttpHeaders httpHeaders,
+                                  @Context final UriInfo uriInfo) throws URISyntaxException, IOException
+    {
 
         validateApplicationName(applicationName);
         validateJobId(jobId);
 
-        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName, UUID.fromString(jobId));
-        if (persistedResult == null) {
+        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName,
+            getUserName(), UUID.fromString(jobId));
+        if (persistedResult == null)
+        {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
@@ -99,27 +110,38 @@ public class ResultsResource extends AbstractComponent {
 
     @Path("/{jobId}")
     @DELETE
-    public Response deleteSingleResult(@PathParam("applicationName") final String applicationName, @PathParam("jobId") final String jobId,
-            @Context final HttpHeaders httpHeaders, @Context final UriInfo uriInfo) throws URISyntaxException, IOException {
+    public Response deleteSingleResult(@PathParam("applicationName") final String applicationName,
+                                       @PathParam("jobId") final String jobId,
+                                       @Context final HttpHeaders httpHeaders,
+                                       @Context final UriInfo uriInfo) throws URISyntaxException, IOException
+    {
 
         validateApplicationName(applicationName);
         validateJobId(jobId);
 
-        if (!resultStore.deleteByApplicationNameAndJobId(applicationName, UUID.fromString(jobId))) {
+        if (!resultStore.deleteByApplicationNameAndJobId(applicationName, getUserName(),
+            UUID.fromString(jobId)))
+        {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
 
         return Response.noContent().build();
     }
 
-    Result buildResult(final String applicationName, final HttpHeaders httpHeaders, final UriInfo uriInfo,
-            final PersistedResult persistedResult) throws URISyntaxException {
+    Result buildResult(final String applicationName,
+                       final HttpHeaders httpHeaders,
+                       final UriInfo uriInfo,
+                       final PersistedResult persistedResult) throws URISyntaxException
+    {
 
         final String jobId = persistedResult.getJobId().toString();
         final URI selfUri = Util.buildResultUri(applicationName, jobId, httpHeaders, uriInfo);
         final String resourceName = jobId + "." + Util.getResourceType(persistedResult.getMimeType());
-        final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders).path(Constants.RESULT_PATH).path(applicationName).path(resourceName)
-                .build();
+        final URI dataUri = Util.getUriBuilder(uriInfo, httpHeaders)
+            .path(Constants.RESULT_PATH)
+            .path(applicationName)
+            .path(resourceName)
+            .build();
 
         final Result result = Util.REST_OBJECT_FACTORY.createResult();
         result.setApplicationName(applicationName);
@@ -132,14 +154,18 @@ public class ResultsResource extends AbstractComponent {
         return result;
     }
 
-    private void validateApplicationName(final String applicationName) {
-        if (!Util.isValidApplicationName(applicationName)) {
+    private void validateApplicationName(final String applicationName)
+    {
+        if (!Util.isValidApplicationName(applicationName))
+        {
             throw new IllegalArgumentException("Invalid application name: " + applicationName);
         }
     }
 
-    private void validateJobId(final String jobId) {
-        if (StringUtils.isEmpty(jobId)) {
+    private void validateJobId(final String jobId)
+    {
+        if (StringUtils.isEmpty(jobId))
+        {
             throw new IllegalArgumentException("Job Id can't be empty");
         }
     }
