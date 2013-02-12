@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
  *
  *   ===========================================================================
@@ -149,5 +149,15 @@ public class UtilTestCase
 
         final UUID testUuid = UUID.randomUUID();
         assertThat(Util.safeUuidFromString(testUuid.toString()), is(testUuid));
+    }
+
+    @Test
+    public void replaceNonWordChars()
+    {
+        assertThat(Util.replaceNonWordChars(null, "_"), is(nullValue()));
+        assertThat(Util.replaceNonWordChars("", "_"), is(""));
+        assertThat(Util.replaceNonWordChars("  ", "_"), is("__"));
+        assertThat(Util.replaceNonWordChars("abc_123", "_"), is("abc_123"));
+        assertThat(Util.replaceNonWordChars("http://test.com", "_"), is("http___test_com"));
     }
 }

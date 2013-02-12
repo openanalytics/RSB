@@ -42,9 +42,9 @@
         <url>http://openanalytics.eu</url>
     </organization>
     <properties>
-        <spring.version>3.1.2.RELEASE</spring.version>
+        <spring.version>3.2.1.RELEASE</spring.version>
         <spring-security.version>3.1.3.RELEASE</spring-security.version>
-        <spring-integration.version>2.1.3.RELEASE</spring-integration.version>
+        <spring-integration.version>2.2.1.RELEASE</spring-integration.version>
         <activemq.version>5.6.0</activemq.version>
         <cxf.version>2.6.0</cxf.version>
         <jetty-plugin.version>8.1.5.v20120716</jetty-plugin.version>
@@ -873,6 +873,16 @@
                     <artifactId>jsf-impl</artifactId>
                     <version>1.2_15</version>
                     <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>openid</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.security</groupId>
+                    <artifactId>spring-security-openid</artifactId>
+                    <version>${spring-security.version}</version>
                 </dependency>
             </dependencies>
         </profile>

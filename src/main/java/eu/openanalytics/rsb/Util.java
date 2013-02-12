@@ -502,4 +502,20 @@ public abstract class Util
             return null;
         }
     }
+
+    /**
+     * Null-safe replacement of non-word characters (ie matching <code>\W</code>).
+     * 
+     * @param source
+     * @param replacement
+     * @return
+     */
+    public static String replaceNonWordChars(final String source, final String replacement)
+    {
+        if (StringUtils.isEmpty(source))
+        {
+            return source;
+        }
+        return source.replaceAll("\\W", replacement);
+    }
 }
