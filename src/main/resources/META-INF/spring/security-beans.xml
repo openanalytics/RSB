@@ -47,6 +47,9 @@
     <http realm="RSB" use-expressions="true">
         <intercept-url pattern="/**" access="isAuthenticated()" />
         <http-basic />
+        <!--
+        <openid-login />
+        -->
     </http>
 
     <beans:bean id="expressionHandler"
