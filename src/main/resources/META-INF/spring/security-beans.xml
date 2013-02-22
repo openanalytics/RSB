@@ -43,7 +43,7 @@
         </authentication-provider>
     </authentication-manager>
 
-    <!-- Leave the following unchanged -->
+    <!-- Pick the authentication mechanism (basic or OpenID) -->
     <http realm="RSB" use-expressions="true">
         <intercept-url pattern="/**" access="isAuthenticated()" />
         <http-basic />
