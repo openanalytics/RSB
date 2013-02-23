@@ -41,8 +41,9 @@
       </directory>
       <outputDirectory>/</outputDirectory>
       <excludes>
-        <exclude>**/webapps/docs/**</exclude>
-        <exclude>**/webapps/examples/**</exclude>
+        <exclude>webapps/docs/**</exclude>
+        <exclude>webapps/examples/**</exclude>
+        <exclude>webapps/ROOT/favicon.ico</exclude>
         <exclude>conf/tomcat-users.xml</exclude>
       </excludes>
       <fileMode>0644</fileMode>

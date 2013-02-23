@@ -23,10 +23,9 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
     xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:p="http://www.springframework.org/schema/p"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd
-           http://www.springframework.org/schema/security
-           http://www.springframework.org/schema/security/spring-security.xsd">
+    xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- Uncomment to enable security
     <global-method-security pre-post-annotations="enabled">
@@ -43,12 +42,19 @@
         </authentication-provider>
     </authentication-manager>
 
+    <http pattern="/openid.html*" security="none" />
+    <http pattern="/images/**" security="none" />
+    <http pattern="/css/**" security="none" />
+    <http pattern="/js/**" security="none" />
+
     <!-- Pick the authentication mechanism (basic or OpenID) -->
     <http realm="RSB" use-expressions="true">
         <intercept-url pattern="/**" access="isAuthenticated()" />
         <http-basic />
         <!--
-        <openid-login />
+        <openid-login login-page="/openid.html"
+                      authentication-failure-url="/openid.html?login_error=true"
+                      default-target-url="/index.html" />
         -->
     </http>
 
