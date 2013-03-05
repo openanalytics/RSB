@@ -886,5 +886,15 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <id>ldap</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.security</groupId>
+                    <artifactId>spring-security-ldap</artifactId>
+                    <version>${spring-security.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 </project>
