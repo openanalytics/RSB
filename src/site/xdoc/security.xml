@@ -31,27 +31,39 @@
             email="rsb.development@openanalytics.eu">RSB Development</author>
     </properties>
     <body>
-        <section name="Application Level Security">
+        <section name="Secure Mode">
           <p>It is possible to run RSB in secure mode where only authorized users can use certain applications</p>
           <p>This is done by doing the following:</p>
           <ul>
-          <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
-          <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
-          <li>Configure RSB to associate applications with authorized users and/or roles.</li>
+           <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
+           <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
+           <li>Configure RSB to associate applications with authorized users and/or roles, as shown in the next section.</li>
+           <li>Optionally configure users and/or roles authorized to act as RSB admings, as shown in the following section.</li>
           </ul>
-          <p>The following demonstrate how to configure RSB</p>
+        </section>
+        <section name="Application Level Security">
+          <p>The following demonstrate how to configure RSB application level security:</p>
           <pre>
     "applicationSecurityConfiguration": {
       "secure_app_1": {
         "authorizedPrincipals":["bob","dan"]
       },
       "secure_app_2": {
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ADMIN"]
+        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       },
       "secure_app_3": {
         "authorizedPrincipals":["bob","dan"],
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ADMIN"]
+        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       }
+    }
+          </pre>
+        </section>
+        <section name="RSB Admin Security">
+          <p>The following demonstrate how to configure the optional RSB admin roles/groups:</p>
+          <pre>
+    "rsbSecurityConfiguration": {
+        "authorizedPrincipals":["joe"],
+        "authorizedRoles":["ROLE_ADMIN"]
     }
           </pre>
         </section>

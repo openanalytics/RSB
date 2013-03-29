@@ -260,4 +260,10 @@ public class PersistedConfigurationAdapter implements Configuration
     {
         return (Map) persistedConfiguration.getApplicationSecurityConfiguration();
     }
+
+    @Override
+    public ApplicationSecurityAuthorization getRsbSecurityConfiguration()
+    {
+        return persistedConfiguration.getRsbSecurityConfiguration();
+    }
 }

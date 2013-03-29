@@ -34,8 +34,8 @@ import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
- * Defines the configuration of RSB, which is injected in all components in order to
- * support runtime changes.
+ * Defines the configuration of RSB, which is injected in all components in order to support runtime
+ * changes.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -114,13 +114,11 @@ public interface Configuration
     public interface DepositDirectoryConfiguration extends Serializable
     {
         /**
-         * RSB must have full right on the root directory as it will need to create
-         * sub-directories (
-         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
-         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR}
-         * and
-         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR})
-         * and files below it.
+         * RSB must have full right on the root directory as it will need to create sub-directories
+         * ( {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
+         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
+         * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below
+         * it.
          */
         File getRootDirectory();
 
@@ -145,8 +143,8 @@ public interface Configuration
     public interface DepositEmailConfiguration extends Serializable
     {
         /**
-         * An email account URI is of the form: pop3://usr:pwd@host/INBOX. Supported
-         * protocols are pop3 and imap.
+         * An email account URI is of the form: pop3://usr:pwd@host/INBOX. Supported protocols are
+         * pop3 and imap.
          */
         URI getAccountURI();
 
@@ -289,9 +287,9 @@ public interface Configuration
     int getJobTimeOut();
 
     /**
-     * Number of concurrent job workers per queue, which must be computed based on
-     * the number of nodes in the RServi pool and the number of job queues (one
-     * global plus one per "boosted" application).
+     * Number of concurrent job workers per queue, which must be computed based on the number of
+     * nodes in the RServi pool and the number of job queues (one global plus one per "boosted"
+     * application).
      */
     int getNumberOfConcurrentJobWorkersPerQueue();
 
@@ -301,14 +299,14 @@ public interface Configuration
     SmtpConfiguration getSmtpConfiguration();
 
     /**
-     * The JMX configuration used to manage RSB. If not specified default ports will
-     * be used. See {@link JmxConfiguration}.
+     * The JMX configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxConfiguration}.
      */
     JmxConfiguration getJmxConfiguration();
 
     /**
-     * Optional email address where RSB should send permanent error reports and other
-     * service related messages.
+     * Optional email address where RSB should send permanent error reports and other service
+     * related messages.
      */
     String getAdministratorEmail();
 
@@ -318,14 +316,13 @@ public interface Configuration
     JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration();
 
     /**
-     * Optional configuration of root directories where jobs and results will
-     * respectively be dropped and retrieved. The map entry element has the root
-     * directory for key and the application name for value. RSB must have full right
-     * on the root directory as it will need to create sub-directories (
+     * Optional configuration of root directories where jobs and results will respectively be
+     * dropped and retrieved. The map entry element has the root directory for key and the
+     * application name for value. RSB must have full right on the root directory as it will need to
+     * create sub-directories (
      * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
      * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
-     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and
-     * files below it.
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
     List<DepositDirectoryConfiguration> getDepositRootDirectories();
 
@@ -350,8 +347,8 @@ public interface Configuration
     RServiClientPoolValidationStrategy getRServiClientPoolValidationStrategy();
 
     /**
-     * Should health be checked when RSB starts (recommended for deployments where
-     * RServi is not colocated in the same web container).
+     * Should health be checked when RSB starts (recommended for deployments where RServi is not
+     * colocated in the same web container).
      */
     boolean isCheckHealthOnStart();
 
@@ -359,4 +356,9 @@ public interface Configuration
      * Optional application security.
      */
     Map<String, ApplicationSecurityAuthorization> getApplicationSecurityConfiguration();
+
+    /**
+     * Optional RSB security.
+     */
+    ApplicationSecurityAuthorization getRsbSecurityConfiguration();
 }

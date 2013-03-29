@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -38,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 
@@ -46,51 +48,65 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class ConfigurationFactory {
+public abstract class ConfigurationFactory
+{
     private static final Log LOGGER = LogFactory.getLog(ConfigurationFactory.class);
 
-    private ConfigurationFactory() {
+    private ConfigurationFactory()
+    {
         throw new UnsupportedOperationException("do not instantiate");
     }
 
-    public static Configuration loadJsonConfiguration() throws IOException {
-        final String configurationFile = System.getProperty(Configuration.class.getName(), Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
+    public static Configuration loadJsonConfiguration() throws IOException
+    {
+        final String configurationFile = System.getProperty(Configuration.class.getName(),
+            Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
         final PersistedConfigurationAdapter pca = load(configurationFile);
         validateConfiguration(pca);
         createMissingDirectories(pca);
         return pca;
     }
 
-    public static Configuration loadJsonConfiguration(final InputStream is) throws IOException {
+    public static Configuration loadJsonConfiguration(final InputStream is) throws IOException
+    {
         final PersistedConfigurationAdapter pca = loadConfigurationStream(null, is);
         validateConfiguration(pca);
         createMissingDirectories(pca);
         return pca;
     }
 
-    private static void validateConfiguration(final PersistedConfigurationAdapter pca) throws IOException {
-        if (BooleanUtils.toBoolean(System.getProperty(ConfigurationFactory.class.getName() + ".skipValidation"))) {
+    private static void validateConfiguration(final PersistedConfigurationAdapter pca) throws IOException
+    {
+        if (BooleanUtils.toBoolean(System.getProperty(ConfigurationFactory.class.getName()
+                                                      + ".skipValidation")))
+        {
             LOGGER.info("Skipped validation of: " + pca);
             return;
         }
 
         final Set<String> validationErrors = validate(pca);
-        Validate.isTrue(validationErrors.isEmpty(), "Validation error(s):\n" + StringUtils.join(validationErrors, "\n")
-                + "\nfound in configuration:\n" + pca);
+        Validate.isTrue(validationErrors.isEmpty(),
+            "Validation error(s):\n" + StringUtils.join(validationErrors, "\n")
+                            + "\nfound in configuration:\n" + pca);
         LOGGER.info("Successfully validated: " + pca.exportAsJson());
     }
 
     // exposed for testing
-    static PersistedConfigurationAdapter load(final String configurationFile) throws IOException {
-        final URL configurationUrl = Thread.currentThread().getContextClassLoader().getResource(configurationFile);
+    static PersistedConfigurationAdapter load(final String configurationFile) throws IOException
+    {
+        final URL configurationUrl = Thread.currentThread()
+            .getContextClassLoader()
+            .getResource(configurationFile);
         Validate.notNull(configurationUrl, "Impossible to find " + configurationFile + " on the classpath");
 
         final InputStream is = configurationUrl.openStream();
         return loadConfigurationStream(configurationUrl, is);
     }
 
-    private static PersistedConfigurationAdapter loadConfigurationStream(final URL configurationUrl, final InputStream is)
-            throws IOException {
+    private static PersistedConfigurationAdapter loadConfigurationStream(final URL configurationUrl,
+                                                                         final InputStream is)
+        throws IOException
+    {
 
         final String json = IOUtils.toString(is);
         IOUtils.closeQuietly(is);
@@ -100,7 +116,8 @@ public abstract class ConfigurationFactory {
         return pca;
     }
 
-    static Set<String> validate(final PersistedConfigurationAdapter pca) throws IOException {
+    static Set<String> validate(final PersistedConfigurationAdapter pca) throws IOException
+    {
         final Set<String> validationErrors = new HashSet<String>();
 
         LOGGER.info("Validating configuration: " + pca.getConfigurationUrl());
@@ -109,68 +126,101 @@ public abstract class ConfigurationFactory {
         validateNotNull(pca.getDefaultRserviPoolUri(), "defaultRserviPoolUri", validationErrors);
         validateNotNull(pca.getSmtpConfiguration(), "smtpConfiguration", validationErrors);
 
-        if (StringUtils.isNotEmpty(pca.getAdministratorEmail())) {
+        if (StringUtils.isNotEmpty(pca.getAdministratorEmail()))
+        {
             validateIsTrue(EmailValidator.getInstance().isValid(pca.getAdministratorEmail()),
-                    "if present, the administrator email must be valid", validationErrors);
+                "if present, the administrator email must be valid", validationErrors);
         }
 
-        if (pca.getDepositRootDirectories() != null) {
+        if (pca.getDepositRootDirectories() != null)
+        {
 
-            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories()) {
+            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories())
+            {
                 final String depositApplicationName = depositRootDirectoryConfig.getApplicationName();
-                validateIsTrue(Util.isValidApplicationName(depositApplicationName), "invalid deposit directory application name: "
-                        + depositApplicationName, validationErrors);
+                validateIsTrue(Util.isValidApplicationName(depositApplicationName),
+                    "invalid deposit directory application name: " + depositApplicationName, validationErrors);
             }
         }
 
-        if (pca.getDepositEmailAccounts() != null) {
-            for (final DepositEmailConfiguration depositEmailAccount : pca.getDepositEmailAccounts()) {
+        if (pca.getDepositEmailAccounts() != null)
+        {
+            for (final DepositEmailConfiguration depositEmailAccount : pca.getDepositEmailAccounts())
+            {
                 validateIsTrue(Util.isValidApplicationName(depositEmailAccount.getApplicationName()),
-                        "invalid deposit email application name: " + depositEmailAccount.getApplicationName(), validationErrors);
+                    "invalid deposit email application name: " + depositEmailAccount.getApplicationName(),
+                    validationErrors);
 
-                if (depositEmailAccount.getResponseFileName() != null) {
-                    final File responseFile = new File(pca.getEmailRepliesCatalogDirectory(), depositEmailAccount.getResponseFileName());
-                    validateIsTrue(responseFile.exists(), "missing response file: " + responseFile, validationErrors);
+                if (depositEmailAccount.getResponseFileName() != null)
+                {
+                    final File responseFile = new File(pca.getEmailRepliesCatalogDirectory(),
+                        depositEmailAccount.getResponseFileName());
+                    validateIsTrue(responseFile.exists(), "missing response file: " + responseFile,
+                        validationErrors);
                 }
 
-                if (depositEmailAccount.getJobConfigurationFileName() != null) {
+                if (depositEmailAccount.getJobConfigurationFileName() != null)
+                {
                     final File jobConfigurationFile = new File(pca.getJobConfigurationCatalogDirectory(),
-                            depositEmailAccount.getJobConfigurationFileName());
-                    validateIsTrue(jobConfigurationFile.exists(), "missing job configuration file: " + jobConfigurationFile,
-                            validationErrors);
+                        depositEmailAccount.getJobConfigurationFileName());
+                    validateIsTrue(jobConfigurationFile.exists(), "missing job configuration file: "
+                                                                  + jobConfigurationFile, validationErrors);
                 }
             }
         }
 
-        if (pca.getDataDirectories() != null) {
-            for (final File dataDirectoryRoot : pca.getDataDirectories()) {
-                validateIsTrue(dataDirectoryRoot.isDirectory(), "invalid data directory: " + dataDirectoryRoot, validationErrors);
+        if (pca.getDataDirectories() != null)
+        {
+            for (final File dataDirectoryRoot : pca.getDataDirectories())
+            {
+                validateIsTrue(dataDirectoryRoot.isDirectory(), "invalid data directory: "
+                                                                + dataDirectoryRoot, validationErrors);
+            }
+        }
+
+        if (pca.getApplicationSecurityConfiguration() != null)
+        {
+            for (final Entry<String, ApplicationSecurityAuthorization> applicationSecurityConfiguration : pca.getApplicationSecurityConfiguration()
+                .entrySet())
+            {
+                validateIsTrue(Util.isValidApplicationName(applicationSecurityConfiguration.getKey()),
+                    "invalid deposit application security authorization application name: "
+                                    + applicationSecurityConfiguration.getKey(), validationErrors);
             }
         }
 
         return validationErrors;
     }
 
-    private static void validateNotNull(final Object o, final String field, final Set<String> validationErrors) {
-        if (o == null) {
+    private static void validateNotNull(final Object o, final String field, final Set<String> validationErrors)
+    {
+        if (o == null)
+        {
             validationErrors.add(field + " can't be null");
         }
     }
 
-    private static void validateIsTrue(final boolean b, final String message, final Set<String> validationErrors) {
-        if (!b) {
+    private static void validateIsTrue(final boolean b,
+                                       final String message,
+                                       final Set<String> validationErrors)
+    {
+        if (!b)
+        {
             validationErrors.add(message);
         }
     }
 
-    private static void createMissingDirectories(final PersistedConfigurationAdapter pca) throws IOException {
+    private static void createMissingDirectories(final PersistedConfigurationAdapter pca) throws IOException
+    {
         FileUtils.forceMkdir(pca.getRScriptsCatalogDirectory());
         FileUtils.forceMkdir(pca.getSweaveFilesCatalogDirectory());
         FileUtils.forceMkdir(pca.getJobConfigurationCatalogDirectory());
         FileUtils.forceMkdir(pca.getEmailRepliesCatalogDirectory());
 
-        if (pca.getDepositRootDirectories() != null) {
-            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories()) {
+        if (pca.getDepositRootDirectories() != null)
+        {
+            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories())
+            {
                 final File depositRootDir = depositRootDirectoryConfig.getRootDirectory();
                 FileUtils.forceMkdir(depositRootDir);
                 FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_ACCEPTED_SUBDIR));

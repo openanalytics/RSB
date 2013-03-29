@@ -40,8 +40,8 @@ import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrat
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
 /**
- * Defines the persisted configuration of RSB, from which the actual
- * {@link Configuration} is derived.
+ * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is
+ * derived.
  * 
  * @see Configuration
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -382,6 +382,7 @@ public class PersistedConfiguration
     private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
+    private PersistedApplicationSecurityAuthorization rsbSecurityConfiguration;
 
     public PersistedConfiguration()
     {
@@ -394,6 +395,7 @@ public class PersistedConfiguration
         setActiveMqWorkDirectory(configuration.getActiveMqWorkDirectory());
         setAdministratorEmail(configuration.getAdministratorEmail());
         setApplicationSpecificRserviPoolUris(configuration.getApplicationSpecificRserviPoolUris());
+        setApplicationSecurityConfiguration((Map) configuration.getApplicationSecurityConfiguration());
         setCatalogRootDirectory(configuration.getRScriptsCatalogDirectory().getParentFile());
         setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setDataDirectories(configuration.getDataDirectories());
@@ -406,9 +408,9 @@ public class PersistedConfiguration
         setNodeName(configuration.getNodeName());
         setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
         setResultsDirectory(configuration.getResultsDirectory());
+        setRsbSecurityConfiguration(getRsbSecurityConfiguration());
         setrServiClientPoolConfig(configuration.getRServiClientPoolConfig());
         setrServiClientPoolValidationStrategy(configuration.getRServiClientPoolValidationStrategy());
-        setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setSmtpConfiguration((PersistedSmtpConfiguration) configuration.getSmtpConfiguration());
     }
 
@@ -434,17 +436,17 @@ public class PersistedConfiguration
     /**
      * Directory under which RSB catalogs are located. The catalogs are:
      * <ul>
-     * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR}
-     * : catalog of R scripts</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR} : catalog of R
+     * scripts</li>
      * <li>
-     * {@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILES_CATALOG_SUBDIR}:
-     * catalog of Sweave files</li>
+     * {@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILES_CATALOG_SUBDIR}: catalog of
+     * Sweave files</li>
      * <li>
-     * {@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR}
-     * : catalog of ready made job configurations</li>
+     * {@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR} :
+     * catalog of ready made job configurations</li>
      * <li>
-     * {@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR}
-     * : catalog of Email replies</li>
+     * {@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR} : catalog
+     * of Email replies</li>
      * </ul>
      * If any of these sub-directories do not pre-exist, RSB will try to create it.
      */
@@ -498,9 +500,9 @@ public class PersistedConfiguration
     }
 
     /**
-     * Number of concurrent job workers per queue, which must be computed based on
-     * the number of nodes in the RServi pool and the number of job queues (one
-     * global plus one per "boosted" application).
+     * Number of concurrent job workers per queue, which must be computed based on the number of
+     * nodes in the RServi pool and the number of job queues (one global plus one per "boosted"
+     * application).
      */
     public int getNumberOfConcurrentJobWorkersPerQueue()
     {
@@ -526,8 +528,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * Mapping of application names and RServi RMI pool URIs, or null if no specific
-     * mapping is required.
+     * Mapping of application names and RServi RMI pool URIs, or null if no specific mapping is
+     * required.
      */
     public Map<String, ?> getApplicationSpecificRserviPoolUris()
     {
@@ -553,8 +555,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * Optional email address where RSB should send permanent error reports and other
-     * service related messages.
+     * Optional email address where RSB should send permanent error reports and other service
+     * related messages.
      */
     public String getAdministratorEmail()
     {
@@ -580,8 +582,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * The JMX configuration used to manage RSB. If not specified default ports will
-     * be used. See {@link JmxConfiguration}.
+     * The JMX configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxConfiguration}.
      */
     public PersistedJmxConfiguration getJmxConfiguration()
     {
@@ -594,14 +596,13 @@ public class PersistedConfiguration
     }
 
     /**
-     * Optional configuration of root directories where jobs and results will
-     * respectively be dropped and retrieved. The map entry element has the root
-     * directory for key and the application name for value. RSB must have full right
-     * on the root directory as it will need to create sub-directories (
+     * Optional configuration of root directories where jobs and results will respectively be
+     * dropped and retrieved. The map entry element has the root directory for key and the
+     * application name for value. RSB must have full right on the root directory as it will need to
+     * create sub-directories (
      * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
      * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
-     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and
-     * files below it.
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
     public List<PersistedDepositDirectoryConfiguration> getDepositRootDirectories()
     {
@@ -666,8 +667,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * Should health be checked when RSB starts (recommended for deployments where
-     * RServi is not colocated in the same web container).
+     * Should health be checked when RSB starts (recommended for deployments where RServi is not
+     * colocated in the same web container).
      */
     public boolean isCheckHealthOnStart()
     {
@@ -690,5 +691,18 @@ public class PersistedConfiguration
     public void setApplicationSecurityConfiguration(final Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration)
     {
         this.applicationSecurityConfiguration = applicationSecurityConfiguration;
+    }
+
+    /**
+     * Optional RSB security.
+     */
+    public PersistedApplicationSecurityAuthorization getRsbSecurityConfiguration()
+    {
+        return rsbSecurityConfiguration;
+    }
+
+    public void setRsbSecurityConfiguration(final PersistedApplicationSecurityAuthorization rsbSecurityConfiguration)
+    {
+        this.rsbSecurityConfiguration = rsbSecurityConfiguration;
     }
 }

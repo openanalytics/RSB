@@ -22,7 +22,6 @@
 package eu.openanalytics.rsb.security;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,21 +35,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 
+import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 
 /**
- * Defines a {@link PermissionEvaluator} that considers the applications a user is
- * granted to use.
+ * Defines a {@link PermissionEvaluator} that considers the applications a user is granted to use.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class ApplicationPermissionEvaluator implements PermissionEvaluator
 {
     public static final String NO_AUTHENTICATED_USERNAME = null;
-
-    private static final Set<String> SUPPORTED_PERMISSIONS = new HashSet<String>(
-        Collections.singleton("APPLICATION_USER"));
 
     @Resource
     private Configuration configuration;
@@ -60,17 +56,58 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
                                  final Object targetDomainObject,
                                  final Object permission)
     {
-        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfiguration = configuration.getApplicationSecurityConfiguration();
-
-        if ((applicationSecurityConfiguration == null) || (targetDomainObject == null)
-            || (!SUPPORTED_PERMISSIONS.contains(permission)))
+        if (targetDomainObject == null)
         {
             return false;
         }
 
-        final String applicationName = targetDomainObject.toString();
+        if ("APPLICATION_USER".equals(permission))
+        {
+            final String applicationName = targetDomainObject.toString();
+            return hasApplicationUserPermission(authentication, applicationName);
+        }
+        else if ("RSB_RESOURCE".equals(permission))
+        {
+            final String resourceName = targetDomainObject.toString();
+            return hasRsbResourcePermission(authentication, resourceName);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-        final ApplicationSecurityAuthorization applicationSecurityAuthorization = applicationSecurityConfiguration.get(applicationName);
+    private boolean hasApplicationUserPermission(final Authentication authentication,
+                                                 final String applicationName)
+    {
+        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfiguration = configuration.getApplicationSecurityConfiguration();
+
+        if (applicationSecurityConfiguration != null)
+        {
+            return isAuthenticationAuthorized(authentication,
+                applicationSecurityConfiguration.get(applicationName));
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private boolean hasRsbResourcePermission(final Authentication authentication, final String resourceName)
+    {
+        if (Constants.ADMIN_PATH.equals(resourceName))
+        {
+            return isAuthenticationAuthorized(authentication, configuration.getRsbSecurityConfiguration());
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private boolean isAuthenticationAuthorized(final Authentication authentication,
+                                               final ApplicationSecurityAuthorization applicationSecurityAuthorization)
+    {
         if (applicationSecurityAuthorization == null)
         {
             return false;
