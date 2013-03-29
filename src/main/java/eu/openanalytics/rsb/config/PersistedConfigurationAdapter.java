@@ -262,7 +262,7 @@ public class PersistedConfigurationAdapter implements Configuration
     }
 
     @Override
-    public ApplicationSecurityAuthorization getRsbSecurityConfiguration()
+    public SecurityAuthorization getRsbSecurityConfiguration()
     {
         return persistedConfiguration.getRsbSecurityConfiguration();
     }

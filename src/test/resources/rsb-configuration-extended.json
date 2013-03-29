@@ -75,6 +75,12 @@
       "secure_app_3": {
         "authorizedPrincipals":["bob","dan"],
         "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+      },
+      "secure_app_4": {
+        "authorizedPrincipals":["bob","dan"],
+        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "functionCallAllowed": true,
+        "scriptSubmissionAllowed": true
       }
     },
     "rsbSecurityConfiguration": {

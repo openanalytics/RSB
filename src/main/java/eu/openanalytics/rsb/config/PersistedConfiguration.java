@@ -37,6 +37,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
 import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
+import eu.openanalytics.rsb.config.Configuration.SecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
 /**
@@ -336,7 +337,7 @@ public class PersistedConfiguration
         }
     }
 
-    public static class PersistedApplicationSecurityAuthorization implements ApplicationSecurityAuthorization
+    public static class PersistedSecurityAuthorization implements SecurityAuthorization
     {
         private static final long serialVersionUID = 1L;
         private Set<String> authorizedPrincipals;
@@ -363,6 +364,34 @@ public class PersistedConfiguration
         }
     }
 
+    public static class PersistedApplicationSecurityAuthorization extends PersistedSecurityAuthorization
+        implements ApplicationSecurityAuthorization
+    {
+        private static final long serialVersionUID = 2L;
+        private boolean functionCallAllowed;
+        private boolean scriptSubmissionAllowed;
+
+        public boolean isFunctionCallAllowed()
+        {
+            return functionCallAllowed;
+        }
+
+        public void setFunctionCallAllowed(final boolean functionCallAllowed)
+        {
+            this.functionCallAllowed = functionCallAllowed;
+        }
+
+        public boolean isScriptSubmissionAllowed()
+        {
+            return scriptSubmissionAllowed;
+        }
+
+        public void setScriptSubmissionAllowed(final boolean scriptSubmissionAllowed)
+        {
+            this.scriptSubmissionAllowed = scriptSubmissionAllowed;
+        }
+    }
+
     private String nodeName;
     private File activeMqWorkDirectory;
     private URI defaultRserviPoolUri;
@@ -382,7 +411,7 @@ public class PersistedConfiguration
     private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
-    private PersistedApplicationSecurityAuthorization rsbSecurityConfiguration;
+    private PersistedSecurityAuthorization rsbSecurityConfiguration;
 
     public PersistedConfiguration()
     {
@@ -696,12 +725,12 @@ public class PersistedConfiguration
     /**
      * Optional RSB security.
      */
-    public PersistedApplicationSecurityAuthorization getRsbSecurityConfiguration()
+    public PersistedSecurityAuthorization getRsbSecurityConfiguration()
     {
         return rsbSecurityConfiguration;
     }
 
-    public void setRsbSecurityConfiguration(final PersistedApplicationSecurityAuthorization rsbSecurityConfiguration)
+    public void setRsbSecurityConfiguration(final PersistedSecurityAuthorization rsbSecurityConfiguration)
     {
         this.rsbSecurityConfiguration = rsbSecurityConfiguration;
     }

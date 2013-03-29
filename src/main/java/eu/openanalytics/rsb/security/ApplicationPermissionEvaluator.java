@@ -38,6 +38,10 @@ import org.springframework.util.CollectionUtils;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
+import eu.openanalytics.rsb.config.Configuration.SecurityAuthorization;
+import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
+import eu.openanalytics.rsb.message.AbstractJob;
+import eu.openanalytics.rsb.message.MultiFilesJob;
 
 /**
  * Defines a {@link PermissionEvaluator} that considers the applications a user is granted to use.
@@ -61,10 +65,10 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             return false;
         }
 
-        if ("APPLICATION_USER".equals(permission))
+        if ("APPLICATION_JOB".equals(permission))
         {
-            final String applicationName = targetDomainObject.toString();
-            return hasApplicationUserPermission(authentication, applicationName);
+            final AbstractJob job = (AbstractJob) targetDomainObject;
+            return hasApplicationUserPermission(authentication, job);
         }
         else if ("RSB_RESOURCE".equals(permission))
         {
@@ -73,23 +77,50 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
         else
         {
-            return false;
+            throw new SecurityException("Unknown permission: " + permission);
         }
     }
 
-    private boolean hasApplicationUserPermission(final Authentication authentication,
-                                                 final String applicationName)
+    private boolean hasApplicationUserPermission(final Authentication authentication, final AbstractJob job)
     {
-        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfiguration = configuration.getApplicationSecurityConfiguration();
+        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
 
-        if (applicationSecurityConfiguration != null)
+        if (applicationSecurityConfigurations != null)
         {
-            return isAuthenticationAuthorized(authentication,
-                applicationSecurityConfiguration.get(applicationName));
+            final String applicationName = job.getApplicationName();
+            final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
+            return isAuthenticationAuthorized(authentication, applicationSecurityConfiguration)
+                   && isJobAuthorized(job, applicationSecurityConfiguration);
         }
         else
         {
             return false;
+        }
+    }
+
+    private boolean isJobAuthorized(final AbstractJob job,
+                                    final ApplicationSecurityAuthorization applicationSecurityConfiguration)
+    {
+        if (applicationSecurityConfiguration == null)
+        {
+            return false;
+        }
+
+        if (job instanceof AbstractFunctionCallJob)
+        {
+            return applicationSecurityConfiguration.isFunctionCallAllowed();
+        }
+        else
+        {
+            final MultiFilesJob multiFilesJob = (MultiFilesJob) job;
+            if (multiFilesJob.getRScriptFile() != null)
+            {
+                return applicationSecurityConfiguration.isScriptSubmissionAllowed();
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
@@ -106,9 +137,9 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
     }
 
     private boolean isAuthenticationAuthorized(final Authentication authentication,
-                                               final ApplicationSecurityAuthorization applicationSecurityAuthorization)
+                                               final SecurityAuthorization securityAuthorization)
     {
-        if (applicationSecurityAuthorization == null)
+        if (securityAuthorization == null)
         {
             return false;
         }
@@ -116,8 +147,8 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         final String userName = getUserName(authentication);
 
         if ((StringUtils.isNotBlank(userName))
-            && (!CollectionUtils.isEmpty(applicationSecurityAuthorization.getAuthorizedPrincipals()))
-            && (applicationSecurityAuthorization.getAuthorizedPrincipals().contains(userName)))
+            && (!CollectionUtils.isEmpty(securityAuthorization.getAuthorizedPrincipals()))
+            && (securityAuthorization.getAuthorizedPrincipals().contains(userName)))
         {
             return true;
         }
@@ -128,7 +159,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             roles.add(authority.getAuthority());
         }
 
-        return CollectionUtils.containsAny(applicationSecurityAuthorization.getAuthorizedRoles(), roles);
+        return CollectionUtils.containsAny(securityAuthorization.getAuthorizedRoles(), roles);
     }
 
     private String getUserName(final Authentication authentication)

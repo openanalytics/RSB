@@ -38,7 +38,7 @@
            <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
            <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
            <li>Configure RSB to associate applications with authorized users and/or roles, as shown in the next section.</li>
-           <li>Optionally configure users and/or roles authorized to act as RSB admings, as shown in the following section.</li>
+           <li>Optionally configure users and/or roles authorized to act as RSB admins, as shown in the following section.</li>
           </ul>
         </section>
         <section name="Application Level Security">
@@ -54,9 +54,16 @@
       "secure_app_3": {
         "authorizedPrincipals":["bob","dan"],
         "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+      },
+      "secure_app_4": {
+        "authorizedPrincipals":["bob","dan"],
+        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "functionCallAllowed": true,
+        "scriptSubmissionAllowed": true
       }
     }
           </pre>
+          <p>Notice how the <b>functionCallAllowed</b> and <b>scriptSubmissionAllowed</b> attributes are used to explicitly allow the users of <i>secure_app_4</i> to execute jobs that can potentially impact the environment where R executes. This is disabled by default.</p>
         </section>
         <section name="RSB Admin Security">
           <p>The following demonstrate how to configure the optional RSB admin roles/groups:</p>

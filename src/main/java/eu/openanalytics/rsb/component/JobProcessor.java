@@ -237,6 +237,7 @@ public class JobProcessor extends AbstractComponent
                         job.getJobId(), job.getApplicationName(), rserviPoolAddress, processTime));
             }
         }
+        // catch wide to prevent disrupting the main flow
         catch (final Throwable t)
         {
             if (rServi instanceof ErrorableRServi)
@@ -244,7 +245,6 @@ public class JobProcessor extends AbstractComponent
                 ((ErrorableRServi) rServi).markError();
             }
 
-            // catch wide to prevent disrupting the main flow
             final long processTime = System.currentTimeMillis() - startTime;
             getLogger().error(
                 String.format("Failed to process %s %s for %s on %s in %dms", job.getType(), job.getJobId(),

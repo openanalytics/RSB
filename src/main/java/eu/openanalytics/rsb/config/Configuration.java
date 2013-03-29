@@ -224,11 +224,18 @@ public interface Configuration
         }
     };
 
-    public interface ApplicationSecurityAuthorization extends Serializable
+    public interface SecurityAuthorization extends Serializable
     {
         Set<String> getAuthorizedPrincipals();
 
         Set<String> getAuthorizedRoles();
+    }
+
+    public interface ApplicationSecurityAuthorization extends SecurityAuthorization
+    {
+        boolean isFunctionCallAllowed();
+
+        boolean isScriptSubmissionAllowed();
     }
 
     /**
@@ -360,5 +367,5 @@ public interface Configuration
     /**
      * Optional RSB security.
      */
-    ApplicationSecurityAuthorization getRsbSecurityConfiguration();
+    SecurityAuthorization getRsbSecurityConfiguration();
 }

@@ -70,7 +70,7 @@ public class JmsMessageDispatcher extends AbstractComponent implements MessageDi
         this.jmsTemplate = jmsTemplate;
     }
 
-    @PreAuthorize("hasPermission(#job.applicationName, 'APPLICATION_USER')")
+    @PreAuthorize("hasPermission(#job, 'APPLICATION_JOB')")
     public void dispatch(final AbstractJob job)
     {
         jmsTemplate.convertAndSend(getJobQueueName(job), job, new WorkItemMessagePostProcessor(job));
