@@ -41,17 +41,19 @@
         <name>OpenAnalytics BVBA</name>
         <url>http://openanalytics.eu</url>
     </organization>
+
     <properties>
-        <spring.version>3.2.1.RELEASE</spring.version>
+        <spring.version>3.2.2.RELEASE</spring.version>
         <spring-security.version>3.1.3.RELEASE</spring-security.version>
-        <spring-integration.version>2.2.1.RELEASE</spring-integration.version>
-        <activemq.version>5.6.0</activemq.version>
-        <cxf.version>2.6.0</cxf.version>
+        <spring-integration.version>2.2.2.RELEASE</spring-integration.version>
+        <activemq.version>5.7.0</activemq.version>
+        <cxf.version>2.7.3</cxf.version>
         <jetty-plugin.version>8.1.5.v20120716</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
         <tomcat.version>6.0.32</tomcat.version>
         <local.server.port>8888</local.server.port>
     </properties>
+
     <scm>
         <url>https://github.com/openanalytics/RSB</url>
     </scm>
@@ -59,6 +61,7 @@
         <system>GitHub</system>
         <url>https://github.com/openanalytics/RSB/issues</url>
     </issueManagement>
+
     <repositories>
         <repository>
             <id>oa-public</id>
@@ -78,6 +81,7 @@
             <layout>default</layout>
         </repository>
     </repositories>
+
     <distributionManagement>
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
@@ -94,6 +98,7 @@
             <url>file:///usr/share/nginx/www/maven-sites/rsb/${project.artifactId}-${project.version}</url>
         </site>
     </distributionManagement>
+
     <dependencies>
         <!-- RServi -->
         <dependency>
@@ -140,6 +145,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
@@ -151,6 +161,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
