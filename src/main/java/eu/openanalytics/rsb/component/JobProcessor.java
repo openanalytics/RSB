@@ -42,6 +42,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.runtime.CoreException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.data.RDataUtil;
@@ -83,6 +84,7 @@ public class JobProcessor extends AbstractComponent
     @Resource
     private RServiUriSelector rServiUriSelector;
 
+    @PreAuthorize("hasPermission(#job, 'APPLICATION_JOB')")
     public AbstractResult<?> processDirect(final AbstractFunctionCallJob job) throws Exception
     {
         return process(job, new JobRunner()

@@ -68,7 +68,12 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         if ("APPLICATION_JOB".equals(permission))
         {
             final AbstractJob job = (AbstractJob) targetDomainObject;
-            return hasApplicationUserPermission(authentication, job);
+            return hasApplicationJobPermission(authentication, job);
+        }
+        else if ("APPLICATION_USER".equals(permission))
+        {
+            final String applicationName = (String) targetDomainObject;
+            return hasApplicationUserPermission(authentication, applicationName);
         }
         else if ("RSB_RESOURCE".equals(permission))
         {
@@ -81,7 +86,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
     }
 
-    private boolean hasApplicationUserPermission(final Authentication authentication, final AbstractJob job)
+    private boolean hasApplicationJobPermission(final Authentication authentication, final AbstractJob job)
     {
         final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
 
@@ -91,6 +96,22 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
             return isAuthenticationAuthorized(authentication, applicationSecurityConfiguration)
                    && isJobAuthorized(job, applicationSecurityConfiguration);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private boolean hasApplicationUserPermission(final Authentication authentication,
+                                                 final String applicationName)
+    {
+        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
+
+        if (applicationSecurityConfigurations != null)
+        {
+            final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
+            return isAuthenticationAuthorized(authentication, applicationSecurityConfiguration);
         }
         else
         {
