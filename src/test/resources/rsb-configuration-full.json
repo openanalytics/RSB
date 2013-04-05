@@ -74,7 +74,7 @@
         "userPrincipals":["bob","dan"]
       },
       "secure_app_2": {
-        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+        "userRoles":["ROLE_APP_USER"]
       },
       "secure_app_3": {
         "userPrincipals":["bob","dan"],
@@ -88,14 +88,14 @@
       },
       "secure_app_5": {
         "userPrincipals":["bob","dan"],
-        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "userRoles":["ROLE_APP_USER"],
         "adminPrincipals":["jack"],
-        "adminRoles":["ROLE_ADMIN"]
+        "adminRoles":["ROLE_APP_ADMIN"]
       }
     },
     "rsbSecurityConfiguration": {
         "adminPrincipals":["joe"],
-        "adminRoles":["ROLE_ADMIN"]
+        "adminRoles":["ROLE_USB_ADMIN"]
     },
     "applicationAwareCatalog" : true
 }
