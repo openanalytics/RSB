@@ -37,42 +37,51 @@
           <ul>
            <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
            <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
-           <li>Configure RSB to associate applications with authorized users and/or roles, as shown in the next section.</li>
+           <li>Configure RSB to associate applications with users and/or roles authorized to act as application users and admins, as shown in the next section.</li>
            <li>Optionally configure users and/or roles authorized to act as RSB admins, as shown in the following section.</li>
           </ul>
         </section>
         <section name="Application Level Security">
           <p>The following demonstrate how to configure RSB application level security:</p>
           <pre>
+    "rServiClientPoolValidationStrategy": "ADAPTIVE",
     "applicationSecurityConfiguration": {
       "secure_app_1": {
-        "authorizedPrincipals":["bob","dan"]
+        "userPrincipals":["bob","dan"]
       },
       "secure_app_2": {
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       },
       "secure_app_3": {
-        "authorizedPrincipals":["bob","dan"],
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       },
       "secure_app_4": {
-        "authorizedPrincipals":["bob","dan"],
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
         "functionCallAllowed": true,
         "scriptSubmissionAllowed": true
+      },
+      "secure_app_5": {
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "adminPrincipals":["jack"],
+        "adminRoles":["ROLE_ADMIN"]
       }
     }
           </pre>
           <p>Notice how the <b>functionCallAllowed</b> and <b>scriptSubmissionAllowed</b> attributes are used to explicitly allow the users of <i>secure_app_4</i> to execute jobs that can potentially impact the environment where R executes. This is disabled by default.</p>
+          <p>Application admins, declared with <b>adminPrincipals</b> and <b>adminRoles</b> are de-facto users of the concerned application.</p>
         </section>
         <section name="RSB Admin Security">
           <p>The following demonstrate how to configure the optional RSB admin roles/groups:</p>
           <pre>
     "rsbSecurityConfiguration": {
-        "authorizedPrincipals":["joe"],
-        "authorizedRoles":["ROLE_ADMIN"]
+        "adminPrincipals":["joe"],
+        "adminRoles":["ROLE_ADMIN"]
     }
           </pre>
+          <p><b>RSB admins are de-facto users and admins of all the applications</b>.</p>
         </section>
         <section name="Application Aware Catalog">
             <p>In a secure environment, it can be desirable to partition the catalog per application name.

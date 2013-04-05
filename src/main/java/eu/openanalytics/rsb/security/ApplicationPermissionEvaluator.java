@@ -73,7 +73,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         else if ("APPLICATION_USER".equals(permission))
         {
             final String applicationName = (String) targetDomainObject;
-            return hasApplicationUserPermission(authentication, applicationName);
+            return hasApplicationUserOrAdminPermission(authentication, applicationName);
         }
         else if ("APPLICATION_ADMIN".equals(permission))
         {
@@ -91,6 +91,13 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
     }
 
+    private boolean hasApplicationUserOrAdminPermission(final Authentication authentication,
+                                                        final String applicationName)
+    {
+        return hasApplicationUserPermission(authentication, applicationName)
+               || hasApplicationAdminPermission(authentication, applicationName);
+    }
+
     private boolean hasApplicationJobPermission(final Authentication authentication, final AbstractJob job)
     {
         final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
@@ -99,7 +106,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         {
             final String applicationName = job.getApplicationName();
             final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
-            return isAuthenticationUser(authentication, applicationSecurityConfiguration)
+            return hasApplicationUserOrAdminPermission(authentication, applicationName)
                    && isJobAuthorized(job, applicationSecurityConfiguration);
         }
         else
