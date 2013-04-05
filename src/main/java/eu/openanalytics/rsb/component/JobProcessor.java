@@ -51,6 +51,7 @@ import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
@@ -68,7 +69,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("jobProcessor")
-public class JobProcessor extends AbstractComponent
+public class JobProcessor extends AbstractComponentWithCatalog
 {
     private interface JobRunner
     {
@@ -118,20 +119,7 @@ public class JobProcessor extends AbstractComponent
                 final Set<String> filesUploadedToR = new HashSet<String>();
 
                 // locate and upload the R script
-                final String rScriptFromCatalog = (String) job.getMeta().get(
-                    Constants.R_SCRIPT_CONFIGURATION_KEY);
-                final File rScriptFile = rScriptFromCatalog != null
-                                                                   ? new File(
-                                                                       getConfiguration().getRScriptsCatalogDirectory(),
-                                                                       rScriptFromCatalog)
-                                                                   : job.getRScriptFile();
-
-                if ((rScriptFile == null) || (!rScriptFile.isFile()))
-                {
-                    throw new IllegalArgumentException("No R script has been found for job: " + job
-                                                       + " using catalog: "
-                                                       + getConfiguration().getRScriptsCatalogDirectory());
-                }
+                final File rScriptFile = getRScriptFile(job);
 
                 uploadFileToR(rServi, rScriptFile, filesUploadedToR);
 
@@ -141,8 +129,8 @@ public class JobProcessor extends AbstractComponent
 
                 if (sweaveFileFromCatalog != null)
                 {
-                    final File sweaveFile = new File(getConfiguration().getSweaveFilesCatalogDirectory(),
-                        sweaveFileFromCatalog);
+                    final File sweaveFile = getCatalogManager().getCatalogFile(CatalogSection.SWEAVE_FILES,
+                        job.getApplicationName(), sweaveFileFromCatalog);
 
                     if (!sweaveFile.isFile())
                     {
@@ -185,6 +173,45 @@ public class JobProcessor extends AbstractComponent
                 }
 
                 return result;
+            }
+
+            private File getRScriptFile(final MultiFilesJob job)
+            {
+                final String rScriptFromCatalog = (String) job.getMeta().get(
+                    Constants.R_SCRIPT_CONFIGURATION_KEY);
+
+                return rScriptFromCatalog != null
+                                                 ? getRScriptFileFromCatalog(rScriptFromCatalog, job)
+                                                 : getRScriptFileFromJob(job);
+            }
+
+            private File getRScriptFileFromCatalog(final String rScriptFromCatalog, final MultiFilesJob job)
+            {
+                final File rScriptFile = getCatalogManager().getCatalogFile(CatalogSection.R_SCRIPTS,
+                    job.getApplicationName(), rScriptFromCatalog);
+
+                if ((rScriptFile == null) || (!rScriptFile.isFile()))
+                {
+                    throw new IllegalArgumentException("No R script has been found for job: " + job
+                                                       + ", in the catalog under the name: "
+                                                       + rScriptFromCatalog);
+                }
+                else
+                {
+                    return rScriptFile;
+                }
+            }
+
+            private File getRScriptFileFromJob(final MultiFilesJob job)
+            {
+                if ((job.getRScriptFile() == null) || (!job.getRScriptFile().isFile()))
+                {
+                    throw new IllegalArgumentException("No R script has been found for job: " + job);
+                }
+                else
+                {
+                    return job.getRScriptFile();
+                }
             }
         }, false);
     }

@@ -111,11 +111,9 @@ public class ResultsResource extends AbstractResource
     @Path("/{jobId}")
     @DELETE
     public Response deleteSingleResult(@PathParam("applicationName") final String applicationName,
-                                       @PathParam("jobId") final String jobId,
-                                       @Context final HttpHeaders httpHeaders,
-                                       @Context final UriInfo uriInfo) throws URISyntaxException, IOException
+                                       @PathParam("jobId") final String jobId)
+        throws URISyntaxException, IOException
     {
-
         validateApplicationName(applicationName);
         validateJobId(jobId);
 

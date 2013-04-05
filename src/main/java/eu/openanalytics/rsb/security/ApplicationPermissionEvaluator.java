@@ -35,7 +35,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
 
-import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.component.AdminResource;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.SecurityAuthorization;
@@ -147,7 +147,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
 
     private boolean hasRsbResourcePermission(final Authentication authentication, final String resourceName)
     {
-        if (Constants.ADMIN_PATH.equals(resourceName))
+        if (AdminResource.ADMIN_SYSTEM_PATH.equals(resourceName))
         {
             return isAuthenticationAuthorized(authentication, configuration.getRsbSecurityConfiguration());
         }

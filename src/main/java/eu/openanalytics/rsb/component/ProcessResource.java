@@ -34,7 +34,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.springframework.stereotype.Component;
 
@@ -47,11 +46,9 @@ import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 
 /**
- * Processes synchronous R job requests. Currently only supports XML and JSON
- * function calls.<br/>
- * <b>This processor bypasses the messaging infrastructure so it is not a fair player
- * compared to the other REST/SOAP entry points, thus it should be used with
- * care!</b>
+ * Processes synchronous R job requests. Currently only supports XML and JSON function calls.<br/>
+ * <b>This processor bypasses the messaging infrastructure so it is not a fair player compared to
+ * the other REST/SOAP entry points, thus it should be used with care!</b>
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -87,10 +84,9 @@ public class ProcessResource extends AbstractResource
     @Consumes(Constants.JSON_CONTENT_TYPE)
     @Produces(Constants.JSON_CONTENT_TYPE)
     public Response processJsonFunctionCallJob(final String jsonArgument,
-                                               @Context final HttpHeaders httpHeaders,
-                                               @Context final UriInfo uriInfo) throws Exception
+                                               @Context final HttpHeaders httpHeaders) throws Exception
     {
-        return handleNewRestJob(httpHeaders, uriInfo, new FunctionCallJobBuilder()
+        return handleNewRestJob(httpHeaders, new FunctionCallJobBuilder()
         {
             public AbstractFunctionCallJob build(final String applicationName,
                                                  final UUID jobId,
@@ -113,12 +109,11 @@ public class ProcessResource extends AbstractResource
     @POST
     @Consumes(Constants.XML_CONTENT_TYPE)
     @Produces(Constants.XML_CONTENT_TYPE)
-    public Response processXmlFunctionCallJob(final String xmlArgument,
-                                              @Context final HttpHeaders httpHeaders,
-                                              @Context final UriInfo uriInfo) throws Exception
+    public Response processXmlFunctionCallJob(final String xmlArgument, @Context final HttpHeaders httpHeaders)
+        throws Exception
     {
 
-        return handleNewRestJob(httpHeaders, uriInfo, new FunctionCallJobBuilder()
+        return handleNewRestJob(httpHeaders, new FunctionCallJobBuilder()
         {
             public AbstractFunctionCallJob build(final String applicationName,
                                                  final UUID jobId,
@@ -130,20 +125,17 @@ public class ProcessResource extends AbstractResource
         });
     }
 
-    private Response handleNewRestJob(final HttpHeaders httpHeaders,
-                                      final UriInfo uriInfo,
-                                      final FunctionCallJobBuilder jobBuilder) throws Exception
+    private Response handleNewRestJob(final HttpHeaders httpHeaders, final FunctionCallJobBuilder jobBuilder)
+        throws Exception
     {
 
         final String applicationName = Util.getSingleHeader(httpHeaders,
             Constants.APPLICATION_NAME_HTTP_HEADER);
-        return handleNewJob(applicationName, httpHeaders, uriInfo, jobBuilder);
+        return handleNewJob(applicationName, jobBuilder);
     }
 
-    private Response handleNewJob(final String applicationName,
-                                  final HttpHeaders httpHeaders,
-                                  final UriInfo uriInfo,
-                                  final FunctionCallJobBuilder jobBuilder) throws Exception
+    private Response handleNewJob(final String applicationName, final FunctionCallJobBuilder jobBuilder)
+        throws Exception
     {
 
         final UUID jobId = UUID.randomUUID();

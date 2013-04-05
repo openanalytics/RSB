@@ -21,30 +21,34 @@
 
 package eu.openanalytics.rsb.component;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.SecurityContext;
+import java.io.File;
 
-import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
+import javax.annotation.Resource;
+
+import eu.openanalytics.rsb.config.Configuration.CatalogSection;
+import eu.openanalytics.rsb.data.CatalogManager;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResource extends AbstractComponentWithCatalog
+public abstract class AbstractComponentWithCatalog extends AbstractComponent
 {
-    @Context
-    private SecurityContext securityContext;
+    @Resource
+    private CatalogManager catalogManager;
 
-    protected String getUserName()
+    public void setCatalogManager(final CatalogManager catalogManager)
     {
-        return securityContext != null && securityContext.getUserPrincipal() != null
-                                                                                    ? securityContext.getUserPrincipal()
-                                                                                        .getName()
-                                                                                    : ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME;
+        this.catalogManager = catalogManager;
     }
 
-    // exposed for unit testing
-    void setSecurityContext(final SecurityContext securityContext)
+    protected CatalogManager getCatalogManager()
     {
-        this.securityContext = securityContext;
+        return catalogManager;
+    }
+
+    protected File getJobConfigurationFile(final String applicationName, final String jobConfigurationFileName)
+    {
+        return getCatalogManager().getCatalogFile(CatalogSection.JOB_CONFIGURATIONS, applicationName,
+            jobConfigurationFileName);
     }
 }

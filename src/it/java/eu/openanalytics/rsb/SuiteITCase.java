@@ -22,8 +22,6 @@
 package eu.openanalytics.rsb;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
@@ -31,7 +29,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -43,7 +41,11 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.ConfigurationFactory;
+import eu.openanalytics.rsb.data.CatalogManager;
+import eu.openanalytics.rsb.data.CatalogManager.PutCatalogFileResult;
+import eu.openanalytics.rsb.data.FileCatalogManager;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -55,6 +57,7 @@ import eu.openanalytics.rsb.config.ConfigurationFactory;
 public class SuiteITCase
 {
     protected static Configuration configuration;
+    protected static CatalogManager catalogManager;
     protected static Properties rawMessages;
     protected static GreenMail greenMail;
     protected static GreenMailUser userAccount;
@@ -85,6 +88,11 @@ public class SuiteITCase
     private static void loadDefaultConfiguration() throws IOException
     {
         configuration = ConfigurationFactory.loadJsonConfiguration();
+
+        final FileCatalogManager fileCatalogManager = new FileCatalogManager();
+        fileCatalogManager.setConfiguration(configuration);
+        fileCatalogManager.createCatalogTree();
+        catalogManager = fileCatalogManager;
     }
 
     private static void loadTestConfiguration() throws IOException
@@ -95,13 +103,11 @@ public class SuiteITCase
 
     private static void setupCatalog() throws IOException
     {
-        putTestFileInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "test.R"));
-        putTestFileInCatalog(new File(configuration.getRScriptsCatalogDirectory(), "testSweave.R"));
-        putTestFileInCatalog(new File(configuration.getSweaveFilesCatalogDirectory(), "testSweave.Rnw"));
-        putTestFileInCatalog(new File(configuration.getJobConfigurationCatalogDirectory(),
-            "test-configuration.txt"));
-        putTestFileInCatalog(new File(configuration.getEmailRepliesCatalogDirectory(),
-            "test-email-response.txt"));
+        putTestFileInCatalog(CatalogSection.R_SCRIPTS, "test.R");
+        putTestFileInCatalog(CatalogSection.R_SCRIPTS, "testSweave.R");
+        putTestFileInCatalog(CatalogSection.SWEAVE_FILES, "testSweave.Rnw");
+        putTestFileInCatalog(CatalogSection.JOB_CONFIGURATIONS, "test-configuration.txt");
+        putTestFileInCatalog(CatalogSection.EMAIL_REPLIES, "test-email-response.txt");
     }
 
     private static void loadRawMessages() throws IOException
@@ -128,14 +134,14 @@ public class SuiteITCase
         greenMail.start();
     }
 
-    public static void registerCreatedCatalogFile(final Configuration.Catalog catalog, final String fileName)
+    public static void registerCreatedCatalogFile(final CatalogSection catalogSection, final String fileName)
     {
-        if (configuration == null)
+        if ((configuration == null) || (catalogManager == null))
         {
             return;
         }
-        final File configuredDirectory = catalog.getConfiguredDirectory(configuration);
-        final File fileToRegister = new File(configuredDirectory, fileName);
+
+        final File fileToRegister = catalogManager.getCatalogFile(catalogSection, "ignored", fileName);
         catalogTestFiles.add(fileToRegister);
     }
 
@@ -167,15 +173,12 @@ public class SuiteITCase
         teardownTestSuite();
     }
 
-    private static void putTestFileInCatalog(final File testFile) throws FileNotFoundException, IOException
+    private static void putTestFileInCatalog(final CatalogSection catalogSection, final String fileName)
+        throws IOException
     {
-        catalogTestFiles.add(testFile);
+        final Pair<PutCatalogFileResult, File> putResult = catalogManager.putCatalogFile(catalogSection,
+            "ignored", fileName, AbstractITCase.getTestData(fileName));
 
-        if (!testFile.isFile())
-        {
-            final FileOutputStream fos = new FileOutputStream(testFile);
-            IOUtils.copy(AbstractITCase.getTestData(testFile.getName()), fos);
-            IOUtils.closeQuietly(fos);
-        }
+        catalogTestFiles.add(putResult.getRight());
     }
 }

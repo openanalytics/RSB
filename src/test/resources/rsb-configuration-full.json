@@ -90,5 +90,6 @@
     "rsbSecurityConfiguration": {
         "authorizedPrincipals":["joe"],
         "authorizedRoles":["ROLE_ADMIN"]
-    }
+    },
+    "applicationAwareCatalog" : true
 }

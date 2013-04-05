@@ -54,10 +54,6 @@ public class PersistedConfigurationAdapter implements Configuration
     private final PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
     private final String nodeName;
-    private final File rScriptsCatalogDirectory;
-    private final File sweaveFilesCatalogDirectory;
-    private final File jobConfigurationCatalogDirectory;
-    private final File emailRepliesCatalogDirectory;
 
     public PersistedConfigurationAdapter(final URL configurationUrl,
                                          final PersistedConfiguration persistedConfiguration)
@@ -68,15 +64,6 @@ public class PersistedConfigurationAdapter implements Configuration
         nodeName = StringUtils.isNotBlank(persistedConfiguration.getNodeName())
                                                                                ? persistedConfiguration.getNodeName()
                                                                                : getDefaultNodeName();
-
-        rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.R_SCRIPTS.getSubDir());
-        sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.SWEAVE_FILES.getSubDir());
-        jobConfigurationCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.JOB_CONFIGURATIONS.getSubDir());
-        emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.EMAIL_REPLIES.getSubDir());
     }
 
     private String getDefaultNodeName()
@@ -114,6 +101,11 @@ public class PersistedConfigurationAdapter implements Configuration
     public String getNodeName()
     {
         return nodeName;
+    }
+
+    public File getCatalogRootDirectory()
+    {
+        return persistedConfiguration.getCatalogRootDirectory();
     }
 
     public File getActiveMqWorkDirectory()
@@ -215,26 +207,6 @@ public class PersistedConfigurationAdapter implements Configuration
         return (List) persistedConfiguration.getDepositEmailAccounts();
     }
 
-    public File getRScriptsCatalogDirectory()
-    {
-        return rScriptsCatalogDirectory;
-    }
-
-    public File getSweaveFilesCatalogDirectory()
-    {
-        return sweaveFilesCatalogDirectory;
-    }
-
-    public File getJobConfigurationCatalogDirectory()
-    {
-        return jobConfigurationCatalogDirectory;
-    }
-
-    public File getEmailRepliesCatalogDirectory()
-    {
-        return emailRepliesCatalogDirectory;
-    }
-
     public List<File> getDataDirectories()
     {
         return persistedConfiguration.getDataDirectories();
@@ -265,5 +237,11 @@ public class PersistedConfigurationAdapter implements Configuration
     public SecurityAuthorization getRsbSecurityConfiguration()
     {
         return persistedConfiguration.getRsbSecurityConfiguration();
+    }
+
+    @Override
+    public boolean isApplicationAwareCatalog()
+    {
+        return persistedConfiguration.isApplicationAwareCatalog();
     }
 }

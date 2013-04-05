@@ -47,44 +47,14 @@ public interface Configuration
     public static final String DEPOSIT_ACCEPTED_SUBDIR = "accepted";
     public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
 
-    public enum Catalog
+    public enum CatalogSection
     {
-        R_SCRIPTS("r_scripts")
-        {
-            @Override
-            public File getConfiguredDirectory(final Configuration configuration)
-            {
-                return configuration.getRScriptsCatalogDirectory();
-            }
-        },
-        SWEAVE_FILES("sweave_files")
-        {
-            @Override
-            public File getConfiguredDirectory(final Configuration configuration)
-            {
-                return configuration.getSweaveFilesCatalogDirectory();
-            }
-        },
-        JOB_CONFIGURATIONS("job_configurations")
-        {
-            @Override
-            public File getConfiguredDirectory(final Configuration configuration)
-            {
-                return configuration.getJobConfigurationCatalogDirectory();
-            }
-        },
-        EMAIL_REPLIES("email_replies")
-        {
-            @Override
-            public File getConfiguredDirectory(final Configuration configuration)
-            {
-                return configuration.getEmailRepliesCatalogDirectory();
-            }
-        };
+        R_SCRIPTS("r_scripts"), SWEAVE_FILES("sweave_files"), JOB_CONFIGURATIONS("job_configurations"), EMAIL_REPLIES(
+                        "email_replies");
 
         private final String subDir;
 
-        private Catalog(final String subDir)
+        private CatalogSection(final String subDir)
         {
             this.subDir = subDir;
         }
@@ -93,8 +63,6 @@ public interface Configuration
         {
             return subDir;
         }
-
-        public abstract File getConfiguredDirectory(Configuration configuration);
     }
 
     /**
@@ -249,24 +217,9 @@ public interface Configuration
     String getNodeName();
 
     /**
-     * Directory where a catalog of R scripts are stored.
+     * Directory under which RSB catalog sections are located.
      */
-    File getRScriptsCatalogDirectory();
-
-    /**
-     * Directory where a catalog of Sweave files are stored.
-     */
-    File getSweaveFilesCatalogDirectory();
-
-    /**
-     * Directory where a catalog of job configuration files are stored.
-     */
-    File getJobConfigurationCatalogDirectory();
-
-    /**
-     * Directory where a catalog of Email replies are stored.
-     */
-    File getEmailRepliesCatalogDirectory();
+    File getCatalogRootDirectory();
 
     /**
      * Directory where result files are written.
@@ -368,4 +321,9 @@ public interface Configuration
      * Optional RSB security.
      */
     SecurityAuthorization getRsbSecurityConfiguration();
+
+    /**
+     * Optionally partition the catalog by application name.
+     */
+    boolean isApplicationAwareCatalog();
 }

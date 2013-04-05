@@ -46,6 +46,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.PersistedConfiguration;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
@@ -55,27 +56,35 @@ import eu.openanalytics.rsb.rest.types.RServiPools;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class RestAdminITCase extends AbstractITCase {
+public class RestAdminITCase extends AbstractITCase
+{
     @Test
-    public void getSystemConfiguration() throws Exception {
+    public void getSystemConfiguration() throws Exception
+    {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/configuration");
+        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI
+                                                           + "/api/rest/admin/system/configuration");
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
-        assertThat(Util.fromJson(response.getText(), PersistedConfiguration.class), is(instanceOf(PersistedConfiguration.class)));
+        assertThat(Util.fromJson(response.getText(), PersistedConfiguration.class),
+            is(instanceOf(PersistedConfiguration.class)));
     }
 
     @Test
-    public void putSystemConfiguration() throws Exception {
+    public void putSystemConfiguration() throws Exception
+    {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/configuration", Thread.currentThread()
-                .getContextClassLoader().getResourceAsStream("rsb-configuration.json"), "application/json");
+        final WebRequest request = new PutMethodWebRequest(RSB_BASE_URI
+                                                           + "/api/rest/admin/system/configuration",
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("rsb-configuration.json"),
+            "application/json");
         final WebResponse response = wc.sendRequest(request);
         assertEquals(204, response.getResponseCode());
     }
 
     @Test
-    public void restart() throws Exception {
+    public void restart() throws Exception
+    {
         final WebConversation wc = new WebConversation();
         final WebRequest request = new PostMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/restart");
         final WebResponse response = wc.sendRequest(request);
@@ -84,17 +93,21 @@ public class RestAdminITCase extends AbstractITCase {
     }
 
     @Test
-    public void getRServiPools() throws Exception {
+    public void getRServiPools() throws Exception
+    {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/system/rservi_pools");
+        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI
+                                                           + "/api/rest/admin/system/rservi_pools");
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
-        final RServiPools rServiPools = JAXB.unmarshal(new StringReader(response.getText()), RServiPools.class);
+        final RServiPools rServiPools = JAXB.unmarshal(new StringReader(response.getText()),
+            RServiPools.class);
         assertFalse(rServiPools.getContents().isEmpty());
     }
 
     @Test
-    public void getCatalog() throws Exception {
+    public void getCatalog() throws Exception
+    {
         final WebConversation wc = new WebConversation();
         final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog");
         final WebResponse response = wc.sendRequest(request);
@@ -106,8 +119,9 @@ public class RestAdminITCase extends AbstractITCase {
 
         // check all catalog dirs
         assertEquals(4, directories.size());
-        for (final CatalogDirectory cd : directories) {
-            assertEquals(cd.getType(), Configuration.Catalog.valueOf(cd.getType()).toString());
+        for (final CatalogDirectory cd : directories)
+        {
+            assertEquals(cd.getType(), Configuration.CatalogSection.valueOf(cd.getType()).toString());
             assertTrue(StringUtils.isNotBlank(cd.getPath()));
         }
 
@@ -118,9 +132,11 @@ public class RestAdminITCase extends AbstractITCase {
     }
 
     @Test
-    public void getCatalogFile() throws Exception {
+    public void getCatalogFile() throws Exception
+    {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/test.R");
+        final WebRequest request = new GetMethodWebRequest(RSB_BASE_URI
+                                                           + "/api/rest/admin/catalog/R_SCRIPTS/test.R");
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
         assertEquals("text/plain", response.getContentType());
@@ -128,21 +144,23 @@ public class RestAdminITCase extends AbstractITCase {
     }
 
     @Test
-    public void putCatalogFile() throws Exception {
+    public void putCatalogFile() throws Exception
+    {
         final String testFileName = "fake-" + RandomStringUtils.randomAlphanumeric(20) + ".R";
 
         WebConversation wc = new WebConversation();
-        WebRequest request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
-                IOUtils.toInputStream("fake R script content for " + testFileName), "text/plain");
+        WebRequest request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/"
+                                                     + testFileName,
+            IOUtils.toInputStream("fake R script content for " + testFileName), "text/plain");
         WebResponse response = wc.sendRequest(request);
         assertEquals(201, response.getResponseCode());
         assertTrue(StringUtils.isNotBlank(response.getHeaderField("Location")));
 
-        SuiteITCase.registerCreatedCatalogFile(Configuration.Catalog.R_SCRIPTS, testFileName);
+        SuiteITCase.registerCreatedCatalogFile(CatalogSection.R_SCRIPTS, testFileName);
 
         wc = new WebConversation();
         request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
-                IOUtils.toInputStream("fake R script replacement content for " + testFileName), "text/plain");
+            IOUtils.toInputStream("fake R script replacement content for " + testFileName), "text/plain");
         response = wc.sendRequest(request);
         assertEquals(204, response.getResponseCode());
         assertTrue(StringUtils.isBlank(response.getHeaderField("Location")));

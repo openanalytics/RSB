@@ -46,7 +46,6 @@ public abstract class AbstractComponent
     @Resource
     private MessageDispatcher messageDispatcher;
 
-    // exposed for unit testing
     public void setMessageDispatcher(final MessageDispatcher messageDispatcher)
     {
         this.messageDispatcher = messageDispatcher;

@@ -49,8 +49,8 @@
 
     <http realm="RSB" use-expressions="true">
         <expression-handler ref="webExpressionHandler" />
-        <intercept-url pattern="/**/admin/**"
-            access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.Constants).ADMIN_PATH, 'RSB_RESOURCE')" />
+        <intercept-url pattern="/**/admin/system/**"
+            access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.component.AdminResource).ADMIN_SYSTEM_PATH, 'RSB_RESOURCE')" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
 
         <!-- Pick the authentication mechanism (basic or OpenID) -->

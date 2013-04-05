@@ -74,5 +74,13 @@
     }
           </pre>
         </section>
+        <section name="Application Aware Catalog">
+            <p>In a secure environment, it can be desirable to partition the catalog per application name.
+            This prevents one application or one application admin to read or write files in another application.</p>
+            <p>This option, which is off by default, is activated with the following configuration setting:</p>
+            <pre>
+    "applicationAwareCatalog" : true
+            </pre>
+        </section>
     </body>
 </document>

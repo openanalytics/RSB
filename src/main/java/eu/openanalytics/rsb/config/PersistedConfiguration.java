@@ -412,6 +412,7 @@ public class PersistedConfiguration
     private boolean checkHealthOnStart;
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
     private PersistedSecurityAuthorization rsbSecurityConfiguration;
+    private boolean applicationAwareCatalog;
 
     public PersistedConfiguration()
     {
@@ -425,7 +426,7 @@ public class PersistedConfiguration
         setAdministratorEmail(configuration.getAdministratorEmail());
         setApplicationSpecificRserviPoolUris(configuration.getApplicationSpecificRserviPoolUris());
         setApplicationSecurityConfiguration((Map) configuration.getApplicationSecurityConfiguration());
-        setCatalogRootDirectory(configuration.getRScriptsCatalogDirectory().getParentFile());
+        setCatalogRootDirectory(configuration.getCatalogRootDirectory());
         setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setDataDirectories(configuration.getDataDirectories());
         setDefaultRserviPoolUri(configuration.getDefaultRserviPoolUri());
@@ -463,7 +464,7 @@ public class PersistedConfiguration
     }
 
     /**
-     * Directory under which RSB catalogs are located. The catalogs are:
+     * Directory under which RSB catalog sections are located. The catalog sections are:
      * <ul>
      * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR} : catalog of R
      * scripts</li>
@@ -733,5 +734,18 @@ public class PersistedConfiguration
     public void setRsbSecurityConfiguration(final PersistedSecurityAuthorization rsbSecurityConfiguration)
     {
         this.rsbSecurityConfiguration = rsbSecurityConfiguration;
+    }
+
+    /**
+     * Optionally partition the catalog by application name.
+     */
+    public boolean isApplicationAwareCatalog()
+    {
+        return applicationAwareCatalog;
+    }
+
+    public void setApplicationAwareCatalog(final boolean applicationAwareCatalog)
+    {
+        this.applicationAwareCatalog = applicationAwareCatalog;
     }
 }

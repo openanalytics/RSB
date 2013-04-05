@@ -94,7 +94,7 @@ public class ResultsResourceTestCase
     public void deleteSingleResultNotFound() throws URISyntaxException, IOException
     {
         resultsResource.deleteSingleResult(ResultResourceTestCase.TEST_APP_NAME,
-            ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders, uriInfo);
+            ResultResourceTestCase.TEST_JOB_ID.toString());
     }
 
     @Test
