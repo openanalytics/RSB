@@ -44,7 +44,6 @@
         <section name="Application Level Security">
           <p>The following demonstrate how to configure RSB application level security:</p>
           <pre>
-    "rServiClientPoolValidationStrategy": "ADAPTIVE",
     "applicationSecurityConfiguration": {
       "secure_app_1": {
         "userPrincipals":["bob","dan"]
