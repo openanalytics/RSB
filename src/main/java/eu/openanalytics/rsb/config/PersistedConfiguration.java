@@ -31,13 +31,13 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 
+import eu.openanalytics.rsb.config.Configuration.AdminSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
 import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
-import eu.openanalytics.rsb.config.Configuration.SecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
 /**
@@ -337,39 +337,61 @@ public class PersistedConfiguration
         }
     }
 
-    public static class PersistedSecurityAuthorization implements SecurityAuthorization
+    public static class PersistedAdminSecurityAuthorization implements AdminSecurityAuthorization
     {
-        private static final long serialVersionUID = 1L;
-        private Set<String> authorizedPrincipals;
-        private Set<String> authorizedRoles;
+        private static final long serialVersionUID = 2L;
+        private Set<String> adminPrincipals;
+        private Set<String> adminRoles;
 
-        public Set<String> getAuthorizedPrincipals()
+        public Set<String> getAdminPrincipals()
         {
-            return authorizedPrincipals;
+            return adminPrincipals;
         }
 
-        public void setAuthorizedPrincipals(final Set<String> authorizedPrincipals)
+        public void setAdminPrincipals(final Set<String> adminPrincipals)
         {
-            this.authorizedPrincipals = authorizedPrincipals;
+            this.adminPrincipals = adminPrincipals;
         }
 
-        public Set<String> getAuthorizedRoles()
+        public Set<String> getAdminRoles()
         {
-            return authorizedRoles;
+            return adminRoles;
         }
 
-        public void setAuthorizedRoles(final Set<String> authorizedRoles)
+        public void setAdminRoles(final Set<String> adminRoles)
         {
-            this.authorizedRoles = authorizedRoles;
+            this.adminRoles = adminRoles;
         }
     }
 
-    public static class PersistedApplicationSecurityAuthorization extends PersistedSecurityAuthorization
+    public static class PersistedApplicationSecurityAuthorization extends PersistedAdminSecurityAuthorization
         implements ApplicationSecurityAuthorization
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
+        private Set<String> userPrincipals;
+        private Set<String> userRoles;
         private boolean functionCallAllowed;
         private boolean scriptSubmissionAllowed;
+
+        public Set<String> getUserPrincipals()
+        {
+            return userPrincipals;
+        }
+
+        public void setUserPrincipals(final Set<String> userPrincipals)
+        {
+            this.userPrincipals = userPrincipals;
+        }
+
+        public Set<String> getUserRoles()
+        {
+            return userRoles;
+        }
+
+        public void setUserRoles(final Set<String> userRoles)
+        {
+            this.userRoles = userRoles;
+        }
 
         public boolean isFunctionCallAllowed()
         {
@@ -411,7 +433,7 @@ public class PersistedConfiguration
     private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
-    private PersistedSecurityAuthorization rsbSecurityConfiguration;
+    private PersistedAdminSecurityAuthorization rsbSecurityConfiguration;
     private boolean applicationAwareCatalog;
 
     public PersistedConfiguration()
@@ -424,6 +446,7 @@ public class PersistedConfiguration
     {
         setActiveMqWorkDirectory(configuration.getActiveMqWorkDirectory());
         setAdministratorEmail(configuration.getAdministratorEmail());
+        setApplicationAwareCatalog(configuration.isApplicationAwareCatalog());
         setApplicationSpecificRserviPoolUris(configuration.getApplicationSpecificRserviPoolUris());
         setApplicationSecurityConfiguration((Map) configuration.getApplicationSecurityConfiguration());
         setCatalogRootDirectory(configuration.getCatalogRootDirectory());
@@ -726,12 +749,12 @@ public class PersistedConfiguration
     /**
      * Optional RSB security.
      */
-    public PersistedSecurityAuthorization getRsbSecurityConfiguration()
+    public PersistedAdminSecurityAuthorization getRsbSecurityConfiguration()
     {
         return rsbSecurityConfiguration;
     }
 
-    public void setRsbSecurityConfiguration(final PersistedSecurityAuthorization rsbSecurityConfiguration)
+    public void setRsbSecurityConfiguration(final PersistedAdminSecurityAuthorization rsbSecurityConfiguration)
     {
         this.rsbSecurityConfiguration = rsbSecurityConfiguration;
     }

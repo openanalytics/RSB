@@ -71,25 +71,31 @@
     "rServiClientPoolValidationStrategy": "ADAPTIVE",
     "applicationSecurityConfiguration": {
       "secure_app_1": {
-        "authorizedPrincipals":["bob","dan"]
+        "userPrincipals":["bob","dan"]
       },
       "secure_app_2": {
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       },
       "secure_app_3": {
-        "authorizedPrincipals":["bob","dan"],
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       },
       "secure_app_4": {
-        "authorizedPrincipals":["bob","dan"],
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
         "functionCallAllowed": true,
         "scriptSubmissionAllowed": true
+      },
+      "secure_app_5": {
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "adminPrincipals":["jack"],
+        "adminRoles":["ROLE_ADMIN"]
       }
     },
     "rsbSecurityConfiguration": {
-        "authorizedPrincipals":["joe"],
-        "authorizedRoles":["ROLE_ADMIN"]
+        "adminPrincipals":["joe"],
+        "adminRoles":["ROLE_ADMIN"]
     },
     "applicationAwareCatalog" : true
 }

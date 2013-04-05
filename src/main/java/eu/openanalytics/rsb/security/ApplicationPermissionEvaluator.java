@@ -37,8 +37,8 @@ import org.springframework.util.CollectionUtils;
 
 import eu.openanalytics.rsb.component.AdminResource;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.config.Configuration.AdminSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
-import eu.openanalytics.rsb.config.Configuration.SecurityAuthorization;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.MultiFilesJob;
@@ -75,6 +75,11 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             final String applicationName = (String) targetDomainObject;
             return hasApplicationUserPermission(authentication, applicationName);
         }
+        else if ("APPLICATION_ADMIN".equals(permission))
+        {
+            final String applicationName = (String) targetDomainObject;
+            return hasApplicationAdminPermission(authentication, applicationName);
+        }
         else if ("RSB_RESOURCE".equals(permission))
         {
             final String resourceName = targetDomainObject.toString();
@@ -94,7 +99,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         {
             final String applicationName = job.getApplicationName();
             final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
-            return isAuthenticationAuthorized(authentication, applicationSecurityConfiguration)
+            return isAuthenticationUser(authentication, applicationSecurityConfiguration)
                    && isJobAuthorized(job, applicationSecurityConfiguration);
         }
         else
@@ -111,7 +116,29 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         if (applicationSecurityConfigurations != null)
         {
             final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
-            return isAuthenticationAuthorized(authentication, applicationSecurityConfiguration);
+            return isAuthenticationUser(authentication, applicationSecurityConfiguration);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private boolean hasApplicationAdminPermission(final Authentication authentication,
+                                                  final String applicationName)
+    {
+        // RSB admins are application admins
+        if (isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration()))
+        {
+            return true;
+        }
+
+        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
+
+        if (applicationSecurityConfigurations != null)
+        {
+            final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
+            return isAuthenticationAdmin(authentication, applicationSecurityConfiguration);
         }
         else
         {
@@ -149,7 +176,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
     {
         if (AdminResource.ADMIN_SYSTEM_PATH.equals(resourceName))
         {
-            return isAuthenticationAuthorized(authentication, configuration.getRsbSecurityConfiguration());
+            return isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration());
         }
         else
         {
@@ -157,19 +184,39 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
     }
 
-    private boolean isAuthenticationAuthorized(final Authentication authentication,
-                                               final SecurityAuthorization securityAuthorization)
+    private boolean isAuthenticationAdmin(final Authentication authentication,
+                                          final AdminSecurityAuthorization adminSecurityAuthorization)
     {
-        if (securityAuthorization == null)
+        if (adminSecurityAuthorization == null)
         {
             return false;
         }
 
+        return isAuthenticationAuthorized(authentication, adminSecurityAuthorization.getAdminPrincipals(),
+            adminSecurityAuthorization.getAdminRoles());
+    }
+
+    private boolean isAuthenticationUser(final Authentication authentication,
+                                         final ApplicationSecurityAuthorization applicationSecurityAuthorization)
+    {
+        if (applicationSecurityAuthorization == null)
+        {
+            return false;
+        }
+
+        return isAuthenticationAuthorized(authentication,
+            applicationSecurityAuthorization.getAdminPrincipals(),
+            applicationSecurityAuthorization.getAdminRoles());
+    }
+
+    private boolean isAuthenticationAuthorized(final Authentication authentication,
+                                               final Set<String> authorizedPrincipals,
+                                               final Set<String> authorizedRoles)
+    {
         final String userName = getUserName(authentication);
 
-        if ((StringUtils.isNotBlank(userName))
-            && (!CollectionUtils.isEmpty(securityAuthorization.getAuthorizedPrincipals()))
-            && (securityAuthorization.getAuthorizedPrincipals().contains(userName)))
+        if ((StringUtils.isNotBlank(userName)) && (!CollectionUtils.isEmpty(authorizedPrincipals))
+            && (authorizedPrincipals.contains(userName)))
         {
             return true;
         }
@@ -180,7 +227,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             roles.add(authority.getAuthority());
         }
 
-        return CollectionUtils.containsAny(securityAuthorization.getAuthorizedRoles(), roles);
+        return CollectionUtils.containsAny(authorizedRoles, roles);
     }
 
     private String getUserName(final Authentication authentication)

@@ -39,6 +39,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
@@ -53,7 +54,6 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
-// FIXME secure
 public class FileCatalogManager extends AbstractComponent implements CatalogManager
 {
     @PostConstruct
@@ -104,6 +104,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return applicationNames;
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
     public Map<Pair<CatalogSection, File>, List<File>> getCatalog(final String applicationName)
     {
         final Map<Pair<CatalogSection, File>, List<File>> catalog = new HashMap<Pair<CatalogSection, File>, List<File>>();
@@ -119,6 +120,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return catalog;
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
     public File getCatalogFile(final CatalogSection catalogSection,
                                final String applicationName,
                                final String fileName)
@@ -127,6 +129,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return new File(catalogSectionDirectory, fileName);
     }
 
+    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_ADMIN')")
     public Pair<PutCatalogFileResult, File> putCatalogFile(final CatalogSection catalogSection,
                                                            final String applicationName,
                                                            final String fileName,

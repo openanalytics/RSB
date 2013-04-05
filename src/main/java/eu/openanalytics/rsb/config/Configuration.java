@@ -192,18 +192,22 @@ public interface Configuration
         }
     };
 
-    public interface SecurityAuthorization extends Serializable
+    public interface AdminSecurityAuthorization extends Serializable
     {
-        Set<String> getAuthorizedPrincipals();
+        Set<String> getAdminPrincipals();
 
-        Set<String> getAuthorizedRoles();
+        Set<String> getAdminRoles();
     }
 
-    public interface ApplicationSecurityAuthorization extends SecurityAuthorization
+    public interface ApplicationSecurityAuthorization extends AdminSecurityAuthorization
     {
         boolean isFunctionCallAllowed();
 
         boolean isScriptSubmissionAllowed();
+
+        Set<String> getUserPrincipals();
+
+        Set<String> getUserRoles();
     }
 
     /**
@@ -320,7 +324,7 @@ public interface Configuration
     /**
      * Optional RSB security.
      */
-    SecurityAuthorization getRsbSecurityConfiguration();
+    AdminSecurityAuthorization getRsbSecurityConfiguration();
 
     /**
      * Optionally partition the catalog by application name.

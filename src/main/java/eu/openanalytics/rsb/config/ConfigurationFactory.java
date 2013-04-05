@@ -109,7 +109,6 @@ public abstract class ConfigurationFactory
                                                                          final InputStream is)
         throws IOException
     {
-
         final String json = IOUtils.toString(is);
         IOUtils.closeQuietly(is);
 
