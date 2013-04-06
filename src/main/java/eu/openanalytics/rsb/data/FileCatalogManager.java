@@ -104,7 +104,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return applicationNames;
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
+    @PreAuthorize("hasPermission(#applicationName, 'CATALOG_USER')")
     public Map<Pair<CatalogSection, File>, List<File>> getCatalog(final String applicationName)
     {
         final Map<Pair<CatalogSection, File>, List<File>> catalog = new HashMap<Pair<CatalogSection, File>, List<File>>();
@@ -120,7 +120,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return catalog;
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
+    @PreAuthorize("hasPermission(#applicationName, 'CATALOG_USER')")
     public File getCatalogFile(final CatalogSection catalogSection,
                                final String applicationName,
                                final String fileName)
@@ -129,7 +129,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return new File(catalogSectionDirectory, fileName);
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_ADMIN')")
+    @PreAuthorize("hasPermission(#applicationName, 'CATALOG_ADMIN')")
     public Pair<PutCatalogFileResult, File> putCatalogFile(final CatalogSection catalogSection,
                                                            final String applicationName,
                                                            final String fileName,

@@ -95,7 +95,7 @@
     },
     "rsbSecurityConfiguration": {
         "adminPrincipals":["joe"],
-        "adminRoles":["ROLE_USB_ADMIN"]
+        "adminRoles":["ROLE_RSB_ADMIN"]
     },
     "applicationAwareCatalog" : true
 }

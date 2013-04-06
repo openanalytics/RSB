@@ -88,6 +88,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     private static final String SYSTEM_SUBPATH = "system";
 
     public static final String ADMIN_SYSTEM_PATH = Constants.ADMIN_PATH + "/" + SYSTEM_SUBPATH;
+    public static final String ADMIN_CATALOG_PATH = Constants.ADMIN_PATH + "/" + CATALOG_SUBPATH;
 
     private ConfigurableApplicationContext applicationContext;
 

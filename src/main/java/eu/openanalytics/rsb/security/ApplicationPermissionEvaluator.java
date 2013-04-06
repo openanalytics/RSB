@@ -60,6 +60,15 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
                                  final Object targetDomainObject,
                                  final Object permission)
     {
+        if ("CATALOG_USER".equals(permission))
+        {
+            return hasCatalogUserPermission(authentication, targetDomainObject);
+        }
+        else if ("CATALOG_ADMIN".equals(permission))
+        {
+            return hasCatalogAdminPermission(authentication, targetDomainObject);
+        }
+
         if (targetDomainObject == null)
         {
             return false;
@@ -91,6 +100,40 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
     }
 
+    private boolean hasCatalogAdminPermission(final Authentication authentication,
+                                              final Object targetDomainObject)
+    {
+        if (configuration.isApplicationAwareCatalog())
+        {
+            // in secure-mode with an application aware catalog, only admins of a specific
+            // application can modify the application's catalog
+            return hasPermission(authentication, targetDomainObject, "APPLICATION_ADMIN");
+        }
+        else
+        {
+            // in secure-mode with a non-application aware catalog, only RSB admins can
+            // modify the catalog
+            return hasRsbResourcePermission(authentication, AdminResource.ADMIN_CATALOG_PATH);
+        }
+    }
+
+    private boolean hasCatalogUserPermission(final Authentication authentication,
+                                             final Object targetDomainObject)
+    {
+        if (configuration.isApplicationAwareCatalog())
+        {
+            // in secure-mode with an application aware catalog, only users of a specific
+            // application can read the application's catalog
+            return hasPermission(authentication, targetDomainObject, "APPLICATION_USER");
+        }
+        else
+        {
+            // in secure-mode with a non-application aware catalog, anyone authenticated can
+            // read the catalog
+            return true;
+        }
+    }
+
     private boolean hasApplicationUserOrAdminPermission(final Authentication authentication,
                                                         final String applicationName)
     {
@@ -100,19 +143,8 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
 
     private boolean hasApplicationJobPermission(final Authentication authentication, final AbstractJob job)
     {
-        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
-
-        if (applicationSecurityConfigurations != null)
-        {
-            final String applicationName = job.getApplicationName();
-            final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
-            return hasApplicationUserOrAdminPermission(authentication, applicationName)
-                   && isJobAuthorized(job, applicationSecurityConfiguration);
-        }
-        else
-        {
-            return false;
-        }
+        return hasApplicationAdminPermission(authentication, job.getApplicationName())
+               || (hasApplicationUserPermission(authentication, job.getApplicationName()) && isJobAuthorized(job));
     }
 
     private boolean hasApplicationUserPermission(final Authentication authentication,
@@ -153,9 +185,17 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
     }
 
-    private boolean isJobAuthorized(final AbstractJob job,
-                                    final ApplicationSecurityAuthorization applicationSecurityConfiguration)
+    private boolean isJobAuthorized(final AbstractJob job)
     {
+        final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
+        if (applicationSecurityConfigurations == null)
+        {
+            return false;
+        }
+
+        final String applicationName = job.getApplicationName();
+
+        final ApplicationSecurityAuthorization applicationSecurityConfiguration = applicationSecurityConfigurations.get(applicationName);
         if (applicationSecurityConfiguration == null)
         {
             return false;
@@ -182,6 +222,10 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
     private boolean hasRsbResourcePermission(final Authentication authentication, final String resourceName)
     {
         if (AdminResource.ADMIN_SYSTEM_PATH.equals(resourceName))
+        {
+            return isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration());
+        }
+        else if (AdminResource.ADMIN_CATALOG_PATH.equals(resourceName))
         {
             return isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration());
         }
@@ -212,8 +256,8 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
 
         return isAuthenticationAuthorized(authentication,
-            applicationSecurityAuthorization.getAdminPrincipals(),
-            applicationSecurityAuthorization.getAdminRoles());
+            applicationSecurityAuthorization.getUserPrincipals(),
+            applicationSecurityAuthorization.getUserRoles());
     }
 
     private boolean isAuthenticationAuthorized(final Authentication authentication,

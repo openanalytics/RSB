@@ -69,8 +69,8 @@
       }
     }
           </pre>
-          <p>Notice how the <b>functionCallAllowed</b> and <b>scriptSubmissionAllowed</b> attributes are used to explicitly allow the users of <i>secure_app_4</i> to execute jobs that can potentially impact the environment where R executes. This is disabled by default.</p>
           <p>Application admins, declared with <b>adminPrincipals</b> and <b>adminRoles</b> are de-facto users of the concerned application.</p>
+          <p>Notice how the <b>functionCallAllowed</b> and <b>scriptSubmissionAllowed</b> attributes are used to explicitly allow the users of <i>secure_app_4</i> to execute jobs that can potentially impact the environment where R executes. This is disabled by default. Application admins are not affected by these flags.</p>
         </section>
         <section name="RSB Admin Security">
           <p>The following demonstrate how to configure the optional RSB admin roles/groups:</p>
