@@ -31,6 +31,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
@@ -43,6 +44,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -120,6 +122,21 @@ public class AdminResourceTestCase
         final Response response = adminResource.restart();
         assertThat(response.getStatus(), is(200));
         assertThat(response.getEntity().toString(), is("RESTARTED"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void installRPackageBadChecksum() throws Exception
+    {
+        byte[] fakePackageBytes = "fake_package".getBytes();
+        adminResource.installRPackage(new ByteArrayInputStream(fakePackageBytes), "bad");
+    }
+
+    public void installRPackageSuccess() throws Exception
+    {
+        final byte[] fakePackageBytes = "fake_package".getBytes();
+
+        adminResource.installRPackage(new ByteArrayInputStream(fakePackageBytes),
+            DigestUtils.shaHex(fakePackageBytes));
     }
 
     @Test

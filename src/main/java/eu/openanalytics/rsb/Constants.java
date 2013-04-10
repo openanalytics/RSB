@@ -91,6 +91,7 @@ public class Constants
     public static final Set<String> ZIP_CONTENT_TYPES = new HashSet<String>(Arrays.asList(ZIP_CONTENT_TYPE,
         ZIP_CONTENT_TYPE2, ZIP_CONTENT_TYPE3));
     public static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
+    public static final String GZIP_CONTENT_TYPE = "application/gzip";
 
     public static final MimeType JSON_MIME_TYPE;
     public static final MimeType XML_MIME_TYPE;

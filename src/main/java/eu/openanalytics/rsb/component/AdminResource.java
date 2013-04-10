@@ -23,6 +23,7 @@ package eu.openanalytics.rsb.component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +46,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -54,6 +56,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -164,6 +168,37 @@ public class AdminResource extends AbstractResource implements ApplicationContex
             result.getContents().add(rServiPool);
         }
         return result;
+    }
+
+    @Path("/" + SYSTEM_SUBPATH + "/r_packages")
+    @POST
+    @Consumes({Constants.GZIP_CONTENT_TYPE})
+    public void installRPackage(final InputStream input, @QueryParam("sha1hexsum") final String sha1HexSum)
+        throws IOException
+    {
+        // store the package file in a temporary file
+        final File tempFile = File.createTempFile("rsb.", ".in.pkg");
+
+        try
+        {
+            final FileOutputStream output = new FileOutputStream(tempFile);
+            IOUtils.copyLarge(input, output);
+            IOUtils.closeQuietly(output);
+
+            // validate the checksum
+            final FileInputStream tempFileInput = new FileInputStream(tempFile);
+            final String calculatedSha1HexSum = DigestUtils.shaHex(tempFileInput);
+            IOUtils.closeQuietly(tempFileInput);
+            Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
+
+            // TODO upload to RServi
+
+            // TODO extract catalog files from $PKG_ROOT/inst/rsb/catalog
+        }
+        finally
+        {
+            FileUtils.deleteQuietly(tempFile);
+        }
     }
 
     @Path("/" + CATALOG_SUBPATH)
