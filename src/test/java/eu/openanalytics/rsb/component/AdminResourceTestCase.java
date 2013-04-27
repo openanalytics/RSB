@@ -127,16 +127,16 @@ public class AdminResourceTestCase
     @Test(expected = IllegalArgumentException.class)
     public void installRPackageBadChecksum() throws Exception
     {
-        byte[] fakePackageBytes = "fake_package".getBytes();
-        adminResource.installRPackage(new ByteArrayInputStream(fakePackageBytes), "bad");
+        final byte[] fakePackageBytes = "fake_package".getBytes();
+        adminResource.installRPackage("ignored", "bad", new ByteArrayInputStream(fakePackageBytes));
     }
 
     public void installRPackageSuccess() throws Exception
     {
         final byte[] fakePackageBytes = "fake_package".getBytes();
 
-        adminResource.installRPackage(new ByteArrayInputStream(fakePackageBytes),
-            DigestUtils.shaHex(fakePackageBytes));
+        adminResource.installRPackage("ignored",
+            DigestUtils.shaHex(fakePackageBytes), new ByteArrayInputStream(fakePackageBytes));
     }
 
     @Test

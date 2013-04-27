@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -73,6 +74,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
+import de.walware.rj.servi.RServi;
+import de.walware.rj.services.utils.RPkgInstallation;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
@@ -85,6 +88,8 @@ import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
 import eu.openanalytics.rsb.rest.types.RServiPoolType;
 import eu.openanalytics.rsb.rest.types.RServiPools;
+import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
+import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -102,6 +107,9 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     private static final Pattern TAR_CATALOG_FILE_PATTERN = Pattern.compile(".*/inst/rsb/catalog/(.*)");
 
     private ConfigurableApplicationContext applicationContext;
+
+    @Resource
+    private RServiInstanceProvider rServiInstanceProvider;
 
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException
     {
@@ -180,13 +188,14 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @Path("/" + SYSTEM_SUBPATH + "/r_packages")
     @POST
     @Consumes({Constants.GZIP_CONTENT_TYPE})
-    public void installRPackage(final InputStream input, @QueryParam("sha1hexsum") final String sha1HexSum
-    // , @QueryParam("rServiPoolUri") final String rServiPoolUri
-    ) throws IOException
+    public void installRPackage(@QueryParam("rServiPoolUri") final String rServiPoolUri,
+                                @QueryParam("sha1hexsum") final String sha1HexSum,
+                                final InputStream input) throws Exception
     {
         // store the package and tar files in temporary files
-        final File packageSourceFile = File.createTempFile("rsb-install.", ".tar.gz");
+        final File packageSourceFile = File.createTempFile("rsb-install-", "_tmp.tar.gz");
         File packageTarFile = null;
+        RServi rServiInstance = null;
 
         try
         {
@@ -200,15 +209,25 @@ public class AdminResource extends AbstractResource implements ApplicationContex
             IOUtils.closeQuietly(packageSourceInputStream);
             Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
 
-            // TODO upload to RServi
+            // upload to RServi
+            rServiInstance = rServiInstanceProvider.getRServiInstance(rServiPoolUri,
+                Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
+            new RPkgInstallation(packageSourceFile).install(rServiInstance, null);
 
             // extract catalog files from $PKG_ROOT/inst/rsb/catalog
             packageTarFile = extractCatalogFiles(packageSourceFile);
+
+            getLogger().info("Package with checksum " + sha1HexSum + " installed to " + rServiPoolUri);
         }
         finally
         {
             FileUtils.deleteQuietly(packageSourceFile);
             FileUtils.deleteQuietly(packageTarFile);
+
+            if (rServiInstance != null)
+            {
+                rServiInstance.close();
+            }
         }
     }
 
