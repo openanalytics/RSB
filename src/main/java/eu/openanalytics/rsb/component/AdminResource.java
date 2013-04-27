@@ -23,6 +23,7 @@ package eu.openanalytics.rsb.component;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -56,6 +59,9 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,6 +98,8 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 
     public static final String ADMIN_SYSTEM_PATH = Constants.ADMIN_PATH + "/" + SYSTEM_SUBPATH;
     public static final String ADMIN_CATALOG_PATH = Constants.ADMIN_PATH + "/" + CATALOG_SUBPATH;
+
+    private static final Pattern TAR_CATALOG_FILE_PATTERN = Pattern.compile(".*/inst/rsb/catalog/(.*)");
 
     private ConfigurableApplicationContext applicationContext;
 
@@ -172,32 +180,78 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @Path("/" + SYSTEM_SUBPATH + "/r_packages")
     @POST
     @Consumes({Constants.GZIP_CONTENT_TYPE})
-    public void installRPackage(final InputStream input, @QueryParam("sha1hexsum") final String sha1HexSum)
-        throws IOException
+    public void installRPackage(final InputStream input, @QueryParam("sha1hexsum") final String sha1HexSum
+    // , @QueryParam("rServiPoolUri") final String rServiPoolUri
+    ) throws IOException
     {
-        // store the package file in a temporary file
-        final File tempFile = File.createTempFile("rsb.", ".in.pkg");
+        // store the package and tar files in temporary files
+        final File packageSourceFile = File.createTempFile("rsb-install.", ".tar.gz");
+        File packageTarFile = null;
 
         try
         {
-            final FileOutputStream output = new FileOutputStream(tempFile);
+            final FileOutputStream output = new FileOutputStream(packageSourceFile);
             IOUtils.copyLarge(input, output);
             IOUtils.closeQuietly(output);
 
             // validate the checksum
-            final FileInputStream tempFileInput = new FileInputStream(tempFile);
-            final String calculatedSha1HexSum = DigestUtils.shaHex(tempFileInput);
-            IOUtils.closeQuietly(tempFileInput);
+            final FileInputStream packageSourceInputStream = new FileInputStream(packageSourceFile);
+            final String calculatedSha1HexSum = DigestUtils.shaHex(packageSourceInputStream);
+            IOUtils.closeQuietly(packageSourceInputStream);
             Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
 
             // TODO upload to RServi
 
-            // TODO extract catalog files from $PKG_ROOT/inst/rsb/catalog
+            // extract catalog files from $PKG_ROOT/inst/rsb/catalog
+            packageTarFile = extractCatalogFiles(packageSourceFile);
         }
         finally
         {
-            FileUtils.deleteQuietly(tempFile);
+            FileUtils.deleteQuietly(packageSourceFile);
+            FileUtils.deleteQuietly(packageTarFile);
         }
+    }
+
+    private File extractCatalogFiles(final File packageSourceFile) throws IOException, FileNotFoundException
+    {
+        File packageTarFile;
+        FileOutputStream output;
+        // 1) extract TAR
+        packageTarFile = File.createTempFile("rsb-install.", ".tar");
+        final GzipCompressorInputStream gzIn = new GzipCompressorInputStream(new FileInputStream(
+            packageSourceFile));
+        output = new FileOutputStream(packageTarFile);
+        IOUtils.copyLarge(gzIn, output);
+        IOUtils.closeQuietly(output);
+        IOUtils.closeQuietly(gzIn);
+
+        // 2) parse TAR and drop files in catalog
+        final TarArchiveInputStream tarIn = new TarArchiveInputStream(new FileInputStream(packageTarFile));
+        TarArchiveEntry tarEntry = null;
+        while ((tarEntry = tarIn.getNextTarEntry()) != null)
+        {
+            if (!tarEntry.isFile())
+            {
+                continue;
+            }
+
+            final Matcher matcher = TAR_CATALOG_FILE_PATTERN.matcher(tarEntry.getName());
+            if (matcher.matches())
+            {
+                final byte[] data = IOUtils.toByteArray(tarIn, tarEntry.getSize());
+
+                final String catalogFile = matcher.group(1);
+                final File targetCatalogFile = new File(getConfiguration().getCatalogRootDirectory(),
+                    catalogFile);
+                output = new FileOutputStream(targetCatalogFile);
+                IOUtils.write(data, output);
+                IOUtils.closeQuietly(output);
+
+                getLogger().info("Wrote " + data.length + " bytes in catalog file: " + targetCatalogFile);
+            }
+        }
+        IOUtils.closeQuietly(tarIn);
+        return packageTarFile;
     }
 
     @Path("/" + CATALOG_SUBPATH)
