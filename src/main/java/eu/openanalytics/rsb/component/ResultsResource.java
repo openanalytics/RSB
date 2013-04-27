@@ -29,10 +29,10 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -102,7 +102,7 @@ public class ResultsResource extends AbstractResource
             getUserName(), UUID.fromString(jobId));
         if (persistedResult == null)
         {
-            throw new WebApplicationException(Status.NOT_FOUND);
+            throw new NotFoundException();
         }
 
         return buildResult(applicationName, httpHeaders, uriInfo, persistedResult);
@@ -120,10 +120,12 @@ public class ResultsResource extends AbstractResource
         if (!resultStore.deleteByApplicationNameAndJobId(applicationName, getUserName(),
             UUID.fromString(jobId)))
         {
-            throw new WebApplicationException(Status.NOT_FOUND);
+            return Response.status(Status.NOT_FOUND).build();
         }
-
-        return Response.noContent().build();
+        else
+        {
+            return Response.noContent().build();
+        }
     }
 
     Result buildResult(final String applicationName,

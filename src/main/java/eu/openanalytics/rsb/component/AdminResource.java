@@ -47,7 +47,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -235,7 +234,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 
         if (!catalogFile.isFile())
         {
-            throw new WebApplicationException(Status.NOT_FOUND);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         final ResponseBuilder rb = Response.ok();

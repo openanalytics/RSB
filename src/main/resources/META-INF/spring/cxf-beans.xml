@@ -62,6 +62,7 @@
                 p:ignoreNamespaces="true" p:attributesToElements="true" />
             <bean class="eu.openanalytics.rsb.jaxrs.IllegalArgumentExceptionMapper" />
             <bean class="eu.openanalytics.rsb.jaxrs.AccessDeniedExceptionMapper" />
+            <bean class="eu.openanalytics.rsb.jaxrs.WebApplicationExceptionMapper" />
         </jaxrs:providers>
     </jaxrs:server>
 </beans>
