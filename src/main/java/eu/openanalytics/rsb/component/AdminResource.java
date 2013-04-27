@@ -192,6 +192,9 @@ public class AdminResource extends AbstractResource implements ApplicationContex
                                 @QueryParam("sha1hexsum") final String sha1HexSum,
                                 final InputStream input) throws Exception
     {
+        Validate.notBlank(rServiPoolUri, "missing query param: rServiPoolUri");
+        Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
+
         // store the package and tar files in temporary files
         final File packageSourceFile = File.createTempFile("rsb-install-", "_tmp.tar.gz");
         File packageTarFile = null;
