@@ -43,6 +43,9 @@
     </organization>
 
     <properties>
+        <rj.version>2.0.0-SNAPSHOT</rj.version>
+        <eruntime.version>1.4.0-SNAPSHOT</eruntime.version>
+
         <spring.version>3.2.2.RELEASE</spring.version>
         <spring-security.version>3.1.3.RELEASE</spring-security.version>
         <spring-integration.version>2.2.2.RELEASE</spring-integration.version>
@@ -104,27 +107,27 @@
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.client</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.data</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.server</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.servi</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.services.eruntime</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>${eruntime.version}</version>
         </dependency>
 
         <!-- Spring -->
@@ -856,7 +859,7 @@
                                         <artifactItem>
                                             <groupId>de.walware.rj</groupId>
                                             <artifactId>de.walware.rj.servi.webapp</artifactId>
-                                            <version>1.2.0-SNAPSHOT</version>
+                                            <version>${rj.version}</version>
                                             <type>war</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/rservi</outputDirectory>
