@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
  *
  *   ===========================================================================
@@ -23,7 +23,6 @@ package eu.openanalytics.rsb.component;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,8 +74,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
-import de.walware.rj.servi.RServi;
-import de.walware.rj.services.utils.RPkgInstallation;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
@@ -88,8 +86,7 @@ import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
 import eu.openanalytics.rsb.rest.types.RServiPoolType;
 import eu.openanalytics.rsb.rest.types.RServiPools;
-import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
-import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
+import eu.openanalytics.rsb.rservi.RServiPackageManager;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -109,7 +106,13 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     private ConfigurableApplicationContext applicationContext;
 
     @Resource
-    private RServiInstanceProvider rServiInstanceProvider;
+    private RServiPackageManager rServiPackageManager;
+
+    // exposed for unit testing
+    public void setrServiPackageManager(final RServiPackageManager rServiPackageManager)
+    {
+        this.rServiPackageManager = rServiPackageManager;
+    }
 
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException
     {
@@ -190,15 +193,17 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @Consumes({Constants.GZIP_CONTENT_TYPE})
     public void installRPackage(@QueryParam("rServiPoolUri") final String rServiPoolUri,
                                 @QueryParam("sha1hexsum") final String sha1HexSum,
+                                @QueryParam("packageName") final String packageName,
                                 final InputStream input) throws Exception
     {
         Validate.notBlank(rServiPoolUri, "missing query param: rServiPoolUri");
         Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
 
         // store the package and tar files in temporary files
-        final File packageSourceFile = File.createTempFile("rsb-install-", "_tmp.tar.gz");
-        File packageTarFile = null;
-        RServi rServiInstance = null;
+        final File tempDirectory = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
+        FileUtils.forceMkdir(tempDirectory);
+
+        final File packageSourceFile = new File(tempDirectory, packageName);
 
         try
         {
@@ -213,36 +218,35 @@ public class AdminResource extends AbstractResource implements ApplicationContex
             Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
 
             // upload to RServi
-            rServiInstance = rServiInstanceProvider.getRServiInstance(rServiPoolUri,
-                Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
-            new RPkgInstallation(packageSourceFile).install(rServiInstance, null);
+            rServiPackageManager.install(packageSourceFile, rServiPoolUri);
 
             // extract catalog files from $PKG_ROOT/inst/rsb/catalog
-            packageTarFile = extractCatalogFiles(packageSourceFile);
+            extractCatalogFiles(packageSourceFile);
 
             getLogger().info("Package with checksum " + sha1HexSum + " installed to " + rServiPoolUri);
         }
         finally
         {
-            FileUtils.deleteQuietly(packageSourceFile);
-            FileUtils.deleteQuietly(packageTarFile);
-
-            if (rServiInstance != null)
+            try
             {
-                rServiInstance.close();
+                FileUtils.forceDelete(tempDirectory);
+            }
+            catch (final Exception e)
+            {
+                getLogger().warn("Failed to delete temporary directory: " + tempDirectory, e);
             }
         }
     }
 
-    private File extractCatalogFiles(final File packageSourceFile) throws IOException, FileNotFoundException
+    private void extractCatalogFiles(final File packageSourceFile) throws IOException
     {
-        File packageTarFile;
-        FileOutputStream output;
+        final File tempDirectory = packageSourceFile.getParentFile();
+
         // 1) extract TAR
-        packageTarFile = File.createTempFile("rsb-install.", ".tar");
+        final File packageTarFile = File.createTempFile("rsb-install.", ".tar", tempDirectory);
         final GzipCompressorInputStream gzIn = new GzipCompressorInputStream(new FileInputStream(
             packageSourceFile));
-        output = new FileOutputStream(packageTarFile);
+        FileOutputStream output = new FileOutputStream(packageTarFile);
         IOUtils.copyLarge(gzIn, output);
         IOUtils.closeQuietly(output);
         IOUtils.closeQuietly(gzIn);
@@ -273,7 +277,6 @@ public class AdminResource extends AbstractResource implements ApplicationContex
             }
         }
         IOUtils.closeQuietly(tarIn);
-        return packageTarFile;
     }
 
     @Path("/" + CATALOG_SUBPATH)

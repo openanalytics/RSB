@@ -21,19 +21,30 @@
 
 package eu.openanalytics.rsb.jaxrs;
 
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
- * Converts {@link WebApplicationException} into HTTP responses.
+ * Converts {@link Throwable} into HTTP responses.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplicationException>
+public class ThrowableExceptionMapper implements ExceptionMapper<Throwable>
 {
-    public Response toResponse(final WebApplicationException wae)
+    private static final Log LOGGER = LogFactory.getLog(ThrowableExceptionMapper.class);
+
+    public Response toResponse(final Throwable t)
     {
-        return wae.getResponse();
+        LOGGER.error(t.getMessage(), t);
+
+        return Response.status(Status.INTERNAL_SERVER_ERROR)
+            .type(MediaType.TEXT_PLAIN)
+            .entity(t.getMessage())
+            .build();
     }
 }

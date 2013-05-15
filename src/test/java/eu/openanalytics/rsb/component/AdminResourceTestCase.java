@@ -29,6 +29,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -65,6 +66,7 @@ import eu.openanalytics.rsb.data.CatalogManager;
 import eu.openanalytics.rsb.data.CatalogManager.PutCatalogFileResult;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.RServiPools;
+import eu.openanalytics.rsb.rservi.RServiPackageManager;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -128,15 +130,19 @@ public class AdminResourceTestCase
     public void installRPackageBadChecksum() throws Exception
     {
         final byte[] fakePackageBytes = "fake_package".getBytes();
-        adminResource.installRPackage("ignored", "bad", new ByteArrayInputStream(fakePackageBytes));
+        adminResource.installRPackage("ignored", "bad", "bad.tar.gz", new ByteArrayInputStream(
+            fakePackageBytes));
     }
 
+    @Test
     public void installRPackageSuccess() throws Exception
     {
-        final byte[] fakePackageBytes = "fake_package".getBytes();
+        adminResource.setrServiPackageManager(mock(RServiPackageManager.class));
 
-        adminResource.installRPackage("ignored",
-            DigestUtils.shaHex(fakePackageBytes), new ByteArrayInputStream(fakePackageBytes));
+        final byte[] fakePackageBytes = IOUtils.toByteArray(JobsResourceTestCase.getTestDataAsStream("fake-package.tar.gz"));
+
+        adminResource.installRPackage("ignored", DigestUtils.shaHex(fakePackageBytes), "fake_package.tar.gz",
+            new ByteArrayInputStream(fakePackageBytes));
     }
 
     @Test

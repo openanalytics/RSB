@@ -19,21 +19,14 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package eu.openanalytics.rsb.jaxrs;
+package eu.openanalytics.rsb.rservi;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
+import java.io.File;
 
 /**
- * Converts {@link WebApplicationException} into HTTP responses.
- * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplicationException>
+public interface RServiPackageManager
 {
-    public Response toResponse(final WebApplicationException wae)
-    {
-        return wae.getResponse();
-    }
+    void install(File packageSourceFile, String rServiPoolUri) throws Exception;
 }
