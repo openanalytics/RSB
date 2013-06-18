@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.util.Assert;
 
@@ -46,6 +47,8 @@ import org.springframework.util.Assert;
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter
 {
+    private static final String SSL_VERIFIED_HEADER = "X-SSL-Verified";
+    private static final String SSL_CLIENT_DN_HEADER = "X-SSL-Client-DN";
     private Pattern subjectDnPattern;
 
     public X509AuthenticationFilter()
@@ -59,7 +62,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
         final String clientDN = (String) getPreAuthenticatedCredentials(request);
         if (clientDN == null)
         {
-            return null;
+            throw new IllegalStateException("clientDN can't be null");
         }
 
         logger.debug("Subject DN is '" + clientDN + "'");
@@ -86,12 +89,21 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
     @Override
     protected Object getPreAuthenticatedCredentials(final HttpServletRequest request)
     {
-        if (!StringUtils.equals(request.getHeader("X-SSL-Verified"), "SUCCESS"))
+        if (!StringUtils.equals(request.getHeader(SSL_VERIFIED_HEADER), "SUCCESS"))
         {
-            return null;
+            throw new PreAuthenticatedCredentialsNotFoundException(
+                "X.509 client certificate has not been validated.");
         }
 
-        return StringUtils.trimToNull(request.getHeader("X-SSL-Client-DN"));
+        final String clientDN = StringUtils.trimToNull(request.getHeader(SSL_CLIENT_DN_HEADER));
+
+        if (clientDN == null)
+        {
+            throw new PreAuthenticatedCredentialsNotFoundException(SSL_CLIENT_DN_HEADER
+                                                                   + " header not found in request.");
+        }
+
+        return clientDN;
     }
 
     /**

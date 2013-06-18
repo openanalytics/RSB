@@ -41,32 +41,6 @@
            <li>Optionally configure users and/or roles authorized to act as RSB admins, as shown in the following section.</li>
           </ul>
         </section>
-        <section name="X.509 Authentication">
-          <p>The recommended way to use X.509 authentication with RSB is to run it behind Nginx with the following configuration:</p>
-          <pre>
-server {
-    listen 443 default_server ssl;
-
-    ssl_certificate        /home/ddossot/Private/Documents/clients/open_analytics/secure_rsb/server.crt;
-    ssl_certificate_key    /home/ddossot/Private/Documents/clients/open_analytics/secure_rsb/server.key;
-    ssl_client_certificate /home/ddossot/Private/Documents/clients/open_analytics/secure_rsb/ca.crt;
-    # ssl_crl                /home/ddossot/Private/Documents/clients/open_analytics/secure_rsb/clients.crl;
-    ssl_verify_client on;
-
-    location /rsb {
-    proxy_pass       http://localhost:8080/rsb;
-    proxy_redirect   off;
-    proxy_set_header Host $host;
-    proxy_set_header X-Remote-Addr  $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-SSL-Verified $ssl_client_verify;
-    proxy_set_header X-SSL-Client-DN $ssl_client_s_dn;
-    }
-}
-          </pre>
-          <p>Uncomment the <code>ssl_crl</code> line if you have a Certificate Revocation List in effect.</p>
-          <p><b>TBD describe RSB XML configuration</b></p>
-        </section>
         <section name="Application Level Security">
           <p>The following demonstrate how to configure RSB application level security:</p>
           <pre>
