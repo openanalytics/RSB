@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.util.Assert;
 
@@ -53,7 +52,7 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
 
     public X509AuthenticationFilter()
     {
-        setSubjectDnRegex("CN=(.*?)(?:,|$)");
+        setSubjectDnRegex("CN=(.*?)(?:/|$)");
     }
 
     @Override
@@ -62,16 +61,16 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
         final String clientDN = (String) getPreAuthenticatedCredentials(request);
         if (clientDN == null)
         {
-            throw new IllegalStateException("clientDN can't be null");
+            return null;
         }
 
-        logger.debug("Subject DN is '" + clientDN + "'");
+        logger.debug("Client DN is '" + clientDN + "'");
 
         final Matcher matcher = subjectDnPattern.matcher(clientDN);
 
         if (!matcher.find())
         {
-            throw new BadCredentialsException("No matching pattern was found in subject DN: " + clientDN);
+            throw new BadCredentialsException("No matching pattern was found in client DN: " + clientDN);
         }
 
         if (matcher.groupCount() != 1)
@@ -91,31 +90,22 @@ public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessing
     {
         if (!StringUtils.equals(request.getHeader(SSL_VERIFIED_HEADER), "SUCCESS"))
         {
-            throw new PreAuthenticatedCredentialsNotFoundException(
-                "X.509 client certificate has not been validated.");
+            return null;
         }
 
-        final String clientDN = StringUtils.trimToNull(request.getHeader(SSL_CLIENT_DN_HEADER));
-
-        if (clientDN == null)
-        {
-            throw new PreAuthenticatedCredentialsNotFoundException(SSL_CLIENT_DN_HEADER
-                                                                   + " header not found in request.");
-        }
-
-        return clientDN;
+        return StringUtils.trimToNull(request.getHeader(SSL_CLIENT_DN_HEADER));
     }
 
     /**
      * Sets the regular expression which will by used to extract the user name from the
      * certificate's Subject DN.
      * <p>
-     * It should contain a single group; for example the default expression "CN=(.*?)(?:,|$)"
-     * matches the common name field. So "CN=Jimi Hendrix, OU=..." will give a user name of
+     * It should contain a single group; for example the default expression "CN=(.*?)(?:/|$)"
+     * matches the common name field. So "CN=Jimi Hendrix/OU=..." will give a user name of
      * "Jimi Hendrix".
      * <p>
-     * The matches are case insensitive. So "emailAddress=(.?)," will match
-     * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
+     * The matches are case insensitive. So "emailAddress=(.?)/" will match
+     * "EMAILADDRESS=jimi@hendrix.org/CN=..." giving a user name "jimi@hendrix.org"
      * 
      * @param subjectDnRegex the regular expression to find in the subject
      */
