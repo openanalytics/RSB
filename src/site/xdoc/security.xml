@@ -35,7 +35,7 @@
           <p>It is possible to run RSB in secure mode where only authorized users can use certain applications</p>
           <p>This is done by doing the following:</p>
           <ul>
-           <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
+           <li>Activate security by uncommenting the blocks titled "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
            <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
            <li>Configure RSB to associate applications with users and/or roles authorized to act as application users and admins, as shown in the next section.</li>
            <li>Optionally configure users and/or roles authorized to act as RSB admins, as shown in the following section.</li>
