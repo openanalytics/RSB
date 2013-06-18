@@ -21,39 +21,35 @@
 
 package eu.openanalytics.rsb.message;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
+
 /**
- * Represents the result of a {@link AbstractJob}.
+ * RSB work item definition.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResult<T> extends AbstractWorkItem implements Result<T>
+public interface WorkItem
 {
-    private static final long serialVersionUID = 1L;
+    Source getSource();
 
-    private final boolean success;
+    String getApplicationName();
 
-    public AbstractResult(final Source source,
-                          final String applicationName,
-                          final String userName,
-                          final UUID jobId,
-                          final GregorianCalendar submissionTime,
-                          final Map<String, Serializable> meta,
-                          final boolean success)
-    {
-        super(source, applicationName, userName, jobId, submissionTime, meta);
-        this.success = success;
-    }
+    String getUserName();
 
-    public boolean isSuccess()
-    {
-        return success;
-    }
+    UUID getJobId();
 
-    public abstract T getPayload() throws IOException;
+    GregorianCalendar getSubmissionTime();
+
+    Map<String, Serializable> getMeta();
+
+    String getErrorMessageId();
+
+    String getAbortMessageId();
+
+    int getPriority();
 }

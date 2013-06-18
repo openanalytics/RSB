@@ -37,7 +37,7 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractWorkItem implements Serializable
+public abstract class AbstractWorkItem implements WorkItem, Serializable
 {
     public enum Source
     {
