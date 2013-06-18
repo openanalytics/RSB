@@ -256,8 +256,8 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
             final long processTime = System.currentTimeMillis() - startTime;
 
-            jobStatisticsHandler.storeJobStatistics(job.getApplicationName(), job.getJobId(),
-                new GregorianCalendar(), processTime, rserviPoolAddress.toString());
+            jobStatisticsHandler.storeJobStatistics(job, new GregorianCalendar(), processTime,
+                rserviPoolAddress.toString());
 
             if (getLogger().isInfoEnabled())
             {

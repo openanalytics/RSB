@@ -23,20 +23,24 @@ package eu.openanalytics.rsb.stats;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.UUID;
+
+import eu.openanalytics.rsb.message.Job;
 
 /**
  * Defines a handler for RSB job statistics.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface JobStatisticsHandler {
+public interface JobStatisticsHandler
+{
     void setConfiguration(Map<String, Object> configuration);
 
     void initialize();
 
     void destroy();
 
-    void storeJobStatistics(String applicationName, UUID jobId, Calendar jobCompletionTime, long millisecondsSpentProcessing,
-            String rServiAddress);
+    void storeJobStatistics(Job job,
+                            Calendar jobCompletionTime,
+                            long millisecondsSpentProcessing,
+                            String rServiAddress);
 }
