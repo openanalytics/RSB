@@ -64,6 +64,9 @@
                       authentication-failure-url="/openid.html?login_error=true"
                       default-target-url="/index.html" />
         -->
+        <!--
+        <custom-filter ref="x509Filter" position="PRE_AUTH_FILTER" /> 
+         -->
     </http>
 
     <beans:bean id="expressionHandler"
