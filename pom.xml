@@ -605,6 +605,46 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <header>LICENSE_HEADER</header>
+                    <aggregate>true</aggregate>
+                    <excludes>
+                        <exclude>**/package-info.java</exclude>
+
+                        <exclude>src/main/webapp/css/jstree-classic/*.css</exclude>
+                        <exclude>src/main/webapp/css/blackbird.css</exclude>
+                        <exclude>src/main/webapp/css/jquery*.css</exclude>
+                        <exclude>src/main/webapp/css/openid.css</exclude>
+                        <exclude>src/main/webapp/css/ui.panel.css</exclude>
+
+                        <exclude>src/main/webapp/js/blackbird.js</exclude>
+                        <exclude>src/main/webapp/js/date.js</exclude>
+                        <exclude>src/main/webapp/js/jquery*.js</exclude>
+                        <exclude>src/main/webapp/js/jstree*.js</exclude>
+                        <exclude>src/main/webapp/js/openid*.js</exclude>
+                        <exclude>src/main/webapp/js/ui.panel.min.js</exclude>
+
+                        <exclude>src/misc/tomcat-users.xml</exclude>
+                        <exclude>src/main/webapp/WEB-INF/web.xml</exclude>
+
+                        <exclude>src/test/resources/data/*.txt</exclude>
+
+                        <exclude>src/it/config/rsb-it-soapui-*.xml</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
