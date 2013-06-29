@@ -1,4 +1,3 @@
-rem
 @REM    R Service Bus
 @REM    
 @REM    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
