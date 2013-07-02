@@ -51,17 +51,22 @@
         <fileSet>
             <directory>${project.build.directory}/rservi</directory>
             <outputDirectory>/webapps/rservi</outputDirectory>
+            <excludes>
+                <exclude>WEB-INF/lib/de.walware.rj.*.jar</exclude>
+                <exclude>WEB-INF/web.xml</exclude>
+            </excludes>
             <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/rservi</directory>
-            <outputDirectory>/webapps/rsb</outputDirectory>
-            <fileMode>0644</fileMode>
+            <directory>${project.build.directory}/classes</directory>
+            <outputDirectory>/webapps/rservi/WEB-INF/classes</outputDirectory>
             <includes>
-                <include>WEB-INF/lib/de.walware.rj.*.jar</include>
+                <include>/eu/openanalytics/rsb/rservi/webapp/*.class</include>
             </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
     </fileSets>
+
     <files>
         <file>
             <source>src/misc/rsb.sh</source>
@@ -89,6 +94,12 @@
             <outputDirectory>/webapps/ROOT</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
+        <file>
+            <source>src/misc/rservi-web.xml</source>
+            <outputDirectory>/webapps/rservi/WEB-INF</outputDirectory>
+            <destName>web.xml</destName>
+            <fileMode>0644</fileMode>
+        </file>
     </files>
 
     <dependencySets>
@@ -103,6 +114,13 @@
                     <exclude>WEB-INF/lib/de.walware.rj*.jar</exclude>
                 </excludes>
             </unpackOptions>
+            <fileMode>0644</fileMode>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/lib</outputDirectory>
+            <includes>
+                <include>de.walware.rj:*</include>
+            </includes>
             <fileMode>0644</fileMode>
         </dependencySet>
     </dependencySets>
