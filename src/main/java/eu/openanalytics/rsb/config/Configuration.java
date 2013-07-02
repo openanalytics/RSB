@@ -330,4 +330,9 @@ public interface Configuration
      * Optionally partition the catalog by application name.
      */
     boolean isApplicationAwareCatalog();
+
+    /**
+     * Optionally propagate the security context to RServi calls.
+     */
+    boolean isPropagateSecurityContext();
 }

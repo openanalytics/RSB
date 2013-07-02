@@ -79,6 +79,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public String getHost()
         {
             return host;
@@ -89,6 +90,7 @@ public class PersistedConfiguration
             this.host = host;
         }
 
+        @Override
         public int getPort()
         {
             return port;
@@ -99,6 +101,7 @@ public class PersistedConfiguration
             this.port = port;
         }
 
+        @Override
         public String getUsername()
         {
             return username;
@@ -109,6 +112,7 @@ public class PersistedConfiguration
             this.username = username;
         }
 
+        @Override
         public String getPassword()
         {
             return password;
@@ -139,6 +143,7 @@ public class PersistedConfiguration
             // NOOP
         }
 
+        @Override
         public int getStubPort()
         {
             return stubPort;
@@ -149,6 +154,7 @@ public class PersistedConfiguration
             this.stubPort = stubPort;
         }
 
+        @Override
         public int getRegistryPort()
         {
             return registryPort;
@@ -159,6 +165,7 @@ public class PersistedConfiguration
             this.registryPort = registryPort;
         }
 
+        @Override
         public int getHttpPort()
         {
             return httpPort;
@@ -195,6 +202,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public String getClassName()
         {
             return className;
@@ -205,6 +213,7 @@ public class PersistedConfiguration
             this.className = className;
         }
 
+        @Override
         public Map<String, Object> getParameters()
         {
             return parameters;
@@ -230,6 +239,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public File getRootDirectory()
         {
             return rootDirectory;
@@ -240,6 +250,7 @@ public class PersistedConfiguration
             this.rootDirectory = rootDirectory;
         }
 
+        @Override
         public String getApplicationName()
         {
             return applicationName;
@@ -250,6 +261,7 @@ public class PersistedConfiguration
             this.applicationName = applicationName;
         }
 
+        @Override
         public long getPollingPeriod()
         {
             return pollingPeriod;
@@ -260,6 +272,7 @@ public class PersistedConfiguration
             this.pollingPeriod = pollingPeriod;
         }
 
+        @Override
         public String getJobConfigurationFileName()
         {
             return jobConfigurationFileName;
@@ -286,6 +299,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public URI getAccountURI()
         {
             return accountURI;
@@ -296,6 +310,7 @@ public class PersistedConfiguration
             this.accountURI = accountURI;
         }
 
+        @Override
         public String getApplicationName()
         {
             return applicationName;
@@ -306,6 +321,7 @@ public class PersistedConfiguration
             this.applicationName = applicationName;
         }
 
+        @Override
         public long getPollingPeriod()
         {
             return pollingPeriod;
@@ -316,6 +332,7 @@ public class PersistedConfiguration
             this.pollingPeriod = pollingPeriod;
         }
 
+        @Override
         public String getResponseFileName()
         {
             return responseFileName;
@@ -326,6 +343,7 @@ public class PersistedConfiguration
             this.responseFileName = responseFileName;
         }
 
+        @Override
         public String getJobConfigurationFileName()
         {
             return jobConfigurationFileName;
@@ -343,6 +361,7 @@ public class PersistedConfiguration
         private Set<String> adminPrincipals;
         private Set<String> adminRoles;
 
+        @Override
         public Set<String> getAdminPrincipals()
         {
             return adminPrincipals;
@@ -353,6 +372,7 @@ public class PersistedConfiguration
             this.adminPrincipals = adminPrincipals;
         }
 
+        @Override
         public Set<String> getAdminRoles()
         {
             return adminRoles;
@@ -373,6 +393,7 @@ public class PersistedConfiguration
         private boolean functionCallAllowed;
         private boolean scriptSubmissionAllowed;
 
+        @Override
         public Set<String> getUserPrincipals()
         {
             return userPrincipals;
@@ -383,6 +404,7 @@ public class PersistedConfiguration
             this.userPrincipals = userPrincipals;
         }
 
+        @Override
         public Set<String> getUserRoles()
         {
             return userRoles;
@@ -393,6 +415,7 @@ public class PersistedConfiguration
             this.userRoles = userRoles;
         }
 
+        @Override
         public boolean isFunctionCallAllowed()
         {
             return functionCallAllowed;
@@ -403,6 +426,7 @@ public class PersistedConfiguration
             this.functionCallAllowed = functionCallAllowed;
         }
 
+        @Override
         public boolean isScriptSubmissionAllowed()
         {
             return scriptSubmissionAllowed;
@@ -435,6 +459,7 @@ public class PersistedConfiguration
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
     private PersistedAdminSecurityAuthorization rsbSecurityConfiguration;
     private boolean applicationAwareCatalog;
+    private boolean propagateSecurityContext;
 
     public PersistedConfiguration()
     {
@@ -460,6 +485,7 @@ public class PersistedConfiguration
         setJobTimeOut(configuration.getJobTimeOut());
         setNodeName(configuration.getNodeName());
         setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
+        setPropagateSecurityContext(configuration.isPropagateSecurityContext());
         setResultsDirectory(configuration.getResultsDirectory());
         setRsbSecurityConfiguration(getRsbSecurityConfiguration());
         setrServiClientPoolConfig(configuration.getRServiClientPoolConfig());
@@ -770,5 +796,18 @@ public class PersistedConfiguration
     public void setApplicationAwareCatalog(final boolean applicationAwareCatalog)
     {
         this.applicationAwareCatalog = applicationAwareCatalog;
+    }
+
+    /**
+     * Optionally propagate the security context to RServi calls.
+     */
+    public boolean isPropagateSecurityContext()
+    {
+        return propagateSecurityContext;
+    }
+
+    public void setPropagateSecurityContext(final boolean propagateSecurityContext)
+    {
+        this.propagateSecurityContext = propagateSecurityContext;
     }
 }

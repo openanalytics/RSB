@@ -97,5 +97,6 @@
         "adminPrincipals":["joe"],
         "adminRoles":["ROLE_RSB_ADMIN"]
     },
-    "applicationAwareCatalog" : true
+    "applicationAwareCatalog" : true,
+    "propagateSecurityContext" : true
 }

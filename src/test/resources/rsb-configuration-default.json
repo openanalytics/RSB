@@ -6,6 +6,7 @@
   "defaultRserviPoolUri" : "rmi://127.0.0.1/rservi-pool",
   "jobTimeOut" : 600000,
   "numberOfConcurrentJobWorkersPerQueue" : 5,
+  "propagateSecurityContext" : false,
   "resultsDirectory" : "$RSB_HOME$/results",
   "smtpConfiguration" : {
     "host" : "localhost",
