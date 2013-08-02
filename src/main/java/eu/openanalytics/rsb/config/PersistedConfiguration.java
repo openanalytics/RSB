@@ -31,6 +31,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 
+import eu.openanalytics.rsb.config.Configuration.AdminSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
@@ -40,8 +41,8 @@ import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrat
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
 
 /**
- * Defines the persisted configuration of RSB, from which the actual
- * {@link Configuration} is derived.
+ * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is
+ * derived.
  * 
  * @see Configuration
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -78,6 +79,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public String getHost()
         {
             return host;
@@ -88,6 +90,7 @@ public class PersistedConfiguration
             this.host = host;
         }
 
+        @Override
         public int getPort()
         {
             return port;
@@ -98,6 +101,7 @@ public class PersistedConfiguration
             this.port = port;
         }
 
+        @Override
         public String getUsername()
         {
             return username;
@@ -108,6 +112,7 @@ public class PersistedConfiguration
             this.username = username;
         }
 
+        @Override
         public String getPassword()
         {
             return password;
@@ -138,6 +143,7 @@ public class PersistedConfiguration
             // NOOP
         }
 
+        @Override
         public int getStubPort()
         {
             return stubPort;
@@ -148,6 +154,7 @@ public class PersistedConfiguration
             this.stubPort = stubPort;
         }
 
+        @Override
         public int getRegistryPort()
         {
             return registryPort;
@@ -158,6 +165,7 @@ public class PersistedConfiguration
             this.registryPort = registryPort;
         }
 
+        @Override
         public int getHttpPort()
         {
             return httpPort;
@@ -194,6 +202,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public String getClassName()
         {
             return className;
@@ -204,6 +213,7 @@ public class PersistedConfiguration
             this.className = className;
         }
 
+        @Override
         public Map<String, Object> getParameters()
         {
             return parameters;
@@ -229,6 +239,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public File getRootDirectory()
         {
             return rootDirectory;
@@ -239,6 +250,7 @@ public class PersistedConfiguration
             this.rootDirectory = rootDirectory;
         }
 
+        @Override
         public String getApplicationName()
         {
             return applicationName;
@@ -249,6 +261,7 @@ public class PersistedConfiguration
             this.applicationName = applicationName;
         }
 
+        @Override
         public long getPollingPeriod()
         {
             return pollingPeriod;
@@ -259,6 +272,7 @@ public class PersistedConfiguration
             this.pollingPeriod = pollingPeriod;
         }
 
+        @Override
         public String getJobConfigurationFileName()
         {
             return jobConfigurationFileName;
@@ -285,6 +299,7 @@ public class PersistedConfiguration
             return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
         }
 
+        @Override
         public URI getAccountURI()
         {
             return accountURI;
@@ -295,6 +310,7 @@ public class PersistedConfiguration
             this.accountURI = accountURI;
         }
 
+        @Override
         public String getApplicationName()
         {
             return applicationName;
@@ -305,6 +321,7 @@ public class PersistedConfiguration
             this.applicationName = applicationName;
         }
 
+        @Override
         public long getPollingPeriod()
         {
             return pollingPeriod;
@@ -315,6 +332,7 @@ public class PersistedConfiguration
             this.pollingPeriod = pollingPeriod;
         }
 
+        @Override
         public String getResponseFileName()
         {
             return responseFileName;
@@ -325,6 +343,7 @@ public class PersistedConfiguration
             this.responseFileName = responseFileName;
         }
 
+        @Override
         public String getJobConfigurationFileName()
         {
             return jobConfigurationFileName;
@@ -336,30 +355,86 @@ public class PersistedConfiguration
         }
     }
 
-    public static class PersistedApplicationSecurityAuthorization implements ApplicationSecurityAuthorization
+    public static class PersistedAdminSecurityAuthorization implements AdminSecurityAuthorization
     {
-        private static final long serialVersionUID = 1L;
-        private Set<String> authorizedPrincipals;
-        private Set<String> authorizedRoles;
+        private static final long serialVersionUID = 2L;
+        private Set<String> adminPrincipals;
+        private Set<String> adminRoles;
 
-        public Set<String> getAuthorizedPrincipals()
+        @Override
+        public Set<String> getAdminPrincipals()
         {
-            return authorizedPrincipals;
+            return adminPrincipals;
         }
 
-        public void setAuthorizedPrincipals(final Set<String> authorizedPrincipals)
+        public void setAdminPrincipals(final Set<String> adminPrincipals)
         {
-            this.authorizedPrincipals = authorizedPrincipals;
+            this.adminPrincipals = adminPrincipals;
         }
 
-        public Set<String> getAuthorizedRoles()
+        @Override
+        public Set<String> getAdminRoles()
         {
-            return authorizedRoles;
+            return adminRoles;
         }
 
-        public void setAuthorizedRoles(final Set<String> authorizedRoles)
+        public void setAdminRoles(final Set<String> adminRoles)
         {
-            this.authorizedRoles = authorizedRoles;
+            this.adminRoles = adminRoles;
+        }
+    }
+
+    public static class PersistedApplicationSecurityAuthorization extends PersistedAdminSecurityAuthorization
+        implements ApplicationSecurityAuthorization
+    {
+        private static final long serialVersionUID = 3L;
+        private Set<String> userPrincipals;
+        private Set<String> userRoles;
+        private boolean functionCallAllowed;
+        private boolean scriptSubmissionAllowed;
+
+        @Override
+        public Set<String> getUserPrincipals()
+        {
+            return userPrincipals;
+        }
+
+        public void setUserPrincipals(final Set<String> userPrincipals)
+        {
+            this.userPrincipals = userPrincipals;
+        }
+
+        @Override
+        public Set<String> getUserRoles()
+        {
+            return userRoles;
+        }
+
+        public void setUserRoles(final Set<String> userRoles)
+        {
+            this.userRoles = userRoles;
+        }
+
+        @Override
+        public boolean isFunctionCallAllowed()
+        {
+            return functionCallAllowed;
+        }
+
+        public void setFunctionCallAllowed(final boolean functionCallAllowed)
+        {
+            this.functionCallAllowed = functionCallAllowed;
+        }
+
+        @Override
+        public boolean isScriptSubmissionAllowed()
+        {
+            return scriptSubmissionAllowed;
+        }
+
+        public void setScriptSubmissionAllowed(final boolean scriptSubmissionAllowed)
+        {
+            this.scriptSubmissionAllowed = scriptSubmissionAllowed;
         }
     }
 
@@ -382,6 +457,9 @@ public class PersistedConfiguration
     private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
+    private PersistedAdminSecurityAuthorization rsbSecurityConfiguration;
+    private boolean applicationAwareCatalog;
+    private boolean propagateSecurityContext;
 
     public PersistedConfiguration()
     {
@@ -393,8 +471,10 @@ public class PersistedConfiguration
     {
         setActiveMqWorkDirectory(configuration.getActiveMqWorkDirectory());
         setAdministratorEmail(configuration.getAdministratorEmail());
+        setApplicationAwareCatalog(configuration.isApplicationAwareCatalog());
         setApplicationSpecificRserviPoolUris(configuration.getApplicationSpecificRserviPoolUris());
-        setCatalogRootDirectory(configuration.getRScriptsCatalogDirectory().getParentFile());
+        setApplicationSecurityConfiguration((Map) configuration.getApplicationSecurityConfiguration());
+        setCatalogRootDirectory(configuration.getCatalogRootDirectory());
         setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setDataDirectories(configuration.getDataDirectories());
         setDefaultRserviPoolUri(configuration.getDefaultRserviPoolUri());
@@ -405,10 +485,11 @@ public class PersistedConfiguration
         setJobTimeOut(configuration.getJobTimeOut());
         setNodeName(configuration.getNodeName());
         setNumberOfConcurrentJobWorkersPerQueue(configuration.getNumberOfConcurrentJobWorkersPerQueue());
+        setPropagateSecurityContext(configuration.isPropagateSecurityContext());
         setResultsDirectory(configuration.getResultsDirectory());
+        setRsbSecurityConfiguration(getRsbSecurityConfiguration());
         setrServiClientPoolConfig(configuration.getRServiClientPoolConfig());
         setrServiClientPoolValidationStrategy(configuration.getRServiClientPoolValidationStrategy());
-        setCheckHealthOnStart(configuration.isCheckHealthOnStart());
         setSmtpConfiguration((PersistedSmtpConfiguration) configuration.getSmtpConfiguration());
     }
 
@@ -432,19 +513,19 @@ public class PersistedConfiguration
     }
 
     /**
-     * Directory under which RSB catalogs are located. The catalogs are:
+     * Directory under which RSB catalog sections are located. The catalog sections are:
      * <ul>
-     * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR}
-     * : catalog of R scripts</li>
+     * <li>{@link eu.openanalytics.rsb.config.Configuration#R_SCRIPTS_CATALOG_SUBDIR} : catalog of R
+     * scripts</li>
      * <li>
-     * {@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILES_CATALOG_SUBDIR}:
-     * catalog of Sweave files</li>
+     * {@link eu.openanalytics.rsb.config.Configuration#SWEAVE_FILES_CATALOG_SUBDIR}: catalog of
+     * Sweave files</li>
      * <li>
-     * {@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR}
-     * : catalog of ready made job configurations</li>
+     * {@link eu.openanalytics.rsb.config.Configuration#JOB_CONFIGURATIONS_CATALOG_SUBDIR} :
+     * catalog of ready made job configurations</li>
      * <li>
-     * {@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR}
-     * : catalog of Email replies</li>
+     * {@link eu.openanalytics.rsb.config.Configuration#EMAIL_REPLIES_CATALOG_SUBDIR} : catalog
+     * of Email replies</li>
      * </ul>
      * If any of these sub-directories do not pre-exist, RSB will try to create it.
      */
@@ -498,9 +579,9 @@ public class PersistedConfiguration
     }
 
     /**
-     * Number of concurrent job workers per queue, which must be computed based on
-     * the number of nodes in the RServi pool and the number of job queues (one
-     * global plus one per "boosted" application).
+     * Number of concurrent job workers per queue, which must be computed based on the number of
+     * nodes in the RServi pool and the number of job queues (one global plus one per "boosted"
+     * application).
      */
     public int getNumberOfConcurrentJobWorkersPerQueue()
     {
@@ -526,8 +607,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * Mapping of application names and RServi RMI pool URIs, or null if no specific
-     * mapping is required.
+     * Mapping of application names and RServi RMI pool URIs, or null if no specific mapping is
+     * required.
      */
     public Map<String, ?> getApplicationSpecificRserviPoolUris()
     {
@@ -553,8 +634,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * Optional email address where RSB should send permanent error reports and other
-     * service related messages.
+     * Optional email address where RSB should send permanent error reports and other service
+     * related messages.
      */
     public String getAdministratorEmail()
     {
@@ -580,8 +661,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * The JMX configuration used to manage RSB. If not specified default ports will
-     * be used. See {@link JmxConfiguration}.
+     * The JMX configuration used to manage RSB. If not specified default ports will be used. See
+     * {@link JmxConfiguration}.
      */
     public PersistedJmxConfiguration getJmxConfiguration()
     {
@@ -594,14 +675,13 @@ public class PersistedConfiguration
     }
 
     /**
-     * Optional configuration of root directories where jobs and results will
-     * respectively be dropped and retrieved. The map entry element has the root
-     * directory for key and the application name for value. RSB must have full right
-     * on the root directory as it will need to create sub-directories (
+     * Optional configuration of root directories where jobs and results will respectively be
+     * dropped and retrieved. The map entry element has the root directory for key and the
+     * application name for value. RSB must have full right on the root directory as it will need to
+     * create sub-directories (
      * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_JOBS_SUBDIR} ,
      * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_ACCEPTED_SUBDIR} and
-     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and
-     * files below it.
+     * {@link eu.openanalytics.rsb.config.Configuration#DEPOSIT_RESULTS_SUBDIR}) and files below it.
      */
     public List<PersistedDepositDirectoryConfiguration> getDepositRootDirectories()
     {
@@ -666,8 +746,8 @@ public class PersistedConfiguration
     }
 
     /**
-     * Should health be checked when RSB starts (recommended for deployments where
-     * RServi is not colocated in the same web container).
+     * Should health be checked when RSB starts (recommended for deployments where RServi is not
+     * colocated in the same web container).
      */
     public boolean isCheckHealthOnStart()
     {
@@ -690,5 +770,44 @@ public class PersistedConfiguration
     public void setApplicationSecurityConfiguration(final Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration)
     {
         this.applicationSecurityConfiguration = applicationSecurityConfiguration;
+    }
+
+    /**
+     * Optional RSB security.
+     */
+    public PersistedAdminSecurityAuthorization getRsbSecurityConfiguration()
+    {
+        return rsbSecurityConfiguration;
+    }
+
+    public void setRsbSecurityConfiguration(final PersistedAdminSecurityAuthorization rsbSecurityConfiguration)
+    {
+        this.rsbSecurityConfiguration = rsbSecurityConfiguration;
+    }
+
+    /**
+     * Optionally partition the catalog by application name.
+     */
+    public boolean isApplicationAwareCatalog()
+    {
+        return applicationAwareCatalog;
+    }
+
+    public void setApplicationAwareCatalog(final boolean applicationAwareCatalog)
+    {
+        this.applicationAwareCatalog = applicationAwareCatalog;
+    }
+
+    /**
+     * Optionally propagate the security context to RServi calls.
+     */
+    public boolean isPropagateSecurityContext()
+    {
+        return propagateSecurityContext;
+    }
+
+    public void setPropagateSecurityContext(final boolean propagateSecurityContext)
+    {
+        this.propagateSecurityContext = propagateSecurityContext;
     }
 }

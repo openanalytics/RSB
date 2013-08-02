@@ -33,11 +33,15 @@
     </global-method-security>
     -->
 
-    <!-- Configure an authentication provider that fits your needs -->
+    <!-- 
+         Below is a sample in-memory authentication provider: configure one that fits your needs.
+    -->
     <authentication-manager>
         <authentication-provider>
             <user-service>
-                <user name="user" password="user" authorities="ROLE_USER" />
+                <user name="user" password="user" authorities="ROLE_APP_USER" />
+                <user name="admin" password="admin" authorities="ROLE_APP_ADMIN" />
+                <user name="boss" password="boss" authorities="ROLE_RSB_ADMIN" />
             </user-service>
         </authentication-provider>
     </authentication-manager>
@@ -47,19 +51,30 @@
     <http pattern="/css/**" security="none" />
     <http pattern="/js/**" security="none" />
 
-    <!-- Pick the authentication mechanism (basic or OpenID) -->
     <http realm="RSB" use-expressions="true">
+        <expression-handler ref="webExpressionHandler" />
+        <intercept-url pattern="/**/admin/system/**"
+            access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.component.AdminResource).ADMIN_SYSTEM_PATH, 'RSB_RESOURCE')" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
+
+        <!-- Pick the authentication mechanism (basic or OpenID) -->
         <http-basic />
         <!--
         <openid-login login-page="/openid.html"
                       authentication-failure-url="/openid.html?login_error=true"
                       default-target-url="/index.html" />
         -->
+        <!--
+        <custom-filter ref="x509Filter" position="PRE_AUTH_FILTER" /> 
+         -->
     </http>
 
     <beans:bean id="expressionHandler"
         class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler"
+        p:permissionEvaluator-ref="applicationPermissionEvaluator" />
+
+    <beans:bean id="webExpressionHandler"
+        class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"
         p:permissionEvaluator-ref="applicationPermissionEvaluator" />
 
     <beans:bean id="applicationPermissionEvaluator"

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
@@ -40,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.access.AccessDeniedException;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.rest.types.Directory;
@@ -48,7 +50,8 @@ import eu.openanalytics.rsb.rest.types.Directory;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DataDirectoriesResourceTestCase {
+public class DataDirectoriesResourceTestCase
+{
     @Mock
     private Configuration configuration;
     @Mock
@@ -59,7 +62,8 @@ public class DataDirectoriesResourceTestCase {
     private DataDirectoriesResource dataDirectoriesResource;
 
     @Before
-    public void prepareTest() throws UnknownHostException {
+    public void prepareTest() throws UnknownHostException
+    {
         dataDirectoriesResource = new DataDirectoriesResource();
         dataDirectoriesResource.setConfiguration(configuration);
 
@@ -67,12 +71,14 @@ public class DataDirectoriesResourceTestCase {
     }
 
     @Test
-    public void setupChannelAdaptersNoDataDirectory() throws Exception {
+    public void setupChannelAdaptersNoDataDirectory() throws Exception
+    {
         dataDirectoriesResource.setupRootMap();
     }
 
     @Test
-    public void browseRoots() throws Exception {
+    public void browseRoots() throws Exception
+    {
         when(configuration.getDataDirectories()).thenReturn(Arrays.asList(FileUtils.getTempDirectory()));
         dataDirectoriesResource.setupRootMap();
 
@@ -82,34 +88,40 @@ public class DataDirectoriesResourceTestCase {
         assertThat(result.getUri(), is(notNullValue()));
     }
 
-    @Test(expected = WebApplicationException.class)
-    public void browsePathBadRoot() throws Exception {
+    @Test(expected = NotFoundException.class)
+    public void browsePathBadRoot() throws Exception
+    {
         dataDirectoriesResource.setupRootMap();
         dataDirectoriesResource.browsePath("not_found", null, httpHeaders, uriInfo);
     }
 
-    @Test(expected = WebApplicationException.class)
-    public void browsePathBadExtension() throws Exception {
-        when(configuration.getDataDirectories()).thenReturn(Arrays.asList(FileUtils.getTempDirectory()));
-        dataDirectoriesResource.setupRootMap();
-        dataDirectoriesResource.browsePath(dataDirectoriesResource.getRootMap().keySet().iterator().next(), "bad_extension", httpHeaders,
-                uriInfo);
-    }
-
-    @Test(expected = WebApplicationException.class)
-    public void browsePathCraftyExtension() throws Exception {
+    @Test(expected = NotFoundException.class)
+    public void browsePathBadExtension() throws Exception
+    {
         when(configuration.getDataDirectories()).thenReturn(Arrays.asList(FileUtils.getTempDirectory()));
         dataDirectoriesResource.setupRootMap();
         dataDirectoriesResource.browsePath(dataDirectoriesResource.getRootMap().keySet().iterator().next(),
-                Base64.encodeBase64URLSafeString("../opt".getBytes()), httpHeaders, uriInfo);
+            "bad_extension", httpHeaders, uriInfo);
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void browsePathCraftyExtension() throws Exception
+    {
+        when(configuration.getDataDirectories()).thenReturn(Arrays.asList(FileUtils.getTempDirectory()));
+        dataDirectoriesResource.setupRootMap();
+        dataDirectoriesResource.browsePath(dataDirectoriesResource.getRootMap().keySet().iterator().next(),
+            Base64.encodeBase64URLSafeString("../opt".getBytes()), httpHeaders, uriInfo);
     }
 
     @Test
-    public void browsePath() throws Exception {
+    public void browsePath() throws Exception
+    {
         when(configuration.getDataDirectories()).thenReturn(Arrays.asList(FileUtils.getTempDirectory()));
         dataDirectoriesResource.setupRootMap();
-        final Directory result = dataDirectoriesResource.browsePath(dataDirectoriesResource.getRootMap().keySet().iterator().next(), null,
-                httpHeaders, uriInfo);
+        final Directory result = dataDirectoriesResource.browsePath(dataDirectoriesResource.getRootMap()
+            .keySet()
+            .iterator()
+            .next(), null, httpHeaders, uriInfo);
         assertThat(result, is(notNullValue()));
         assertThat(result.getPath(), is(notNullValue()));
         assertThat(result.getUri(), is(notNullValue()));

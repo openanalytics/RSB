@@ -29,8 +29,10 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
@@ -83,18 +85,18 @@ public class ResultsResourceTestCase
         assertThat(allResults, is(notNullValue()));
     }
 
-    @Test(expected = WebApplicationException.class)
+    @Test(expected = NotFoundException.class)
     public void getSingleResultNotFound() throws URISyntaxException, IOException
     {
         resultsResource.getSingleResult(ResultResourceTestCase.TEST_APP_NAME,
             ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders, uriInfo);
     }
 
-    @Test(expected = WebApplicationException.class)
     public void deleteSingleResultNotFound() throws URISyntaxException, IOException
     {
-        resultsResource.deleteSingleResult(ResultResourceTestCase.TEST_APP_NAME,
-            ResultResourceTestCase.TEST_JOB_ID.toString(), httpHeaders, uriInfo);
+        final Response response = resultsResource.deleteSingleResult(ResultResourceTestCase.TEST_APP_NAME,
+            ResultResourceTestCase.TEST_JOB_ID.toString());
+        assertThat(response.getStatus(), is(Status.NOT_FOUND.getStatusCode()));
     }
 
     @Test

@@ -69,6 +69,7 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MultiFilesJob;
@@ -82,7 +83,7 @@ import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("emailDepositHandler")
-public class EmailDepositHandler extends AbstractComponent implements BeanFactoryAware
+public class EmailDepositHandler extends AbstractComponentWithCatalog implements BeanFactoryAware
 {
     public static final String EMAIL_CONFIG_HEADER_NAME = DepositEmailConfiguration.class.getName();
 
@@ -264,11 +265,11 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
         throws MessagingException, IOException, FileNotFoundException
     {
 
-        if (StringUtils.isNotBlank(depositEmailConfiguration.getJobConfigurationFileName()))
+        final String jobConfigurationFileName = depositEmailConfiguration.getJobConfigurationFileName();
+        if (StringUtils.isNotBlank(jobConfigurationFileName))
         {
-            final File jobConfigurationFile = new File(
-                getConfiguration().getJobConfigurationCatalogDirectory(),
-                depositEmailConfiguration.getJobConfigurationFileName());
+            final File jobConfigurationFile = getJobConfigurationFile(
+                depositEmailConfiguration.getApplicationName(), jobConfigurationFileName);
             job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(jobConfigurationFile));
         }
 
@@ -299,8 +300,8 @@ public class EmailDepositHandler extends AbstractComponent implements BeanFactor
             return getMessages().getMessage("email.result.body", null, null);
         }
 
-        return new File(getConfiguration().getEmailRepliesCatalogDirectory(),
-            depositEmailConfiguration.getResponseFileName());
+        return getCatalogManager().getCatalogFile(CatalogSection.EMAIL_REPLIES,
+            depositEmailConfiguration.getApplicationName(), depositEmailConfiguration.getResponseFileName());
     }
 
     private String getPrimaryAddressee(final MimeMessage mimeMessage) throws MessagingException

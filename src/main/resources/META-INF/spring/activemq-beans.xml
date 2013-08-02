@@ -21,18 +21,18 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-      xmlns:p="http://www.springframework.org/schema/p"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-        
+
     <bean name="amqDeadLetterStrategy"
         class="org.apache.activemq.broker.region.policy.IndividualDeadLetterStrategy"
         p:queuePrefix="DLQ." />
 
     <bean name="amqDefaultPolicyEntry" class="org.apache.activemq.broker.region.policy.PolicyEntry"
-        p:queue="r.*" p:deadLetterStrategy-ref="amqDeadLetterStrategy" p:prioritizedMessages="true" />
+        p:queue="r.*" p:deadLetterStrategy-ref="amqDeadLetterStrategy"
+        p:prioritizedMessages="true" />
 
     <bean name="amqPolicyMap" class="org.apache.activemq.broker.region.policy.PolicyMap"
         p:defaultEntry-ref="amqDefaultPolicyEntry" />
@@ -44,7 +44,8 @@
         init-method="start" destroy-method="stop" />
 
     <bean name="amqRedeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy"
-        p:useExponentialBackOff="true" p:maximumRedeliveries="6" />
+        p:useExponentialBackOff="true" p:maximumRedeliveries="6"
+        p:queue="*" />
 
     <bean name="amqPrefetchPolicy" class="org.apache.activemq.ActiveMQPrefetchPolicy"
         p:all="1" />

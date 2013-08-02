@@ -179,11 +179,12 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
         {
             MultiFilesJob.addZipFilesToJob(new FileInputStream(acceptedFile), job);
 
-            if (StringUtils.isNotBlank(depositDirectoryConfiguration.getJobConfigurationFileName()))
+            final String jobConfigurationFileName = depositDirectoryConfiguration.getJobConfigurationFileName();
+
+            if (StringUtils.isNotBlank(jobConfigurationFileName))
             {
-                final File jobConfigurationFile = new File(
-                    getConfiguration().getJobConfigurationCatalogDirectory(),
-                    depositDirectoryConfiguration.getJobConfigurationFileName());
+                final File jobConfigurationFile = getJobConfigurationFile(applicationName, jobConfigurationFileName);
+
                 job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(
                     jobConfigurationFile));
             }

@@ -27,7 +27,7 @@
     <groupId>eu.openanalytics</groupId>
     <artifactId>rsb</artifactId>
     <packaging>war</packaging>
-    <version>5.1-SNAPSHOT</version>
+    <version>6.0-SNAPSHOT</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
     <url>http://openanalytics.eu</url>
@@ -41,17 +41,22 @@
         <name>OpenAnalytics BVBA</name>
         <url>http://openanalytics.eu</url>
     </organization>
+
     <properties>
-        <spring.version>3.2.1.RELEASE</spring.version>
+        <rj.version>2.0.0-SNAPSHOT</rj.version>
+        <eruntime.version>1.4.0-SNAPSHOT</eruntime.version>
+
+        <spring.version>3.2.2.RELEASE</spring.version>
         <spring-security.version>3.1.3.RELEASE</spring-security.version>
-        <spring-integration.version>2.2.1.RELEASE</spring-integration.version>
-        <activemq.version>5.6.0</activemq.version>
-        <cxf.version>2.6.0</cxf.version>
+        <spring-integration.version>2.2.2.RELEASE</spring-integration.version>
+        <activemq.version>5.7.0</activemq.version>
+        <cxf.version>2.7.3</cxf.version>
         <jetty-plugin.version>8.1.5.v20120716</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
         <tomcat.version>6.0.32</tomcat.version>
         <local.server.port>8888</local.server.port>
     </properties>
+
     <scm>
         <url>https://github.com/openanalytics/RSB</url>
     </scm>
@@ -59,6 +64,7 @@
         <system>GitHub</system>
         <url>https://github.com/openanalytics/RSB/issues</url>
     </issueManagement>
+
     <repositories>
         <repository>
             <id>oa-public</id>
@@ -78,6 +84,7 @@
             <layout>default</layout>
         </repository>
     </repositories>
+
     <distributionManagement>
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
@@ -94,34 +101,35 @@
             <url>file:///usr/share/nginx/www/maven-sites/rsb/${project.artifactId}-${project.version}</url>
         </site>
     </distributionManagement>
+
     <dependencies>
         <!-- RServi -->
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.client</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.data</artifactId>
-            <version>1.1.1-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.server</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.servi</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <version>${rj.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.services.eruntime</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>${eruntime.version}</version>
         </dependency>
-    
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -140,6 +148,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
         </dependency>
@@ -151,6 +164,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
@@ -310,6 +328,11 @@
             <version>1.6</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.5</version>
+        </dependency>
+        <dependency>
             <groupId>oro</groupId>
             <artifactId>oro</artifactId>
             <version>2.0.8</version>
@@ -341,7 +364,7 @@
             <artifactId>slf4j-jcl</artifactId>
             <version>1.6.4</version>
         </dependency>
-    
+
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -365,8 +388,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <finalName>rsb</finalName>
         <plugins>
@@ -582,8 +607,49 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.9.0</version>
+                <configuration>
+                    <header>LICENSE_HEADER</header>
+                    <aggregate>true</aggregate>
+                    <excludes>
+                        <exclude>**/package-info.java</exclude>
+
+                        <exclude>src/main/webapp/css/jstree-classic/*.css</exclude>
+                        <exclude>src/main/webapp/css/blackbird.css</exclude>
+                        <exclude>src/main/webapp/css/jquery*.css</exclude>
+                        <exclude>src/main/webapp/css/openid.css</exclude>
+                        <exclude>src/main/webapp/css/ui.panel.css</exclude>
+
+                        <exclude>src/main/webapp/js/blackbird.js</exclude>
+                        <exclude>src/main/webapp/js/date.js</exclude>
+                        <exclude>src/main/webapp/js/jquery*.js</exclude>
+                        <exclude>src/main/webapp/js/jstree*.js</exclude>
+                        <exclude>src/main/webapp/js/openid*.js</exclude>
+                        <exclude>src/main/webapp/js/ui.panel.min.js</exclude>
+
+                        <exclude>src/misc/tomcat-users.xml</exclude>
+                        <exclude>src/main/webapp/WEB-INF/web.xml</exclude>
+
+                        <exclude>src/test/resources/data/*.txt</exclude>
+
+                        <exclude>src/it/config/rsb-it-soapui-*.xml</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>javax-dependencies</id>
@@ -836,7 +902,7 @@
                                         <artifactItem>
                                             <groupId>de.walware.rj</groupId>
                                             <artifactId>de.walware.rj.servi.webapp</artifactId>
-                                            <version>1.2.0-SNAPSHOT</version>
+                                            <version>${rj.version}</version>
                                             <type>war</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/rservi</outputDirectory>
@@ -867,14 +933,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <dependency>
-                    <groupId>javax.faces</groupId>
-                    <artifactId>jsf-impl</artifactId>
-                    <version>1.2_15</version>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <id>openid</id>

@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
-import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -148,8 +147,8 @@ public class JobProcessorTestCase
 
         final AbstractFunctionCallResult processDirectResult = (AbstractFunctionCallResult) jobProcessor.processDirect(job);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class),
-            anyLong(), eq(defaultPoolUri.toString()));
+        verify(jobStatisticsHandler).storeJobStatistics(eq(job), any(Calendar.class), anyLong(),
+            eq(defaultPoolUri.toString()));
         verifyZeroInteractions(messageDispatcher);
 
         assertThat(processDirectResult, is(result));
@@ -164,8 +163,8 @@ public class JobProcessorTestCase
 
         jobProcessor.process(job);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class),
-            anyLong(), eq(defaultPoolUri.toString()));
+        verify(jobStatisticsHandler).storeJobStatistics(eq(job), any(Calendar.class), anyLong(),
+            eq(defaultPoolUri.toString()));
         verify(messageDispatcher).dispatch(eq(result));
     }
 
@@ -210,8 +209,8 @@ public class JobProcessorTestCase
 
         jobProcessor.process(job);
 
-        verify(jobStatisticsHandler).storeJobStatistics(anyString(), any(UUID.class), any(Calendar.class),
-            anyLong(), eq(defaultPoolUri.toString()));
+        verify(jobStatisticsHandler).storeJobStatistics(eq(job), any(Calendar.class), anyLong(),
+            eq(defaultPoolUri.toString()));
         verify(messageDispatcher).dispatch(eq(result));
     }
 

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import javax.annotation.Resource;
@@ -32,7 +33,8 @@ import eu.openanalytics.rsb.message.MessageDispatcher;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractComponent {
+public abstract class AbstractComponent
+{
     private final Log logger = LogFactory.getLog(getClass());
 
     @Resource
@@ -44,32 +46,38 @@ public abstract class AbstractComponent {
     @Resource
     private MessageDispatcher messageDispatcher;
 
-    // exposed for unit testing
-    public void setMessageDispatcher(final MessageDispatcher messageDispatcher) {
+    public void setMessageDispatcher(final MessageDispatcher messageDispatcher)
+    {
         this.messageDispatcher = messageDispatcher;
     }
 
-    public void setConfiguration(final Configuration configuration) {
+    public void setConfiguration(final Configuration configuration)
+    {
         this.configuration = configuration;
     }
 
-    public void setMessages(final MessageSource messages) {
+    public void setMessages(final MessageSource messages)
+    {
         this.messages = messages;
     }
 
-    protected Configuration getConfiguration() {
+    protected Configuration getConfiguration()
+    {
         return configuration;
     }
 
-    protected MessageSource getMessages() {
+    protected MessageSource getMessages()
+    {
         return messages;
     }
 
-    protected Log getLogger() {
+    protected Log getLogger()
+    {
         return logger;
     }
 
-    protected MessageDispatcher getMessageDispatcher() {
+    protected MessageDispatcher getMessageDispatcher()
+    {
         return messageDispatcher;
     }
 }

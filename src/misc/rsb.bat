@@ -1,25 +1,23 @@
-rem
-rem    R Service Bus
-rem    
-rem    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
-rem 
-rem    ===========================================================================
-rem 
-rem    This program is free software: you can redistribute it and/or modify
-rem    it under the terms of the GNU Affero General Public License as published by
-rem    the Free Software Foundation, either version 3 of the License, or
-rem    (at your option) any later version.
-rem 
-rem    This program is distributed in the hope that it will be useful,
-rem    but WITHOUT ANY WARRANTY; without even the implied warranty of
-rem    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-rem    GNU Affero General Public License for more details.
-rem 
-rem    You should have received a copy of the GNU Affero General Public License
-rem    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-rem 
-rem    @author rsb.development@openanalytics.eu
-rem
+@REM    R Service Bus
+@REM    
+@REM    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
+@REM 
+@REM    ===========================================================================
+@REM 
+@REM    This program is free software: you can redistribute it and/or modify
+@REM    it under the terms of the GNU Affero General Public License as published by
+@REM    the Free Software Foundation, either version 3 of the License, or
+@REM    (at your option) any later version.
+@REM 
+@REM    This program is distributed in the hope that it will be useful,
+@REM    but WITHOUT ANY WARRANTY; without even the implied warranty of
+@REM    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+@REM    GNU Affero General Public License for more details.
+@REM 
+@REM    You should have received a copy of the GNU Affero General Public License
+@REM    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+@REM 
+@REM    @author rsb.development@openanalytics.eu
 
 if not "%R_HOME%" == "" goto okRHome
 echo "R_HOME not set"

@@ -54,10 +54,6 @@ public class PersistedConfigurationAdapter implements Configuration
     private final PersistedConfiguration persistedConfiguration;
     private final URL configurationUrl;
     private final String nodeName;
-    private final File rScriptsCatalogDirectory;
-    private final File sweaveFilesCatalogDirectory;
-    private final File jobConfigurationCatalogDirectory;
-    private final File emailRepliesCatalogDirectory;
 
     public PersistedConfigurationAdapter(final URL configurationUrl,
                                          final PersistedConfiguration persistedConfiguration)
@@ -68,15 +64,6 @@ public class PersistedConfigurationAdapter implements Configuration
         nodeName = StringUtils.isNotBlank(persistedConfiguration.getNodeName())
                                                                                ? persistedConfiguration.getNodeName()
                                                                                : getDefaultNodeName();
-
-        rScriptsCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.R_SCRIPTS.getSubDir());
-        sweaveFilesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.SWEAVE_FILES.getSubDir());
-        jobConfigurationCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.JOB_CONFIGURATIONS.getSubDir());
-        emailRepliesCatalogDirectory = new File(persistedConfiguration.getCatalogRootDirectory(),
-            Configuration.Catalog.EMAIL_REPLIES.getSubDir());
     }
 
     private String getDefaultNodeName()
@@ -106,36 +93,49 @@ public class PersistedConfigurationAdapter implements Configuration
         return Util.toJson(persistedConfiguration);
     }
 
+    @Override
     public URL getConfigurationUrl()
     {
         return configurationUrl;
     }
 
+    @Override
     public String getNodeName()
     {
         return nodeName;
     }
 
+    @Override
+    public File getCatalogRootDirectory()
+    {
+        return persistedConfiguration.getCatalogRootDirectory();
+    }
+
+    @Override
     public File getActiveMqWorkDirectory()
     {
         return persistedConfiguration.getActiveMqWorkDirectory();
     }
 
+    @Override
     public int getJobTimeOut()
     {
         return persistedConfiguration.getJobTimeOut();
     }
 
+    @Override
     public int getNumberOfConcurrentJobWorkersPerQueue()
     {
         return persistedConfiguration.getNumberOfConcurrentJobWorkersPerQueue();
     }
 
+    @Override
     public File getResultsDirectory()
     {
         return persistedConfiguration.getResultsDirectory();
     }
 
+    @Override
     public Map<String, Set<URI>> getApplicationSpecificRserviPoolUris()
     {
         final Map<String, ?> sourcePoolUris = persistedConfiguration.getApplicationSpecificRserviPoolUris();
@@ -172,21 +172,25 @@ public class PersistedConfigurationAdapter implements Configuration
         return applicationSpecificRserviPoolUris;
     }
 
+    @Override
     public URI getDefaultRserviPoolUri()
     {
         return persistedConfiguration.getDefaultRserviPoolUri();
     }
 
+    @Override
     public String getAdministratorEmail()
     {
         return persistedConfiguration.getAdministratorEmail();
     }
 
+    @Override
     public SmtpConfiguration getSmtpConfiguration()
     {
         return persistedConfiguration.getSmtpConfiguration();
     }
 
+    @Override
     public JmxConfiguration getJmxConfiguration()
     {
         if (persistedConfiguration.getJmxConfiguration() == null)
@@ -197,67 +201,73 @@ public class PersistedConfigurationAdapter implements Configuration
         return persistedConfiguration.getJmxConfiguration();
     }
 
+    @Override
     public JobStatisticsHandlerConfiguration getJobStatisticsHandlerConfiguration()
     {
         final PersistedJobStatisticsHandlerConfiguration persisted = persistedConfiguration.getJobStatisticsHandlerConfiguration();
         return persisted != null ? persisted : new PersistedJobStatisticsHandlerConfiguration();
     }
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public List<DepositDirectoryConfiguration> getDepositRootDirectories()
     {
         return (List) persistedConfiguration.getDepositRootDirectories();
     }
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public List<DepositEmailConfiguration> getDepositEmailAccounts()
     {
         return (List) persistedConfiguration.getDepositEmailAccounts();
     }
 
-    public File getRScriptsCatalogDirectory()
-    {
-        return rScriptsCatalogDirectory;
-    }
-
-    public File getSweaveFilesCatalogDirectory()
-    {
-        return sweaveFilesCatalogDirectory;
-    }
-
-    public File getJobConfigurationCatalogDirectory()
-    {
-        return jobConfigurationCatalogDirectory;
-    }
-
-    public File getEmailRepliesCatalogDirectory()
-    {
-        return emailRepliesCatalogDirectory;
-    }
-
+    @Override
     public List<File> getDataDirectories()
     {
         return persistedConfiguration.getDataDirectories();
     }
 
+    @Override
     public Config getRServiClientPoolConfig()
     {
         return persistedConfiguration.getrServiClientPoolConfig();
     }
 
+    @Override
     public RServiClientPoolValidationStrategy getRServiClientPoolValidationStrategy()
     {
         return persistedConfiguration.getrServiClientPoolValidationStrategy();
     }
 
+    @Override
     public boolean isCheckHealthOnStart()
     {
         return persistedConfiguration.isCheckHealthOnStart();
     }
 
+    @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Map<String, ApplicationSecurityAuthorization> getApplicationSecurityConfiguration()
     {
         return (Map) persistedConfiguration.getApplicationSecurityConfiguration();
+    }
+
+    @Override
+    public AdminSecurityAuthorization getRsbSecurityConfiguration()
+    {
+        return persistedConfiguration.getRsbSecurityConfiguration();
+    }
+
+    @Override
+    public boolean isApplicationAwareCatalog()
+    {
+        return persistedConfiguration.isApplicationAwareCatalog();
+    }
+
+    @Override
+    public boolean isPropagateSecurityContext()
+    {
+        return persistedConfiguration.isPropagateSecurityContext();
     }
 }

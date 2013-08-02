@@ -2,7 +2,7 @@
 <!--
     R Service Bus
     
-    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
  
     ===========================================================================
  
@@ -31,28 +31,63 @@
             email="rsb.development@openanalytics.eu">RSB Development</author>
     </properties>
     <body>
-        <section name="Application Level Security">
+        <section name="Secure Mode">
           <p>It is possible to run RSB in secure mode where only authorized users can use certain applications</p>
           <p>This is done by doing the following:</p>
           <ul>
-          <li>Activate security by uncommenting the blocks title "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
-          <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
-          <li>Configure RSB to associate applications with authorized users and/or roles.</li>
+           <li>Activate security by uncommenting the blocks titled "Uncomment to enable security" in <b>web.xml</b> and <b>security-beans.xml</b></li>
+           <li>Configure a Spring Security authentication provider in <b>security-beans.xml</b> to retrieve users from LDAP, Database...</li>
+           <li>Configure RSB to associate applications with users and/or roles authorized to act as application users and admins, as shown in the next section.</li>
+           <li>Optionally configure users and/or roles authorized to act as RSB admins, as shown in the following section.</li>
           </ul>
-          <p>The following demonstrate how to configure RSB</p>
+        </section>
+        <section name="Application Level Security">
+          <p>The following demonstrate how to configure RSB application level security:</p>
           <pre>
     "applicationSecurityConfiguration": {
       "secure_app_1": {
-        "authorizedPrincipals":["bob","dan"]
+        "userPrincipals":["bob","dan"]
       },
       "secure_app_2": {
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ADMIN"]
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
       },
       "secure_app_3": {
-        "authorizedPrincipals":["bob","dan"],
-        "authorizedRoles":["ROLE_SCIENTIST","ROLE_ADMIN"]
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"]
+      },
+      "secure_app_4": {
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "functionCallAllowed": true,
+        "scriptSubmissionAllowed": true
+      },
+      "secure_app_5": {
+        "userPrincipals":["bob","dan"],
+        "userRoles":["ROLE_SCIENTIST","ROLE_ANALYST"],
+        "adminPrincipals":["jack"],
+        "adminRoles":["ROLE_ADMIN"]
       }
     }
+          </pre>
+          <p>Application admins, declared with <b>adminPrincipals</b> and <b>adminRoles</b> are de-facto users of the concerned application.</p>
+          <p>Notice how the <b>functionCallAllowed</b> and <b>scriptSubmissionAllowed</b> attributes are used to explicitly allow the users of <i>secure_app_4</i> to execute jobs that can potentially impact the environment where R executes. This is disabled by default. Application admins are not affected by these flags.</p>
+        </section>
+        <section name="RSB Admin Security">
+          <p>The following demonstrate how to configure the optional RSB admin roles/groups:</p>
+          <pre>
+    "rsbSecurityConfiguration": {
+        "adminPrincipals":["joe"],
+        "adminRoles":["ROLE_ADMIN"]
+    }
+          </pre>
+          <p><b>RSB admins are de-facto users and admins of all the applications</b>.</p>
+        </section>
+        <section name="Application Aware Catalog">
+          <p>In a secure environment, it can be desirable to partition the catalog per application name.
+          This prevents one application or one application admin to read or write files in another application.</p>
+          <p>This option, which is off by default, is activated with the following configuration setting:</p>
+          <pre>
+    "applicationAwareCatalog" : true
           </pre>
         </section>
     </body>

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU Affero General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -51,8 +52,9 @@ import eu.openanalytics.rsb.message.XmlFunctionCallJob;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public class ProcessResourceTestCase {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class ProcessResourceTestCase
+{
     private static final String FAKE_RESULT = "fake_result";
 
     private static final String TEST_APP_NAME = "appName";
@@ -73,7 +75,8 @@ public class ProcessResourceTestCase {
     private AbstractResult result;
 
     @Before
-    public void prepareTest() throws Exception {
+    public void prepareTest() throws Exception
+    {
         processResource = new ProcessResource();
         processResource.setConfiguration(configuration);
         processResource.setMessageDispatcher(messageDispatcher);
@@ -83,62 +86,74 @@ public class ProcessResourceTestCase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void handleBadApplicationName() throws Exception {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList("_bad:app!$name"));
-        processResource.processXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
+    public void handleBadApplicationName() throws Exception
+    {
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+            Collections.singletonList("_bad:app!$name"));
+        processResource.processXmlFunctionCallJob("fake_xml", httpHeaders);
         verifyZeroInteractions(messageDispatcher);
     }
 
     @Test
-    public void handleJsonFunctionCallJob() throws Exception {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
+    public void handleJsonFunctionCallJob() throws Exception
+    {
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+            Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(true);
         when(jobProcessor.processDirect(any(JsonFunctionCallJob.class))).thenReturn(result);
 
-        assertSuccessfullProcessing(processResource.processJsonFunctionCallJob("fake_json", httpHeaders, uriInfo));
+        assertSuccessfullProcessing(processResource.processJsonFunctionCallJob("fake_json", httpHeaders));
         verifyZeroInteractions(messageDispatcher);
     }
 
     @Test
-    public void handleFailedJsonFunctionCallJob() throws Exception {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
+    public void handleFailedJsonFunctionCallJob() throws Exception
+    {
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+            Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(false);
         when(jobProcessor.processDirect(any(JsonFunctionCallJob.class))).thenReturn(result);
 
-        assertFailedProcessing(processResource.processJsonFunctionCallJob("fake_json", httpHeaders, uriInfo));
+        assertFailedProcessing(processResource.processJsonFunctionCallJob("fake_json", httpHeaders));
         verifyZeroInteractions(messageDispatcher);
     }
 
     @Test
-    public void handleXmlFunctionCallJob() throws Exception {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
+    public void handleXmlFunctionCallJob() throws Exception
+    {
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+            Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(true);
         when(jobProcessor.processDirect(any(XmlFunctionCallJob.class))).thenReturn(result);
 
-        assertSuccessfullProcessing(processResource.processXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
+        assertSuccessfullProcessing(processResource.processXmlFunctionCallJob("fake_xml", httpHeaders));
         verifyZeroInteractions(messageDispatcher);
     }
 
     @Test
-    public void handleFailedXmlFunctionCallJob() throws Exception {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(Collections.singletonList(TEST_APP_NAME));
+    public void handleFailedXmlFunctionCallJob() throws Exception
+    {
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+            Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(false);
         when(jobProcessor.processDirect(any(XmlFunctionCallJob.class))).thenReturn(result);
 
-        assertFailedProcessing(processResource.processXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
+        assertFailedProcessing(processResource.processXmlFunctionCallJob("fake_xml", httpHeaders));
         verifyZeroInteractions(messageDispatcher);
     }
 
-    private void assertSuccessfullProcessing(final Response response) {
+    private void assertSuccessfullProcessing(final Response response)
+    {
         assertThat(response.getStatus(), is(Status.OK.getStatusCode()));
         assertThat(response.getEntity().toString(), is(FAKE_RESULT));
     }
 
-    private void assertFailedProcessing(final Response response) {
+    private void assertFailedProcessing(final Response response)
+    {
         assertThat(response.getStatus(), is(Status.BAD_REQUEST.getStatusCode()));
         assertThat(response.getEntity().toString(), is(FAKE_RESULT));
     }

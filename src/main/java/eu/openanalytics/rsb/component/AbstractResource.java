@@ -29,7 +29,7 @@ import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResource extends AbstractComponent
+public abstract class AbstractResource extends AbstractComponentWithCatalog
 {
     @Context
     private SecurityContext securityContext;

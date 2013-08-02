@@ -32,7 +32,7 @@ import java.util.UUID;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResult<T> extends AbstractWorkItem
+public abstract class AbstractResult<T> extends AbstractWorkItem implements Result<T>
 {
     private static final long serialVersionUID = 1L;
 

@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,7 +42,9 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.CoreException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 import de.walware.rj.data.RDataUtil;
@@ -50,9 +53,11 @@ import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
+import eu.openanalytics.rsb.message.Job;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.rservi.ErrorableRServi;
@@ -67,7 +72,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("jobProcessor")
-public class JobProcessor extends AbstractComponent
+public class JobProcessor extends AbstractComponentWithCatalog
 {
     private interface JobRunner
     {
@@ -83,10 +88,12 @@ public class JobProcessor extends AbstractComponent
     @Resource
     private RServiUriSelector rServiUriSelector;
 
+    @PreAuthorize("hasPermission(#job, 'APPLICATION_JOB')")
     public AbstractResult<?> processDirect(final AbstractFunctionCallJob job) throws Exception
     {
         return process(job, new JobRunner()
         {
+            @Override
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException
             {
                 final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
@@ -99,6 +106,7 @@ public class JobProcessor extends AbstractComponent
     {
         process(job, new JobRunner()
         {
+            @Override
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException
             {
                 final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
@@ -111,36 +119,24 @@ public class JobProcessor extends AbstractComponent
     {
         process(job, new JobRunner()
         {
+            @Override
             public AbstractResult<File[]> runOn(final RServi rServi) throws Exception
             {
                 final Set<String> filesUploadedToR = new HashSet<String>();
 
                 // locate and upload the R script
-                final String rScriptFromCatalog = (String) job.getMeta().get(
-                    Constants.R_SCRIPT_CONFIGURATION_KEY);
-                final File rScriptFile = rScriptFromCatalog != null
-                                                                   ? new File(
-                                                                       getConfiguration().getRScriptsCatalogDirectory(),
-                                                                       rScriptFromCatalog)
-                                                                   : job.getRScriptFile();
-
-                if ((rScriptFile == null) || (!rScriptFile.isFile()))
-                {
-                    throw new IllegalArgumentException("No R script has been found for job: " + job
-                                                       + " using catalog: "
-                                                       + getConfiguration().getRScriptsCatalogDirectory());
-                }
+                final File rScriptFile = getRScriptFile(job);
 
                 uploadFileToR(rServi, rScriptFile, filesUploadedToR);
 
                 // optionally uploads a Sweave file
-                final String sweaveFileFromCatalog = (String) job.getMeta().get(
+                final String sweaveFileFromCatalog = (String) getUploadableJobMeta(job).get(
                     Constants.SWEAVE_FILE_CONFIGURATION_KEY);
 
                 if (sweaveFileFromCatalog != null)
                 {
-                    final File sweaveFile = new File(getConfiguration().getSweaveFilesCatalogDirectory(),
-                        sweaveFileFromCatalog);
+                    final File sweaveFile = getCatalogManager().getCatalogFile(CatalogSection.SWEAVE_FILES,
+                        job.getApplicationName(), sweaveFileFromCatalog);
 
                     if (!sweaveFile.isFile())
                     {
@@ -162,7 +158,7 @@ public class JobProcessor extends AbstractComponent
                 }
 
                 // upload the configuration file to R
-                uploadPropertiesToR(rServi, job.getMeta(), filesUploadedToR);
+                uploadPropertiesToR(rServi, getUploadableJobMeta(job), filesUploadedToR);
 
                 // hit R
                 executeScriptOnR(rServi, rScriptFile.getName());
@@ -183,6 +179,59 @@ public class JobProcessor extends AbstractComponent
                 }
 
                 return result;
+            }
+
+            private Map<String, Serializable> getUploadableJobMeta(final Job job)
+            {
+                final Map<String, Serializable> meta = new HashMap<String, Serializable>(job.getMeta());
+
+                if ((JobProcessor.this.getConfiguration().isPropagateSecurityContext())
+                    && (StringUtils.isNotBlank(job.getUserName())))
+                {
+                    meta.put("rsbSecure", true);
+                    meta.put("rsbUserPrincipal", job.getUserName());
+                }
+
+                return meta;
+            }
+
+            private File getRScriptFile(final MultiFilesJob job)
+            {
+                final String rScriptFromCatalog = (String) getUploadableJobMeta(job).get(
+                    Constants.R_SCRIPT_CONFIGURATION_KEY);
+
+                return rScriptFromCatalog != null
+                                                 ? getRScriptFileFromCatalog(rScriptFromCatalog, job)
+                                                 : getRScriptFileFromJob(job);
+            }
+
+            private File getRScriptFileFromCatalog(final String rScriptFromCatalog, final MultiFilesJob job)
+            {
+                final File rScriptFile = getCatalogManager().getCatalogFile(CatalogSection.R_SCRIPTS,
+                    job.getApplicationName(), rScriptFromCatalog);
+
+                if ((rScriptFile == null) || (!rScriptFile.isFile()))
+                {
+                    throw new IllegalArgumentException("No R script has been found for job: " + job
+                                                       + ", in the catalog under the name: "
+                                                       + rScriptFromCatalog);
+                }
+                else
+                {
+                    return rScriptFile;
+                }
+            }
+
+            private File getRScriptFileFromJob(final MultiFilesJob job)
+            {
+                if ((job.getRScriptFile() == null) || (!job.getRScriptFile().isFile()))
+                {
+                    throw new IllegalArgumentException("No R script has been found for job: " + job);
+                }
+                else
+                {
+                    return job.getRScriptFile();
+                }
             }
         }, false);
     }
@@ -210,7 +259,7 @@ public class JobProcessor extends AbstractComponent
         final long startTime = System.currentTimeMillis();
         final URI rserviPoolAddress = rServiUriSelector.getUriForApplication(job.getApplicationName());
 
-        // instanceof of is not object but defining pooling strategy is not of
+        // using instanceof of is not OO-friendly but defining pooling strategy is none of
         // AbstractWorkItem business
         final PoolingStrategy poolingStrategy = job instanceof AbstractFunctionCallJob
                                                                                       ? PoolingStrategy.IF_POSSIBLE
@@ -227,8 +276,8 @@ public class JobProcessor extends AbstractComponent
 
             final long processTime = System.currentTimeMillis() - startTime;
 
-            jobStatisticsHandler.storeJobStatistics(job.getApplicationName(), job.getJobId(),
-                new GregorianCalendar(), processTime, rserviPoolAddress.toString());
+            jobStatisticsHandler.storeJobStatistics(job, new GregorianCalendar(), processTime,
+                rserviPoolAddress.toString());
 
             if (getLogger().isInfoEnabled())
             {
@@ -237,6 +286,7 @@ public class JobProcessor extends AbstractComponent
                         job.getJobId(), job.getApplicationName(), rserviPoolAddress, processTime));
             }
         }
+        // catch wide to prevent disrupting the main flow
         catch (final Throwable t)
         {
             if (rServi instanceof ErrorableRServi)
@@ -244,7 +294,6 @@ public class JobProcessor extends AbstractComponent
                 ((ErrorableRServi) rServi).markError();
             }
 
-            // catch wide to prevent disrupting the main flow
             final long processTime = System.currentTimeMillis() - startTime;
             getLogger().error(
                 String.format("Failed to process %s %s for %s on %s in %dms", job.getType(), job.getJobId(),
@@ -270,6 +319,7 @@ public class JobProcessor extends AbstractComponent
                                           final String functionName,
                                           final String argument) throws CoreException
     {
+        // TODO propagate security context if needed
         final FunctionCall functionCall = rServi.createFunctionCall(functionName);
         functionCall.addChar(argument);
         final RObject result = functionCall.evalData(null);

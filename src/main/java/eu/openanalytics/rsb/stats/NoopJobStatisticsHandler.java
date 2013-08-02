@@ -23,32 +23,41 @@ package eu.openanalytics.rsb.stats;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.UUID;
+
+import eu.openanalytics.rsb.message.Job;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class NoopJobStatisticsHandler implements JobStatisticsHandler {
+public class NoopJobStatisticsHandler implements JobStatisticsHandler
+{
     public final static NoopJobStatisticsHandler INSTANCE = new NoopJobStatisticsHandler();
 
-    private NoopJobStatisticsHandler() {
+    private NoopJobStatisticsHandler()
+    {
         // use singleton
     }
 
-    public void storeJobStatistics(final String applicationName, final UUID jobId, final Calendar jobCompletionTime,
-            final long millisecondsSpentProcessing, final String rServiAddress) {
+    public void storeJobStatistics(final Job job,
+                                   final Calendar jobCompletionTime,
+                                   final long millisecondsSpentProcessing,
+                                   final String rServiAddress)
+    {
         // NOOP
     }
 
-    public void setConfiguration(final Map<String, Object> configuration) {
+    public void setConfiguration(final Map<String, Object> configuration)
+    {
         // NOOP
     }
 
-    public void initialize() {
+    public void initialize()
+    {
         // NOOP
     }
 
-    public void destroy() {
+    public void destroy()
+    {
         // NOOP
     }
 }

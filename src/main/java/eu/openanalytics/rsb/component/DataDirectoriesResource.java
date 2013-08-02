@@ -31,18 +31,18 @@ import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
@@ -121,8 +121,7 @@ public class DataDirectoriesResource extends AbstractResource
         final File rootDataDir = rootMap.get(rootId);
         if (rootDataDir == null)
         {
-            throw new WebApplicationException(new RuntimeException("No root data dir configured"),
-                Status.NOT_FOUND);
+            throw new NotFoundException(new RuntimeException("No root data dir configured"));
         }
 
         final String extension = (b64extension != null ? new String(Base64.decodeBase64(b64extension)) : "");
@@ -130,8 +129,7 @@ public class DataDirectoriesResource extends AbstractResource
 
         if (!targetDataDir.exists())
         {
-            throw new WebApplicationException(
-                new RuntimeException("Invalid root data dir: " + targetDataDir), Status.NOT_FOUND);
+            throw new NotFoundException(new RuntimeException("Invalid root data dir: " + targetDataDir));
         }
 
         // ensure the target data dir is below the root dir to prevent tampering
@@ -139,11 +137,8 @@ public class DataDirectoriesResource extends AbstractResource
         final String targetDataDirCanonicalPath = targetDataDir.getCanonicalPath();
         if (!StringUtils.startsWith(targetDataDirCanonicalPath, rootDataDirCanonicalPath))
         {
-            throw new WebApplicationException(new SecurityException("Target data dir: "
-                                                                    + targetDataDirCanonicalPath
-                                                                    + " is not below root dir: "
-                                                                    + rootDataDirCanonicalPath),
-                Status.FORBIDDEN);
+            throw new AccessDeniedException("Target data dir: " + targetDataDirCanonicalPath
+                                            + " is not below root dir: " + rootDataDirCanonicalPath);
         }
 
         final Directory result = Util.REST_OBJECT_FACTORY.createDirectory();

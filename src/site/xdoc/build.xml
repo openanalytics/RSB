@@ -2,7 +2,7 @@
 <!--
     R Service Bus
     
-    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
  
     ===========================================================================
  
@@ -73,7 +73,7 @@ mvn -Pjavax-dependencies,tc6 cargo:start
             <p>RServi must be running locally before starting the integration tests.</p>
             <p>If that is the case, then run:
                 <source>
-mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase verify
+mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase clean verify
                 </source>
             </p>
         </section>

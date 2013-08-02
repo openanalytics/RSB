@@ -232,8 +232,8 @@ public abstract class Util
     }
 
     /**
-     * Extracts an UriBuilder for the current request, taking into account the
-     * possibility of header-based URI override.
+     * Extracts an UriBuilder for the current request, taking into account the possibility of
+     * header-based URI override.
      * 
      * @param uriInfo
      * @param httpHeaders
@@ -284,8 +284,8 @@ public abstract class Util
     }
 
     /**
-     * Gets the first header of multiple HTTP headers, returning null if no header is
-     * found for the name.
+     * Gets the first header of multiple HTTP headers, returning null if no header is found for the
+     * name.
      * 
      * @param httpHeaders
      * @param headerName
@@ -304,8 +304,7 @@ public abstract class Util
     }
 
     /**
-     * Creates a temporary directory. Lifted from:
-     * http://stackoverflow.com/questions/
+     * Creates a temporary directory. Lifted from: http://stackoverflow.com/questions/
      * 617414/create-a-temporary-directory-in-java/617438#617438
      * 
      * @return
@@ -394,7 +393,7 @@ public abstract class Util
     }
 
     /**
-     * Unmarshals a JSON string to a desired type.
+     * Unmarshalls a JSON string to a desired type.
      * 
      * @param s
      * @return
@@ -412,7 +411,7 @@ public abstract class Util
     }
 
     /**
-     * Perform a simple mathematic computation on R to ensure it responds correctly.
+     * Perform a simple arithmetic operation on R to ensure it responds correctly.
      * 
      * @param rServi
      * @return
@@ -434,8 +433,8 @@ public abstract class Util
     }
 
     /**
-     * Creates a new {@link URI} from String, throwing an
-     * {@link IllegalArgumentException} in case of issue.
+     * Creates a new {@link URI} from String, throwing an {@link IllegalArgumentException} in case
+     * of issue.
      * 
      * @param uri
      * @return

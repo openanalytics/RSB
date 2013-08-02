@@ -37,7 +37,7 @@ import eu.openanalytics.rsb.rest.types.ErrorResult;
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractJob extends AbstractWorkItem
+public abstract class AbstractJob extends AbstractWorkItem implements Job
 {
     private static final long serialVersionUID = 1L;
 

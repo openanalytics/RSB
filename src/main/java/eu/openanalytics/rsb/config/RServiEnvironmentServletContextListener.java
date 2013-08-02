@@ -1,3 +1,23 @@
+/*
+ *   R Service Bus
+ *   
+ *   Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013
+ *
+ *   ===========================================================================
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package eu.openanalytics.rsb.config;
 
@@ -34,6 +54,7 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
 
     private Log logger;
 
+    @Override
     public void contextInitialized(final ServletContextEvent sce)
     {
         ECommons.init("de.walware.rj.services.eruntime", this);
@@ -41,11 +62,13 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
 
         RjsComConfig.setProperty("rj.servi.graphicFactory", new RClientGraphicFactory()
         {
+            @Override
             public Map<String, ? extends Object> getInitServerProperties()
             {
                 return null;
             }
 
+            @Override
             public RClientGraphic newGraphic(final int devId,
                                              final double w,
                                              final double h,
@@ -57,6 +80,7 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
                 return new RClientGraphicDummy(devId, w, h);
             }
 
+            @Override
             public void closeGraphic(final RClientGraphic graphic)
             {
                 // NOOP
@@ -64,6 +88,7 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
         });
     }
 
+    @Override
     public void contextDestroyed(final ServletContextEvent sce)
     {
         try
@@ -79,16 +104,19 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
         }
     }
 
+    @Override
     public void addStoppingListener(final IDisposable listener)
     {
         stopListeners.add(listener);
     }
 
+    @Override
     public void removeStoppingListener(final IDisposable listener)
     {
         stopListeners.remove(listener);
     }
 
+    @Override
     public void log(final IStatus status)
     {
         switch (status.getSeverity())
