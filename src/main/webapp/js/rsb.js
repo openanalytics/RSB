@@ -354,9 +354,11 @@ $(document).ready(function() {
   $('#jobUploadForm').ajaxForm({
       dataType: 'xml',
       success: function(responseXML, textStatus, xhr) {
-          // reset the file selector only
-          $('#jobFileSelector').attr({ value: '' });
-          $('#jobFileSelector').MultiFile('reset');
+          if(RSB_FORM_TITLE != 'RSB - qPCR') {
+              // reset the file selector only
+              $('#jobFileSelector').attr({ value: '' });
+              $('#jobFileSelector').MultiFile('reset');
+          }
           
           var response = $('jobToken', responseXML)
           
