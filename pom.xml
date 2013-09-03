@@ -417,6 +417,7 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/mtom-jobs.wsdl</wsdl>
+                                    <wsdlLocation>classpath:wsdl/mtom-jobs.wsdl</wsdlLocation>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>
