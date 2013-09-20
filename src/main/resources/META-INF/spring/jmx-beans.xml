@@ -21,53 +21,57 @@
         
     @author rsb.development@openanalytics.eu
 -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"
-          p:locateExistingServerIfPossible="true"/>
+        p:locateExistingServerIfPossible="true" />
 
-    <bean id="mx4jXsltProcessor" class="mx4j.tools.adaptor.http.XSLTProcessor"/>      
+    <bean id="mx4jXsltProcessor" class="mx4j.tools.adaptor.http.XSLTProcessor" />
     <bean id="mx4jHttpAdaptor" class="mx4j.tools.adaptor.http.HttpAdaptor"
-          init-method="start" destroy-method="stop"
-          p:host="0.0.0.0" p:port="#{configuration.jmxConfiguration.httpPort}"
-          p:processor-ref="mx4jXsltProcessor">
+        init-method="start" destroy-method="stop" p:host="0.0.0.0"
+        p:port="#{configuration.jmxConfiguration.httpPort}" p:processor-ref="mx4jXsltProcessor">
     </bean>
 
-    <bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+    <bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter"
+        lazy-init="false">
         <property name="beans">
             <map>
                 <entry key="rsb:name=Configuration" value-ref="configuration" />
-                <entry key="rsb:domain=jms,name=GlobalJobMessageListener" value-ref="globalJobMessageListener" />
-                <entry key="rsb:domain=jms,name=RestResultMessageListener" value-ref="restResultMessageListener" />
-                <entry key="rsb:domain=jms,name=DirectoryResultMessageListener" value-ref="directoryResultMessageListener" />
-                <entry key="rsb:domain=jms,name=EmailResultMessageListener" value-ref="emailResultMessageListener" />
-                <entry key="rsb:domain=jms,name=DlqMessageListener" value-ref="dlqMessageListener" />
-                <entry key="rsb:domain=service,name=JaxwsMtomJobEndpoint" value-ref="jaxwsMtomJobEndpoint" />
-                <entry key="rsb:domain=service,name=JaxrsRestServer" value-ref="jaxrsRestServer" />
-                <entry key="rsb:domain=service,name=DirectoryDepositServiceActivator" value-ref="directoryDepositServiceActivator" />
-                <entry key="rsb:domain=service,name=EmailDepositServiceActivator" value-ref="emailDepositServiceActivator" />
+                <entry key="rsb:domain=jms,name=GlobalJobMessageListener"
+                    value-ref="globalJobMessageListener" />
+                <entry key="rsb:domain=jms,name=RestResultMessageListener"
+                    value-ref="restResultMessageListener" />
+                <entry key="rsb:domain=jms,name=DirectoryResultMessageListener"
+                    value-ref="directoryResultMessageListener" />
+                <entry key="rsb:domain=jms,name=EmailResultMessageListener"
+                    value-ref="emailResultMessageListener" />
+                <entry key="rsb:domain=jms,name=DlqMessageListener"
+                    value-ref="dlqMessageListener" />
+                <entry key="rsb:domain=service,name=JaxwsMtomJobEndpoint"
+                    value-ref="jaxwsMtomJobEndpoint" />
+                <entry key="rsb:domain=service,name=JaxrsRestServer"
+                    value-ref="jaxrsRestServer" />
+                <entry
+                    key="rsb:domain=service,name=DirectoryDepositServiceActivator"
+                    value-ref="directoryDepositServiceActivator" />
+                <entry key="rsb:domain=service,name=EmailDepositServiceActivator"
+                    value-ref="emailDepositServiceActivator" />
                 <entry key="mx4j:name=HttpAdaptor" value-ref="mx4jHttpAdaptor" />
             </map>
         </property>
-        <property name="server" ref="mbeanServer"/>
+        <property name="server" ref="mbeanServer" />
     </bean>
 
-    <bean
-        class="org.springframework.jmx.support.ConnectorServerFactoryBean"
-        depends-on="rmiRegistry">
-        <property name="objectName" value="connector:name=rmi" />
-        <property name="serviceUrl"
-            value="service:jmx:rmi://127.0.0.1:#{configuration.jmxConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxConfiguration.registryPort}/myconnector" />
-    </bean>
+    <bean class="org.springframework.jmx.support.ConnectorServerFactoryBean"
+        p:objectName="connector:name=rmi"
+        p:serviceUrl="service:jmx:rmi://127.0.0.1:#{configuration.jmxConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxConfiguration.registryPort}/myconnector"
+        p:registrationPolicy="IGNORE_EXISTING"
+        depends-on="rmiRegistry" />
 
-    <bean id="rmiRegistry"
-        class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
-        <property name="port" value="#{configuration.jmxConfiguration.registryPort}" />
-    </bean>
+    <bean id="rmiRegistry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean"
+        p:port="#{configuration.jmxConfiguration.registryPort}" />
 </beans>
