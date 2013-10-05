@@ -25,6 +25,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.net.URI;
+import java.rmi.ConnectException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,7 +43,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.eclipse.core.runtime.CoreException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -166,11 +166,20 @@ public class SystemHealthResource extends AbstractResource
         }
     }
 
-    private void verifyRServiConnectivity(final URI rServiUri) throws Exception, CoreException
+    private void verifyRServiConnectivity(final URI rServiUri) throws Exception
     {
-        // never use pooled clients to check connectivity
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(rServiUri.toString(),
-            Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
+        RServi rServi = null;
+
+        try
+        {
+            // never use pooled clients to check connectivity
+            rServi = rServiInstanceProvider.getRServiInstance(rServiUri.toString(),
+                Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
+        }
+        catch (final Exception e)
+        {
+            throw new ConnectException("Failed to retrieve an RServi instance at URI: " + rServiUri, e);
+        }
 
         try
         {
