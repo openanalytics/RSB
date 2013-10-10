@@ -61,9 +61,9 @@ mvn jetty:run
             </source>
             to start RSB configured to use a locally running RServi.
             </p>
-            <p>Similarly, it's also possible to quickly try RSB with Tomcat 6 by running:
+            <p>Similarly, if you have a locally running RServi, it's also possible to quickly try RSB with Tomcat by running:
             <source>
-mvn -Pjavax-dependencies,tc6 cargo:start
+mvn -Pjavax-dependencies,tomcat cargo:run
             </source>
             Press Control+C when you'll be done with testing.
             </p>

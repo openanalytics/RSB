@@ -53,7 +53,7 @@
         <cxf.version>2.7.6</cxf.version>
         <jetty-plugin.version>8.1.5.v20120716</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
-        <tomcat.version>6.0.32</tomcat.version>
+        <tomcat.version>7.0.42</tomcat.version>
         <local.server.port>8888</local.server.port>
     </properties>
 
@@ -681,32 +681,36 @@
             </dependencies>
         </profile>
         <profile>
-            <id>tc6</id>
+            <id>tomcat</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.0.5</version>
+                        <version>1.4.4</version>
                         <configuration>
                             <wait>true</wait>
                             <container>
-                                <containerId>tomcat6x</containerId>
+                                <containerId>tomcat7x</containerId>
                                 <zipUrlInstaller>
-                                    <url>http://archive.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
-                                    <installDir>${cargo.install.tomcat6x.dir}</installDir>
+                                    <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+                                    <!-- 
+                                    <installDir>${cargo.install.tomcat.dir}</installDir>
+                                     -->
                                 </zipUrlInstaller>
                                 <output>${cargo.container.log}</output>
                                 <append>false</append>
                                 <log>${cargo.log}</log>
                             </container>
                             <configuration>
-                                <home>${cargo.home.tomcat6x.dir}</home>
+                                <home>${cargo.home.tomcat.dir}</home>
+                                <!-- 
                                 <deployables>
                                     <deployable>
                                         <pingURL>http://localhost:${local.server.port}/${project.build.finalName}/index.html</pingURL>
                                     </deployable>
                                 </deployables>
+                                 -->
                                 <properties>
                                     <cargo.servlet.port>${local.server.port}</cargo.servlet.port>
                                 </properties>
@@ -717,9 +721,11 @@
             </build>
             <properties>
                 <cargo.install.dir>${java.io.tmpdir}/cargo</cargo.install.dir>
-                <cargo.install.tomcat6x.dir>${cargo.install.dir}/tomcat6x</cargo.install.tomcat6x.dir>
+                <!-- 
+                <cargo.install.tomcat.dir>${cargo.install.dir}/tomcat</cargo.install.tomcat.dir>
+                -->
                 <cargo.home.dir>${project.build.directory}/cargo</cargo.home.dir>
-                <cargo.home.tomcat6x.dir>${cargo.home.dir}/tomcat6x</cargo.home.tomcat6x.dir>
+                <cargo.home.tomcat.dir>${cargo.home.dir}/tomcat</cargo.home.tomcat.dir>
                 <cargo.log>${cargo.home.dir}/cargo.log</cargo.log>
                 <cargo.container.log>${cargo.home.dir}/container.log</cargo.container.log>
             </properties>
