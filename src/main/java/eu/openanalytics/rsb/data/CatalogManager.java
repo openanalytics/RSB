@@ -43,6 +43,12 @@ public interface CatalogManager
 
     File getCatalogFile(CatalogSection catalogSection, String applicationName, String fileName);
 
+    /**
+     * This must only be called when it's impossible to have a security context (ie after going
+     * through JMS)
+     */
+    File internalGetCatalogFile(CatalogSection catalogSection, String applicationName, String fileName);
+
     enum PutCatalogFileResult
     {
         CREATED, UPDATED

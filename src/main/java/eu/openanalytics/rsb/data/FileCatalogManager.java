@@ -104,6 +104,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return applicationNames;
     }
 
+    @Override
     @PreAuthorize("hasPermission(#applicationName, 'CATALOG_USER')")
     public Map<Pair<CatalogSection, File>, List<File>> getCatalog(final String applicationName)
     {
@@ -120,15 +121,25 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         return catalog;
     }
 
+    @Override
     @PreAuthorize("hasPermission(#applicationName, 'CATALOG_USER')")
     public File getCatalogFile(final CatalogSection catalogSection,
                                final String applicationName,
                                final String fileName)
     {
+        return internalGetCatalogFile(catalogSection, applicationName, fileName);
+    }
+
+    @Override
+    public File internalGetCatalogFile(final CatalogSection catalogSection,
+                                       final String applicationName,
+                                       final String fileName)
+    {
         final File catalogSectionDirectory = getCatalogSectionDirectory(catalogSection, applicationName);
         return new File(catalogSectionDirectory, fileName);
     }
 
+    @Override
     @PreAuthorize("hasPermission(#applicationName, 'CATALOG_ADMIN')")
     public Pair<PutCatalogFileResult, File> putCatalogFile(final CatalogSection catalogSection,
                                                            final String applicationName,

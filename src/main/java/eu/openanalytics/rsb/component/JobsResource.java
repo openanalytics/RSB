@@ -92,6 +92,7 @@ public class JobsResource extends AbstractResource
     {
         return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder()
         {
+            @Override
             public AbstractJob build(final String applicationName,
                                      final UUID jobId,
                                      final GregorianCalendar submissionTime)
@@ -121,6 +122,7 @@ public class JobsResource extends AbstractResource
 
         return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder()
         {
+            @Override
             public AbstractJob build(final String applicationName,
                                      final UUID jobId,
                                      final GregorianCalendar submissionTime)
@@ -149,6 +151,7 @@ public class JobsResource extends AbstractResource
 
         return handleNewRestJob(httpHeaders, uriInfo, new JobBuilder()
         {
+            @Override
             public AbstractJob build(final String applicationName,
                                      final UUID jobId,
                                      final GregorianCalendar submissionTime) throws IOException
@@ -181,7 +184,6 @@ public class JobsResource extends AbstractResource
                                            @Context final UriInfo uriInfo)
         throws URISyntaxException, IOException
     {
-
         String applicationName = null;
         final Map<String, Serializable> jobMeta = new HashMap<String, Serializable>();
 
@@ -208,6 +210,7 @@ public class JobsResource extends AbstractResource
 
         return handleNewJob(finalApplicationName, httpHeaders, uriInfo, new JobBuilder()
         {
+            @Override
             public AbstractJob build(final String applicationName,
                                      final UUID jobId,
                                      final GregorianCalendar submissionTime) throws IOException

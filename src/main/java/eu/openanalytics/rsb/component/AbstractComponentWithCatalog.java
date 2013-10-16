@@ -48,7 +48,7 @@ public abstract class AbstractComponentWithCatalog extends AbstractComponent
 
     protected File getJobConfigurationFile(final String applicationName, final String jobConfigurationFileName)
     {
-        return getCatalogManager().getCatalogFile(CatalogSection.JOB_CONFIGURATIONS, applicationName,
+        return getCatalogManager().internalGetCatalogFile(CatalogSection.JOB_CONFIGURATIONS, applicationName,
             jobConfigurationFileName);
     }
 }

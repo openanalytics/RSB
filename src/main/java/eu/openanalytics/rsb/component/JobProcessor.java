@@ -135,8 +135,8 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
                 if (sweaveFileFromCatalog != null)
                 {
-                    final File sweaveFile = getCatalogManager().getCatalogFile(CatalogSection.SWEAVE_FILES,
-                        job.getApplicationName(), sweaveFileFromCatalog);
+                    final File sweaveFile = getCatalogManager().internalGetCatalogFile(
+                        CatalogSection.SWEAVE_FILES, job.getApplicationName(), sweaveFileFromCatalog);
 
                     if (!sweaveFile.isFile())
                     {
@@ -207,7 +207,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
             private File getRScriptFileFromCatalog(final String rScriptFromCatalog, final MultiFilesJob job)
             {
-                final File rScriptFile = getCatalogManager().getCatalogFile(CatalogSection.R_SCRIPTS,
+                final File rScriptFile = getCatalogManager().internalGetCatalogFile(CatalogSection.R_SCRIPTS,
                     job.getApplicationName(), rScriptFromCatalog);
 
                 if ((rScriptFile == null) || (!rScriptFile.isFile()))

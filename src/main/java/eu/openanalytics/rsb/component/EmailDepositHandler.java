@@ -106,6 +106,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 
     private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<SourcePollingChannelAdapter>();
 
+    @Override
     public void setBeanFactory(final BeanFactory beanFactory) throws BeansException
     {
         this.beanFactory = beanFactory;
@@ -300,7 +301,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
             return getMessages().getMessage("email.result.body", null, null);
         }
 
-        return getCatalogManager().getCatalogFile(CatalogSection.EMAIL_REPLIES,
+        return getCatalogManager().internalGetCatalogFile(CatalogSection.EMAIL_REPLIES,
             depositEmailConfiguration.getApplicationName(), depositEmailConfiguration.getResponseFileName());
     }
 

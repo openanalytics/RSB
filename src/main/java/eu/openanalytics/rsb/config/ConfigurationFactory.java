@@ -158,8 +158,9 @@ public abstract class ConfigurationFactory
 
                 if (depositEmailAccount.getResponseFileName() != null)
                 {
-                    final File responseFile = fileCatalogManager.getCatalogFile(CatalogSection.EMAIL_REPLIES,
-                        applicationName, depositEmailAccount.getResponseFileName());
+                    final File responseFile = fileCatalogManager.internalGetCatalogFile(
+                        CatalogSection.EMAIL_REPLIES, applicationName,
+                        depositEmailAccount.getResponseFileName());
 
                     validateIsTrue(responseFile.exists(), "missing response file: " + responseFile,
                         validationErrors);
@@ -167,7 +168,7 @@ public abstract class ConfigurationFactory
 
                 if (depositEmailAccount.getJobConfigurationFileName() != null)
                 {
-                    final File jobConfigurationFile = fileCatalogManager.getCatalogFile(
+                    final File jobConfigurationFile = fileCatalogManager.internalGetCatalogFile(
                         CatalogSection.JOB_CONFIGURATIONS, applicationName,
                         depositEmailAccount.getJobConfigurationFileName());
 
