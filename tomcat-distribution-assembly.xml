@@ -45,6 +45,7 @@
                 <exclude>webapps/examples/**</exclude>
                 <exclude>webapps/ROOT/favicon.ico</exclude>
                 <exclude>conf/tomcat-users.xml</exclude>
+                <exclude>conf/catalina.policy</exclude>
             </excludes>
             <fileMode>0644</fileMode>
         </fileSet>
@@ -80,6 +81,11 @@
         </file>
         <file>
             <source>src/misc/tomcat-users.xml</source>
+            <outputDirectory>/conf</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>src/misc/catalina.policy</source>
             <outputDirectory>/conf</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
