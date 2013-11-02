@@ -30,11 +30,11 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -94,21 +94,13 @@ public class DirectoryDepositHandlerTestCase
     @Test
     public void handleZipJob() throws Exception
     {
-        final URL jobSample = Thread.currentThread()
-            .getContextClassLoader()
-            .getResource("data/r-job-sample.zip");
+        final File jobParentFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
+        FileUtils.forceMkdir(jobParentFile);
 
-        final File jobParentFile = mock(File.class);
-        when(jobParentFile.getParentFile()).thenReturn(FileUtils.getTempDirectory());
-
-        final File zipJobFile = mock(File.class);
-        when(zipJobFile.getParentFile()).thenReturn(jobParentFile);
-        when(zipJobFile.getName()).thenReturn("fake");
-        when(zipJobFile.exists()).thenReturn(true);
-        when(zipJobFile.getCanonicalPath()).thenReturn("fake_path");
-        when(zipJobFile.length()).thenReturn(FileUtils.sizeOf(new File(jobSample.toURI())));
-        when(zipJobFile.getPath()).thenReturn(jobSample.getPath());
-        when(zipJobFile.delete()).thenReturn(true);
+        final File zipJobFile = File.createTempFile("test-", ".zip", jobParentFile);
+        FileUtils.copyInputStreamToFile(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("data/r-job-sample.zip"),
+            zipJobFile);
 
         final DepositDirectoryConfiguration depositRootDirectoryConfig = mock(DepositDirectoryConfiguration.class);
         when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
@@ -132,6 +124,8 @@ public class DirectoryDepositHandlerTestCase
         assertThat(job.getMeta().containsKey(DirectoryDepositHandler.ORIGINAL_FILENAME_META_NAME), is(true));
         assertThat(job.getSource(), is(Source.DIRECTORY));
         job.destroy();
+
+        FileUtils.forceDelete(jobParentFile);
     }
 
     @Test
