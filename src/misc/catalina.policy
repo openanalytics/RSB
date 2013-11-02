@@ -248,8 +248,7 @@ grant codeBase "file:${catalina.home}/webapps/manager/-" {
 
 
 grant codeBase "file:${catalina.home}/webapps/rsb/-" {
-    permission java.lang.RuntimePermission "accessClassInPackage.com.sun.jmx.mbeanserver";
-    permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.registry";
+    permission java.lang.RuntimePermission "accessClassInPackage.*";
     permission java.lang.RuntimePermission "accessDeclaredMembers";
     permission java.lang.RuntimePermission "getenv.spring.liveBeansView.mbeanDomain";
     permission java.lang.RuntimePermission "getClassLoader";
@@ -284,11 +283,11 @@ grant codeBase "file:${catalina.home}/webapps/rsb/-" {
 
 
 grant codeBase "file:${catalina.home}/webapps/rservi/-" {
-    permission java.lang.RuntimePermission "accessClassInPackage.org.apache.tomcat.util.buf";
-    permission java.lang.RuntimePermission "accessClassInPackage.org.apache.catalina.util";
-    permission java.lang.RuntimePermission "accessClassInPackage.org.apache.jasper.compiler";
+    permission java.lang.RuntimePermission "accessClassInPackage.*";
     permission java.lang.RuntimePermission "getenv.*";
     permission java.lang.RuntimePermission "modifyThread";
+
+    permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
 
     permission java.util.PropertyPermission "*", "read";
     permission java.util.PropertyPermission "java.rmi.server.codebase", "write";
