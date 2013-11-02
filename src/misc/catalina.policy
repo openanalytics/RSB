@@ -243,7 +243,10 @@ grant codeBase "file:${catalina.home}/webapps/manager/-" {
 //      permission java.net.SocketPermission "*.noaa.gov:80", "connect";
 // };
 
+
 // ========== RSB CODE PERMISSIONS =========================================
+
+
 grant codeBase "file:${catalina.home}/webapps/rsb/-" {
     permission java.lang.RuntimePermission "accessClassInPackage.com.sun.jmx.mbeanserver";
     permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.registry";
@@ -257,11 +260,14 @@ grant codeBase "file:${catalina.home}/webapps/rsb/-" {
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
 
     permission java.util.PropertyPermission "*", "read";
+    permission java.util.PropertyPermission "eu.openanalytics.rsb.config.Configuration", "write";
     permission java.util.PropertyPermission "org.apache.*", "write";
 
     permission java.io.FilePermission "<<ALL FILES>>", "read,write,execute,delete";
 
     permission java.net.SocketPermission "localhost:*", "listen,connect,accept,resolve";
+    permission java.net.SocketPermission "127.0.1.1:*", "listen,connect,accept,resolve";
+    permission java.net.SocketPermission "*", "resolve";
 
     permission javax.management.MBeanServerPermission "findMBeanServer";
     permission javax.management.MBeanServerPermission "createMBeanServer";
