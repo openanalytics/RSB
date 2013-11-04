@@ -126,16 +126,27 @@ public class PersistedConfiguration
 
     public static class PersistedJmxConfiguration implements JmxConfiguration
     {
-        private static final long serialVersionUID = 1L;
-        private int stubPort;
-        private int registryPort;
-        private int httpPort;
+        private static final long serialVersionUID = 2L;
+
+        private int stubPort, registryPort, httpPort;
+        private String httpAuthenticationUsername, httpAuthenticationPassword;
 
         public PersistedJmxConfiguration(final int stubPort, final int registryPort, final int httpPort)
+        {
+            this(stubPort, registryPort, httpPort, null, null);
+        }
+
+        public PersistedJmxConfiguration(final int stubPort,
+                                         final int registryPort,
+                                         final int httpPort,
+                                         final String httpAuthenticationUsername,
+                                         final String httpAuthenticationPassword)
         {
             this.stubPort = stubPort;
             this.registryPort = registryPort;
             this.httpPort = httpPort;
+            this.httpAuthenticationUsername = httpAuthenticationUsername;
+            this.httpAuthenticationPassword = httpAuthenticationPassword;
         }
 
         public PersistedJmxConfiguration()
@@ -174,6 +185,28 @@ public class PersistedConfiguration
         public void setHttpPort(final int httpPort)
         {
             this.httpPort = httpPort;
+        }
+
+        @Override
+        public String getHttpAuthenticationUsername()
+        {
+            return httpAuthenticationUsername;
+        }
+
+        public void setHttpAuthenticationUsername(final String httpAuthenticationUsername)
+        {
+            this.httpAuthenticationUsername = httpAuthenticationUsername;
+        }
+
+        @Override
+        public String getHttpAuthenticationPassword()
+        {
+            return httpAuthenticationPassword;
+        }
+
+        public void setHttpAuthenticationPassword(final String httpAuthenticationPassword)
+        {
+            this.httpAuthenticationPassword = httpAuthenticationPassword;
         }
     }
 

@@ -16,7 +16,8 @@
         "host": "localhost", "port": 25, "username": "", "password": ""
     },
     "jmxConfiguration": {
-        "stubPort": 1098, "registryPort": 1099, "httpPort": 8889
+        "stubPort": 1098, "registryPort": 1099, "httpPort": 8889,
+        "httpAuthenticationUsername":"a_user", "httpAuthenticationPassword":"a_password"
     },
     "depositRootDirectories": [
         {

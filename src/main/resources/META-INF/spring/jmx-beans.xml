@@ -22,7 +22,8 @@
     @author rsb.development@openanalytics.eu
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p" xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
@@ -31,9 +32,10 @@
         p:locateExistingServerIfPossible="true" />
 
     <bean id="mx4jXsltProcessor" class="mx4j.tools.adaptor.http.XSLTProcessor" />
-    <bean id="mx4jHttpAdaptor" class="mx4j.tools.adaptor.http.HttpAdaptor"
-        init-method="start" destroy-method="stop" p:host="0.0.0.0"
-        p:port="#{configuration.jmxConfiguration.httpPort}" p:processor-ref="mx4jXsltProcessor">
+    <bean id="mx4jHttpAdaptor" class="eu.openanalytics.rsb.security.SecurableMx4JHttpAdaptor"
+        c:configuration-ref="configuration" init-method="start" destroy-method="stop"
+        p:host="0.0.0.0" p:port="#{configuration.jmxConfiguration.httpPort}"
+        p:processor-ref="mx4jXsltProcessor">
     </bean>
 
     <bean id="mbeanExporter" class="org.springframework.jmx.export.MBeanExporter"
@@ -69,8 +71,7 @@
     <bean class="org.springframework.jmx.support.ConnectorServerFactoryBean"
         p:objectName="connector:name=rmi"
         p:serviceUrl="service:jmx:rmi://127.0.0.1:#{configuration.jmxConfiguration.stubPort}/jndi/rmi://localhost:#{configuration.jmxConfiguration.registryPort}/myconnector"
-        p:registrationPolicy="IGNORE_EXISTING"
-        depends-on="rmiRegistry" />
+        p:registrationPolicy="IGNORE_EXISTING" depends-on="rmiRegistry" />
 
     <bean id="rmiRegistry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean"
         p:port="#{configuration.jmxConfiguration.registryPort}" />

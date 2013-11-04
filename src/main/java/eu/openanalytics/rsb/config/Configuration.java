@@ -170,6 +170,16 @@ public interface Configuration
          * HTTP API port. Defaults to 8889.
          */
         int getHttpPort();
+
+        /**
+         * Optional username needed to authenticate on the JMX HTTP web interface.
+         */
+        String getHttpAuthenticationUsername();
+
+        /**
+         * Optional password needed to authenticate on the JMX HTTP web interface.
+         */
+        String getHttpAuthenticationPassword();
     }
 
     public static enum RServiClientPoolValidationStrategy

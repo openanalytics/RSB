@@ -43,6 +43,7 @@ import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorizatio
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
+import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.data.FileCatalogManager;
 
 /**
@@ -195,6 +196,18 @@ public abstract class ConfigurationFactory
                 validateIsTrue(Util.isValidApplicationName(applicationSecurityConfiguration.getKey()),
                     "invalid deposit application security authorization application name: "
                                     + applicationSecurityConfiguration.getKey(), validationErrors);
+            }
+        }
+
+        if (pca.getJmxConfiguration() != null)
+        {
+            final JmxConfiguration jmxConfiguration = pca.getJmxConfiguration();
+
+            if (StringUtils.isNotBlank(jmxConfiguration.getHttpAuthenticationUsername()))
+            {
+                validateIsTrue(StringUtils.isNotBlank(jmxConfiguration.getHttpAuthenticationPassword()),
+                    "Both username and password must be provided when securing the JMX HTTP console",
+                    validationErrors);
             }
         }
 

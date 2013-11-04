@@ -90,5 +90,18 @@
     "applicationAwareCatalog" : true
           </pre>
         </section>
+        <section name="JMX Web UI (MX4J)">
+          <p>It's possible to secure the JMX Web UI with HTTP Basic Auth by configuring a dedicated username / password pair in the RSB configuration:</p>
+          <pre>
+    "jmxConfiguration": {
+       "stubPort": 1098,
+       "registryPort": 1099,
+       "httpPort": 8889,
+       "httpAuthenticationUsername": "jmxui_username",
+       "httpAuthenticationPassword": "jmxui_pass"
+    }
+          </pre>
+          <p>It is recommended to enable SSL encryption for the JMX Web UI by using a frontal web-server, like Nginx.</p>
+        </section>
     </body>
 </document>
