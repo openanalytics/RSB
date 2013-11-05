@@ -73,7 +73,7 @@
           <p>Notice how the <b>functionCallAllowed</b> and <b>scriptSubmissionAllowed</b> attributes are used to explicitly allow the users of <i>secure_app_4</i> to execute jobs that can potentially impact the environment where R executes. This is disabled by default. Application admins are not affected by these flags.</p>
         </section>
         <section name="RSB Admin Security">
-          <p>The following demonstrate how to configure the optional RSB admin roles/groups:</p>
+          <p>The following demonstrate how to configure the optional RSB admin roles/roles:</p>
           <pre>
     "rsbSecurityConfiguration": {
         "adminPrincipals":["joe"],
@@ -90,6 +90,15 @@
     "applicationAwareCatalog" : true
           </pre>
         </section>
+        <section name="JMX RMI">
+          <p>Once RSB is running in "Secure Mode" (see above), it's possible to secure the JMX RMI connector.
+             It's done by editing <b>jmx-beans.xml</b> and uncommenting the blocks marked with "Uncomment to enable security".</p>
+          <p>Only the RSB admins (defined by users/roles as explained in "RSB Admin Security") will be allowed to connect to the JMX RMI interface.</p>
+          <p>If the default JMX ports have be left unchanged, the remote process URI to use to securely connect is:</p>
+          <pre>
+    service:jmx:rmi://localhost:9098/jndi/rmi://localhost:9099/jmxRMIConnector
+          </pre>
+        </section>
         <section name="JMX Web UI (MX4J)">
           <p>It's possible to secure the JMX Web UI with HTTP Basic Auth by configuring a dedicated username / password pair in the RSB configuration:</p>
           <pre>
@@ -102,6 +111,7 @@
     }
           </pre>
           <p>It is recommended to enable SSL encryption for the JMX Web UI by using a frontal web-server, like Nginx.</p>
+          <p>Note that this security option is available even if RSB is not running in "Secure Mode" (as described above).</p>
         </section>
     </body>
 </document>
