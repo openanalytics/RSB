@@ -246,6 +246,12 @@ grant codeBase "file:${catalina.home}/webapps/manager/-" {
 
 // ========== RSB CODE PERMISSIONS =========================================
 
+grant {
+    permission java.lang.management.ManagementPermission "monitor";
+    permission java.net.SocketPermission "*", "resolve";
+    permission java.util.PropertyPermission "*", "read";
+    permission javax.management.MBeanPermission "*", "getMBeanInfo,isInstanceOf,queryNames,queryMBeans,getAttribute,addNotificationListener";
+};
 
 grant codeBase "file:${catalina.home}/webapps/rsb/-" {
     permission java.lang.RuntimePermission "accessClassInPackage.*";
@@ -253,12 +259,12 @@ grant codeBase "file:${catalina.home}/webapps/rsb/-" {
     permission java.lang.RuntimePermission "getenv.spring.liveBeansView.mbeanDomain";
     permission java.lang.RuntimePermission "getClassLoader";
     permission java.lang.RuntimePermission "getFileSystemAttributes";
+    permission java.lang.RuntimePermission "getProtectionDomain";
     permission java.lang.RuntimePermission "modifyThread";
     permission java.lang.RuntimePermission "setContextClassLoader";
 
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
 
-    permission java.util.PropertyPermission "*", "read";
     permission java.util.PropertyPermission "eu.openanalytics.rsb.config.Configuration", "write";
     permission java.util.PropertyPermission "org.apache.*", "write";
 
@@ -266,12 +272,15 @@ grant codeBase "file:${catalina.home}/webapps/rsb/-" {
 
     permission java.net.SocketPermission "localhost:*", "listen,connect,accept,resolve";
     permission java.net.SocketPermission "127.0.1.1:*", "listen,connect,accept,resolve";
-    permission java.net.SocketPermission "*", "resolve";
+
+    permission java.security.SecurityPermission "createAccessControlContext";
+    permission javax.security.auth.AuthPermission "modifyPrincipals";
 
     permission javax.management.MBeanServerPermission "findMBeanServer";
     permission javax.management.MBeanServerPermission "createMBeanServer";
     permission javax.management.MBeanTrustPermission "register";
     permission javax.management.MBeanPermission "*", "registerMBean,unregisterMBean,invoke";
+    permission javax.management.remote.SubjectDelegationPermission "javax.management.remote.JMXPrincipal.*";
 
     permission javax.xml.ws.WebServicePermission "*";
 };
@@ -289,7 +298,6 @@ grant codeBase "file:${catalina.home}/webapps/rservi/-" {
 
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
 
-    permission java.util.PropertyPermission "*", "read";
     permission java.util.PropertyPermission "java.rmi.server.codebase", "write";
     permission java.util.PropertyPermission "java.rmi.server.hostname", "write";
 
@@ -297,11 +305,9 @@ grant codeBase "file:${catalina.home}/webapps/rservi/-" {
 
     permission java.net.SocketPermission "localhost:*", "listen,connect,accept,resolve";
     permission java.net.SocketPermission "127.0.1.1:*", "listen,connect,accept,resolve";
-    permission java.net.SocketPermission "*", "resolve";
 
     permission javax.management.MBeanServerPermission "createMBeanServer";
     permission javax.management.MBeanServerPermission "createMBeanServer";
     permission javax.management.MBeanTrustPermission "register";
     permission javax.management.MBeanPermission "*", "registerMBean,unregisterMBean,invoke";
 };
-
