@@ -36,7 +36,7 @@
     <!-- 
          Below is a sample in-memory authentication provider: configure one that fits your needs.
     -->
-    <authentication-manager>
+    <authentication-manager alias="authenticationManager">
         <authentication-provider>
             <user-service>
                 <user name="user" password="user" authorities="ROLE_APP_USER" />
