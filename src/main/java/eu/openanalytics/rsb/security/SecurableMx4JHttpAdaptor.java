@@ -21,11 +21,15 @@
 
 package eu.openanalytics.rsb.security;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
 import mx4j.tools.adaptor.http.HttpAdaptor;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.ssl.OpenSSL;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
@@ -38,9 +42,14 @@ import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
  */
 public class SecurableMx4JHttpAdaptor extends HttpAdaptor
 {
-    private final Log LOGGER = LogFactory.getLog(SecurableMx4JHttpAdaptor.class);
+    private static final Log LOGGER = LogFactory.getLog(SecurableMx4JHttpAdaptor.class);
+
+    private static final String BASIC_AUTHENTICATION_METHOD = "basic";
+
+    private final String httpAuthenticationUsername, httpAuthenticationEncryptedPassword;
 
     public SecurableMx4JHttpAdaptor(final Configuration configuration)
+        throws IOException, GeneralSecurityException
     {
         super();
 
@@ -50,13 +59,24 @@ public class SecurableMx4JHttpAdaptor extends HttpAdaptor
         {
             if (StringUtils.isNotBlank(jmxConfiguration.getHttpAuthenticationUsername()))
             {
-                addAuthorization(jmxConfiguration.getHttpAuthenticationUsername(),
-                    jmxConfiguration.getHttpAuthenticationPassword());
+                httpAuthenticationUsername = jmxConfiguration.getHttpAuthenticationUsername();
+                httpAuthenticationEncryptedPassword = jmxConfiguration.getHttpAuthenticationPassword();
 
-                setAuthenticationMethod("basic");
+                // decrypt the configured password using the username as the decryption password
+                final byte[] decryptedPasswordBytes = OpenSSL.decrypt("des3",
+                    httpAuthenticationUsername.toCharArray(),
+                    httpAuthenticationEncryptedPassword.getBytes("UTF-8"));
+
+                addAuthorization(httpAuthenticationUsername, new String(decryptedPasswordBytes, "UTF-8"));
+
+                setAuthenticationMethod(BASIC_AUTHENTICATION_METHOD);
 
                 LOGGER.info("Basic authentication active");
+                return;
             }
         }
+
+        httpAuthenticationUsername = null;
+        httpAuthenticationEncryptedPassword = null;
     }
 }

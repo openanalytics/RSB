@@ -107,8 +107,14 @@
        "registryPort": 1099,
        "httpPort": 8889,
        "httpAuthenticationUsername": "jmxui_username",
-       "httpAuthenticationPassword": "jmxui_pass"
+       "httpAuthenticationPassword": "U2FsdGVkX1+nOXQF+qvSVHeDdDG+jUyJxPzm6NW4NkI="
     }
+          </pre>
+          <p>The password is encrypted with DES3 using the username as the encryption password.
+             For example, with jmxui_username / jmxui_pass as the username / password pair, one can encrypt the password with:</p>
+          <pre>
+    $ echo -n "jmxui_pass" | openssl enc -a -e -salt -des3 -pass pass:jmxui_username
+    U2FsdGVkX1+nOXQF+qvSVHeDdDG+jUyJxPzm6NW4NkI=
           </pre>
           <p>It is recommended to enable SSL encryption for the JMX Web UI by using a frontal web-server, like Nginx.</p>
           <p>Note that this security option is available even if RSB is not running in "Secure Mode" (as described above).</p>

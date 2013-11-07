@@ -273,7 +273,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-    
+
         <!-- JavaX -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -288,7 +288,7 @@
             <artifactId>mx4j-tools</artifactId>
             <version>3.0.1</version>
         </dependency>
-    
+
         <!-- Redis -->
         <dependency>
             <groupId>redis.clients</groupId>
@@ -346,6 +346,11 @@
             <groupId>org.antlr</groupId>
             <artifactId>stringtemplate</artifactId>
             <version>4.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>ca.juliusdavies</groupId>
+            <artifactId>not-yet-commons-ssl</artifactId>
+            <version>0.3.11</version>
         </dependency>
 
         <!-- Logging -->
