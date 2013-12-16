@@ -34,23 +34,23 @@
         http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
         http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail.xsd">
-  
+
     <bean id="mailSender"
           class="org.springframework.mail.javamail.JavaMailSenderImpl"
           p:host="#{configuration.smtpConfiguration.host}"
           p:port="#{configuration.smtpConfiguration.port}"
           p:username="#{configuration.smtpConfiguration.username}"
           p:password="#{configuration.smtpConfiguration.password}" />
-  
+
     <si:channel id="outboundEmailChannel" />
     <mail:outbound-channel-adapter channel="outboundEmailChannel" mail-sender="mailSender"/>
-        
+
     <bean id="zipJobFilter" class="org.springframework.integration.file.filters.CompositeFileListFilter">
       <constructor-arg>
         <list>
           <bean class="eu.openanalytics.rsb.si.MinimumAgeFileListFilter" p:minimumAge="5000" />
           <bean class="org.springframework.integration.file.filters.RegexPatternFileListFilter">
-            <constructor-arg value="^.*\.zip$"/>
+            <constructor-arg value="^.*\..*$"/>
           </bean>
         </list>
       </constructor-arg>
@@ -59,7 +59,7 @@
     <si:service-activator id="directoryDepositServiceActivator"
                           input-channel="directoryDepositChannel"
                           ref="directoryDepositHandler"
-                          method="handleZipJob" />
+                          method="handleJob" />
 
     <si:channel id="emailDepositChannel" />
     <si:service-activator id="emailDepositServiceActivator"
