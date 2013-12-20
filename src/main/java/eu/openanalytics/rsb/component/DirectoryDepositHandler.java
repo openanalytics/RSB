@@ -205,11 +205,11 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
         catch (final Exception e)
         {
             final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
-            handleDirectoryResult(errorResult);
+            handleResult(errorResult);
         }
     }
 
-    public void handleDirectoryResult(final MultiFilesResult result) throws IOException
+    public void handleResult(final MultiFilesResult result) throws IOException
     {
         final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
         final File resultsDirectory = new File((File) result.getMeta().get(DEPOSIT_ROOT_DIRECTORY_META_NAME),

@@ -148,7 +148,7 @@ public class DirectoryDepositHandlerTestCase
     }
 
     @Test
-    public void handleZipResult() throws IOException
+    public void handleResult() throws IOException
     {
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
         meta.put(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME, FileUtils.getTempDirectory());
@@ -159,6 +159,6 @@ public class DirectoryDepositHandlerTestCase
         when(multiFilesResult.getTemporaryDirectory()).thenReturn(FileUtils.getTempDirectory());
         when(multiFilesResult.getMeta()).thenReturn(meta);
 
-        directoryDepositHandler.handleDirectoryResult(multiFilesResult);
+        directoryDepositHandler.handleResult(multiFilesResult);
     }
 }
