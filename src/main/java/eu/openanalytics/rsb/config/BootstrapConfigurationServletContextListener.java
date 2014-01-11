@@ -40,86 +40,133 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedSmtpConfiguration;
 
 /**
- * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can start anyway.
+ * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can
+ * start anyway.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class BootstrapConfigurationServletContextListener implements ServletContextListener {
+public class BootstrapConfigurationServletContextListener implements ServletContextListener
+{
     public static final String RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM = "rsbConfiguration";
+
     private static final Log LOGGER = LogFactory.getLog(BootstrapConfigurationServletContextListener.class);
 
-    public void contextInitialized(final ServletContextEvent sce) {
-        if (isConfigurationPresent(sce.getServletContext())) {
-            final String configuredConfigurationFileName = getConfiguredConfigurationFileName(sce.getServletContext());
-            System.setProperty(Configuration.class.getName(), configuredConfigurationFileName);
-            LOGGER.info("Successfully located configured configuration file: " + configuredConfigurationFileName);
+    @Override
+    public void contextInitialized(final ServletContextEvent sce)
+    {
+        if (isConfigurationPresent(sce.getServletContext()))
+        {
             return;
         }
 
-        final File directoryOnClassPath = getDirectoryOnClassPath(sce);
+        final File configurationDirectory = getWritableConfigurationDirectory(sce);
 
-        if ((directoryOnClassPath != null) && (directoryOnClassPath.isDirectory())) {
-            try {
-                createDefaultConfigurationFile(new File(directoryOnClassPath, Configuration.DEFAULT_JSON_CONFIGURATION_FILE),
-                        getWebInfDirectory(sce));
-            } catch (final URISyntaxException urie) {
+        if (configurationDirectory != null)
+        {
+            try
+            {
+                createDefaultConfigurationFile(new File(configurationDirectory,
+                    Configuration.DEFAULT_JSON_CONFIGURATION_FILE), getWebInfDirectory(sce));
+            }
+            catch (final URISyntaxException urie)
+            {
                 LOGGER.error("Failed to create a default configuration file", urie);
             }
-        } else {
+        }
+        else
+        {
             LOGGER.error("Configuration file " + Configuration.DEFAULT_JSON_CONFIGURATION_FILE
-                    + " not found and no way to create a default configuration on the classpath: RSB will not start properly!");
+                         + " not found and no way to create a default configuration in "
+                         + ConfigurationFactory.RSB_CONFIGURATION_DIRECTORY
+                         + " or on the classpath: RSB will not start properly!");
         }
     }
 
-    public void contextDestroyed(final ServletContextEvent sce) {
+    @Override
+    public void contextDestroyed(final ServletContextEvent sce)
+    {
         // NOOP
     }
 
-    private static boolean isConfigurationPresent(final ServletContext servletContext) {
+    private static boolean isConfigurationPresent(final ServletContext servletContext)
+    {
         final String configurationFile = getConfiguredConfigurationFileName(servletContext);
-        Validate.notEmpty(configurationFile, "No configuration specified in web.xml: servlet context parameter "
-                + RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM + " is missing");
-        return Thread.currentThread().getContextClassLoader().getResource(configurationFile) != null;
+        Validate.notEmpty(configurationFile,
+            "No configuration specified in web.xml: servlet context parameter "
+                            + RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM + " is missing");
+
+        System.setProperty(ConfigurationFactory.CONFIGURATION_FILE_NAME_SYSTEM_PROPERTY, configurationFile);
+
+        final boolean configurationPresent = ConfigurationFactory.isConfigurationPresent();
+
+        if (configurationPresent)
+        {
+            LOGGER.info("Successfully located configured configuration file: " + configurationFile);
+        }
+
+        return configurationPresent;
     }
 
-    private static String getConfiguredConfigurationFileName(final ServletContext servletContext) {
+    private static String getConfiguredConfigurationFileName(final ServletContext servletContext)
+    {
         return servletContext.getInitParameter(RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM);
     }
 
-    private File getWebInfDirectory(final ServletContextEvent sce) {
+    private File getWebInfDirectory(final ServletContextEvent sce)
+    {
         final String path = sce.getServletContext().getRealPath("/WEB-INF");
-        if (StringUtils.isNotBlank(path)) {
+        if (StringUtils.isNotBlank(path))
+        {
             return new File(path);
         }
         return null;
     }
 
-    private File getDirectoryOnClassPath(final ServletContextEvent sce) {
-        final String path = sce.getServletContext().getRealPath("/WEB-INF/classes");
-        if (StringUtils.isNotBlank(path)) {
-            return new File(path);
+    File getWritableConfigurationDirectory(final ServletContextEvent sce)
+    {
+        File rsbConfigurationDirectory = new File(ConfigurationFactory.RSB_CONFIGURATION_DIRECTORY);
+        if (rsbConfigurationDirectory.isDirectory() && rsbConfigurationDirectory.canWrite())
+        {
+            return rsbConfigurationDirectory;
         }
+
+        final String path = sce.getServletContext().getRealPath("/WEB-INF/classes");
+        if (StringUtils.isNotBlank(path))
+        {
+            rsbConfigurationDirectory = new File(path);
+            if (rsbConfigurationDirectory.isDirectory() && rsbConfigurationDirectory.canWrite())
+            {
+                return rsbConfigurationDirectory;
+            }
+        }
+
         return null;
     }
 
     // exposed for testing
-    private static void createDefaultConfigurationFile(final File defaultConfigurationFile, final File webInfDirectory)
-            throws URISyntaxException {
+    private static void createDefaultConfigurationFile(final File defaultConfigurationFile,
+                                                       final File webInfDirectory) throws URISyntaxException
+    {
 
         final PersistedConfiguration defaultConfiguration = createDefaultConfiguration(webInfDirectory);
 
-        try {
+        try
+        {
             Util.toPrettyJsonFile(defaultConfiguration, defaultConfigurationFile);
             LOGGER.warn("Created default RSB configuration: "
-                    + defaultConfigurationFile
-                    + ". It is not production grade and will be wiped out in case of RSB redeployment. Please configure properly and move to another non-transient location on the classpath (for example TOMCAT_HOME/lib).");
-        } catch (final IOException ioe) {
+                        + defaultConfigurationFile
+                        + ". It is not production grade and will be wiped out in case of RSB redeployment. Please configure properly and move to another non-transient location on the classpath (for example TOMCAT_HOME/lib).");
+        }
+        catch (final IOException ioe)
+        {
             LOGGER.error("Failed to create default RSB configuration file!", ioe);
         }
     }
 
     // exposed for unit testing
-    static PersistedConfiguration createDefaultConfiguration(final File webInfDirectory) throws URISyntaxException {
+    static PersistedConfiguration createDefaultConfiguration(final File webInfDirectory)
+        throws URISyntaxException
+    {
         final File defaultRsbHomeDirectory = getDefaultRsbHomeDirectory(webInfDirectory);
         final PersistedConfiguration defaultConfiguration = new PersistedConfiguration();
         defaultConfiguration.setActiveMqWorkDirectory(new File(defaultRsbHomeDirectory, "activemq"));
@@ -135,16 +182,21 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
     // exposed for unit testing
     // by default create all the directories required by RSB under a single parent home directory
     // note that this is not a requirement: each directory can be located in different locations
-    static File getDefaultRsbHomeDirectory(final File webInfDirectory) {
+    static File getDefaultRsbHomeDirectory(final File webInfDirectory)
+    {
         // try in different potential locations
-        final File[] potentialRsbHomeParentDirectories = { FileUtils.getUserDirectory(), webInfDirectory, FileUtils.getTempDirectory() };
+        final File[] potentialRsbHomeParentDirectories = {FileUtils.getUserDirectory(), webInfDirectory,
+            FileUtils.getTempDirectory()};
 
-        for (final File potentialRsbHomeParentDirectory : potentialRsbHomeParentDirectories) {
-            if (potentialRsbHomeParentDirectory == null) {
+        for (final File potentialRsbHomeParentDirectory : potentialRsbHomeParentDirectories)
+        {
+            if (potentialRsbHomeParentDirectory == null)
+            {
                 continue;
             }
             final File result = getOrCreateDefaultRsbHomeDirectory(potentialRsbHomeParentDirectory);
-            if (result != null) {
+            if (result != null)
+            {
                 return result;
             }
         }
@@ -152,12 +204,15 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         throw new IllegalStateException("Failed to create RSB directories in all attempted locations");
     }
 
-    private static File getOrCreateDefaultRsbHomeDirectory(final File rsbHomeParentDirectory) {
+    private static File getOrCreateDefaultRsbHomeDirectory(final File rsbHomeParentDirectory)
+    {
         final File rsbHomeDirectory = new File(rsbHomeParentDirectory, ".rsb");
-        if (rsbHomeDirectory.isDirectory()) {
+        if (rsbHomeDirectory.isDirectory())
+        {
             return rsbHomeDirectory;
         }
-        if (rsbHomeDirectory.mkdir()) {
+        if (rsbHomeDirectory.mkdir())
+        {
             return rsbHomeDirectory;
         }
         LOGGER.info("Failed to create default RSB home directory under: " + rsbHomeDirectory);

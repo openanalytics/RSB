@@ -40,7 +40,8 @@ import eu.openanalytics.rsb.Util;
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class BootstrapConfigurationServletContextListenerTestCase {
+public class BootstrapConfigurationServletContextListenerTestCase
+{
 
     private BootstrapConfigurationServletContextListener bcscl;
 
@@ -48,11 +49,14 @@ public class BootstrapConfigurationServletContextListenerTestCase {
     private ServletContextEvent servletContextEvent;
 
     @Before
-    public void prepareTest() {
+    public void prepareTest()
+    {
         bcscl = new BootstrapConfigurationServletContextListener();
-        mockServletContext = new MockServletContext() {
+        mockServletContext = new MockServletContext()
+        {
             @Override
-            public String getRealPath(final String path) {
+            public String getRealPath(final String path)
+            {
                 return FileUtils.getTempDirectoryPath();
             };
         };
@@ -60,37 +64,46 @@ public class BootstrapConfigurationServletContextListenerTestCase {
     }
 
     @Test
-    public void contextInitializedConfigurationPresent() {
-        mockServletContext.addInitParameter(BootstrapConfigurationServletContextListener.RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM,
-                Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
+    public void contextInitializedConfigurationPresent()
+    {
+        mockServletContext.addInitParameter(
+            BootstrapConfigurationServletContextListener.RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM,
+            Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
         bcscl.contextInitialized(servletContextEvent);
     }
 
     @Test
-    public void contextInitializedConfigurationAbsent() {
-        final File expectedConfigurationFileCreated = new File(FileUtils.getTempDirectory(), Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
+    public void contextInitializedConfigurationAbsent()
+    {
+        final File writableConfigurationDirectory = bcscl.getWritableConfigurationDirectory(servletContextEvent);
+        final File expectedConfigurationFileCreated = new File(writableConfigurationDirectory,
+            Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
         FileUtils.deleteQuietly(expectedConfigurationFileCreated);
 
-        mockServletContext.addInitParameter(BootstrapConfigurationServletContextListener.RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM,
-                "non-existant-configuration");
+        mockServletContext.addInitParameter(
+            BootstrapConfigurationServletContextListener.RSB_CONFIGURATION_SERVLET_CONTEXT_PARAM,
+            "non-existant-configuration");
         bcscl.contextInitialized(servletContextEvent);
 
         assertThat(expectedConfigurationFileCreated.isFile(), is(true));
     }
 
     @Test
-    public void contextDestroyed() {
+    public void contextDestroyed()
+    {
         bcscl.contextDestroyed(servletContextEvent);
     }
 
     @Test
-    public void defaultConfigurationIsValid() throws Exception {
+    public void defaultConfigurationIsValid() throws Exception
+    {
         final File tempDirectory = FileUtils.getTempDirectory();
         final PersistedConfiguration configuration = BootstrapConfigurationServletContextListener.createDefaultConfiguration(tempDirectory);
         ConfigurationFactory.validate(new PersistedConfigurationAdapter(null, configuration));
 
-        final ST defaultConfigurationTestTemplate = Util.newStringTemplate(IOUtils.toString(Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("rsb-configuration-default.json")));
+        final ST defaultConfigurationTestTemplate = Util.newStringTemplate(IOUtils.toString(Thread.currentThread()
+            .getContextClassLoader()
+            .getResourceAsStream("rsb-configuration-default.json")));
         final File defaultRsbHomeDirectory = BootstrapConfigurationServletContextListener.getDefaultRsbHomeDirectory(tempDirectory);
         defaultConfigurationTestTemplate.add("RSB_HOME", defaultRsbHomeDirectory.toString());
         assertThat(defaultConfigurationTestTemplate.render(), is(Util.toJson(configuration)));

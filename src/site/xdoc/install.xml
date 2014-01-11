@@ -62,7 +62,7 @@
     <section name="Configuration">
       <p>
         RSB is configured with a unique JSON file named
-        <b>rsb-configuration.json</b>, which must be located at the root of the JVM classpath (for example, in Tomcat's lib directory).
+        <b>rsb-configuration.json</b>, which must be located either in <code>/etc/rsb</code> or at the root of the JVM classpath (for example, in Tomcat's lib directory).
       </p>
       <subsection name="Samples">
         <p>Here are a few examples of configuration files:</p>
@@ -83,7 +83,7 @@
       </subsection>
       <subsection name="Default Configuration">
         <p>If RSB can't locate a configuration file, it will try to generate one (named rsb-configuration.json, as above)
-          and store it WEB-INF/classes. Here is the content of the default
+          and store it either in <code>/etc/rsb</code> or in <code>WEB-INF/classes</code>. Here is the content of the default
           configuration:</p>
         <pre id="def_conf"></pre>
         <p>In this configuration, $RSB_HOME$ is replaced by either, and in order of preference:</p>
@@ -92,7 +92,7 @@
             <li>The rsb.war WEB-INF directory, if it is writeable,</li>
             <li>The operating system temporary directory</li>
         </ul>
-        <p>If RSB generates such a default configuration file, it is recommended to review it so it uses the desired values and move it to the root of the JVM classpath, as discussed in the previous section.</p>
+        <p>If RSB generates such a default configuration file in<code>WEB-INF/classes</code>, it is recommended to review it so it uses the desired values and move it to <code>/etc/rsb</code>, as discussed in the previous section.</p>
       </subsection>
       <subsection name="Description">
         <p>Configuration attributes are documented on the <a href="./apidocs/index.html?eu/openanalytics/rsb/config/PersistedConfiguration.html">persisted configuration classes</a>.</p>
