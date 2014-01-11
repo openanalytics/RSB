@@ -46,7 +46,7 @@
         <rj.version>2.0.0-SNAPSHOT</rj.version>
         <eruntime.version>1.4.0-SNAPSHOT</eruntime.version>
 
-        <spring.version>3.2.4.RELEASE</spring.version>
+        <spring.version>3.2.6.RELEASE</spring.version>
         <spring-security.version>3.2.0.RELEASE</spring-security.version>
         <spring-integration.version>3.0.0.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
