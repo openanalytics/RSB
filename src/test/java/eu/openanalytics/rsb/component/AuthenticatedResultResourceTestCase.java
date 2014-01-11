@@ -41,7 +41,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.activemq.util.ByteArrayOutputStream;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.math3.random.RandomDataImpl;
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +76,7 @@ public class AuthenticatedResultResourceTestCase
     @Before
     public void prepareTest()
     {
-        testResultPayload = RandomStringUtils.randomAlphanumeric(25 + new RandomDataImpl().nextInt(0, 25));
+        testResultPayload = RandomStringUtils.randomAlphanumeric(25 + new RandomDataGenerator().nextInt(0, 25));
 
         when(securityContext.getUserPrincipal()).thenReturn(
             new TestingAuthenticationToken(TEST_USER_NAME, null));

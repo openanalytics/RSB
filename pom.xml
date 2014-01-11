@@ -47,11 +47,11 @@
         <eruntime.version>1.4.0-SNAPSHOT</eruntime.version>
 
         <spring.version>3.2.4.RELEASE</spring.version>
-        <spring-security.version>3.1.4.RELEASE</spring-security.version>
-        <spring-integration.version>2.2.5.RELEASE</spring-integration.version>
+        <spring-security.version>3.2.0.RELEASE</spring-security.version>
+        <spring-integration.version>3.0.0.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
-        <cxf.version>2.7.6</cxf.version>
-        <jetty-plugin.version>8.1.5.v20120716</jetty-plugin.version>
+        <cxf.version>2.7.8</cxf.version>
+        <jetty-plugin.version>8.1.14.v20131031</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
         <tomcat.version>7.0.42</tomcat.version>
         <local.server.port>8888</local.server.port>
@@ -246,7 +246,7 @@
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
-            <version>1.3.4</version>
+            <version>1.3.5</version>
         </dependency>
 
         <!-- JMS -->
@@ -293,19 +293,19 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-            <version>2.1.0</version>
+            <version>2.2.1</version>
         </dependency>
 
         <!-- Support -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.1</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.0</version>
+            <version>3.2</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -320,7 +320,7 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.6</version>
+            <version>1.9</version>
         </dependency>
         <dependency>
             <groupId>commons-pool</groupId>
@@ -340,7 +340,7 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
-            <version>1.9.9</version>
+            <version>1.9.11</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -362,31 +362,43 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.4</version>
+            <version>1.7.5</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jcl</artifactId>
-            <version>1.6.4</version>
+            <version>1.7.5</version>
         </dependency>
 
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
-            <version>1.3</version>
+            <version>1.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -457,7 +469,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.8</version>
+                <version>2.9</version>
                 <configuration>
                     <downloadSources>true</downloadSources>
                     <additionalProjectnatures>
@@ -471,7 +483,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.7.2</version>
+                <version>2.16</version>
             </plugin>
             <plugin>
                 <groupId>org.mortbay.jetty</groupId>
@@ -493,7 +505,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
+                <version>2.6</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -525,13 +537,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.0</version>
+                <version>3.3</version>
                 <configuration>
                     <reportPlugins>
                         <plugin>
                             <groupId>org.codehaus.enunciate</groupId>
                             <artifactId>maven-enunciate-plugin</artifactId>
-                            <version>1.23</version>
+                            <version>1.28</version>
                             <configuration>
                                 <configFile>enunciate.xml</configFile>
                                 <docsSubdir>wsdocs</docsSubdir>
@@ -540,7 +552,7 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>2.6</version>
+                            <version>2.7</version>
                             <reportSets>
                                 <reportSet>
                                     <reports>
@@ -558,27 +570,27 @@
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-javadoc-plugin</artifactId>
-                            <version>2.7</version>
+                            <version>2.9.1</version>
                         </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-surefire-report-plugin</artifactId>
-                            <version>2.8</version>
+                            <version>2.16</version>
                         </plugin>
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>findbugs-maven-plugin</artifactId>
-                            <version>2.3.2</version>
+                            <version>2.5.3</version>
                         </plugin>
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>cobertura-maven-plugin</artifactId>
-                            <version>2.4</version>
+                            <version>2.6</version>
                         </plugin>
                         <plugin>
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-jxr-plugin</artifactId>
-                            <version>2.2</version>
+                            <version>2.4</version>
                         </plugin>
                     </reportPlugins>
                 </configuration>
@@ -586,7 +598,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.5</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -603,7 +615,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
+                <version>2.4</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -927,7 +939,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>2.4</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -980,9 +992,9 @@
             <id>postgresql</id>
             <dependencies>
                 <dependency>
-                    <groupId>postgresql</groupId>
+                    <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>9.1-901-1.jdbc4</version>
+                    <version>9.3-1100-jdbc41</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -992,7 +1004,7 @@
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
-                    <version>5.1.26</version>
+                    <version>5.1.28</version>
                 </dependency>
             </dependencies>
         </profile>

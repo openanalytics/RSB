@@ -114,6 +114,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         this.rServiPackageManager = rServiPackageManager;
     }
 
+    @Override
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException
     {
         this.applicationContext = (ConfigurableApplicationContext) applicationContext;
@@ -213,7 +214,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 
             // validate the checksum
             final FileInputStream packageSourceInputStream = new FileInputStream(packageSourceFile);
-            final String calculatedSha1HexSum = DigestUtils.shaHex(packageSourceInputStream);
+            final String calculatedSha1HexSum = DigestUtils.sha1Hex(packageSourceInputStream);
             IOUtils.closeQuietly(packageSourceInputStream);
             Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
 
@@ -320,6 +321,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         rb.type(Util.getContentType(catalogFile));
         rb.entity(new StreamingOutput()
         {
+            @Override
             public void write(final OutputStream output) throws IOException
             {
                 final FileInputStream fis = new FileInputStream(catalogFile);
