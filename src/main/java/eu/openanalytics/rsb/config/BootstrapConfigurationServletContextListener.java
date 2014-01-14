@@ -22,6 +22,7 @@
 package eu.openanalytics.rsb.config;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.FileCopyUtils;
 
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedSmtpConfiguration;
@@ -54,6 +56,8 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
     @Override
     public void contextInitialized(final ServletContextEvent sce)
     {
+        copyUiFragments(sce.getServletContext());
+
         if (isConfigurationPresent(sce.getServletContext()))
         {
             return;
@@ -79,6 +83,54 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
                          + " not found and no way to create a default configuration in "
                          + ConfigurationFactory.RSB_CONFIGURATION_DIRECTORY
                          + " or on the classpath: RSB will not start properly!");
+        }
+    }
+
+    private void copyUiFragments(final ServletContext servletContext)
+    {
+        final File fragmentsSourceDirectory = new File(ConfigurationFactory.RSB_CONFIGURATION_DIRECTORY,
+            "fragments");
+        if (!fragmentsSourceDirectory.isDirectory())
+        {
+            return;
+        }
+
+        final String fragmentsDestinationPath = servletContext.getRealPath("/fragments");
+        if (StringUtils.isBlank(fragmentsDestinationPath))
+        {
+            return;
+        }
+
+        final File fragmentsDestinationDirectory = new File(fragmentsDestinationPath);
+
+        final File[] sourceFragments = fragmentsSourceDirectory.listFiles(new FilenameFilter()
+        {
+            @Override
+            public boolean accept(final File dir, final String name)
+            {
+                return StringUtils.endsWith(name, ".html");
+            }
+        });
+
+        if (sourceFragments == null)
+        {
+            return;
+        }
+
+        for (final File sourceFragment : sourceFragments)
+        {
+            final File destinationFragment = new File(fragmentsDestinationDirectory, sourceFragment.getName());
+
+            try
+            {
+                FileCopyUtils.copy(sourceFragment, destinationFragment);
+                LOGGER.info("Installed UI fragment: " + sourceFragment.getName());
+            }
+            catch (final IOException ioe)
+            {
+                LOGGER.error("Failed to copy UI fragment from: " + sourceFragment + " to: "
+                             + destinationFragment, ioe);
+            }
         }
     }
 
