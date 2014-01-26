@@ -141,8 +141,8 @@ public class AdminResourceTestCase
 
         final byte[] fakePackageBytes = IOUtils.toByteArray(JobsResourceTestCase.getTestDataAsStream("fake-package.tar.gz"));
 
-        adminResource.installRPackage("ignored", DigestUtils.shaHex(fakePackageBytes), "fake_package.tar.gz",
-            new ByteArrayInputStream(fakePackageBytes));
+        adminResource.installRPackage("ignored", DigestUtils.sha1Hex(fakePackageBytes),
+            "fake_package.tar.gz", new ByteArrayInputStream(fakePackageBytes));
     }
 
     @Test

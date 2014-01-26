@@ -69,7 +69,7 @@
     <jms:listener-container connection-factory="amqConnectionFactory"
         acknowledge="transacted">
         <jms:listener id="directoryResultMessageListener" destination="r.results.>" ref="directoryDepositHandler"
-            method="handleZipResult"
+            method="handleResult"
             selector="#{T(eu.openanalytics.rsb.Constants).SOURCE_MESSAGE_HEADER} = '#{T(eu.openanalytics.rsb.message.AbstractWorkItem$Source).DIRECTORY}'" />
     </jms:listener-container>
 

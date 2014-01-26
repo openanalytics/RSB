@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -83,6 +84,7 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 
     private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<SourcePollingChannelAdapter>();
 
+    @Override
     public void setBeanFactory(final BeanFactory beanFactory) throws BeansException
     {
         this.beanFactory = beanFactory;
@@ -151,39 +153,48 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
         }
     }
 
-    public void handleZipJob(final Message<File> message) throws IOException
+    public void handleJob(final Message<File> message) throws IOException
     {
         final DepositDirectoryConfiguration depositDirectoryConfiguration = message.getHeaders().get(
             DIRECTORY_CONFIG_HEADER_NAME, DepositDirectoryConfiguration.class);
 
         final String applicationName = depositDirectoryConfiguration.getApplicationName();
-        final File zipJobFile = message.getPayload();
+        final File dataFile = message.getPayload();
 
-        final File depositRootDirectory = zipJobFile.getParentFile().getParentFile();
+        final File depositRootDirectory = dataFile.getParentFile().getParentFile();
         final File acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
 
-        final File acceptedFile = new File(acceptedDirectory, zipJobFile.getName());
+        final File acceptedFile = new File(acceptedDirectory, dataFile.getName());
         FileUtils.deleteQuietly(acceptedFile); // in case a similar job already
                                                // exists
-        FileUtils.moveFile(zipJobFile, acceptedFile);
+        FileUtils.moveFile(dataFile, acceptedFile);
 
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
         meta.put(DEPOSIT_ROOT_DIRECTORY_META_NAME, depositRootDirectory);
-        meta.put(ORIGINAL_FILENAME_META_NAME, zipJobFile.getName());
-        meta.put(INBOX_DIRECTORY_META_NAME, zipJobFile.getParent());
+        meta.put(ORIGINAL_FILENAME_META_NAME, dataFile.getName());
+        meta.put(INBOX_DIRECTORY_META_NAME, dataFile.getParent());
 
         final MultiFilesJob job = new MultiFilesJob(Source.DIRECTORY, applicationName, getUserName(),
             UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 
         try
         {
-            MultiFilesJob.addZipFilesToJob(new FileInputStream(acceptedFile), job);
+            if (FilenameUtils.isExtension(acceptedFile.getName().toLowerCase(), "zip"))
+            {
+                MultiFilesJob.addZipFilesToJob(new FileInputStream(acceptedFile), job);
+            }
+            else
+            {
+                MultiFilesJob.addDataToJob(new MimetypesFileTypeMap().getContentType(acceptedFile),
+                    acceptedFile.getName(), new FileInputStream(acceptedFile), job);
+            }
 
             final String jobConfigurationFileName = depositDirectoryConfiguration.getJobConfigurationFileName();
 
             if (StringUtils.isNotBlank(jobConfigurationFileName))
             {
-                final File jobConfigurationFile = getJobConfigurationFile(applicationName, jobConfigurationFileName);
+                final File jobConfigurationFile = getJobConfigurationFile(applicationName,
+                    jobConfigurationFileName);
 
                 job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(
                     jobConfigurationFile));
@@ -194,11 +205,11 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
         catch (final Exception e)
         {
             final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
-            handleZipResult(errorResult);
+            handleResult(errorResult);
         }
     }
 
-    public void handleZipResult(final MultiFilesResult result) throws IOException
+    public void handleResult(final MultiFilesResult result) throws IOException
     {
         final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
         final File resultsDirectory = new File((File) result.getMeta().get(DEPOSIT_ROOT_DIRECTORY_META_NAME),

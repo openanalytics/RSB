@@ -92,7 +92,7 @@ public class DirectoryDepositHandlerTestCase
     }
 
     @Test
-    public void handleZipJob() throws Exception
+    public void handleJobWithZipFile() throws Exception
     {
         final File jobParentFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
         FileUtils.forceMkdir(jobParentFile);
@@ -102,6 +102,25 @@ public class DirectoryDepositHandlerTestCase
             Thread.currentThread().getContextClassLoader().getResourceAsStream("data/r-job-sample.zip"),
             zipJobFile);
 
+        testHandleJob(jobParentFile, zipJobFile);
+    }
+
+    @Test
+    public void handleJobWithPlainFile() throws Exception
+    {
+        final File jobParentFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
+        FileUtils.forceMkdir(jobParentFile);
+
+        final File zipJobFile = File.createTempFile("test-", ".dat", jobParentFile);
+        FileUtils.copyInputStreamToFile(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("data/fake_data.dat"),
+            zipJobFile);
+
+        testHandleJob(jobParentFile, zipJobFile);
+    }
+
+    private void testHandleJob(final File jobParentFile, final File zipJobFile) throws IOException
+    {
         final DepositDirectoryConfiguration depositRootDirectoryConfig = mock(DepositDirectoryConfiguration.class);
         when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
         when(configuration.getDepositRootDirectories()).thenReturn(
@@ -111,7 +130,7 @@ public class DirectoryDepositHandlerTestCase
             .setHeader(DirectoryDepositHandler.DIRECTORY_CONFIG_HEADER_NAME, depositRootDirectoryConfig)
             .build();
 
-        directoryDepositHandler.handleZipJob(message);
+        directoryDepositHandler.handleJob(message);
 
         final ArgumentCaptor<MultiFilesJob> jobCaptor = ArgumentCaptor.forClass(MultiFilesJob.class);
         verify(messageDispatcher).dispatch(jobCaptor.capture());
@@ -129,7 +148,7 @@ public class DirectoryDepositHandlerTestCase
     }
 
     @Test
-    public void handleZipResult() throws IOException
+    public void handleResult() throws IOException
     {
         final Map<String, Serializable> meta = new HashMap<String, Serializable>();
         meta.put(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME, FileUtils.getTempDirectory());
@@ -140,6 +159,6 @@ public class DirectoryDepositHandlerTestCase
         when(multiFilesResult.getTemporaryDirectory()).thenReturn(FileUtils.getTempDirectory());
         when(multiFilesResult.getMeta()).thenReturn(meta);
 
-        directoryDepositHandler.handleZipResult(multiFilesResult);
+        directoryDepositHandler.handleResult(multiFilesResult);
     }
 }

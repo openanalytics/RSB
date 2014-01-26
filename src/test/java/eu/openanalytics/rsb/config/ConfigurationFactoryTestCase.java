@@ -50,7 +50,10 @@ public class ConfigurationFactoryTestCase
         int i = 0;
         for (final String configurationFile : TEST_JSON_CONFIGURATIONS)
         {
-            final Set<String> validationResult = ConfigurationFactory.validate(ConfigurationFactory.load(configurationFile));
+            final Set<String> validationResult = ConfigurationFactory.validate(ConfigurationFactory.load(Thread.currentThread()
+                .getContextClassLoader()
+                .getResource(configurationFile)));
+
             assertThat(configurationFile + " yielded: " + validationResult, validationResult.isEmpty(),
                 is(VALIDATION_RESULTS[i++]));
         }

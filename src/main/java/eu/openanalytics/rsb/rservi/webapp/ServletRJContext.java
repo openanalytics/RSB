@@ -86,7 +86,8 @@ public class ServletRJContext extends RJContext
     @Override
     protected PathEntry searchLib(final List<PathEntry> files, final String libId)
     {
-        final Pattern pattern = Pattern.compile(".*/" + Pattern.quote(libId) + "([-_]{1}.*)?\\.jar$");
+        final Pattern pattern = Pattern.compile(".*" + File.separatorChar + Pattern.quote(libId)
+                                                + "([-_]{1}.*)?\\.jar$");
 
         for (final PathEntry entry : files)
         {
@@ -102,7 +103,7 @@ public class ServletRJContext extends RJContext
     @Override
     public String getServerPolicyFilePath() throws RjInvalidConfigurationException
     {
-        String path = this.servletContext.getRealPath("WEB-INF/lib");
+        String path = servletContext.getRealPath("WEB-INF/lib");
         final int length = path.length();
         if ((length == 0)
             || ((path.charAt(length - 1) != '/') && (path.charAt(length - 1) != File.separatorChar)))

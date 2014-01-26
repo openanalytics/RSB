@@ -24,6 +24,7 @@ package eu.openanalytics.rsb.config;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -53,6 +54,10 @@ import eu.openanalytics.rsb.data.FileCatalogManager;
  */
 public abstract class ConfigurationFactory
 {
+    public static final String RSB_CONFIGURATION_DIRECTORY = "/etc/rsb";
+
+    static final String CONFIGURATION_FILE_NAME_SYSTEM_PROPERTY = Configuration.class.getName();
+
     private static final Log LOGGER = LogFactory.getLog(ConfigurationFactory.class);
 
     private ConfigurationFactory()
@@ -60,14 +65,23 @@ public abstract class ConfigurationFactory
         throw new UnsupportedOperationException("do not instantiate");
     }
 
+    static boolean isConfigurationPresent()
+    {
+        return getConfigurationUrl() != null;
+    }
+
     public static Configuration loadJsonConfiguration() throws IOException
     {
-        final String configurationFile = System.getProperty(Configuration.class.getName(),
-            Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
-        final PersistedConfigurationAdapter pca = load(configurationFile);
+        final PersistedConfigurationAdapter pca = load(getConfigurationUrl());
         validateConfiguration(pca);
         createMissingDirectories(pca);
         return pca;
+    }
+
+    private static String getConfigurationFileName()
+    {
+        return System.getProperty(CONFIGURATION_FILE_NAME_SYSTEM_PROPERTY,
+            Configuration.DEFAULT_JSON_CONFIGURATION_FILE);
     }
 
     public static Configuration loadJsonConfiguration(final InputStream is) throws IOException
@@ -95,15 +109,33 @@ public abstract class ConfigurationFactory
     }
 
     // exposed for testing
-    static PersistedConfigurationAdapter load(final String configurationFile) throws IOException
+    static PersistedConfigurationAdapter load(final URL configurationUrl) throws IOException
     {
-        final URL configurationUrl = Thread.currentThread()
-            .getContextClassLoader()
-            .getResource(configurationFile);
-        Validate.notNull(configurationUrl, "Impossible to find " + configurationFile + " on the classpath");
+        Validate.notNull(configurationUrl, "Impossible to find " + configurationUrl);
 
         final InputStream is = configurationUrl.openStream();
         return loadConfigurationStream(configurationUrl, is);
+    }
+
+    private static URL getConfigurationUrl()
+    {
+        final File configurationFile = new File(RSB_CONFIGURATION_DIRECTORY, getConfigurationFileName());
+        if (configurationFile.isFile() && configurationFile.canRead())
+        {
+            try
+            {
+                return configurationFile.toURI().toURL();
+            }
+            catch (final MalformedURLException murle)
+            {
+                throw new IllegalStateException("Unexpected toURL failure for file: " + configurationFile,
+                    murle);
+            }
+        }
+        else
+        {
+            return Thread.currentThread().getContextClassLoader().getResource(getConfigurationFileName());
+        }
     }
 
     private static PersistedConfigurationAdapter loadConfigurationStream(final URL configurationUrl,
