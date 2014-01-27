@@ -86,3 +86,8 @@ td, th {
 #lRight{
     float: right;
 }
+
+.alignRight {
+    float: right;
+    position:relative;
+}

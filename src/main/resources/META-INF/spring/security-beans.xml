@@ -57,6 +57,8 @@
             access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.component.AdminResource).ADMIN_SYSTEM_PATH, 'RSB_RESOURCE')" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
 
+        <logout logout-url="/logout" logout-success-url="/logout.html" invalidate-session="true" />
+
         <!-- Pick the authentication mechanism (basic or OpenID) -->
         <http-basic />
         <!--

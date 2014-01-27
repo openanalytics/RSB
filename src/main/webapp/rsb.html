@@ -20,8 +20,9 @@
         
     @author rsb.development@openanalytics.eu
 --%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
-<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:jsp="http://java.sun.com/JSP/Page">
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<html xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:sec="http://www.springframework.org/security/tags">
   <head>
     <script type="text/javascript" src="js/date.js"></script> 
   	<script type="text/javascript" src="js/jquery-1.7.1.min.js"></script> 
@@ -46,7 +47,11 @@
     <link type="text/css" href="css/rsb.css" rel="stylesheet" />
   </head>
   <body>
+    <sec:authentication var="user" property="principal" />
     <div class="box">
+      <sec:authorize access="isAuthenticated()">
+        <div class="alignRight">${user.username} - <a href="logout">Logout</a></div>
+      </sec:authorize>
       <h1><img src="css/images/open_analytics_logo.jpg" style="vertical-align:middle;" title="OpenAnalytics" />&nbsp;<span id="formTitle"></span></h1>
       
       <div class="container">
