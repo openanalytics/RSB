@@ -12,4 +12,4 @@ _/_____|__(____/___/____/___
 
 Browse the [RSB online Documentation](http://rsb.doc.openanalytics.eu/).
 
-#### Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2013 - GNU AFFERO GENERAL PUBLIC LICENSE
+#### Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2014 - GNU AFFERO GENERAL PUBLIC LICENSE
