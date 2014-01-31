@@ -61,7 +61,7 @@
 
         <logout logout-url="/logout" logout-success-url="/logout.html" invalidate-session="true" />
 
-        <!-- Pick the authentication mechanism (basic or OpenID) -->
+        <!-- Pick the authentication mechanism (basic, form or OpenID) -->
         <http-basic />
         <!--
         <form-login login-page="/login.html"
