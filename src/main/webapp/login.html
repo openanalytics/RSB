@@ -1,0 +1,61 @@
+<%--
+    R Service Bus
+    
+    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2014
+ 
+    ===========================================================================
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+ 
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>
+        
+    @author rsb.development@openanalytics.eu
+--%>
+<%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core' %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>RSB - Login</title>
+ 
+ <link rel="stylesheet" href="<c:url value='/css/rsb.css'/>" />
+ <script type="text/javascript" src="<c:url value='/js/jquery-1.7.1.min.js'/>"></script>
+</head>
+
+ <body>
+  <ul>
+   <h1><img src="css/images/open_analytics_logo.jpg" style="vertical-align:middle;" title="OpenAnalytics" />&nbsp;RSB - R Service Bus</span></h1>
+ 
+   <c:if test="${not empty param.login_error}">
+    <font color="red"> Your login attempt was not successful, try again.<br />
+    <br />
+    Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />. </font>
+   </c:if>
+  
+   <form action="<c:url value='j_spring_security_check'/>"  method="post" id="login_form">
+    <fieldset>
+     <legend>Sign-in to use RSB</legend>
+     <div>
+      <label for="j_username">Username:</label>
+      <input name="j_username" type="text"  required autofocus>
+     </div>
+     <div>
+      <label for="j_password">Password:</label>
+      <input name="j_password" type="password" />
+     </div>
+     <div>
+      <input name="submit" type="submit" value="Login" />
+     </div>
+    </fieldset>
+   </form>
+  </ul> 
+ </body>
+</html>
