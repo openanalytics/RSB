@@ -21,9 +21,13 @@
 
 package eu.openanalytics.rsb.rservi.webapp;
 
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
+
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -41,36 +45,49 @@ public class RJServlet extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
 
+    private static final String POOLID_KEY = "pool.id";
+    private static final String RJCONTEXT_KEY = "rj.context";
+    private static final String RJ_POOLSERVER_KEY = "rj.pool.server";
+
     private JMPoolServer server;
 
     @Override
     public void init(final ServletConfig config) throws ServletException
     {
+        final ServletContext servletContext = config.getServletContext();
+
+        servletContext.log("Initializing " + getClass().getSimpleName());
+
         super.init(config);
+
         try
         {
-            String id = getServletContext().getContextPath();
+            String id = servletContext.getContextPath();
             if (id.startsWith("/"))
             {
                 id = id.substring(1);
             }
-            getServletContext().setAttribute("pool.id", id);
+            servletContext.setAttribute(POOLID_KEY, id);
 
-            final ServletRJContext rjContext = new ServletRJContext(getServletContext());
-            getServletContext().setAttribute("rj.context", rjContext);
+            final ServletRJContext rjContext = new ServletRJContext(servletContext);
+            servletContext.setAttribute(RJCONTEXT_KEY, rjContext);
 
+            servletContext.log("Initializing: " + JMPoolServer.class.getSimpleName());
             server = new JMPoolServer(id, rjContext);
+            servletContext.log("Starting: " + server);
             server.start();
 
-            getServletContext().setAttribute("rj.pool.server", server);
+            servletContext.setAttribute(RJ_POOLSERVER_KEY, server);
+
+            servletContext.log("RServi intial context attributes: " + POOLID_KEY + " = "
+                               + servletContext.getAttribute(POOLID_KEY) + " " + RJCONTEXT_KEY + " = "
+                               + servletContext.getAttribute(RJCONTEXT_KEY) + " " + RJ_POOLSERVER_KEY + " = "
+                               + servletContext.getAttribute(RJ_POOLSERVER_KEY));
         }
         catch (final Exception e)
         {
-            if (server != null)
-            {
-                server.shutdown();
-                server = null;
-            }
+            destroy();
+
             throw new ServletException("Failed to initialize RServi Server.", e);
         }
     }
@@ -78,11 +95,18 @@ public class RJServlet extends HttpServlet
     @Override
     public void destroy()
     {
-        if (server != null)
+        try
         {
-            getServletContext().removeAttribute("rj.pool.server");
-
-            server.shutdown();
+            if (server != null)
+            {
+                getServletContext().removeAttribute(RJ_POOLSERVER_KEY);
+                server.shutdown();
+                server = null;
+            }
+        }
+        catch (final Exception e)
+        {
+            getServletContext().log("Failed to destroy RServi servlet", e);
         }
     }
 
@@ -90,9 +114,6 @@ public class RJServlet extends HttpServlet
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException, IOException
     {
-
-        response.setStatus(server != null
-                                         ? HttpServletResponse.SC_OK
-                                         : HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        response.setStatus(server != null ? SC_OK : SC_SERVICE_UNAVAILABLE);
     }
 }

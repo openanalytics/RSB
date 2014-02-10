@@ -319,7 +319,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
                                           final String functionName,
                                           final String argument) throws CoreException
     {
-        // TODO propagate security context if needed
+        // TODO #3296 propagate security context if needed
         final FunctionCall functionCall = rServi.createFunctionCall(functionName);
         functionCall.addChar(argument);
         final RObject result = functionCall.evalData(null);
