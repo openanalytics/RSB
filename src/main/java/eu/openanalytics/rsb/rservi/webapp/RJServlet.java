@@ -49,14 +49,14 @@ public class RJServlet extends HttpServlet
     private static final String RJCONTEXT_KEY = "rj.context";
     private static final String RJ_POOLSERVER_KEY = "rj.pool.server";
 
-    private JMPoolServer server;
+    private JMPoolServer server = null;
 
     @Override
     public void init(final ServletConfig config) throws ServletException
     {
         final ServletContext servletContext = config.getServletContext();
 
-        servletContext.log("Initializing " + getClass().getSimpleName());
+        servletContext.log("Initializing: " + getClass().getSimpleName());
 
         super.init(config);
 
@@ -72,6 +72,8 @@ public class RJServlet extends HttpServlet
             final ServletRJContext rjContext = new ServletRJContext(servletContext);
             servletContext.setAttribute(RJCONTEXT_KEY, rjContext);
 
+            servletContext.log("RServi properties file location: " + rjContext.getPropertiesDirPath());
+
             servletContext.log("Initializing: " + JMPoolServer.class.getSimpleName());
             server = new JMPoolServer(id, rjContext);
             servletContext.log("Starting: " + server);
@@ -80,9 +82,9 @@ public class RJServlet extends HttpServlet
             servletContext.setAttribute(RJ_POOLSERVER_KEY, server);
 
             servletContext.log("RServi intial context attributes: " + POOLID_KEY + " = "
-                               + servletContext.getAttribute(POOLID_KEY) + " " + RJCONTEXT_KEY + " = "
-                               + servletContext.getAttribute(RJCONTEXT_KEY) + " " + RJ_POOLSERVER_KEY + " = "
-                               + servletContext.getAttribute(RJ_POOLSERVER_KEY));
+                               + servletContext.getAttribute(POOLID_KEY) + " ; " + RJCONTEXT_KEY + " = "
+                               + servletContext.getAttribute(RJCONTEXT_KEY) + " ; " + RJ_POOLSERVER_KEY
+                               + " = " + servletContext.getAttribute(RJ_POOLSERVER_KEY));
         }
         catch (final Exception e)
         {
@@ -95,6 +97,8 @@ public class RJServlet extends HttpServlet
     @Override
     public void destroy()
     {
+        getServletContext().log("Destroying: " + getClass().getSimpleName());
+
         try
         {
             if (server != null)

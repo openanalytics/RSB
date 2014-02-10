@@ -22,6 +22,7 @@
 package eu.openanalytics.rsb.rservi.webapp;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import javax.servlet.ServletContext;
 
 import de.walware.rj.RjInvalidConfigurationException;
 import de.walware.rj.server.srvext.RJContext;
+import eu.openanalytics.rsb.config.ConfigurationFactory;
 
 /**
  * Variant of <code>de.walware.rj.servi.webapp.ServletRJContext</code> that can locate RJ JARs in
@@ -45,13 +47,23 @@ import de.walware.rj.server.srvext.RJContext;
  */
 public class ServletRJContext extends RJContext
 {
+    private static final String DEFAULT_PROPERTIES_DIR_PATH = "/WEB-INF/";
+
+    public static final String RSERVI_CONFIGURATION_DIRECTORY = ConfigurationFactory.RSB_CONFIGURATION_DIRECTORY
+                                                                + "/rservi";
+
     private final ServletContext servletContext;
+    private final String propertiesDirPath;
 
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     public ServletRJContext(final ServletContext context)
     {
         this.servletContext = context;
+
+        propertiesDirPath = new File(RSERVI_CONFIGURATION_DIRECTORY).isDirectory()
+                                                                                  ? RSERVI_CONFIGURATION_DIRECTORY
+                                                                                  : DEFAULT_PROPERTIES_DIR_PATH;
     }
 
     @Override
@@ -116,28 +128,53 @@ public class ServletRJContext extends RJContext
     @Override
     protected String getPropertiesDirPath()
     {
-        return "/WEB-INF/";
+        return propertiesDirPath;
     }
 
     @Override
     protected InputStream getInputStream(final String path) throws IOException
     {
-        return this.servletContext.getResourceAsStream(path);
+        // try first with a file path
+        final File file = new File(path);
+        if (file.isFile() && file.canRead())
+        {
+            return new FileInputStream(file);
+        }
+        else
+        {
+            // fallback to web-app embedded files
+            return this.servletContext.getResourceAsStream(path);
+        }
     }
 
     @Override
     protected OutputStream getOutputStream(final String path) throws IOException
     {
-        final String realPath = this.servletContext.getRealPath(path);
-        if (realPath == null)
+        // use a real file path if its parent exist and is a directory that is writable
+        File file = new File(path);
+
+        if (!file.getParentFile().isDirectory() || !file.getParentFile().canWrite())
         {
-            throw new IOException("Writing to '" + path + "' not supported.");
+            final String realPath = this.servletContext.getRealPath(path);
+            if (realPath == null)
+            {
+                throw new IOException("Writing to '" + path + "' not supported.");
+            }
+            file = new File(realPath);
         }
-        final File file = new File(realPath);
-        if (!file.exists())
+
+        try
         {
-            file.createNewFile();
+            if (!file.exists())
+            {
+                file.createNewFile();
+            }
+
+            return new FileOutputStream(file, false);
         }
-        return new FileOutputStream(file, false);
+        catch (final IOException ioe)
+        {
+            throw new IOException("Failed to get output stream for: " + file, ioe);
+        }
     }
 }
