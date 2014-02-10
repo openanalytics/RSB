@@ -21,6 +21,8 @@
 
 package eu.openanalytics.rsb.component;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -96,7 +98,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
             @Override
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException
             {
-                final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
+                final String resultPayload = callFunctionOnR(rServi, job);
                 return job.buildSuccessResult(resultPayload);
             }
         }, true);
@@ -109,7 +111,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
             @Override
             public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException
             {
-                final String resultPayload = callFunctionOnR(rServi, job.getFunctionName(), job.getArgument());
+                final String resultPayload = callFunctionOnR(rServi, job);
                 return job.buildSuccessResult(resultPayload);
             }
         }, false);
@@ -315,17 +317,22 @@ public class JobProcessor extends AbstractComponentWithCatalog
         return result;
     }
 
-    private static String callFunctionOnR(final RServi rServi,
-                                          final String functionName,
-                                          final String argument) throws CoreException
+    private String callFunctionOnR(final RServi rServi, final AbstractFunctionCallJob job)
+        throws CoreException
     {
-        // TODO #3296 propagate security context if needed
-        final FunctionCall functionCall = rServi.createFunctionCall(functionName);
-        functionCall.addChar(argument);
+        final FunctionCall functionCall = rServi.createFunctionCall(job.getFunctionName());
+        functionCall.addChar(job.getArgument());
+
+        if ((getConfiguration().isPropagateSecurityContext()) && (isNotBlank(job.getUserName())))
+        {
+            functionCall.addLogi("rsbSecure", true);
+            functionCall.addChar("rsbUserPrincipal", job.getUserName());
+        }
+
         final RObject result = functionCall.evalData(null);
         if (!RDataUtil.isSingleString(result))
         {
-            throw new RuntimeException("Unexpected return value for function: " + functionName);
+            throw new RuntimeException("Unexpected return value for function: " + job.getFunctionName());
         }
 
         return result.getData().getChar(0);
