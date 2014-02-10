@@ -71,7 +71,7 @@ public class RJServlet extends HttpServlet
                 server.shutdown();
                 server = null;
             }
-            throw new ServletException("Failed to initialized RServi Server.", e);
+            throw new ServletException("Failed to initialize RServi Server.", e);
         }
     }
 
