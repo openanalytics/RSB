@@ -98,7 +98,7 @@ public class ServletRJContext extends RJContext
     @Override
     protected PathEntry searchLib(final List<PathEntry> files, final String libId)
     {
-        final Pattern pattern = Pattern.compile(".*" + File.separatorChar + Pattern.quote(libId)
+        final Pattern pattern = Pattern.compile(".*" + Pattern.quote(File.separatorChar + libId)
                                                 + "([-_]{1}.*)?\\.jar$");
 
         for (final PathEntry entry : files)
