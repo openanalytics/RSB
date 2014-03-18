@@ -23,6 +23,7 @@
 #   @author rsb.development@openanalytics.eu
 #
 
+# Check mandatory system properties
 if [ -z "$R_HOME" ]; then
   echo "R_HOME not set"
   exit 1
@@ -37,6 +38,24 @@ echo "Using R_HOME:          $R_HOME"
 echo "Using R_LIBS:          $R_LIBS"
 
 PRGDIR=`dirname "$0"`
+RSB_WEBAPP_PATH="$PRGDIR"/../webapps/rsb
+
+# Copy security files from /etc/rsb
+SRC_FILE=/etc/rsb/security-beans.xml
+DST_FILE="$RSB_WEBAPP_PATH"/WEB-INF/classes/META-INF/spring
+if [ -f $SRC_FILE ]
+then
+    echo "Copying $SRC_FILE to $DST_FILE"
+    cp $SRC_FILE $DST_FILE
+fi
+
+SRC_FILE=/etc/rsb/web.xml
+DST_FILE="$RSB_WEBAPP_PATH"/WEB-INF
+if [ -f $SRC_FILE ]
+then
+    echo "Copying $SRC_FILE to $DST_FILE"
+    cp $SRC_FILE $DST_FILE
+fi
+
+# Start Tomcat
 exec "$PRGDIR"/startup.sh "$@"
-
-
