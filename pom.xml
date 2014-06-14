@@ -89,12 +89,12 @@
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
             <name>OpenAnalytics Snapshots Repository</name>
-            <url>http://localhost:8080/nexus/content/repositories/snapshots</url>
+            <url>http://nexus.internal.openanalytics.eu:8080/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>oa-nexus-releases</id>
             <name>OpenAnalytics Releases Repository</name>
-            <url>http://localhost:8080/nexus/content/repositories/releases</url>
+            <url>http://nexus.internal.openanalytics.eu:8080/nexus/content/repositories/releases</url>
         </repository>
         <site>
             <id>oa-www</id>
