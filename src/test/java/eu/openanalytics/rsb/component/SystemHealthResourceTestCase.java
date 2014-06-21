@@ -42,6 +42,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import de.walware.rj.data.RObject;
+import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.RIntegerDataImpl;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.services.FunctionCall;
@@ -96,6 +97,7 @@ public class SystemHealthResourceTestCase
         assertThat(checkResult.getEntity().toString(), is("OK"));
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void happyCheck() throws Exception
     {
@@ -108,7 +110,7 @@ public class SystemHealthResourceTestCase
 
         final RObject result = mock(RObject.class);
         when(functionCall.evalData(null)).thenReturn(result);
-        when(result.getData()).thenReturn(new RIntegerDataImpl(new int[]{3}));
+        when(result.getData()).thenReturn((RStore) new RIntegerDataImpl(new int[]{3}));
 
         systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();
