@@ -43,7 +43,7 @@
     </organization>
 
     <properties>
-        <rj.version>2.0.1.b201406211200</rj.version>
+        <rj.version>2.0.1-SNAPSHOT</rj.version>
         <rj.servi.version>2.0.0.b201406211200</rj.servi.version>
         <eruntime.version>1.4.0.b201406211200</eruntime.version>
 
