@@ -27,7 +27,7 @@
     <groupId>eu.openanalytics</groupId>
     <artifactId>rsb</artifactId>
     <packaging>war</packaging>
-    <version>6.1-SNAPSHOT</version>
+    <version>6.2-SNAPSHOT</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
     <url>http://openanalytics.eu</url>
@@ -43,13 +43,16 @@
     </organization>
 
     <properties>
-        <rj.version>2.0.1.b201406211200</rj.version>
-        <rj.servi.version>2.0.0.b201406211200</rj.servi.version>
-        <eruntime.version>1.4.0.b201406211200</eruntime.version>
+        <rj-server.version>2.0.2.b201408021330</rj-server.version>
+        <rj-data.version>2.0.0.b201408021330</rj-data.version>
+        <rj-client.version>2.0.1.b201408021330</rj-client.version>
+        <rj-servi.version>2.0.0.b201408021330</rj-servi.version>
+        <rj-services-eruntime.version>1.4.0.b201406211200</rj-services-eruntime.version>
+        <rj-servi-webapp.version>2.0.2.b201408021330</rj-servi-webapp.version>
 
-        <spring.version>3.2.6.RELEASE</spring.version>
-        <spring-security.version>3.2.0.RELEASE</spring-security.version>
-        <spring-integration.version>3.0.0.RELEASE</spring-integration.version>
+        <spring.version>3.2.10.RELEASE</spring.version>
+        <spring-security.version>3.2.4.RELEASE</spring-security.version>
+        <spring-integration.version>3.0.4.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
         <cxf.version>2.7.8</cxf.version>
         <jetty-plugin.version>8.1.14.v20131031</jetty-plugin.version>
@@ -104,31 +107,31 @@
     </distributionManagement>
 
     <dependencies>
-        <!-- RServi -->
-        <dependency>
-            <groupId>de.walware.rj</groupId>
-            <artifactId>de.walware.rj.client</artifactId>
-            <version>${rj.version}</version>
-        </dependency>
+        <!-- Rj -->
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.server</artifactId>
-            <version>${rj.version}</version>
+            <version>${rj-server.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.data</artifactId>
-            <version>${rj.servi.version}</version>
+            <version>${rj-data.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.walware.rj</groupId>
+            <artifactId>de.walware.rj.client</artifactId>
+            <version>${rj-client.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.servi</artifactId>
-            <version>${rj.servi.version}</version>
+            <version>${rj-servi.version}</version>
         </dependency>
         <dependency>
             <groupId>de.walware.rj</groupId>
             <artifactId>de.walware.rj.services.eruntime</artifactId>
-            <version>${eruntime.version}</version>
+            <version>${rj-services-eruntime.version}</version>
         </dependency>
 
         <!-- Spring -->
@@ -933,7 +936,7 @@
                                         <artifactItem>
                                             <groupId>de.walware.rj</groupId>
                                             <artifactId>de.walware.rj.servi.webapp</artifactId>
-                                            <version>${rj.servi.version}</version>
+                                            <version>${rj-servi-webapp.version}</version>
                                             <type>war</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/rservi</outputDirectory>
