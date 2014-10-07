@@ -36,7 +36,7 @@
   </service>
 </definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part><con:part><con:url>http://localhost:8888/api/soap/mtom-jobs?xsd=../schemas/soap-jobs-and-results.xsd</con:url><con:content><![CDATA[<!--R Service Bus
     
-    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+    Copyright (c) Copyright of Open Analytics NV, 2010-2011
  
     ===========================================================================
  
@@ -86,7 +86,7 @@
   </xsd:complexType>
 </xsd:schema>]]></con:content><con:type>http://www.w3.org/2001/XMLSchema</con:type></con:part><con:part><con:url>http://localhost:8888/api/soap/mtom-jobs?xsd=common.xsd</con:url><con:content><![CDATA[<!--R Service Bus
     
-    Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2011
+    Copyright (c) Copyright of Open Analytics NV, 2010-2011
  
     ===========================================================================
  
