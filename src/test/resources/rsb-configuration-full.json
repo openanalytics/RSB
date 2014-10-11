@@ -4,7 +4,7 @@
     "catalogRootDirectory": "/tmp/.rsb/catalog",
     "activeMqWorkDirectory": "/tmp/.rsb/activemq",
     "checkHealthOnStart": true,
-    "defaultRserviPoolUri": "rmi://127.0.0.1/rservi-pool",
+    "defaultRserviPoolUri": "rmi://127.0.0.1/rpooli-pool",
     "applicationSpecificRserviPoolUris": {
         "great_application": "rmi://127.0.0.1/other-pool",
         "multi_pool_application": ["rmi://127.0.0.1/pool1","rmi://127.0.0.1/pool2"]

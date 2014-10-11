@@ -223,7 +223,7 @@ public class BootstrapConfigurationServletContextListener implements ServletCont
         final PersistedConfiguration defaultConfiguration = new PersistedConfiguration();
         defaultConfiguration.setActiveMqWorkDirectory(new File(defaultRsbHomeDirectory, "activemq"));
         defaultConfiguration.setCatalogRootDirectory(new File(defaultRsbHomeDirectory, "catalog"));
-        defaultConfiguration.setDefaultRserviPoolUri(new URI("rmi://127.0.0.1/rservi-pool"));
+        defaultConfiguration.setDefaultRserviPoolUri(new URI("rmi://127.0.0.1/rpooli-pool"));
         defaultConfiguration.setJobTimeOut(600000);// 10 minutes
         defaultConfiguration.setNumberOfConcurrentJobWorkersPerQueue(5);
         defaultConfiguration.setResultsDirectory(new File(defaultRsbHomeDirectory, "results"));

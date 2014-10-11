@@ -3,7 +3,7 @@
   "applicationAwareCatalog" : false,
   "catalogRootDirectory" : "$RSB_HOME$/catalog",
   "checkHealthOnStart" : false,
-  "defaultRserviPoolUri" : "rmi://127.0.0.1/rservi-pool",
+  "defaultRserviPoolUri" : "rmi://127.0.0.1/rpooli-pool",
   "jobTimeOut" : 600000,
   "numberOfConcurrentJobWorkersPerQueue" : 5,
   "propagateSecurityContext" : false,
