@@ -76,8 +76,19 @@
             <url>http://www.eviware.com/repository/maven2</url>
             <layout>default</layout>
         </repository>
-    </repositories>
 
+        <repository>
+            <id>oa-public</id>
+            <name>OpenAnalytics Public Repository</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>http://nexus.openanalytics.eu/nexus/content/groups/public</url>
+        </repository>
+    </repositories>
     <distributionManagement>
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
