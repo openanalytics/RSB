@@ -1,6 +1,6 @@
 /*
  *   R Service Bus
- *   
+ *
  *   Copyright (c) Copyright of Open Analytics NV, 2010-2015
  *
  *   ===========================================================================
@@ -45,7 +45,7 @@ import eu.openanalytics.rsb.message.MultiFilesJob;
 
 /**
  * Defines a {@link PermissionEvaluator} that considers the applications a user is granted to use.
- * 
+ *
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class ApplicationPermissionEvaluator implements PermissionEvaluator
@@ -147,8 +147,8 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
                || (hasApplicationUserPermission(authentication, job.getApplicationName()) && isJobAuthorized(job));
     }
 
-    private boolean hasApplicationUserPermission(final Authentication authentication,
-                                                 final String applicationName)
+    public boolean hasApplicationUserPermission(final Authentication authentication,
+                                                final String applicationName)
     {
         final Map<String, ApplicationSecurityAuthorization> applicationSecurityConfigurations = configuration.getApplicationSecurityConfiguration();
 
@@ -163,8 +163,8 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
         }
     }
 
-    private boolean hasApplicationAdminPermission(final Authentication authentication,
-                                                  final String applicationName)
+    public boolean hasApplicationAdminPermission(final Authentication authentication,
+                                                 final String applicationName)
     {
         // RSB admins are application admins
         if (isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration()))
