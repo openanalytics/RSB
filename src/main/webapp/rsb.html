@@ -50,10 +50,11 @@
     <sec:authentication var="user" property="principal" />
     <div class="box">
       <sec:authorize access="isAuthenticated()">
+        <!-- Authorities: ${user.authorities} -->
         <div class="alignRight">${user.username} - <a href="logout">Logout</a></div>
       </sec:authorize>
       <h1><img src="css/images/open_analytics_logo.jpg" style="vertical-align:middle;" title="OpenAnalytics" />&nbsp;<span id="formTitle"></span></h1>
-      
+
       <div class="container">
         <form id="jobUploadForm" name="jobUploadForm" action="api/rest/jobs" method="POST" enctype="multipart/form-data">
           <c:set var="uploadFormFragment">
@@ -63,7 +64,7 @@
         </form>
 
         <br/>
-        
+
         <div id="runningJobsPanel" class="centralPanel">
           <h4>Running Jobs</h4>
           <div>
@@ -80,7 +81,7 @@
             </table>
           </div>
         </div>
-        
+
         <div id="resultsPanel" class="centralPanel">
           <h4>Results</h4>
           <div>
@@ -102,17 +103,17 @@
 
       </div>
     </div>
-    
+
     <div id="errorDialog" title="Error">
         <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
            <strong id="errorDialogText"></strong></p>
     </div>
-    
+
     <div id="remoteDataSelector" title="Remote Data Selector">
       <div>Please select a <strong id="remoteDataSelectorType"></strong>:</div>
       <div id="remoteDataTree"></div>
     </div>
-    
+
     <div><p class="footer">Powered by <a class="footer" href="http://openanalytics.eu">Open Analytics NV</a></p></div>
   </body>
 </html>

@@ -640,6 +640,8 @@
                     <excludes>
                         <exclude>**/package-info.java</exclude>
 
+                        <exclude>src/main/webapp/admin/file-browser.jsp</exclude>
+
                         <exclude>src/main/webapp/css/jstree-classic/*.css</exclude>
                         <exclude>src/main/webapp/css/blackbird.css</exclude>
                         <exclude>src/main/webapp/css/jquery*.css</exclude>

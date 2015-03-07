@@ -21,6 +21,10 @@
 
 package eu.openanalytics.rsb.security;
 
+import static eu.openanalytics.rsb.Constants.ADMIN_PATH;
+import static eu.openanalytics.rsb.component.AdminResource.ADMIN_CATALOG_PATH;
+import static eu.openanalytics.rsb.component.AdminResource.ADMIN_SYSTEM_PATH;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
@@ -221,11 +225,8 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
 
     private boolean hasRsbResourcePermission(final Authentication authentication, final String resourceName)
     {
-        if (AdminResource.ADMIN_SYSTEM_PATH.equals(resourceName))
-        {
-            return isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration());
-        }
-        else if (AdminResource.ADMIN_CATALOG_PATH.equals(resourceName))
+        if (ADMIN_SYSTEM_PATH.equals(resourceName) || ADMIN_CATALOG_PATH.equals(resourceName)
+            || ADMIN_PATH.equals(resourceName))
         {
             return isAuthenticationAdmin(authentication, configuration.getRsbSecurityConfiguration());
         }
