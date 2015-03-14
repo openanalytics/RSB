@@ -175,7 +175,8 @@
         <xsl:for-each select="/api-docs/tag">
           <meta name="{@name}" content="{.}"/>
         </xsl:for-each>
-        <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="css/style.css" media="screen"/>
+        <link rel="stylesheet" type="text/css" href="css/prettify.css" media="screen"/>
 
         <title>
           <xsl:value-of select="/api-docs/@title"/>
@@ -459,7 +460,8 @@
 
         <head>
           <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
-          <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/style.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/prettify.css" media="screen"/>
           <title>
             <xsl:value-of select="/api-docs/@title"/>
           </title>
@@ -672,7 +674,8 @@
 
         <head>
           <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
-          <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/style.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/prettify.css" media="screen"/>
           <title>
             <xsl:value-of select="/api-docs/@title"/>
           </title>
@@ -811,7 +814,8 @@
 
         <head>
           <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
-          <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/style.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/prettify.css" media="screen"/>
           <title>
             <xsl:value-of select="/api-docs/@title"/>
           </title>
@@ -1064,7 +1068,8 @@
       <html>
         <head>
           <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
-          <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/style.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/prettify.css" media="screen"/>
           <title>
             <xsl:value-of select="/api-docs/@title"/>
           </title>
@@ -1168,7 +1173,8 @@
 
         <head>
           <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
-          <link rel="stylesheet" type="text/css" href="default.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/style.css" media="screen"/>
+          <link rel="stylesheet" type="text/css" href="css/prettify.css" media="screen"/>
           <title>
             <xsl:value-of select="/api-docs/@title"/>
           </title>

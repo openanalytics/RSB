@@ -2,7 +2,7 @@
 <!--
   R Service Bus
   
-  Copyright (c) Copyright of OpenAnalytics BVBA, 2010-2014
+  Copyright (c) Copyright of Open Analytics NV, 2010-2015
  
   ===========================================================================
  
@@ -23,7 +23,7 @@
 -->
 <enunciate
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.20.xsd">
+    xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.29.xsd">
 
     <namespaces>
         <namespace
@@ -44,6 +44,6 @@
             title="R Service Bus API"
             css="src/site/enunciate/wsdocs.css"
             xslt="src/site/enunciate/wsdocs.xsl"
-            copyright="OpenAnalytics BVBA, 2010-2014" />
+            copyright="Open Analytics NV, 2010-2015" />
     </modules>
 </enunciate>

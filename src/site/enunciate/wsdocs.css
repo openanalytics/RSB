@@ -27,7 +27,7 @@ body, td, select, input, li {
     line-height: 150%;
 }
 body {
-		background:  #FFF url(../images/wieni/body-bg.png) repeat-y 30px top;	
+		background:  #FFF url(../../images/wieni/body-bg.png) repeat-y 30px top;	
 		padding: 0;
 		margin: 0;
 }
@@ -48,14 +48,14 @@ body a:hover, body a:focus {
 
 body .header {
 	border: none;
-	background: url(../images/wieni/banner-bg.png) repeat-x left top;
+	background: url(../../images/wieni/banner-bg.png) repeat-x left top;
 	height: 178px;
 	overflow: hidden;
 	position: relative;
 	z-index: 10;
 }
 body .header .title {
-	background: url(../images/wieni/banner.png) no-repeat left top;
+	background: url(../../images/wieni/banner.png) no-repeat left top;
 	height: 68px;
 	padding: 110px 0 0 182px;
 }
@@ -71,7 +71,7 @@ body .header .title h1 {
 
 body .sidenav {
 	width: 234px;
-	background: #f0efef url(../images/wieni/sidebar-bg.png) no-repeat left top;
+	background: #f0efef url(../../images/wieni/sidebar-bg.png) no-repeat left top;
 	border: none;
 	margin: 0 0 0 -100%;
 	position: relative;
@@ -82,7 +82,7 @@ body .sidenav {
 
 /*------- BLOCKS ----------*/
 body .sidenav h1 {
-	background: url(../images/wieni/sidebar-block.png) no-repeat left top;
+	background: url(../../images/wieni/sidebar-block.png) no-repeat left top;
 	width: 204px;
 	padding: 10px 15px 7px;
 	color: #FFF;
@@ -93,7 +93,7 @@ body .sidenav h1 {
 	margin: 0;
 }
 body .sidenav ul {
-	background: url(../images/wieni/sidebar-block.png) no-repeat left bottom;
+	background: url(../../images/wieni/sidebar-block.png) no-repeat left bottom;
 	width: 204px;
 	padding: 7px 15px 25px;
 	margin: 0;
@@ -140,7 +140,7 @@ body .sidenav a.poweredBy img {
 body .content {
 	margin: 0 30px 0 0;
 	padding: 0;
-	background: url(../images/wieni/content-bg.png) no-repeat left 2px;
+	background: url(../../images/wieni/content-bg.png) no-repeat left 2px;
 	float: left;
 	width: 100%;
 }
