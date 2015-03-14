@@ -31,8 +31,8 @@
     <section name="XSDs">
       <ul>
         <li><a href="misc/schemas/common.xsd">common.xsd</a></li>
-        <li><a href="misc/schemas/rest-jobs-and-results.xsd">rest-jobs-and-results.xsd</a></li>
-        <li><a href="misc/schemas/soap-jobs-and-results.xsd ">soap-jobs-and-results.xsd </a></li>
+        <li><a href="misc/schemas/rest-types.xsd">rest-types.xsd</a></li>
+        <li><a href="misc/schemas/soap-types.xsd ">soap-types.xsd </a></li>
       </ul>
     </section>
     <section name="WSDL">
