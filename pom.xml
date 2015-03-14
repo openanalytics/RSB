@@ -89,6 +89,7 @@
             <url>http://nexus.openanalytics.eu/nexus/content/groups/public</url>
         </repository>
     </repositories>
+
     <distributionManagement>
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
@@ -101,8 +102,9 @@
             <url>http://nexus.internal.openanalytics.eu:8080/nexus/content/repositories/releases</url>
         </repository>
         <site>
-            <id>oa-www</id>
-            <url>file:///usr/share/nginx/www/maven-sites/rsb/${project.artifactId}-${project.version}</url>
+            <id>oa-nexus-docs</id>
+            <name>OpenAnalytics Maven Docs Repository</name>
+            <url>dav:http://nexus.internal.openanalytics.eu:8080/nexus/content/sites/docs/rsb/${version}</url>
         </site>
     </distributionManagement>
 
@@ -500,8 +502,7 @@
                         <contextPath>/rsb</contextPath>
                     </webAppConfig>
                     <connectors>
-                        <connector
-                            implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>${local.server.port}</port>
                             <maxIdleTime>0</maxIdleTime>
                         </connector>
@@ -542,7 +543,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.4</version>
                 <configuration>
                     <reportPlugins>
                         <plugin>
@@ -599,6 +600,13 @@
                         </plugin>
                     </reportPlugins>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-webdav-jackrabbit</artifactId>
+                        <version>2.8</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -822,8 +830,7 @@
                                 <overrideDescriptor>src/it/resources/override-web.xml</overrideDescriptor>
                             </webAppConfig>
                             <connectors>
-                                <connector
-                                    implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                                     <port>${local.server.port}</port>
                                     <maxIdleTime>0</maxIdleTime>
                                 </connector>
