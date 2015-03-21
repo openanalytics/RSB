@@ -31,19 +31,19 @@
     <section name="Scalability">
       <subsection name="Scaling Up">
         <p>The workload of single RSB instance is expected to be minimal, as the
-          bulk of the computation is performed by RServi while RSB takes care of
+          bulk of the computation is performed by RPooli while RSB takes care of
           moving job requests and results between JMS, file system and e-mail
           destinations.</p>
         <p>Increasing the processing throughput of a single RSB node can be
-          achieved by increasing the size of the RServi node pool and the number
-          of RSB workers. Alternatively, if a single RServi instance is reaching
+          achieved by increasing the size of the RPooli node pool and the number
+          of RSB workers. Alternatively, if a single RPooli instance is reaching
           a limit that prevents adding more nodes, RSB can be configured to
-          connect multiple RServi instances in order to spread the workload
+          connect multiple RPooli instances in order to spread the workload
           across them. The selection of a particular pool could be achieved by
-          assigning each independent RSB worker to a specific RServi node or by
-          using the configurable association between applications and RServi
+          assigning each independent RSB worker to a specific RPooli node or by
+          using the configurable association between applications and RPooli
           pools (for example, to dispatch process intensive applications to a
-          specific RServi pool).</p>
+          specific RPooli pool).</p>
       </subsection>
       <subsection name="Scaling Out">
         <p>Currently, RSB is architectured to run as a single stand-alone node.

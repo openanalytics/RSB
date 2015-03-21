@@ -48,7 +48,7 @@ mvn -P-javax-dependencies clean install
             </source></p>
         </section>
         <section name="Packaged Distribution">
-            <p>To build a complete distribution consisting of Tomcat with both the RServi and RSB web application deployed in it, run:
+            <p>To build a complete distribution consisting of Tomcat with both the RPooli and RSB web application deployed in it, run:
                 <source>
 mvn -Pjavax-dependencies,tomcat-distribution clean package
                 </source>
@@ -59,9 +59,9 @@ mvn -Pjavax-dependencies,tomcat-distribution clean package
             <source>
 mvn jetty:run
             </source>
-            to start RSB configured to use a locally running RServi.
+            to start RSB configured to use a locally running RPooli.
             </p>
-            <p>Similarly, if you have a locally running RServi, it's also possible to quickly try RSB with Tomcat by running:
+            <p>Similarly, if you have a locally running RPooli, it's also possible to quickly try RSB with Tomcat by running:
             <source>
 mvn -Pjavax-dependencies,tomcat cargo:run
             </source>
@@ -70,7 +70,7 @@ mvn -Pjavax-dependencies,tomcat cargo:run
             <p>In both cases, RSB is accessible at this URL: <a href="http://localhost:8888/rsb">http://localhost:8888/rsb</a></p>
         </section>
         <section name="Integration Tests">
-            <p>RServi must be running locally before starting the integration tests.</p>
+            <p>RPooli must be running locally before starting the integration tests.</p>
             <p>If that is the case, then run:
                 <source>
 mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase clean verify

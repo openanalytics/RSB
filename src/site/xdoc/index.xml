@@ -29,6 +29,6 @@
   </properties>
   <body>
     <p>RSB (R Service Bus) is a communication middleware and work manager for R statistic analysis jobs.</p>
-    <img src="images/Rservice-diagram.png" />
+    <img src="images/RPoolice-diagram.png" />
   </body>
 </document>
