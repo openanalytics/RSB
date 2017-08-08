@@ -35,7 +35,7 @@
     <version>6.3-SNAPSHOT</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
-    <url>http://openanalytics.eu</url>
+    <url>https://openanalytics.eu</url>
     <licenses>
         <license>
             <name>GNU AFFERO GENERAL PUBLIC LICENSE</name>
@@ -44,7 +44,7 @@
     </licenses>
     <organization>
         <name>Open Analytics NV</name>
-        <url>http://openanalytics.eu</url>
+        <url>https://openanalytics.eu</url>
     </organization>
 
     <properties>
@@ -79,7 +79,7 @@
 
         <repository>
             <id>oa-public</id>
-            <name>OpenAnalytics Public Repository</name>
+            <name>Open Analytics Public Repository</name>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -93,18 +93,18 @@
     <distributionManagement>
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
-            <name>OpenAnalytics Snapshots Repository</name>
-            <url>http://nexus.internal.openanalytics.eu:8080/nexus/content/repositories/snapshots</url>
+            <name>Open Analytics Snapshots Repository</name>
+            <url>http://nexus.openanalytics.eu:8080/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>oa-nexus-releases</id>
-            <name>OpenAnalytics Releases Repository</name>
-            <url>http://nexus.internal.openanalytics.eu:8080/nexus/content/repositories/releases</url>
+            <name>Open Analytics Releases Repository</name>
+            <url>http://nexus.openanalytics.eu:8080/nexus/content/repositories/releases</url>
         </repository>
         <site>
             <id>oa-nexus-docs</id>
-            <name>OpenAnalytics Maven Docs Repository</name>
-            <url>dav:http://nexus.internal.openanalytics.eu:8080/nexus/content/sites/docs/rsb/${project.version}</url>
+            <name>Open Analytics Maven Docs Repository</name>
+            <url>dav:http://nexus.openanalytics.eu:8080/nexus/content/sites/docs/rsb/${project.version}</url>
         </site>
     </distributionManagement>
 
