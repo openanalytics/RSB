@@ -27,10 +27,10 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.services.util.RPkgInstallation;
 import org.springframework.stereotype.Component;
 
-import de.walware.rj.servi.RServi;
-import de.walware.rj.services.utils.RPkgInstallation;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 

@@ -111,25 +111,41 @@
     <dependencies>
         <!-- Rj -->
         <dependency>
-            <groupId>de.walware.rj</groupId>
-            <artifactId>de.walware.rj.server</artifactId>
+            <groupId>org.eclipse.statet.rj</groupId>
+            <artifactId>org.eclipse.statet.rj.server</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.walware.rj</groupId>
-            <artifactId>de.walware.rj.data</artifactId>
+            <groupId>org.eclipse.statet.rj</groupId>
+            <artifactId>org.eclipse.statet.rj.data</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.walware.rj</groupId>
-            <artifactId>de.walware.rj.client</artifactId>
+            <groupId>org.eclipse.statet.rj</groupId>
+            <artifactId>org.eclipse.statet.rj.client</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.walware.rj</groupId>
-            <artifactId>de.walware.rj.servi</artifactId>
+            <groupId>org.eclipse.statet.rj</groupId>
+            <artifactId>org.eclipse.statet.rj.servi</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.walware.rj</groupId>
-            <artifactId>de.walware.rj.services.eruntime</artifactId>
+            <groupId>org.eclipse.statet.rj</groupId>
+            <artifactId>org.eclipse.statet.rj.services.core</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.eclipse.statet.ecommons</groupId>
+			<artifactId>org.eclipse.statet.ecommons.runtime.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.statet.ecommons</groupId>
+			<artifactId>org.eclipse.statet.ecommons.rmi.core</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.eclipse.statet.ecommons</groupId>
+            <artifactId>org.eclipse.statet.jcommons.util</artifactId>
+        </dependency>
+        <dependency>
+   			<groupId>org.eclipse.core</groupId>
+   			<artifactId>org.eclipse.core.runtime</artifactId>
+		</dependency>
 
         <!-- Spring -->
         <dependency>

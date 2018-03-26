@@ -46,14 +46,14 @@ import javax.annotation.Resource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.statet.rj.data.RDataUtils;
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.data.UnexpectedRDataException;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.services.FunctionCall;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
-import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RObject;
-import de.walware.rj.data.UnexpectedRDataException;
-import de.walware.rj.servi.RServi;
-import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
@@ -330,7 +330,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
         }
 
         final RObject result = functionCall.evalData(null);
-        if (!RDataUtil.isSingleString(result))
+        if (!RDataUtils.isSingleString(result))
         {
             throw new RuntimeException("Unexpected return value for function: " + job.getFunctionName());
         }
@@ -375,6 +375,6 @@ public class JobProcessor extends AbstractComponentWithCatalog
         throws UnexpectedRDataException, CoreException
     {
         final RObject evalResult = rServi.evalData("dir()", null);
-        return new HashSet<String>(Arrays.asList(RDataUtil.checkRCharVector(evalResult).getData().toArray()));
+        return new HashSet<String>(Arrays.asList(RDataUtils.checkRCharVector(evalResult).getData().toArray()));
     }
 }

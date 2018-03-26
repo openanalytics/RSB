@@ -41,16 +41,17 @@ import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.data.RReference;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.servi.RServiUtil;
+import org.eclipse.statet.rj.services.FQRObject;
+import org.eclipse.statet.rj.services.FunctionCall;
+import org.eclipse.statet.rj.services.RGraphicCreator;
+import org.eclipse.statet.rj.services.RPlatform;
 import org.springframework.jmx.export.MBeanExportOperations;
 import org.springframework.stereotype.Component;
 
-import de.walware.rj.data.RObject;
-import de.walware.rj.data.RReference;
-import de.walware.rj.servi.RServi;
-import de.walware.rj.servi.RServiUtil;
-import de.walware.rj.services.FunctionCall;
-import de.walware.rj.services.RGraphicCreator;
-import de.walware.rj.services.RPlatform;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
@@ -166,6 +167,11 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             rServi.evalVoid(expression, monitor);
         }
 
+		public void evalVoid(final String expression, RObject object, final IProgressMonitor monitor) throws CoreException
+		{
+			rServi.evalVoid(expression, object, monitor);
+		}
+		
         public RObject evalData(final String expression, final IProgressMonitor monitor) throws CoreException
         {
             return rServi.evalData(expression, monitor);
@@ -180,6 +186,17 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             return rServi.evalData(expression, factoryId, options, depth, monitor);
         }
 
+		public RObject evalData(final String expression,
+								final RObject object,
+				                final String factoryId,
+				                final int options,
+				                final int depth,
+				                final IProgressMonitor monitor) throws CoreException
+		{
+			return rServi.evalData(expression, object, factoryId, options, depth, monitor);
+		}
+
+		
         public RObject evalData(final RReference reference, final IProgressMonitor monitor)
             throws CoreException
         {
@@ -201,6 +218,17 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             rServi.assignData(expression, data, monitor);
         }
 
+		public FQRObject findData(final String expression,
+								  final RObject object,
+								  boolean arg2,
+								  String arg3,
+								  int arg4,
+								  int arg5,
+								  final IProgressMonitor monitor) throws CoreException
+		{
+			return rServi.findData(expression, object, arg2, arg3, arg4, arg5, monitor);
+		}
+		
         public void uploadFile(final InputStream in,
                                final long length,
                                final String fileName,

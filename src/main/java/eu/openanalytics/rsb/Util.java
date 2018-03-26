@@ -56,12 +56,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.services.FunctionCall;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
-import de.walware.rj.data.RObject;
-import de.walware.rj.servi.RServi;
-import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 

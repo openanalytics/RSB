@@ -20,7 +20,7 @@
  */
 package eu.openanalytics.rsb.rservi;
 
-import de.walware.rj.servi.RServi;
+import org.eclipse.statet.rj.servi.RServi;
 
 /**
  * Defines a RServi connection provider.

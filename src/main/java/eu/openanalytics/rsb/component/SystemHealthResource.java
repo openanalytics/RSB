@@ -43,10 +43,10 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.eclipse.statet.rj.servi.RServi;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import de.walware.rj.servi.RServi;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.rest.types.NodeInformation;

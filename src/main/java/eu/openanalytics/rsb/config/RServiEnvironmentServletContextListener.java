@@ -31,34 +31,34 @@ import javax.servlet.ServletContextListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.statet.ecommons.runtime.core.ECommonsRuntime;
+import org.eclipse.statet.ecommons.runtime.core.ECommonsRuntime.AppEnvironment;
+import org.eclipse.statet.jcommons.lang.Disposable;
+import org.eclipse.statet.rj.server.RjsComConfig;
+import org.eclipse.statet.rj.server.client.RClientGraphic;
+import org.eclipse.statet.rj.server.client.RClientGraphic.InitConfig;
+import org.eclipse.statet.rj.server.client.RClientGraphicActions;
+import org.eclipse.statet.rj.server.client.RClientGraphicDummy;
+import org.eclipse.statet.rj.server.client.RClientGraphicFactory;
 
-import de.walware.ecommons.ECommons;
-import de.walware.ecommons.ECommons.IAppEnvironment;
-import de.walware.ecommons.IDisposable;
-import de.walware.rj.server.RjsComConfig;
-import de.walware.rj.server.client.RClientGraphic;
-import de.walware.rj.server.client.RClientGraphic.InitConfig;
-import de.walware.rj.server.client.RClientGraphicActions;
-import de.walware.rj.server.client.RClientGraphicDummy;
-import de.walware.rj.server.client.RClientGraphicFactory;
 
 /**
  * Handles the RServi runtime environment.
  * 
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class RServiEnvironmentServletContextListener implements ServletContextListener, IAppEnvironment
+public class RServiEnvironmentServletContextListener implements ServletContextListener, AppEnvironment
 {
 
-    private final Set<IDisposable> stopListeners = new CopyOnWriteArraySet<IDisposable>();
+    private final Set<Disposable> stopListeners = new CopyOnWriteArraySet<Disposable>();
 
     private Log logger;
 
     @Override
     public void contextInitialized(final ServletContextEvent sce)
     {
-        ECommons.init("de.walware.rj.services.eruntime", this);
-        logger = LogFactory.getLog("de.walware.rj.servi.pool");
+        ECommonsRuntime.init(ECommonsRuntime.BUNDLE_ID, this);
+        logger = LogFactory.getLog("org.eclipse.statet.rj.servi.pool");
 
         RjsComConfig.setProperty("rj.servi.graphicFactory", new RClientGraphicFactory()
         {
@@ -93,7 +93,7 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
     {
         try
         {
-            for (final IDisposable listener : this.stopListeners)
+            for (final Disposable listener : this.stopListeners)
             {
                 listener.dispose();
             }
@@ -105,13 +105,13 @@ public class RServiEnvironmentServletContextListener implements ServletContextLi
     }
 
     @Override
-    public void addStoppingListener(final IDisposable listener)
+    public void addStoppingListener(final Disposable listener)
     {
         stopListeners.add(listener);
     }
 
     @Override
-    public void removeStoppingListener(final IDisposable listener)
+    public void removeStoppingListener(final Disposable listener)
     {
         stopListeners.remove(listener);
     }

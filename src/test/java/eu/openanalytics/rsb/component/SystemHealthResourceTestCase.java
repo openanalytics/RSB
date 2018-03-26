@@ -35,17 +35,17 @@ import java.net.URISyntaxException;
 import javax.servlet.ServletContext;
 import javax.ws.rs.core.Response;
 
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.data.RStore;
+import org.eclipse.statet.rj.data.impl.RInteger32Store;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.services.FunctionCall;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import de.walware.rj.data.RObject;
-import de.walware.rj.data.RStore;
-import de.walware.rj.data.defaultImpl.RIntegerDataImpl;
-import de.walware.rj.servi.RServi;
-import de.walware.rj.services.FunctionCall;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
@@ -110,7 +110,7 @@ public class SystemHealthResourceTestCase
 
         final RObject result = mock(RObject.class);
         when(functionCall.evalData(null)).thenReturn(result);
-        when(result.getData()).thenReturn((RStore) new RIntegerDataImpl(new int[]{3}));
+        when(result.getData()).thenReturn((RStore) new RInteger32Store(new int[]{3}));
 
         systemHealthResource.verifyNodeHealth();
         final Response checkResult = systemHealthResource.check();

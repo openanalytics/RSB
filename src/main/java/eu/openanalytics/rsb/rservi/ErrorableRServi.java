@@ -21,7 +21,7 @@
 
 package eu.openanalytics.rsb.rservi;
 
-import de.walware.rj.servi.RServi;
+import org.eclipse.statet.rj.servi.RServi;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
