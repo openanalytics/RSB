@@ -39,7 +39,7 @@ public class MinimumAgeFileListFilter extends AbstractFileListFilter<File> {
     }
 
     @Override
-    protected boolean accept(final File file) {
+    public boolean accept(final File file) {
         return FileUtils.isFileOlder(file, System.currentTimeMillis() - minimumAge);
     }
 }

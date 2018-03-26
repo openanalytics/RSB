@@ -27,10 +27,10 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
 import org.springframework.integration.mail.MailHeaders;
-import org.springframework.integration.message.GenericMessage;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 

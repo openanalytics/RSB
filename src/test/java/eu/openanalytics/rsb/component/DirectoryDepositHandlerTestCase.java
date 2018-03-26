@@ -44,8 +44,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.integration.Message;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;

@@ -31,9 +31,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.integration.Message;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
 
 /**
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"

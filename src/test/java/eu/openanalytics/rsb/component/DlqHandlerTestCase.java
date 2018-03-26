@@ -38,8 +38,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.MessageSource;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractJob;

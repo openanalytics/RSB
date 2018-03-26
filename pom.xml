@@ -48,16 +48,16 @@
     </organization>
 
     <properties>
-        <rpooli-webapp.version>${parent.version}</rpooli-webapp.version>
+        <rpooli-webapp.version>${project.parent.version}</rpooli-webapp.version>
 
-        <spring.version>3.2.13.RELEASE</spring.version>
-        <spring-security.version>3.2.6.RELEASE</spring-security.version>
-        <spring-integration.version>3.0.6.RELEASE</spring-integration.version>
+        <spring.version>5.0.4.RELEASE</spring.version>
+        <spring-security.version>5.0.3.RELEASE</spring-security.version>
+        <spring-integration.version>5.0.3.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
         <cxf.version>2.7.12</cxf.version>
-        <jetty-plugin.version>8.1.14.v20131031</jetty-plugin.version>
+        <jetty-plugin.version>9.4.8.v20171121</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
-        <tomcat.version>7.0.42</tomcat.version>
+        <tomcat.version>9.0.6</tomcat.version>
         <local.server.port>8888</local.server.port>
     </properties>
 
@@ -70,13 +70,6 @@
     </issueManagement>
 
     <repositories>
-        <repository>
-            <id>eviware</id>
-            <name>Eviware (soapUI) Repository</name>
-            <url>http://www.eviware.com/repository/maven2</url>
-            <layout>default</layout>
-        </repository>
-
         <repository>
             <id>oa-public</id>
             <name>Open Analytics Public Repository</name>
@@ -387,11 +380,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-jcl</artifactId>
             <version>1.7.5</version>
-        </dependency>
+        </dependency>-->
 
         <!-- Testing -->
         <dependency>

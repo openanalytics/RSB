@@ -54,17 +54,17 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
 import org.springframework.integration.endpoint.SourcePollingChannelAdapter;
 import org.springframework.integration.mail.AbstractMailReceiver;
 import org.springframework.integration.mail.ImapMailReceiver;
 import org.springframework.integration.mail.MailReceivingMessageSource;
 import org.springframework.integration.mail.Pop3MailReceiver;
-import org.springframework.integration.message.GenericMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
@@ -162,7 +162,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
             mailReceiver.setMaxFetchSize(1);
             mailReceiver.afterPropertiesSet();
             final MailReceivingMessageSource fileMessageSource = new MailReceivingMessageSource(mailReceiver);
-            final HeaderSettingMessageSourceWrapper<javax.mail.Message> messageSource = new HeaderSettingMessageSourceWrapper<javax.mail.Message>(
+            final HeaderSettingMessageSourceWrapper<?> messageSource = new HeaderSettingMessageSourceWrapper<Object>(
                 fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailConfiguration);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();

@@ -47,12 +47,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.integration.Message;
-import org.springframework.integration.MessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration;

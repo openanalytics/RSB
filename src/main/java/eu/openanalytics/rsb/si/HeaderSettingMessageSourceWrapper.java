@@ -21,9 +21,9 @@
 
 package eu.openanalytics.rsb.si;
 
-import org.springframework.integration.Message;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
 
 /**
  * A message source that wraps an existing one and adds an arbitrary header to the in-flight message.
