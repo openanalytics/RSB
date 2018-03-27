@@ -297,7 +297,14 @@
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
-
+        <!-- Use 3.x for tests, see https://jira.spring.io/browse/SPR-11049 -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        
         <!-- JMX -->
         <dependency>
             <groupId>mx4j</groupId>
