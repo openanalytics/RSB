@@ -53,7 +53,7 @@
             <directory>${project.build.directory}/rpooli</directory>
             <outputDirectory>/webapps/rpooli</outputDirectory>
             <excludes>
-                <exclude>WEB-INF/lib/de.walware.rj.*.jar</exclude>
+                <exclude>WEB-INF/lib/org.eclipse.statet.rj.*.jar</exclude>
             </excludes>
             <fileMode>0644</fileMode>
         </fileSet>
@@ -102,7 +102,7 @@
             <unpack>true</unpack>
             <unpackOptions>
                 <excludes>
-                    <exclude>WEB-INF/lib/de.walware.rj*.jar</exclude>
+                    <exclude>WEB-INF/lib/org.eclipse.statet.rj*.jar</exclude>
                 </excludes>
             </unpackOptions>
             <fileMode>0644</fileMode>
@@ -110,7 +110,7 @@
         <dependencySet>
             <outputDirectory>/lib</outputDirectory>
             <includes>
-                <include>de.walware.rj:*</include>
+                <include>org.eclipse.statet.rj:*</include>
             </includes>
             <fileMode>0644</fileMode>
         </dependencySet>
