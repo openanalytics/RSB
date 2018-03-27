@@ -52,9 +52,6 @@
         <fileSet>
             <directory>${project.build.directory}/rpooli</directory>
             <outputDirectory>/webapps/rpooli</outputDirectory>
-            <excludes>
-                <exclude>WEB-INF/lib/org.eclipse.statet.rj.*.jar</exclude>
-            </excludes>
             <fileMode>0644</fileMode>
         </fileSet>
     </fileSets>
@@ -100,18 +97,6 @@
                 <include>${project.groupId}:${project.artifactId}</include>
             </includes>
             <unpack>true</unpack>
-            <unpackOptions>
-                <excludes>
-                    <exclude>WEB-INF/lib/org.eclipse.statet.rj*.jar</exclude>
-                </excludes>
-            </unpackOptions>
-            <fileMode>0644</fileMode>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>/lib</outputDirectory>
-            <includes>
-                <include>org.eclipse.statet.rj:*</include>
-            </includes>
             <fileMode>0644</fileMode>
         </dependencySet>
     </dependencySets>

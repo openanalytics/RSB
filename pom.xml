@@ -54,7 +54,7 @@
         <spring-security.version>5.0.3.RELEASE</spring-security.version>
         <spring-integration.version>5.0.3.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
-        <cxf.version>2.7.12</cxf.version>
+        <cxf.version>3.2.4</cxf.version>
         <jetty-plugin.version>9.4.8.v20171121</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
         <tomcat.version>9.0.6</tomcat.version>
@@ -219,12 +219,7 @@
         <!-- CXF -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-api</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-core</artifactId>
+            <artifactId>cxf-core</artifactId>
             <version>${cxf.version}</version>
             <exclusions>
                 <exclusion>
