@@ -31,7 +31,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -57,7 +56,6 @@ import eu.openanalytics.rsb.data.SecureResultStore;
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("resultResource")
-@Produces("application/octet-stream")
 @Path("/" + Constants.RESULT_PATH + "/{applicationName}/{resourceName}")
 public class ResultResource extends AbstractResource
 {
@@ -86,6 +84,7 @@ public class ResultResource extends AbstractResource
         final PersistedResult persistedResult = getPersistedResultOrDie(applicationName, resourceName);
 
         final ResponseBuilder rb = Response.ok();
+        addContentTypeHeader(persistedResult, rb);
         addEtagHeader(persistedResult, rb);
         rb.entity(new StreamingOutput()
         {
@@ -117,10 +116,21 @@ public class ResultResource extends AbstractResource
 
         final ResponseBuilder rb = Response.noContent();
         addContentLengthHeader(persistedResult, rb);
+        addContentTypeHeader(persistedResult, rb);
         addEtagHeader(persistedResult, rb);
         return rb.build();
     }
 
+    private void addContentTypeHeader(final PersistedResult persistedResult, final ResponseBuilder rb)
+    {
+        String contentType = "application/octet-stream";
+        if (persistedResult.getMimeType() != null)
+        {
+            contentType = persistedResult.getMimeType().toString();
+        }
+        rb.header(HttpHeaders.CONTENT_TYPE, contentType);
+    }
+    
     private void addEtagHeader(final PersistedResult persistedResult, final ResponseBuilder rb)
     {
         rb.header(HttpHeaders.ETAG, getEtag(persistedResult));
