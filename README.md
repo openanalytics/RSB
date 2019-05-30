@@ -10,6 +10,8 @@ _/_____|__(____/___/____/___
 
 # RSB (R Service Bus)
 
-Browse the [RSB online Documentation](http://rsb.doc.openanalytics.eu/).
+Browse the [RSB online Documentation](https://rservicebus.io).
 
-#### Copyright (c) Copyright of Open Analytics NV, 2010-2019 - GNU AFFERO GENERAL PUBLIC LICENSE
+#### Copyright (c) Copyright of Open Analytics NV, 2010-2019
+
+Licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0)
