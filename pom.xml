@@ -81,6 +81,17 @@
             </snapshots>
             <url>http://nexus.openanalytics.eu/nexus/content/groups/public</url>
         </repository>
+        <repository>
+            <id>eclipse-statet</id>
+            <name>Eclipse StatET Repository</name>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://repo.eclipse.org/content/repositories/statet</url>
+        </repository>
     </repositories>
 
     <distributionManagement>
