@@ -55,12 +55,13 @@ import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig.Feature;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.eclipse.core.runtime.CoreException;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+
+import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.FunctionCall;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
 
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
@@ -426,7 +427,7 @@ public abstract class Util
             final RObject result = functionCall.evalData(null);
             return result.getData().getInt(0) == 3;
         }
-        catch (final CoreException ce)
+        catch (final StatusException ce)
         {
             return false;
         }

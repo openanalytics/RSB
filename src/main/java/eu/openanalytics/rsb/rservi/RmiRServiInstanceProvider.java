@@ -39,18 +39,21 @@ import org.apache.commons.pool.KeyedObjectPool;
 import org.apache.commons.pool.KeyedPoolableObjectFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.springframework.jmx.export.MBeanExportOperations;
+import org.springframework.stereotype.Component;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+import org.eclipse.statet.jcommons.status.ProgressMonitor;
+import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.data.RReference;
 import org.eclipse.statet.rj.servi.RServi;
-import org.eclipse.statet.rj.servi.RServiUtil;
+import org.eclipse.statet.rj.servi.RServiUtils;
 import org.eclipse.statet.rj.services.FQRObject;
 import org.eclipse.statet.rj.services.FunctionCall;
 import org.eclipse.statet.rj.services.RGraphicCreator;
 import org.eclipse.statet.rj.services.RPlatform;
-import org.springframework.jmx.export.MBeanExportOperations;
-import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
@@ -59,10 +62,11 @@ import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrat
 
 /**
  * Provides RServi connection over RMI.
- * 
+ *
  * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
+@NonNullByDefault
 public class RmiRServiInstanceProvider implements RServiInstanceProvider
 {
     private static class RServiPoolKey
@@ -98,7 +102,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
 
         @Override
-        public boolean equals(final Object obj)
+        public boolean equals(final @Nullable Object obj)
         {
             return EqualsBuilder.reflectionEquals(this, obj);
         }
@@ -120,12 +124,14 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             this.rServi = rServi;
         }
 
+        @Override
         public boolean isClosed()
         {
             return rServi.isClosed();
         }
 
-        public void close() throws CoreException
+        @Override
+        public void close() throws StatusException
         {
             try
             {
@@ -137,133 +143,157 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             }
         }
 
-        public void destroy() throws CoreException
+        public void destroy() throws StatusException
         {
             rServi.close();
         }
 
+        @Override
         public void resetError()
         {
             hasError = false;
         }
 
+        @Override
         public void markError()
         {
             hasError = true;
         }
 
+        @Override
         public boolean hasError()
         {
             return hasError;
         }
 
+        @Override
         public RPlatform getPlatform()
         {
             return rServi.getPlatform();
         }
 
-        public void evalVoid(final String expression, final IProgressMonitor monitor) throws CoreException
+        @Override
+        public void evalVoid(final String expression,
+                             final ProgressMonitor monitor) throws StatusException
         {
             rServi.evalVoid(expression, monitor);
         }
 
-		public void evalVoid(final String expression, RObject object, final IProgressMonitor monitor) throws CoreException
-		{
-			rServi.evalVoid(expression, object, monitor);
-		}
-		
-        public RObject evalData(final String expression, final IProgressMonitor monitor) throws CoreException
+        @Override
+        public void evalVoid(final String expression,
+                             final @Nullable RObject object,
+                             final ProgressMonitor monitor) throws StatusException
+        {
+            rServi.evalVoid(expression, object, monitor);
+        }
+
+        @Override
+        public RObject evalData(final String expression,
+                                final ProgressMonitor monitor) throws StatusException
         {
             return rServi.evalData(expression, monitor);
         }
 
+        @Override
         public RObject evalData(final String expression,
-                                final String factoryId,
+                                final @Nullable String factoryId,
                                 final int options,
                                 final int depth,
-                                final IProgressMonitor monitor) throws CoreException
+                                final ProgressMonitor monitor) throws StatusException
         {
             return rServi.evalData(expression, factoryId, options, depth, monitor);
         }
 
-		public RObject evalData(final String expression,
-								final RObject object,
-				                final String factoryId,
-				                final int options,
-				                final int depth,
-				                final IProgressMonitor monitor) throws CoreException
-		{
-			return rServi.evalData(expression, object, factoryId, options, depth, monitor);
-		}
+        @Override
+        public RObject evalData(final String expression,
+                                final @Nullable RObject object,
+                                final @Nullable String factoryId,
+                                final int options,
+                                final int depth,
+                                final ProgressMonitor monitor) throws StatusException
+        {
+            return rServi.evalData(expression, object, factoryId, options, depth, monitor);
+        }
 
-		
-        public RObject evalData(final RReference reference, final IProgressMonitor monitor)
-            throws CoreException
+
+        @Override
+        public RObject evalData(final RReference reference, final ProgressMonitor monitor)
+            throws StatusException
         {
             return rServi.evalData(reference, monitor);
         }
 
+        @Override
         public RObject evalData(final RReference reference,
-                                final String factoryId,
+                                final @Nullable String factoryId,
                                 final int options,
                                 final int depth,
-                                final IProgressMonitor monitor) throws CoreException
+                                final ProgressMonitor monitor) throws StatusException
         {
             return rServi.evalData(reference, factoryId, options, depth, monitor);
         }
 
-        public void assignData(final String expression, final RObject data, final IProgressMonitor monitor)
-            throws CoreException
+        @Override
+        public void assignData(final String expression,
+                               final RObject data,
+                               final ProgressMonitor monitor) throws StatusException
         {
             rServi.assignData(expression, data, monitor);
         }
 
-		public FQRObject findData(final String expression,
-								  final RObject object,
-								  boolean arg2,
-								  String arg3,
-								  int arg4,
-								  int arg5,
-								  final IProgressMonitor monitor) throws CoreException
-		{
-			return rServi.findData(expression, object, arg2, arg3, arg4, arg5, monitor);
-		}
-		
+        @Override
+        public @Nullable FQRObject<?> findData(final String expression,
+                                     final @Nullable RObject object,
+                                     boolean arg2,
+                                     final @Nullable String arg3,
+                                     int arg4,
+                                     int arg5,
+                                     final ProgressMonitor monitor) throws StatusException
+        {
+            return rServi.findData(expression, object, arg2, arg3, arg4, arg5, monitor);
+        }
+
+        @Override
         public void uploadFile(final InputStream in,
                                final long length,
                                final String fileName,
                                final int options,
-                               final IProgressMonitor monitor) throws CoreException
+                               final ProgressMonitor monitor) throws StatusException
         {
             rServi.uploadFile(in, length, fileName, options, monitor);
         }
 
+        @Override
         public void downloadFile(final OutputStream out,
                                  final String fileName,
                                  final int options,
-                                 final IProgressMonitor monitor) throws CoreException
+                                 final ProgressMonitor monitor) throws StatusException
         {
             rServi.downloadFile(out, fileName, options, monitor);
         }
 
-        public byte[] downloadFile(final String fileName, final int options, final IProgressMonitor monitor)
-            throws CoreException
+        @Override
+        public byte[] downloadFile(final String fileName, final int options, final ProgressMonitor monitor)
+            throws StatusException
         {
             return rServi.downloadFile(fileName, options, monitor);
         }
 
-        public FunctionCall createFunctionCall(final String name) throws CoreException
+        @Override
+        public FunctionCall createFunctionCall(final String name) throws StatusException
         {
             return rServi.createFunctionCall(name);
         }
 
-        public RGraphicCreator createRGraphicCreator(final int options) throws CoreException
+        @Override
+        public RGraphicCreator createRGraphicCreator(final int options) throws StatusException
         {
             return rServi.createRGraphicCreator(options);
         }
     }
 
     private final static Log LOGGER = LogFactory.getLog(RmiRServiInstanceProvider.class);
+
 
     @Resource
     private Configuration configuration;
@@ -272,6 +302,11 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
     private MBeanExportOperations mbeanExportOperations;
 
     private KeyedObjectPool<RServiPoolKey, PooledRServiWrapper> rServiPool;
+
+
+    @SuppressWarnings("null")
+    public RmiRServiInstanceProvider() {
+    }
 
     @PostConstruct
     public void initialize()
@@ -301,7 +336,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             @Override
             public PooledRServiWrapper makeObject(final RServiPoolKey key) throws Exception
             {
-                final RServi rServi = RServiUtil.getRServi(key.getAddress(), key.getClientId());
+                final RServi rServi = RServiUtils.getRServi(key.getAddress(), key.getClientId());
                 return new PooledRServiWrapper(rServiPool, key, rServi);
             }
 
@@ -373,13 +408,14 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
     }
 
+    @Override
     public RServi getRServiInstance(final String address,
                                     final String clientId,
                                     final PoolingStrategy poolingStrategy) throws Exception
     {
         if ((rServiPool == null) || (poolingStrategy == PoolingStrategy.NEVER))
         {
-            return RServiUtil.getRServi(address, clientId);
+            return RServiUtils.getRServi(address, clientId);
         }
         else
         {

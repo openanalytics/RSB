@@ -45,14 +45,15 @@ import javax.annotation.Resource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.core.runtime.CoreException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
+import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.rj.data.RDataUtils;
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.data.UnexpectedRDataException;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.FunctionCall;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
@@ -96,7 +97,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
         return process(job, new JobRunner()
         {
             @Override
-            public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException
+            public AbstractResult<String> runOn(final RServi rServi) throws StatusException, IOException
             {
                 final String resultPayload = callFunctionOnR(rServi, job);
                 return job.buildSuccessResult(resultPayload);
@@ -109,7 +110,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
         process(job, new JobRunner()
         {
             @Override
-            public AbstractResult<String> runOn(final RServi rServi) throws CoreException, IOException
+            public AbstractResult<String> runOn(final RServi rServi) throws StatusException, IOException
             {
                 final String resultPayload = callFunctionOnR(rServi, job);
                 return job.buildSuccessResult(resultPayload);
@@ -318,7 +319,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
     }
 
     private String callFunctionOnR(final RServi rServi, final AbstractFunctionCallJob job)
-        throws CoreException
+        throws StatusException
     {
         final FunctionCall functionCall = rServi.createFunctionCall(job.getFunctionName());
         functionCall.addChar(job.getArgument());
@@ -339,7 +340,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
     }
 
     private static void uploadFileToR(final RServi rServi, final File file, final Set<String> filesUploadedToR)
-        throws FileNotFoundException, CoreException
+        throws FileNotFoundException, StatusException
     {
         final FileInputStream fis = new FileInputStream(file);
         rServi.uploadFile(fis, file.length(), file.getName(), 0, null);
@@ -350,7 +351,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
     private static void uploadPropertiesToR(final RServi rServi,
                                             final Map<String, Serializable> metas,
                                             final Set<String> filesUploadedToR)
-        throws CoreException, IOException
+        throws StatusException, IOException
     {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final Properties properties = new Properties();
@@ -364,7 +365,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
         filesUploadedToR.add(Constants.MULTIPLE_FILES_JOB_CONFIGURATION);
     }
 
-    private static void executeScriptOnR(final RServi rServi, final String rScriptName) throws CoreException
+    private static void executeScriptOnR(final RServi rServi, final String rScriptName) throws StatusException
     {
         final FunctionCall sourceCall = rServi.createFunctionCall("source");
         sourceCall.addChar("file", rScriptName);
@@ -372,7 +373,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
     }
 
     private static HashSet<String> getFilesInRWorkspace(final RServi rServi)
-        throws UnexpectedRDataException, CoreException
+        throws UnexpectedRDataException, StatusException
     {
         final RObject evalResult = rServi.evalData("dir()", null);
         return new HashSet<String>(Arrays.asList(RDataUtils.checkRCharVector(evalResult).getData().toArray()));

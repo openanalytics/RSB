@@ -48,6 +48,8 @@
     </organization>
 
     <properties>
+        <java.version>1.8</java.version>
+        
         <rpooli-webapp.version>${project.parent.version}</rpooli-webapp.version>
 
         <spring.version>5.0.4.RELEASE</spring.version>
@@ -116,40 +118,8 @@
         <!-- Rj -->
         <dependency>
             <groupId>org.eclipse.statet.rj</groupId>
-            <artifactId>org.eclipse.statet.rj.server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.statet.rj</groupId>
-            <artifactId>org.eclipse.statet.rj.data</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.statet.rj</groupId>
-            <artifactId>org.eclipse.statet.rj.client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.statet.rj</groupId>
             <artifactId>org.eclipse.statet.rj.servi</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.statet.rj</groupId>
-            <artifactId>org.eclipse.statet.rj.services.core</artifactId>
-        </dependency>
-		<dependency>
-			<groupId>org.eclipse.statet.ecommons</groupId>
-			<artifactId>org.eclipse.statet.ecommons.runtime.core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.statet.ecommons</groupId>
-			<artifactId>org.eclipse.statet.ecommons.rmi.core</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>org.eclipse.statet.ecommons</groupId>
-            <artifactId>org.eclipse.statet.jcommons.util</artifactId>
-        </dependency>
-        <dependency>
-   			<groupId>org.eclipse.core</groupId>
-   			<artifactId>org.eclipse.core.runtime</artifactId>
-		</dependency>
 
         <!-- Spring -->
         <dependency>
@@ -446,8 +416,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>

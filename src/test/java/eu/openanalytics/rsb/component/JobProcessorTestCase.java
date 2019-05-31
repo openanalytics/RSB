@@ -39,13 +39,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.statet.rj.data.RObject;
-import org.eclipse.statet.rj.data.impl.RCharacter32Store;
-import org.eclipse.statet.rj.data.impl.RVectorImpl;
-import org.eclipse.statet.rj.servi.RServi;
-import org.eclipse.statet.rj.services.FunctionCall;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +47,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.MessageSource;
+
+import org.eclipse.statet.jcommons.status.ProgressMonitor;
+import org.eclipse.statet.jcommons.status.StatusException;
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.data.impl.RCharacter32Store;
+import org.eclipse.statet.rj.data.impl.RVectorImpl;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.services.FunctionCall;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
@@ -197,8 +198,8 @@ public class JobProcessorTestCase
             rServi);
         final FunctionCall functionCall = mock(FunctionCall.class);
         when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
-        final RObject rObject = new RVectorImpl<RCharacter32Store>(new RCharacter32Store(new String[0]));
-        when(rServi.evalData(anyString(), (IProgressMonitor) isNull())).thenReturn(rObject);
+        final RObject rObject = new RVectorImpl<>(new RCharacter32Store(new String[0]));
+        when(rServi.evalData(anyString(), (ProgressMonitor) isNull())).thenReturn(rObject);
         final MultiFilesJob job = mock(MultiFilesJob.class);
         final File scriptFile = File.createTempFile("rsb", "test");
         scriptFile.deleteOnExit();
@@ -223,7 +224,7 @@ public class JobProcessorTestCase
     }
 
     private AbstractFunctionCallJob setupMocksForProcessingFunctionCallJob(final URI defaultPoolUri)
-        throws Exception, CoreException, IOException
+        throws Exception, StatusException, IOException
     {
         when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
         final RServi rServi = mock(RServi.class);
@@ -232,7 +233,7 @@ public class JobProcessorTestCase
                 eq(PoolingStrategy.IF_POSSIBLE))).thenReturn(rServi);
         final FunctionCall functionCall = mock(FunctionCall.class);
         when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
-        final RObject rObject = new RVectorImpl<RCharacter32Store>(new RCharacter32Store(
+        final RObject rObject = new RVectorImpl<>(new RCharacter32Store(
             new String[]{"fake_result"}));
         when(functionCall.evalData(null)).thenReturn(rObject);
         final AbstractFunctionCallJob job = mock(AbstractFunctionCallJob.class);
