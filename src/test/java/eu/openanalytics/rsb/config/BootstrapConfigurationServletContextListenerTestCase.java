@@ -105,7 +105,8 @@ public class BootstrapConfigurationServletContextListenerTestCase
             .getContextClassLoader()
             .getResourceAsStream("rsb-configuration-default.json")));
         final File defaultRsbHomeDirectory = BootstrapConfigurationServletContextListener.getDefaultRsbHomeDirectory(tempDirectory);
-        defaultConfigurationTestTemplate.add("RSB_HOME", defaultRsbHomeDirectory.toString());
-        assertThat(defaultConfigurationTestTemplate.render(), is(Util.toJson(configuration)));
+        defaultConfigurationTestTemplate.add("RSB_HOME", defaultRsbHomeDirectory.toString().replace("\\", "/"));
+        assertThat(defaultConfigurationTestTemplate.render(),
+        		is(Util.toJson(configuration).replace("\\\\", "/")));
     }
 }
