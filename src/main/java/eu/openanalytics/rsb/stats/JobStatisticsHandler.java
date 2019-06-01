@@ -29,7 +29,7 @@ import eu.openanalytics.rsb.message.Job;
 /**
  * Defines a handler for RSB job statistics.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface JobStatisticsHandler
 {

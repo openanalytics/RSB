@@ -69,7 +69,7 @@ import eu.openanalytics.rsb.rest.types.ObjectFactory;
 /**
  * Shared utilities.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class Util
 {

@@ -50,7 +50,7 @@ import eu.openanalytics.rsb.message.MultiFilesJob;
 /**
  * Defines a {@link PermissionEvaluator} that considers the applications a user is granted to use.
  *
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class ApplicationPermissionEvaluator implements PermissionEvaluator
 {

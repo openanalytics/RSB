@@ -45,7 +45,7 @@ import org.junit.Before;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractITCase {
     protected static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";

@@ -51,7 +51,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 /**
  * A file-based optionally-aware file catalog.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
 public class FileCatalogManager extends AbstractComponent implements CatalogManager

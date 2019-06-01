@@ -56,7 +56,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 /**
  * Handles health check requests.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("systemResource")
 @Path("/" + Constants.SYSTEM_PATH)

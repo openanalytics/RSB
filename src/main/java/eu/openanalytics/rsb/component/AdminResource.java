@@ -89,7 +89,7 @@ import eu.openanalytics.rsb.rest.types.RServiPools;
 import eu.openanalytics.rsb.rservi.RServiPackageManager;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("adminResource")
 @Path("/" + Constants.ADMIN_PATH)

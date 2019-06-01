@@ -63,7 +63,7 @@ import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrat
 /**
  * Provides RServi connection over RMI.
  *
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
 @NonNullByDefault

@@ -54,7 +54,7 @@ import eu.openanalytics.rsb.rest.types.CatalogFileType;
 import eu.openanalytics.rsb.rest.types.RServiPools;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class RestAdminITCase extends AbstractITCase
 {

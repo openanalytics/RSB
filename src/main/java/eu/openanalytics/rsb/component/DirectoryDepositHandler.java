@@ -64,7 +64,7 @@ import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
 /**
  * Handles directory based R job and result exchanges.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("directoryDepositHandler")
 public class DirectoryDepositHandler extends AbstractResource implements BeanFactoryAware

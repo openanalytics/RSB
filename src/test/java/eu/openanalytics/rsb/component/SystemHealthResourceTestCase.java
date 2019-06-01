@@ -52,7 +52,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SystemHealthResourceTestCase

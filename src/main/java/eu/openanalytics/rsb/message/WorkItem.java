@@ -31,7 +31,7 @@ import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 /**
  * RSB work item definition.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface WorkItem
 {

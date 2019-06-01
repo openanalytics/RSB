@@ -53,7 +53,7 @@ import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ResultResourceTestCase

@@ -29,7 +29,7 @@ import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.data.CatalogManager;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractComponentWithCatalog extends AbstractComponent
 {

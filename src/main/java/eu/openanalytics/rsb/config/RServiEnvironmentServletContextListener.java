@@ -44,7 +44,7 @@ import org.eclipse.statet.rj.server.client.RClientGraphicDummyFactory;
 /**
  * Handles the RServi runtime environment.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @NonNullByDefault
 public class RServiEnvironmentServletContextListener extends BasicAppEnvironment

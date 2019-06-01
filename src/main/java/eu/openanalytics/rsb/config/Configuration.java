@@ -37,7 +37,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
  * changes.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface Configuration
 {

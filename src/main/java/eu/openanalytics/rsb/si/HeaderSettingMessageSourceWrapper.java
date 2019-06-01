@@ -28,7 +28,7 @@ import org.springframework.messaging.Message;
 /**
  * A message source that wraps an existing one and adds an arbitrary header to the in-flight message.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class HeaderSettingMessageSourceWrapper<T> implements MessageSource<T> {
     private final MessageSource<T> wrappedMessageSource;

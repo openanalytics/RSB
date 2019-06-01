@@ -45,7 +45,7 @@ import eu.openanalytics.rsb.message.JmsMessageDispatcher;
 import eu.openanalytics.rsb.message.JmsMessageDispatcher.WorkItemMessagePostProcessor;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JmsMessageDispatcherTestCase {

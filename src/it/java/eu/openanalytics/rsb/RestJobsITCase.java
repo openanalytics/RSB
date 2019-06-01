@@ -70,7 +70,7 @@ import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class RestJobsITCase extends AbstractITCase {
     private String restJobsUri;

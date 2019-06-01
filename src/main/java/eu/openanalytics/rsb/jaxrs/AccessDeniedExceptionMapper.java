@@ -31,7 +31,7 @@ import org.springframework.security.access.AccessDeniedException;
 /**
  * Converts {@link AccessDeniedException} into FORBIDDEN HTTP responses.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDeniedException>
 {

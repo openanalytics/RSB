@@ -69,7 +69,7 @@ import eu.openanalytics.rsb.rservi.RServiUriSelector;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JobProcessorTestCase

@@ -53,7 +53,7 @@ import eu.openanalytics.rsb.data.SecureResultStore;
  * <i>NB. Could very well be replaced with a static file serving context on a frontal
  * web server.</i>
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("resultResource")
 @Path("/" + Constants.RESULT_PATH + "/{applicationName}/{resourceName}")

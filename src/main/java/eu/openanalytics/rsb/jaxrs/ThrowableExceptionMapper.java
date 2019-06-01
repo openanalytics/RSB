@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Converts {@link Throwable} into HTTP responses.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class ThrowableExceptionMapper implements ExceptionMapper<Throwable>
 {

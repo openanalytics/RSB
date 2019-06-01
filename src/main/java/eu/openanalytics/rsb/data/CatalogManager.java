@@ -35,7 +35,7 @@ import eu.openanalytics.rsb.config.Configuration.CatalogSection;
  * The RSB catalog. The <code>applicationName</code> argument are mandatory if the catalog runs in
  * application-aware mode.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface CatalogManager
 {

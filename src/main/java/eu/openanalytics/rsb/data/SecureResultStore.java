@@ -28,7 +28,7 @@ import java.util.UUID;
 /**
  * Defines a username-aware result store.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface SecureResultStore extends ResultStore
 {

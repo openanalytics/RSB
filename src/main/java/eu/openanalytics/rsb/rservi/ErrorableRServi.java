@@ -24,7 +24,7 @@ package eu.openanalytics.rsb.rservi;
 import org.eclipse.statet.rj.servi.RServi;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface ErrorableRServi extends RServi
 {

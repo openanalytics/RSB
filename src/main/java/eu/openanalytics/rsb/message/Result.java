@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * RSB job definition.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface Result<T> extends WorkItem
 {

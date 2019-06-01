@@ -72,7 +72,7 @@ import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 /**
  * Processes job requests and builds job responses.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("jobProcessor")
 public class JobProcessor extends AbstractComponentWithCatalog

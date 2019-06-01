@@ -27,7 +27,7 @@ import java.util.Map;
 import eu.openanalytics.rsb.message.Job;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class NoopJobStatisticsHandler implements JobStatisticsHandler
 {

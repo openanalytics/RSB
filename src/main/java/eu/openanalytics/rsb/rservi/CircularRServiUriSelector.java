@@ -41,7 +41,7 @@ import eu.openanalytics.rsb.config.Configuration;
  * Provides RServi URIs, using a circular buffer when several URIs are configured for
  * one application.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
 public class CircularRServiUriSelector implements RServiUriSelector

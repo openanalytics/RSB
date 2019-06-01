@@ -35,7 +35,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Parent of all the work item messages.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractWorkItem implements WorkItem, Serializable
 {

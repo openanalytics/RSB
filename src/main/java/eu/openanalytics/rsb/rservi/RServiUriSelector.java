@@ -26,7 +26,7 @@ import java.net.URI;
 /**
  * Defines a strategy for selecting RServi URIs.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface RServiUriSelector
 {

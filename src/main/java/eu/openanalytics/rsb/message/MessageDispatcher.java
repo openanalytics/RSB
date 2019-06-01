@@ -24,7 +24,7 @@ package eu.openanalytics.rsb.message;
 /**
  * Defines a Job and Result message dispatcher.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface MessageDispatcher {
     /**

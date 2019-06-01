@@ -38,7 +38,7 @@ import org.stringtemplate.v4.ST;
 import eu.openanalytics.rsb.Util;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class BootstrapConfigurationServletContextListenerTestCase
 {

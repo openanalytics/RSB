@@ -47,7 +47,7 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.rest.types.Directory;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DataDirectoriesResourceTestCase

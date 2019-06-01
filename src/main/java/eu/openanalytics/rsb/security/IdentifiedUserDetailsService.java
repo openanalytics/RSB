@@ -40,7 +40,7 @@ import eu.openanalytics.rsb.Util;
  * A {@link UserDetailsService} that accepts any user presented to it, which makes it
  * usable in scenarios where it is enough to merely identify a user.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class IdentifiedUserDetailsService implements UserDetailsService
 {

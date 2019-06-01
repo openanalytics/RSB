@@ -50,7 +50,7 @@ import eu.openanalytics.rsb.data.FileCatalogManager;
 /**
  * Loads and validated an RSB configuration file and builds a configuration object out of it.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class ConfigurationFactory
 {

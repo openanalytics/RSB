@@ -45,7 +45,7 @@ import com.meterware.httpunit.WebResponse;
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class RestProcessITCase extends AbstractITCase {
     private String restProcessUri;

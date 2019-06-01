@@ -31,7 +31,7 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractComponent
 {

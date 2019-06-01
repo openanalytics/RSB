@@ -36,7 +36,7 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HeaderSettingMessageSourceWrapperTestCase {

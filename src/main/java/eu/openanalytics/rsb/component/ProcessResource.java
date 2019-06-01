@@ -50,7 +50,7 @@ import eu.openanalytics.rsb.message.XmlFunctionCallJob;
  * <b>This processor bypasses the messaging infrastructure so it is not a fair player compared to
  * the other REST/SOAP entry points, thus it should be used with care!</b>
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("processResource")
 @Path("/" + Constants.PROCESS_PATH)

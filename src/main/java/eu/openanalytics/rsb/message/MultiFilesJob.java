@@ -51,7 +51,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Represents a RSB job that consists of multiple files.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class MultiFilesJob extends AbstractJob
 {

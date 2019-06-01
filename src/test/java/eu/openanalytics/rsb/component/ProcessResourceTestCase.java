@@ -49,7 +49,7 @@ import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings({"unchecked", "rawtypes"})

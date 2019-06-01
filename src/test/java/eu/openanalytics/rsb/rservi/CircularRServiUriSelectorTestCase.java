@@ -41,7 +41,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CircularRServiUriSelectorTestCase

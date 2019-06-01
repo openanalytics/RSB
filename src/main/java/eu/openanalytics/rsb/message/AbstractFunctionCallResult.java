@@ -30,7 +30,7 @@ import javax.activation.MimeType;
 /**
  * Represents the result of a {@link AbstractFunctionCallJob}.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractFunctionCallResult extends AbstractResult<String>
 {

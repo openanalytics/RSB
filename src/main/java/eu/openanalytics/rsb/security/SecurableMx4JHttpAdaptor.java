@@ -38,7 +38,7 @@ import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
  * Sub-class of {@link HttpAdaptor} that reads security configuration from RSB configuration and
  * sets it on the adaptor.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class SecurableMx4JHttpAdaptor extends HttpAdaptor
 {

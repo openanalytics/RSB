@@ -31,7 +31,7 @@ import eu.openanalytics.rsb.Constants;
 /**
  * Represents the result of a {@link JsonFunctionCallJob}.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class JsonFunctionCallResult extends AbstractFunctionCallResult
 {

@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * <p>
  * By default, the client CN is used as the authentication principal.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  * @author Luke Taylor (for some code lifted from {@link SubjectDnX509PrincipalExtractor}).
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter

@@ -48,7 +48,7 @@ import eu.openanalytics.rsb.data.CatalogManager.PutCatalogFileResult;
 import eu.openanalytics.rsb.data.FileCatalogManager;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(Suite.class)
 @SuiteClasses({EmailDepositITCase.class, DirectoryDepositITCase.class,

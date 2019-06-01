@@ -59,7 +59,7 @@ import eu.openanalytics.rsb.soap.types.PayloadType;
 import eu.openanalytics.rsb.soap.types.ResultType;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SoapMtomJobHandlerTestCase {

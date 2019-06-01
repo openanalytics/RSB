@@ -35,7 +35,7 @@ import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
 public class DefaultRServiPackageManager implements RServiPackageManager

@@ -25,7 +25,7 @@ import org.eclipse.statet.rj.servi.RServi;
 /**
  * Defines a RServi connection provider.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface RServiInstanceProvider {
     public enum PoolingStrategy {

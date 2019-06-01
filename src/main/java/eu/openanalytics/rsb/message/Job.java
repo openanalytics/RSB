@@ -24,7 +24,7 @@ package eu.openanalytics.rsb.message;
 /**
  * RSB job definition.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public interface Job extends WorkItem
 {

@@ -64,7 +64,7 @@ import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EmailDepositHandlerTestCase {

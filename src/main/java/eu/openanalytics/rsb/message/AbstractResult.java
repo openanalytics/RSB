@@ -30,7 +30,7 @@ import java.util.UUID;
 /**
  * Represents the result of a {@link AbstractJob}.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public abstract class AbstractResult<T> extends AbstractWorkItem implements Result<T>
 {

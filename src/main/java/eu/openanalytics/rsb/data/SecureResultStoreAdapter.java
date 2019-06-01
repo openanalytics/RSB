@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  * implementations of {@link ResultStore} to be used when a {@link SecureResultStore}
  * is now expected.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class SecureResultStoreAdapter implements SecureResultStore
 {

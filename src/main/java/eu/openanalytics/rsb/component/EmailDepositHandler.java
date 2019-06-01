@@ -80,7 +80,7 @@ import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
 /**
  * Handles email based R job and result exchanges.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("emailDepositHandler")
 public class EmailDepositHandler extends AbstractComponentWithCatalog implements BeanFactoryAware

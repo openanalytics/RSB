@@ -41,7 +41,7 @@ import eu.openanalytics.rsb.Util;
 /**
  * Represents a RSB result that consists of multiple files.
  * 
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class MultiFilesResult extends AbstractResult<File[]>
 {

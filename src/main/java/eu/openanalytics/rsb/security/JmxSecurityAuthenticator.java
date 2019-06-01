@@ -42,7 +42,7 @@ import org.springframework.util.CollectionUtils;
 import eu.openanalytics.rsb.config.Configuration;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class JmxSecurityAuthenticator implements JMXAuthenticator
 {

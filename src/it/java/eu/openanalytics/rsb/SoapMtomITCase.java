@@ -29,7 +29,7 @@ import org.junit.Test;
 import com.eviware.soapui.tools.SoapUITestCaseRunner;
 
 /**
- * @author "OpenAnalytics &lt;rsb.development@openanalytics.eu&gt;"
+ * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class SoapMtomITCase extends AbstractITCase {
     @Test
