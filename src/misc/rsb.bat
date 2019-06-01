@@ -1,23 +1,25 @@
+@REM
 @REM    R Service Bus
-@REM    
+@REM
 @REM    Copyright (c) Copyright of Open Analytics NV, 2010-2019
-@REM 
+@REM    
 @REM    ===========================================================================
-@REM 
-@REM    This program is free software: you can redistribute it and/or modify
-@REM    it under the terms of the GNU Affero General Public License as published by
-@REM    the Free Software Foundation, either version 3 of the License, or
+@REM
+@REM    R Service Bus is free software: you can redistribute it and/or modify
+@REM    it under the terms of the Apache License as published by
+@REM    The Apache Software Foundation, either version 2 of the License, or
 @REM    (at your option) any later version.
-@REM 
+@REM
 @REM    This program is distributed in the hope that it will be useful,
 @REM    but WITHOUT ANY WARRANTY; without even the implied warranty of
 @REM    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-@REM    GNU Affero General Public License for more details.
-@REM 
-@REM    You should have received a copy of the GNU Affero General Public License
-@REM    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-@REM 
+@REM    Apache License for more details.
+@REM
+@REM    You should have received a copy of the Apache License
+@REM    along with R Service Bus.  If not, see <http://www.apache.org/licenses/>.
+@REM
 @REM    @author rsb.development@openanalytics.eu
+@REM
 
 if not "%R_HOME%" == "" goto okRHome
 echo "R_HOME not set"
