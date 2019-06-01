@@ -5,6 +5,8 @@
 @REM    
 @REM    ===========================================================================
 @REM
+@REM    This file is part of R Service Bus.
+@REM
 @REM    R Service Bus is free software: you can redistribute it and/or modify
 @REM    it under the terms of the Apache License as published by
 @REM    The Apache Software Foundation, either version 2 of the License, or
