@@ -22,7 +22,6 @@
  *
  */
 
-
 package eu.openanalytics.rsb.rservi;
 
 import static org.hamcrest.CoreMatchers.is;

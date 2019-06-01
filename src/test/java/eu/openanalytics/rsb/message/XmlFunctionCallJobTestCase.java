@@ -22,7 +22,6 @@
  *
  */
 
-
 package eu.openanalytics.rsb.message;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
