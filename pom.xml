@@ -29,12 +29,12 @@
     <parent>
         <groupId>eu.openanalytics</groupId>
         <artifactId>rpooli-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1.0-RELEASE</version>
     </parent>
 
     <artifactId>rsb</artifactId>
     <packaging>war</packaging>
-    <version>6.3-SNAPSHOT</version>
+    <version>6.3.0-RELEASE</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
     <url>https://openanalytics.eu</url>
