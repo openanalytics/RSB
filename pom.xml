@@ -29,19 +29,19 @@
     <parent>
         <groupId>eu.openanalytics</groupId>
         <artifactId>rpooli-parent</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>rsb</artifactId>
     <packaging>war</packaging>
-    <version>6.3-SNAPSHOT</version>
+    <version>6.3.1-SNAPSHOT</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
     <url>https://openanalytics.eu</url>
     <licenses>
         <license>
-            <name>GNU AFFERO GENERAL PUBLIC LICENSE</name>
-            <url>http://www.gnu.org/licenses/</url>
+            <name>Apache License 2.0 (Apache-2.0)</name>
+            <url>https://opensource.org/licenses/Apache-2.0</url>
         </license>
     </licenses>
     <organization>
@@ -54,12 +54,12 @@
         
         <rpooli-webapp.version>${project.parent.version}</rpooli-webapp.version>
 
-        <spring.version>5.0.4.RELEASE</spring.version>
-        <spring-security.version>5.0.3.RELEASE</spring-security.version>
-        <spring-integration.version>5.0.3.RELEASE</spring-integration.version>
+        <spring.version>5.1.8.RELEASE</spring.version>
+        <spring-security.version>5.1.5.RELEASE</spring-security.version>
+        <spring-integration.version>5.1.6.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
-        <cxf.version>3.2.4</cxf.version>
-        <jetty-plugin.version>9.4.8.v20171121</jetty-plugin.version>
+        <cxf.version>3.3.2</cxf.version>
+        <jetty-plugin.version>9.4.19.v20190610</jetty-plugin.version>
         <soapui.version>4.5.1</soapui.version>
         <tomcat.version>9.0.6</tomcat.version>
         <local.server.port>8888</local.server.port>
