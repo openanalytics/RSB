@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -154,9 +155,9 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
         final File catalogFile = new File(catalogSectionDirectory, fileName);
         final boolean preExistingFile = catalogFile.isFile();
 
-        final FileWriter fw = new FileWriter(catalogFile);
-        IOUtils.copy(in, fw);
-        IOUtils.closeQuietly(fw);
+        try(final FileWriter fw = new FileWriter(catalogFile)) {
+          IOUtils.copy(in, fw, Charset.defaultCharset());
+        }
 
         final PutCatalogFileResult putCatalogFileResult = preExistingFile
                                                                          ? PutCatalogFileResult.UPDATED

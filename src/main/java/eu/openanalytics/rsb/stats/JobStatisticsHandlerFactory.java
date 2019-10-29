@@ -42,7 +42,7 @@ public abstract class JobStatisticsHandlerFactory {
             return NoopJobStatisticsHandler.INSTANCE;
         }
 
-        final JobStatisticsHandler jobStatisticsHandler = BeanUtils.instantiate(clazz);
+        final JobStatisticsHandler jobStatisticsHandler = BeanUtils.instantiateClass(clazz);
         jobStatisticsHandler.setConfiguration(configuration);
         return jobStatisticsHandler;
     }

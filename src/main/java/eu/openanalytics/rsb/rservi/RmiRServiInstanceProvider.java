@@ -25,25 +25,21 @@ package eu.openanalytics.rsb.rservi;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.management.ObjectName;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.KeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
-import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
-import org.springframework.jmx.export.MBeanExportOperations;
-import org.springframework.stereotype.Component;
-
+import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
+import org.apache.commons.pool2.KeyedObjectPool;
+import org.apache.commons.pool2.KeyedPooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 import org.eclipse.statet.jcommons.lang.Nullable;
 import org.eclipse.statet.jcommons.status.ProgressMonitor;
@@ -56,11 +52,13 @@ import org.eclipse.statet.rj.services.FQRObject;
 import org.eclipse.statet.rj.services.FunctionCall;
 import org.eclipse.statet.rj.services.RGraphicCreator;
 import org.eclipse.statet.rj.services.RPlatform;
-
+import org.springframework.jmx.export.MBeanExportOperations;
+import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
+import eu.openanalytics.rsb.config.RServiPoolConfig;
 
 /**
  * Provides RServi connection over RMI.
@@ -110,7 +108,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
     }
 
-    private static class PooledRServiWrapper implements ErrorableRServi
+    public static class PooledRServiWrapper implements ErrorableRServi
     {
         private final KeyedObjectPool<RServiPoolKey, PooledRServiWrapper> rServiPool;
         private final RServiPoolKey key;
@@ -313,7 +311,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
     @PostConstruct
     public void initialize()
     {
-        final Config config = configuration.getRServiClientPoolConfig();
+        final RServiPoolConfig config = configuration.getRServiClientPoolConfig();
         if (config != null)
         {
             configurePool(config);
@@ -322,7 +320,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
     }
 
-    private void configurePool(final Config config)
+    private void configurePool(final RServiPoolConfig config)
     {
         final RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy = configuration.getRServiClientPoolValidationStrategy();
         if (rServiClientPoolValidationStrategy != null)
@@ -331,27 +329,22 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         }
     }
 
-    private void initializeRServiClientPool(final Config config)
+    private void initializeRServiClientPool(final RServiPoolConfig config)
     {
-        final KeyedPoolableObjectFactory<RServiPoolKey, PooledRServiWrapper> factory = new BaseKeyedPoolableObjectFactory<RServiPoolKey, PooledRServiWrapper>()
+        final KeyedPooledObjectFactory<RServiPoolKey, PooledRServiWrapper> factory = new BaseKeyedPooledObjectFactory<RServiPoolKey, PooledRServiWrapper>()
         {
-            @Override
-            public PooledRServiWrapper makeObject(final RServiPoolKey key) throws Exception
-            {
-                final RServi rServi = RServiUtils.getRServi(key.getAddress(), key.getClientId());
-                return new PooledRServiWrapper(rServiPool, key, rServi);
-            }
 
             @Override
-            public void destroyObject(final RServiPoolKey key, final PooledRServiWrapper rServi)
+            public void destroyObject(final RServiPoolKey key, final PooledObject<PooledRServiWrapper> rServiWrapper)
                 throws Exception
             {
-                rServi.destroy();
+                rServiWrapper.getObject().destroy();
             }
 
             @Override
-            public boolean validateObject(final RServiPoolKey key, final PooledRServiWrapper rServi)
+            public boolean validateObject(final RServiPoolKey key, final PooledObject<PooledRServiWrapper> rServiWrapper)
             {
+                PooledRServiWrapper rServi = rServiWrapper.getObject();
                 if (rServi.isClosed())
                 {
                     return false;
@@ -380,9 +373,21 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
                     return true;
                 }
             }
+
+
+            @Override
+            public PooledRServiWrapper create(RServiPoolKey key) throws Exception {
+              final RServi rServi = RServiUtils.getRServi(key.getAddress(), key.getClientId());
+              return new PooledRServiWrapper(rServiPool, key, rServi);
+            }
+
+            @Override
+            public PooledObject<PooledRServiWrapper> wrap(PooledRServiWrapper value) {
+              return new DefaultPooledObject<PooledRServiWrapper>(value);
+            }
         };
 
-        rServiPool = new GenericKeyedObjectPoolFactory<RServiPoolKey, PooledRServiWrapper>(factory, config).createPool();
+        rServiPool = new GenericKeyedObjectPool<RServiPoolKey, PooledRServiWrapper>(factory, config);
         LOGGER.info("RServi pool instantiated and configured with: "
                     + ToStringBuilder.reflectionToString(config));
     }

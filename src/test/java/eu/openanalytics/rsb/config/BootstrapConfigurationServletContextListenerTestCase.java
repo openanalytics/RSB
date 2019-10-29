@@ -28,7 +28,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.File;
-
+import java.nio.charset.Charset;
 import javax.servlet.ServletContextEvent;
 
 import org.apache.commons.io.FileUtils;
@@ -106,7 +106,7 @@ public class BootstrapConfigurationServletContextListenerTestCase
 
         final ST defaultConfigurationTestTemplate = Util.newStringTemplate(IOUtils.toString(Thread.currentThread()
             .getContextClassLoader()
-            .getResourceAsStream("rsb-configuration-default.json")));
+            .getResourceAsStream("rsb-configuration-default.json"), Charset.defaultCharset()));
         final File defaultRsbHomeDirectory = BootstrapConfigurationServletContextListener.getDefaultRsbHomeDirectory(tempDirectory);
         defaultConfigurationTestTemplate.add("RSB_HOME", defaultRsbHomeDirectory.toString().replace("\\", "/"));
         assertThat(defaultConfigurationTestTemplate.render(),

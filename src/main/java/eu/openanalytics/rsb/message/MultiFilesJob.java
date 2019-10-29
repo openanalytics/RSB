@@ -100,9 +100,9 @@ public class MultiFilesJob extends AbstractJob
             rScriptFile = jobFile;
         }
 
-        final FileOutputStream fos = new FileOutputStream(jobFile);
-        IOUtils.copy(is, fos);
-        IOUtils.closeQuietly(fos);
+        try(final FileOutputStream fos = new FileOutputStream(jobFile)) {
+          IOUtils.copy(is, fos);
+        }
     }
 
     private void loadJobConfiguration(final InputStream is) throws IOException
@@ -208,21 +208,20 @@ public class MultiFilesJob extends AbstractJob
      */
     public static void addZipFilesToJob(final InputStream data, final MultiFilesJob job) throws IOException
     {
-        final ZipInputStream zis = new ZipInputStream(data);
-        ZipEntry ze = null;
-
-        while ((ze = zis.getNextEntry()) != null)
-        {
-            if (ze.isDirectory())
-            {
-                job.destroy();
-                throw new IllegalArgumentException(
-                    "Invalid zip archive: nested directories are not supported");
-            }
-            job.addFile(ze.getName(), zis);
-            zis.closeEntry();
+        try(final ZipInputStream zis = new ZipInputStream(data)) {
+          ZipEntry ze = null;
+  
+          while ((ze = zis.getNextEntry()) != null)
+          {
+              if (ze.isDirectory())
+              {
+                  job.destroy();
+                  throw new IllegalArgumentException(
+                      "Invalid zip archive: nested directories are not supported");
+              }
+              job.addFile(ze.getName(), zis);
+              zis.closeEntry();
+          }
         }
-
-        IOUtils.closeQuietly(zis);
     }
 }

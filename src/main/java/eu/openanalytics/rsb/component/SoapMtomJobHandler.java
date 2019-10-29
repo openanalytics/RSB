@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -129,7 +130,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 
         if (Constants.XML_CONTENT_TYPE.equals(contentType))
         {
-            final String argument = IOUtils.toString(payload.getData().getInputStream());
+            final String argument = IOUtils.toString(payload.getData().getInputStream(), Charset.defaultCharset());
             final XmlFunctionCallJob xmlFunctionCallJob = new XmlFunctionCallJob(Source.SOAP,
                 applicationName, ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
                 (GregorianCalendar) GregorianCalendar.getInstance(), argument);
@@ -141,7 +142,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 
         if (Constants.JSON_CONTENT_TYPE.equals(payload.getContentType()))
         {
-            final String argument = IOUtils.toString(payload.getData().getInputStream());
+            final String argument = IOUtils.toString(payload.getData().getInputStream(), Charset.defaultCharset());
             final JsonFunctionCallJob jsonFunctionCallJob = new JsonFunctionCallJob(Source.SOAP,
                 applicationName, ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
                 (GregorianCalendar) GregorianCalendar.getInstance(), argument);

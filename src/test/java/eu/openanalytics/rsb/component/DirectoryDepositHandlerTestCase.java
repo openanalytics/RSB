@@ -27,10 +27,10 @@ package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +49,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
-
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
@@ -86,7 +84,12 @@ public class DirectoryDepositHandlerTestCase
     @Test
     public void setupChannelAdapters()
     {
-        directoryDepositHandler.setupChannelAdapters();
+        try {
+          directoryDepositHandler.setupChannelAdapters();
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Unexpected exception thrown in @PostConstruct method setupChannelAdapters() of DirectoryDepositHandler");
+        }
     }
 
     @Test

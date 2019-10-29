@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -145,12 +146,13 @@ public abstract class ConfigurationFactory
                                                                          final InputStream is)
         throws IOException
     {
-        final String json = IOUtils.toString(is);
-        IOUtils.closeQuietly(is);
+        try(final InputStream autoCloseIs = is) {
+          final String json = IOUtils.toString(is, Charset.defaultCharset());
 
-        final PersistedConfiguration pc = Util.fromJson(json, PersistedConfiguration.class);
-        final PersistedConfigurationAdapter pca = new PersistedConfigurationAdapter(configurationUrl, pc);
-        return pca;
+          final PersistedConfiguration pc = Util.fromJson(json, PersistedConfiguration.class);
+          final PersistedConfigurationAdapter pca = new PersistedConfigurationAdapter(configurationUrl, pc);
+          return pca;
+        }
     }
 
     static Set<String> validate(final PersistedConfigurationAdapter pca) throws IOException

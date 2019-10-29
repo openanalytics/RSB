@@ -25,12 +25,10 @@
 package eu.openanalytics.rsb.component;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,21 +41,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.annotation.Resource;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
-
 import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.rj.data.RDataUtils;
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.data.UnexpectedRDataException;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.FunctionCall;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
@@ -179,9 +172,9 @@ public class JobProcessor extends AbstractComponentWithCatalog
                 for (final String fileToDownload : filesToDownload)
                 {
                     final File resultFile = result.createNewResultFile(fileToDownload);
-                    final FileOutputStream fos = new FileOutputStream(resultFile);
-                    rServi.downloadFile(fos, fileToDownload, 0, null);
-                    IOUtils.closeQuietly(fos);
+                    try(final FileOutputStream fos = new FileOutputStream(resultFile)) {
+                      rServi.downloadFile(fos, fileToDownload, 0, null);
+                    }
                 }
 
                 return result;
@@ -343,11 +336,11 @@ public class JobProcessor extends AbstractComponentWithCatalog
     }
 
     private static void uploadFileToR(final RServi rServi, final File file, final Set<String> filesUploadedToR)
-        throws FileNotFoundException, StatusException
+        throws StatusException, IOException
     {
-        final FileInputStream fis = new FileInputStream(file);
-        rServi.uploadFile(fis, file.length(), file.getName(), 0, null);
-        IOUtils.closeQuietly(fis);
+        try(final FileInputStream fis = new FileInputStream(file)) {
+          rServi.uploadFile(fis, file.length(), file.getName(), 0, null);
+        }
         filesUploadedToR.add(file.getName());
     }
 

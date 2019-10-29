@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -235,7 +236,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
     {
         final Serializable responseBody = result.getMeta().get(EMAIL_BODY_META_NAME);
         final String responseText = responseBody instanceof File
-                                                                ? FileUtils.readFileToString((File) responseBody)
+                                                                ? FileUtils.readFileToString((File) responseBody, Charset.defaultCharset())
                                                                 : responseBody.toString();
 
         final MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -256,7 +257,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
         }
         else
         {
-            mmh.setText(FileUtils.readFileToString(result.getPayload()[0]));
+            mmh.setText(FileUtils.readFileToString(result.getPayload()[0], Charset.defaultCharset()));
         }
 
         final Message<MimeMailMessage> message = new GenericMessage<MimeMailMessage>(new MimeMailMessage(mmh));

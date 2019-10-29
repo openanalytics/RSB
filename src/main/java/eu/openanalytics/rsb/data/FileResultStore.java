@@ -89,11 +89,9 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
         FileUtils.forceMkdir(resultsDirectory);
         final File resultFile = new File(resultsDirectory, resultFileName);
 
-        final InputStream resultData = result.getData();
-        final FileOutputStream fos = new FileOutputStream(resultFile);
-        IOUtils.copy(resultData, fos);
-        IOUtils.closeQuietly(result.getData());
-        IOUtils.closeQuietly(fos);
+        try(final InputStream resultData = result.getData(); final FileOutputStream fos = new FileOutputStream(resultFile)) {
+          IOUtils.copy(resultData, fos);
+        }
     }
 
     @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")

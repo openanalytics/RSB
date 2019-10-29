@@ -100,7 +100,7 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
     }
 
     @PostConstruct
-    public void setupChannelAdapters()
+    public void setupChannelAdapters() throws Exception
     {
         final List<DepositDirectoryConfiguration> depositDirectoryConfigurations = getConfiguration().getDepositRootDirectories();
 

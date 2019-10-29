@@ -31,9 +31,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
-
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 /**
@@ -190,18 +187,18 @@ public interface Configuration
         NONE
         {
             @Override
-            public void configurePool(final Config config)
+            public void configurePool(final RServiPoolConfig config)
             {
-                config.testOnBorrow = false;
-                config.testOnReturn = false;
+                config.setTestOnBorrow(false);
+                config.setTestOnReturn(false);
             }
         },
         ADAPTIVE, FULL;
 
-        public void configurePool(final Config config)
+        public void configurePool(final RServiPoolConfig config)
         {
-            config.testOnBorrow = true;
-            config.testOnReturn = true;
+            config.setTestOnBorrow(true);
+            config.setTestOnReturn(true);
         }
     };
 
@@ -316,7 +313,7 @@ public interface Configuration
     /**
      * Optional pooling configuration for RServi clients.
      */
-    Config getRServiClientPoolConfig();
+    RServiPoolConfig getRServiClientPoolConfig();
 
     /**
      * Optional validation strategy for pooled RServi clients.

@@ -38,7 +38,6 @@ import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
@@ -50,22 +49,20 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig.Feature;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
-
 import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.FunctionCall;
-
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
 
@@ -90,9 +87,9 @@ public abstract class Util
 
     static
     {
-        PRETTY_JSON_OBJECT_MAPPER.configure(Feature.INDENT_OUTPUT, true);
-        PRETTY_JSON_OBJECT_MAPPER.configure(Feature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        PRETTY_JSON_OBJECT_MAPPER.setSerializationInclusion(Inclusion.NON_NULL);
+        PRETTY_JSON_OBJECT_MAPPER.configure(SerializationFeature.INDENT_OUTPUT, true);
+        PRETTY_JSON_OBJECT_MAPPER.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+        PRETTY_JSON_OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         try
         {

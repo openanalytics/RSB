@@ -93,10 +93,9 @@ public class ResultResource extends AbstractResource
         {
             public void write(final OutputStream output) throws IOException
             {
-                final InputStream data = persistedResult.getData();
-                IOUtils.copy(data, output);
-                IOUtils.closeQuietly(data);
-                IOUtils.closeQuietly(output);
+                try(final InputStream data = persistedResult.getData(); final OutputStream autoCloseOutput = output) {
+                  IOUtils.copy(data, output);
+                }
             }
         });
         return rb.build();

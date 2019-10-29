@@ -43,7 +43,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -61,7 +60,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -76,7 +74,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
-
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
@@ -141,9 +138,9 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         final Configuration newConfiguration = ConfigurationFactory.loadJsonConfiguration(in);
         final String reformattedNewConfiguration = Util.toJson(new PersistedConfiguration(newConfiguration));
         final File newConfigurationFile = new File(getConfiguration().getConfigurationUrl().toURI());
-        final FileWriter fw = new FileWriter(newConfigurationFile);
-        IOUtils.copy(new StringReader(reformattedNewConfiguration), fw);
-        IOUtils.closeQuietly(fw);
+        try(FileWriter fw = new FileWriter(newConfigurationFile)) {
+          IOUtils.copy(new StringReader(reformattedNewConfiguration), fw);
+        }
         getLogger().warn(
             "Configuration stored in: " + newConfigurationFile
                             + ". System needs restart in order to activate this new configuration!");
@@ -211,15 +208,15 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 
         try
         {
-            final FileOutputStream output = new FileOutputStream(packageSourceFile);
-            IOUtils.copyLarge(input, output);
-            IOUtils.closeQuietly(output);
+            try(final FileOutputStream output = new FileOutputStream(packageSourceFile)) {
+              IOUtils.copyLarge(input, output);
+            }
 
             // validate the checksum
-            final FileInputStream packageSourceInputStream = new FileInputStream(packageSourceFile);
-            final String calculatedSha1HexSum = DigestUtils.sha1Hex(packageSourceInputStream);
-            IOUtils.closeQuietly(packageSourceInputStream);
-            Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
+            try(final FileInputStream packageSourceInputStream = new FileInputStream(packageSourceFile)) {
+              final String calculatedSha1HexSum = DigestUtils.sha1Hex(packageSourceInputStream);
+              Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
+            }
 
             // upload to RServi
             rServiPackageManager.install(packageSourceFile, rServiPoolUri);
@@ -248,39 +245,37 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 
         // 1) extract TAR
         final File packageTarFile = File.createTempFile("rsb-install.", ".tar", tempDirectory);
-        final GzipCompressorInputStream gzIn = new GzipCompressorInputStream(new FileInputStream(
-            packageSourceFile));
-        FileOutputStream output = new FileOutputStream(packageTarFile);
-        IOUtils.copyLarge(gzIn, output);
-        IOUtils.closeQuietly(output);
-        IOUtils.closeQuietly(gzIn);
+        try(final GzipCompressorInputStream gzIn = new GzipCompressorInputStream(new FileInputStream(
+            packageSourceFile)); FileOutputStream output = new FileOutputStream(packageTarFile)) {
+          IOUtils.copyLarge(gzIn, output);
+        }
 
         // 2) parse TAR and drop files in catalog
-        final TarArchiveInputStream tarIn = new TarArchiveInputStream(new FileInputStream(packageTarFile));
-        TarArchiveEntry tarEntry = null;
-        while ((tarEntry = tarIn.getNextTarEntry()) != null)
-        {
-            if (!tarEntry.isFile())
-            {
-                continue;
-            }
-
-            final Matcher matcher = TAR_CATALOG_FILE_PATTERN.matcher(tarEntry.getName());
-            if (matcher.matches())
-            {
-                final byte[] data = IOUtils.toByteArray(tarIn, tarEntry.getSize());
-
-                final String catalogFile = matcher.group(1);
-                final File targetCatalogFile = new File(getConfiguration().getCatalogRootDirectory(),
-                    catalogFile);
-                output = new FileOutputStream(targetCatalogFile);
-                IOUtils.write(data, output);
-                IOUtils.closeQuietly(output);
-
-                getLogger().info("Wrote " + data.length + " bytes in catalog file: " + targetCatalogFile);
-            }
+        try(final TarArchiveInputStream tarIn = new TarArchiveInputStream(new FileInputStream(packageTarFile))) {
+          TarArchiveEntry tarEntry = null;
+          while ((tarEntry = tarIn.getNextTarEntry()) != null)
+          {
+              if (!tarEntry.isFile())
+              {
+                  continue;
+              }
+  
+              final Matcher matcher = TAR_CATALOG_FILE_PATTERN.matcher(tarEntry.getName());
+              if (matcher.matches())
+              {
+                  final byte[] data = IOUtils.toByteArray(tarIn, tarEntry.getSize());
+  
+                  final String catalogFile = matcher.group(1);
+                  final File targetCatalogFile = new File(getConfiguration().getCatalogRootDirectory(),
+                      catalogFile);
+                  try(FileOutputStream output = new FileOutputStream(targetCatalogFile)) {
+                    IOUtils.write(data, output);
+                  }
+  
+                  getLogger().info("Wrote " + data.length + " bytes in catalog file: " + targetCatalogFile);
+              }
+          }
         }
-        IOUtils.closeQuietly(tarIn);
     }
 
     @Path("/" + CATALOG_SUBPATH)
@@ -327,10 +322,9 @@ public class AdminResource extends AbstractResource implements ApplicationContex
             @Override
             public void write(final OutputStream output) throws IOException
             {
-                final FileInputStream fis = new FileInputStream(catalogFile);
-                IOUtils.copy(fis, output);
-                IOUtils.closeQuietly(fis);
-                IOUtils.closeQuietly(output);
+                try(final FileInputStream fis = new FileInputStream(catalogFile); OutputStream autoCloseOutput = output) {
+                  IOUtils.copy(fis, autoCloseOutput);
+                }
             }
         });
         return rb.build();

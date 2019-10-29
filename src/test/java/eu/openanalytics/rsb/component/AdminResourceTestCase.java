@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -229,7 +230,7 @@ public class AdminResourceTestCase
                 any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.CREATED, testFile));
 
         final Response firstResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", null,
-            IOUtils.toInputStream("fake script"), httpHeaders, uriInfo);
+            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
         assertThat(firstResponse.getStatus(), is(201));
 
         when(
@@ -237,7 +238,7 @@ public class AdminResourceTestCase
                 any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.UPDATED, testFile));
 
         final Response secondResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", null,
-            IOUtils.toInputStream("fake script"), httpHeaders, uriInfo);
+            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
         assertThat(secondResponse.getStatus(), is(204));
     }
 
@@ -255,7 +256,7 @@ public class AdminResourceTestCase
                 any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.CREATED, testFile));
 
         final Response firstResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", "TEST_APP",
-            IOUtils.toInputStream("fake script"), httpHeaders, uriInfo);
+            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
         assertThat(firstResponse.getStatus(), is(201));
 
         when(
@@ -263,7 +264,7 @@ public class AdminResourceTestCase
                 any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.UPDATED, testFile));
 
         final Response secondResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", "TEST_APP",
-            IOUtils.toInputStream("fake script"), httpHeaders, uriInfo);
+            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
         assertThat(secondResponse.getStatus(), is(204));
     }
 }

@@ -29,22 +29,20 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.Job;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class RedisJobStatisticsHandler implements JobStatisticsHandler
+public class RedisJobStatisticsHandler implements JobStatisticsHandler 
 {
     private static final Log LOGGER = LogFactory.getLog(RedisJobStatisticsHandler.class);
 
@@ -71,9 +69,9 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
 
     public void initialize()
     {
-        final GenericObjectPool.Config poolConfig = new GenericObjectPool.Config();
-        poolConfig.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_GROW;
-
+        final GenericObjectPoolConfig<?> poolConfig = new GenericObjectPoolConfig<>();
+        poolConfig.setBlockWhenExhausted(false);
+        
         pool = new JedisPool(poolConfig, redisHost, redisPort);
 
         final boolean redisConfigurationOk = runWithJedis(new RedisAction()
@@ -158,7 +156,7 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
             {
                 try
                 {
-                    pool.returnResource(jedis);
+                    jedis.close();
                 }
                 catch (final Throwable t)
                 {

@@ -29,11 +29,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.commons.pool.impl.GenericKeyedObjectPool.Config;
-
 import eu.openanalytics.rsb.config.Configuration.AdminSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
@@ -489,7 +486,7 @@ public class PersistedConfiguration
     private List<PersistedDepositDirectoryConfiguration> depositRootDirectories;
     private List<PersistedDepositEmailConfiguration> depositEmailAccounts;
     private List<File> dataDirectories;
-    private Config rServiClientPoolConfig;
+    private RServiPoolConfig rServiClientPoolConfig;
     private RServiClientPoolValidationStrategy rServiClientPoolValidationStrategy;
     private boolean checkHealthOnStart;
     private Map<String, PersistedApplicationSecurityAuthorization> applicationSecurityConfiguration;
@@ -758,12 +755,12 @@ public class PersistedConfiguration
     /**
      * Optional pooling configuration for RServi clients.
      */
-    public Config getrServiClientPoolConfig()
+    public RServiPoolConfig getrServiClientPoolConfig()
     {
         return rServiClientPoolConfig;
     }
 
-    public void setrServiClientPoolConfig(final Config rServiClientPoolConfig)
+    public void setrServiClientPoolConfig(final RServiPoolConfig rServiClientPoolConfig)
     {
         this.rServiClientPoolConfig = rServiClientPoolConfig;
     }

@@ -116,20 +116,20 @@ public class MultiFilesResult extends AbstractResult<File[]>
         }
 
         final File resultZipFile = new File(result.getTemporaryDirectory(), result.getJobId() + ".zip");
-        final ZipOutputStream resultZOS = new ZipOutputStream(new FileOutputStream(resultZipFile));
+        try(final ZipOutputStream resultZOS = new ZipOutputStream(new FileOutputStream(resultZipFile))) {
 
-        for (final File resultFile : resultFiles)
-        {
-            resultZOS.putNextEntry(new ZipEntry(resultFile.getName()));
-
-            final FileInputStream fis = new FileInputStream(resultFile);
-            IOUtils.copy(fis, resultZOS);
-            IOUtils.closeQuietly(fis);
-
-            resultZOS.closeEntry();
+          for (final File resultFile : resultFiles)
+          {
+              resultZOS.putNextEntry(new ZipEntry(resultFile.getName()));
+  
+              try(final FileInputStream fis = new FileInputStream(resultFile)) {
+                IOUtils.copy(fis, resultZOS);
+              }
+  
+              resultZOS.closeEntry();
+          }
         }
 
-        IOUtils.closeQuietly(resultZOS);
         return resultZipFile;
     }
 }
