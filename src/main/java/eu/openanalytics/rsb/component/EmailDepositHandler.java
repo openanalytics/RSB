@@ -146,11 +146,11 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
             AbstractMailReceiver mailReceiver = null;
 
             final URI emailAccountURI = depositEmailConfiguration.getAccountURI();
-            if (StringUtils.equals(emailAccountURI.getScheme(), "pop3"))
+            if (StringUtils.startsWith(emailAccountURI.getScheme(), "pop3"))
             {
                 mailReceiver = new Pop3MailReceiver(emailAccountURI.toString());
             }
-            else if (StringUtils.equals(emailAccountURI.getScheme(), "imap"))
+            else if (StringUtils.startsWith(emailAccountURI.getScheme(), "imap"))
             {
                 mailReceiver = new ImapMailReceiver(emailAccountURI.toString());
                 ((ImapMailReceiver) mailReceiver).setShouldMarkMessagesAsRead(true);
