@@ -29,12 +29,12 @@
     <parent>
         <groupId>eu.openanalytics</groupId>
         <artifactId>rpooli-parent</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>rsb</artifactId>
+    <version>6.3.1-SNAPSHOT</version>
     <packaging>war</packaging>
-    <version>6.3.1</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
     <url>https://openanalytics.eu</url>
@@ -59,9 +59,11 @@
         <spring-integration.version>5.2.4.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
         <cxf.version>3.3.3</cxf.version>
-        <jetty-plugin.version>9.4.21.v20190926</jetty-plugin.version>
         <soapui.version>5.5.0</soapui.version>
         <tomcat.version>9.0.27</tomcat.version>
+
+        <jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
+
         <local.server.port>8888</local.server.port>
     </properties>
 
