@@ -29,12 +29,12 @@
     <parent>
         <groupId>eu.openanalytics</groupId>
         <artifactId>rpooli-parent</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.0</version>
     </parent>
 
     <artifactId>rsb</artifactId>
     <packaging>war</packaging>
-    <version>6.3.0</version>
+    <version>6.3.1</version>
     <name>R Service Bus</name>
     <description>A communication middleware and work manager for R statistic analysis jobs.</description>
     <url>https://openanalytics.eu</url>
@@ -54,9 +54,9 @@
         
         <rpooli-webapp.version>${project.parent.version}</rpooli-webapp.version>
 
-        <spring.version>5.2.0.RELEASE</spring.version>
-        <spring-security.version>5.2.0.RELEASE</spring-security.version>
-        <spring-integration.version>5.2.0.RELEASE</spring-integration.version>
+        <spring.version>5.2.4.RELEASE</spring.version>
+        <spring-security.version>5.3.0.RELEASE</spring-security.version>
+        <spring-integration.version>5.2.4.RELEASE</spring-integration.version>
         <activemq.version>5.7.0</activemq.version>
         <cxf.version>3.3.3</cxf.version>
         <jetty-plugin.version>9.4.21.v20190926</jetty-plugin.version>
@@ -333,12 +333,12 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.19</version>
+            <version>1.20</version>
         </dependency>
         <dependency>
 		    <groupId>com.fasterxml.jackson.module</groupId>
 		    <artifactId>jackson-module-jaxb-annotations</artifactId>
-		    <version>2.10.0</version>
+		    <version>2.10.3</version>
 		</dependency>
         <dependency>
             <groupId>org.antlr</groupId>
