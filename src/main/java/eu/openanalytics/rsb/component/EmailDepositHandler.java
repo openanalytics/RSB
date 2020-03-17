@@ -195,7 +195,6 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void handleJob(final Message<MimeMessage> message) throws MessagingException, IOException
     {
         final DepositEmailConfiguration depositEmailConfiguration = message.getHeaders().get(

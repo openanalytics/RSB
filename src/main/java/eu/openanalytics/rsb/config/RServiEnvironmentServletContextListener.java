@@ -30,6 +30,8 @@ import javax.servlet.ServletContextListener;
 import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 import org.eclipse.statet.jcommons.runtime.BasicAppEnvironment;
 import org.eclipse.statet.jcommons.runtime.CommonsRuntime;
+import org.eclipse.statet.jcommons.runtime.bundle.Bundles;
+import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.jcommons.status.util.ACommonsLoggingStatusLogger;
 import org.eclipse.statet.rj.server.RjsComConfig;
 import org.eclipse.statet.rj.server.client.RClientGraphicDummyFactory;
@@ -45,9 +47,9 @@ public class RServiEnvironmentServletContextListener extends BasicAppEnvironment
         implements ServletContextListener
 {
 
-    public RServiEnvironmentServletContextListener()
+    public RServiEnvironmentServletContextListener() throws StatusException
     {
-        super("eu.openanalytics.rsb", new ACommonsLoggingStatusLogger());
+        super("eu.openanalytics.rsb", new ACommonsLoggingStatusLogger(), Bundles.createResolver());
     }
 
 
