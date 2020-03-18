@@ -60,7 +60,7 @@
         <activemq.version>5.7.0</activemq.version>
         <cxf.version>3.3.3</cxf.version>
         <soapui.version>5.5.0</soapui.version>
-        <tomcat.version>9.0.31</tomcat.version>
+        <tomcat.version>9.0.6</tomcat.version>
         <jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
 
         <local.server.port>8888</local.server.port>
