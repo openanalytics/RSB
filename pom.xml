@@ -60,7 +60,7 @@
         <activemq.version>5.7.0</activemq.version>
         <cxf.version>3.3.3</cxf.version>
         <soapui.version>5.5.0</soapui.version>
-        <tomcat.version>9.0.6</tomcat.version>
+        <tomcat.version>9.0.35</tomcat.version>
         <jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
 
         <local.server.port>8888</local.server.port>
@@ -624,9 +624,9 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>javax.servlet.jsp.jstl</groupId>
-                    <artifactId>jstl</artifactId>
-                    <version>1.2</version>
+                    <groupId>org.apache.taglibs</groupId>
+                    <artifactId>taglibs-standard-impl</artifactId>
+                    <version>1.2.5</version>
                 </dependency>
                 <dependency>
                     <groupId>com.sun.mail</groupId>
