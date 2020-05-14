@@ -301,14 +301,26 @@ public class JobProcessor extends AbstractComponentWithCatalog
         }
         finally
         {
-            rServi.close();
-
-            if ((!direct) && (result != null))
+            try
             {
-                getMessageDispatcher().dispatch(result);
+                rServi.close();
+            }
+            catch (StatusException e)
+            {
+                getLogger().error(e.getMessage(), e);
             }
 
-            job.destroy();
+            try
+            {
+                if ((!direct) && (result != null))
+                {
+                    getMessageDispatcher().dispatch(result);
+                }
+            }
+            finally
+            {
+                job.destroy();
+            }
         }
 
         return result;
