@@ -2,7 +2,7 @@
 <!--
     R Service Bus
     
-    Copyright (c) Copyright of Open Analytics NV, 2010-2019
+    Copyright (c) Copyright of Open Analytics NV, 2010-2020
  
     ===========================================================================
  
@@ -46,6 +46,6 @@
             title="R Service Bus API"
             css="src/site/enunciate/wsdocs.css"
             xslt="src/site/enunciate/wsdocs.xsl"
-            copyright="Open Analytics NV, 2010-2019" />
+            copyright="Open Analytics NV, 2010-2020" />
     </modules>
 </enunciate>
