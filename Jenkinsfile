@@ -16,6 +16,7 @@ pipeline {
     }
 
     stages {
+        
         stage('mvn build'){
             steps {
                 container('maven') {
@@ -25,27 +26,33 @@ pipeline {
         }
         
         stage('publish to nexus') {
-           nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'snapshots', 
-           packages: [
-               [$class: 'MavenPackage', 
-               mavenAssetList: [[classifier: '', 
-                                 extension: 'war', 
-                                 filePath: '/target/rsb.war']],
-               mavenCoordinate: [artifactId: 'rsb', 
-                                 groupId: 'eu.openanalytics',
-                                 packaging: 'war',
-                                 version: "${env.RSB_VERSION}"]
-               ],
-               [$class: 'MavenPackage', 
-               mavenAssetList: [[classifier: 'tomcat-distribution', 
-                                 extension: 'zip', 
-                                 filePath: '/target/rsb-*-tomcat-distribution.zip']],
-               mavenCoordinate: [artifactId: 'rsb', 
-                                 groupId: 'eu.openanalytics',
-                                 packaging: 'zip',
-                                 version: "${env.RSB_VERSION}"]
-               ]
-           ]
+             steps {
+                 container('maven') {
+             
+                     nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'snapshots', 
+                       packages: [
+                   
+                       [$class: 'MavenPackage', 
+                       mavenAssetList: [[classifier: '', 
+                                       extension: 'war', 
+                                       filePath: '/target/rsb.war']],
+                       mavenCoordinate: [artifactId: 'rsb', 
+                                       groupId: 'eu.openanalytics',
+                                       packaging: 'war',
+                                       version: "${env.RSB_VERSION}"]
+                       ],
+                       [$class: 'MavenPackage', 
+                       mavenAssetList: [[classifier: 'tomcat-distribution', 
+                                         extension: 'zip', 
+                                         filePath: '/target/rsb-*-tomcat-distribution.zip']],
+                       mavenCoordinate: [artifactId: 'rsb', 
+                                         groupId: 'eu.openanalytics',
+                                         packaging: 'zip',
+                                         version: "${env.RSB_VERSION}"]
+                       ]
+                    ]
+                } 
+            }
         }
     }
 }
