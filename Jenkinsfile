@@ -11,7 +11,7 @@ pipeline {
     }
 
     environment {
-        rsbVersion = '6.4.0-SNAPSHOT'
+        rsbVersion = sh(returnStdout: true, script: '''grep --max-count=2 \'<version>\' pom.xml | awk -F \'>\' \'{ print $2 }\' | awk -F \'<\' \'{ print $1 }\' | tail -n 1''').trim()
     }
     
     stages {
@@ -38,16 +38,16 @@ pipeline {
                        mavenCoordinate: [artifactId: 'rsb', 
                                        groupId: 'eu.openanalytics',
                                        packaging: 'war',
-                                       version: '${env.rsbVersion}']
+                                       version: "${env.rsbVersion}"]
                        ],
                        [$class: 'MavenPackage', 
                        mavenAssetList: [[classifier: 'tomcat-distribution', 
                                          extension: 'zip', 
-                                         filePath: 'target/rsb-${env.rsbVersion}-tomcat-distribution.zip']],
+                                         filePath: "target/rsb-${env.rsbVersion}-tomcat-distribution.zip"]],
                        mavenCoordinate: [artifactId: 'rsb', 
                                          groupId: 'eu.openanalytics',
                                          packaging: 'zip',
-                                         version: '${env.rsbVersion}']
+                                         version: "${env.rsbVersion}"]
                        ]
                     ]
                 } 
