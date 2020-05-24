@@ -43,7 +43,7 @@ pipeline {
                        [$class: 'MavenPackage', 
                        mavenAssetList: [[classifier: 'tomcat-distribution', 
                                          extension: 'zip', 
-                                         filePath: 'target/rsb-*-tomcat-distribution.zip']],
+                                         filePath: 'target/rsb-${env.rsbVersion}-tomcat-distribution.zip']],
                        mavenCoordinate: [artifactId: 'rsb', 
                                          groupId: 'eu.openanalytics',
                                          packaging: 'zip',
