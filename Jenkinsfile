@@ -11,8 +11,7 @@ pipeline {
     }
 
     environment {
-        RSB_VERSION = sh(returnStdout: true,
-          script: "mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec").trim()
+        rsbVersion = sh(returnStdout: true, script: "mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec").trim()
     }
     
     stages {
@@ -39,7 +38,7 @@ pipeline {
                        mavenCoordinate: [artifactId: 'rsb', 
                                        groupId: 'eu.openanalytics',
                                        packaging: 'war',
-                                       version: "${env.RSB_VERSION}"]
+                                       version: "${env.rsbVersion}"]
                        ],
                        [$class: 'MavenPackage', 
                        mavenAssetList: [[classifier: 'tomcat-distribution', 
@@ -48,7 +47,7 @@ pipeline {
                        mavenCoordinate: [artifactId: 'rsb', 
                                          groupId: 'eu.openanalytics',
                                          packaging: 'zip',
-                                         version: "${env.RSB_VERSION}"]
+                                         version: "${env.rsbVersion}"]
                        ]
                     ]
                 } 
