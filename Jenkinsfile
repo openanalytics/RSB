@@ -5,7 +5,11 @@ pipeline {
             yamlFile 'kubernetesPod.yaml'
         }
     }
-    
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '3'))
+    }
+
     environment {
         RSB_VERSION = sh(returnStdout: true,
           script: "mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec").trim()
