@@ -11,7 +11,7 @@ pipeline {
     }
 
     environment {
-        rsbVersion = sh(returnStdout: true, script: '''mvn -q -Dexec.executable=echo -Dexec.args=\'${project.version}\' --non-recursive exec:exec''')
+        rsbVersion = '6.4.0-SNAPSHOT'
     }
     
     stages {
