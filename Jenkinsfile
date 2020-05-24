@@ -38,7 +38,7 @@ pipeline {
                        mavenCoordinate: [artifactId: 'rsb', 
                                        groupId: 'eu.openanalytics',
                                        packaging: 'war',
-                                       version: "${env.rsbVersion}"]
+                                       version: '']
                        ],
                        [$class: 'MavenPackage', 
                        mavenAssetList: [[classifier: 'tomcat-distribution', 
@@ -47,7 +47,7 @@ pipeline {
                        mavenCoordinate: [artifactId: 'rsb', 
                                          groupId: 'eu.openanalytics',
                                          packaging: 'zip',
-                                         version: "${env.rsbVersion}"]
+                                         version: '']
                        ]
                     ]
                 } 
