@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    some-label: rsb-build
+    ci: rsb-public-build
 spec:
   containers:
    - name: maven

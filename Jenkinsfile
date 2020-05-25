@@ -7,6 +7,7 @@ pipeline {
     }
 
     options {
+        authorizationMatrix(['hudson.model.Item.Build:rsb', 'hudson.model.Item.Read:rsb'])
         buildDiscarder(logRotator(numToKeepStr: '3'))
     }
     
