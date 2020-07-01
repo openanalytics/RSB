@@ -1,14 +1,1 @@
-*~
-.classpath
-.project
-.settings
-.springBeans
-target
-*.log
-rsb/conf/rsb.properties
-.fbprefs
-MTOM*
-Ddo*
-/gmpush
-.idea
-rsb.iml
+/target/

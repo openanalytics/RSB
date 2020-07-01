@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    R Service Bus
+    
+    Copyright (c) Copyright of Open Analytics NV, 2010-2020
+ 
+    ===========================================================================
+ 
+    This file is part of R Service Bus.
+
+    R Service Bus is free software: you can redistribute it and/or modify
+    it under the terms of the Apache License as published by
+    The Apache Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    Apache License for more details.
+
+    You should have received a copy of the Apache License
+    along with R Service Bus.  If not, see <http://www.apache.org/licenses/>.
+        
+    @author rsb.development@openanalytics.eu
+-->
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+	
+	<id>tomcat-master</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	
+	<fileSets>
+		<fileSet>
+			<directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
+			<outputDirectory>/</outputDirectory>
+			<excludes>
+			<exclude>webapps/docs/**</exclude>
+				<exclude>webapps/examples/**</exclude>
+				<exclude>webapps/ROOT/favicon.ico</exclude>
+				<exclude>conf/tomcat-users.xml</exclude>
+				<exclude>conf/catalina.policy</exclude>
+				<exclude>bin/*.sh</exclude>
+			</excludes>
+			<fileMode>0644</fileMode>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>bin/*.sh</include>
+			</includes>
+			<fileMode>0744</fileMode>
+		</fileSet>
+	</fileSets>
+	<files>
+		<file>
+			<source>src/server/resources/rsb.sh</source>
+			<outputDirectory>/bin</outputDirectory>
+			<fileMode>0744</fileMode>
+		</file>
+		<file>
+			<source>src/server/resources/rsb.bat</source>
+			<outputDirectory>/bin</outputDirectory>
+			<fileMode>0644</fileMode>
+		</file>
+		<file>
+			<source>src/server/resources/tomcat-users.xml</source>
+			<outputDirectory>/conf</outputDirectory>
+			<fileMode>0644</fileMode>
+		</file>
+		<file>
+			<source>src/server/resources/catalina.policy</source>
+			<outputDirectory>/conf</outputDirectory>
+			<fileMode>0644</fileMode>
+		</file>
+		<file>
+			<source>src/main/resources/LICENSE</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>RSB-LICENSE</destName>
+			<fileMode>0644</fileMode>
+		</file>
+		<file>
+			<source>src/server/resources/favicon.ico</source>
+			<outputDirectory>/webapps/ROOT</outputDirectory>
+			<fileMode>0644</fileMode>
+		</file>
+	</files>
+	
+</assembly>
