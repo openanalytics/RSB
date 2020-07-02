@@ -54,8 +54,8 @@
 								<configuration>
 									<artifactItems>
 										<artifactItem>
-											<groupId>org.apache</groupId>
-											<artifactId>tomcat-core</artifactId>
+											<groupId>org.apache.tomcat</groupId>
+											<artifactId>tomcat</artifactId>
 											<version>${tomcat.version}</version>
 											<type>zip</type>
 											<overWrite>false</overWrite>
