@@ -60,7 +60,7 @@
 		<spring-security.version>5.3.3.RELEASE</spring-security.version>
 		<spring-integration.version>5.3.1.RELEASE</spring-integration.version>
 		<activemq.version>5.7.0</activemq.version>
-		<cxf.version>3.3.6</cxf.version>
+		<cxf.version>3.3.7</cxf.version>
 		<soapui.version>5.5.0</soapui.version>
 		<tomcat.version>9.0.36</tomcat.version>
 		<jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
