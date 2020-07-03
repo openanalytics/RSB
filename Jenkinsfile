@@ -21,8 +21,12 @@ pipeline {
                      
                      configFileProvider([configFile(fileId: 'maven-settings-rsb', variable: 'MAVEN_SETTINGS_RSB')]) {
                          
-                         sh 'mvn -s $MAVEN_SETTINGS_RSB -Pjavax-dependencies,ldap,tomcat-distribution -Dmaven.test.skip=true clean package deploy'
+                         sh "mvn -s $MAVEN_SETTINGS_RSB clean package deploy\
+                                 -Pjavax-dependencies,ldap,tomcat-distribution\
+                                 -Dmaven.test.skip=true"
                          
+                         sh "mvn -s $MAVEN_SETTINGS_RSB -f rsb/ site-deploy\
+                                 -Pjavax-dependencies,ldap,tomcat-distribution"
                      }
                 }
             }
