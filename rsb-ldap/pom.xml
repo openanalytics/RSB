@@ -27,7 +27,7 @@
 		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>eu.openanalytics</groupId>
+		<groupId>eu.openanalytics.rsb</groupId>
 		<artifactId>rsb-parent</artifactId>
 		<version>6.4.0-SNAPSHOT</version>
 	</parent>
@@ -39,7 +39,7 @@
 	
 	<dependencies>
 		<dependency>
-			<groupId>eu.openanalytics</groupId>
+			<groupId>eu.openanalytics.rsb</groupId>
 			<artifactId>rsb</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
@@ -63,7 +63,7 @@
 				<configuration>
 					<overlays>
 						<overlay>
-							<groupId>eu.openanalytics</groupId>
+							<groupId>eu.openanalytics.rsb</groupId>
 							<artifactId>rsb</artifactId>
 						</overlay>
 					</overlays>
@@ -90,7 +90,7 @@
 								<configuration>
 									<artifactItems>
 										<artifactItem>
-											<groupId>eu.openanalytics</groupId>
+											<groupId>eu.openanalytics.rsb</groupId>
 											<artifactId>rsb-distribution-templates</artifactId>
 											<version>${project.version}</version>
 											<classifier>tomcat-master</classifier>
@@ -116,7 +116,7 @@
 						<artifactId>maven-assembly-plugin</artifactId>
 						<dependencies>
 							<dependency>
-								<groupId>eu.openanalytics</groupId>
+								<groupId>eu.openanalytics.rsb</groupId>
 								<artifactId>rsb-distribution-templates</artifactId>
 								<version>${project.version}</version>
 							</dependency>
