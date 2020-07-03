@@ -372,23 +372,21 @@
 					<test>${rsb.test.names}</test>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>${jetty-plugin.version}</version>
-                <configuration>
-                    <useTestClasspath>true</useTestClasspath>
-                    <webAppConfig>
-                        <contextPath>/rsb</contextPath>
-                    </webAppConfig>
-                    <connectors>
-                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>${local.server.port}</port>
-                            <maxIdleTime>0</maxIdleTime>
-                        </connector>
-                    </connectors>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty-plugin.version}</version>
+				<configuration>
+					<httpConnector>
+						<port>${local.server.port}</port>
+						<idleTimeout>0</idleTimeout>
+					</httpConnector>
+					<useTestClasspath>true</useTestClasspath>
+					<webAppConfig>
+						<contextPath>/rsb</contextPath>
+					</webAppConfig>
+				</configuration>
+			</plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
