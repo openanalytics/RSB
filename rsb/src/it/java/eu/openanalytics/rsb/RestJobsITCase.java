@@ -684,7 +684,7 @@ public class RestJobsITCase extends AbstractITCase {
 
     private static WebClient createNewWebClient() {
         final WebClient webClient = new WebClient();
-        webClient.setJavaScriptEnabled(false);
+        webClient.getOptions().setJavaScriptEnabled(false);
         return webClient;
     }
 }

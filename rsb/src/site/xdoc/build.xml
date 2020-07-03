@@ -75,7 +75,7 @@ mvn -Pjavax-dependencies,tomcat cargo:run
             <p>RPooli must be running locally before starting the integration tests.</p>
             <p>If that is the case, then run:
                 <source>
-mvn -Pjavax-dependencies,it -Dit.test=SuiteITCase clean verify
+mvn -Pjavax-dependencies,it clean verify
                 </source>
             </p>
         </section>
