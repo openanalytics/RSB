@@ -22,8 +22,7 @@ pipeline {
                      configFileProvider([configFile(fileId: 'maven-settings-rsb', variable: 'MAVEN_SETTINGS_RSB')]) {
                          
                          sh "mvn -s $MAVEN_SETTINGS_RSB clean package deploy\
-                                 -Pjavax-dependencies,ldap,tomcat-distribution\
-                                 -Dmaven.test.skip=true"
+                                 -Pjavax-dependencies,ldap,tomcat-distribution"
                          
                          sh "mvn -s $MAVEN_SETTINGS_RSB -f rsb/ site-deploy\
                                  -Pjavax-dependencies,ldap,tomcat-distribution"
@@ -32,4 +31,11 @@ pipeline {
             }
         }
     }
+	
+	post {
+		always {
+			junit '**/target/surefire-reports/*.xml'
+		}
+	}
+	
 }

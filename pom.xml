@@ -66,6 +66,8 @@
 		<tomcat.version>9.0.36</tomcat.version>
 		<jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
 		
+		<rsb.test.names>**/*TestCase.java, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.test.names>
+		
 	</properties>
 	
     <scm>
@@ -203,9 +205,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>2.22.2</version>
-					<configuration>
-						<failIfNoTests>false</failIfNoTests>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
