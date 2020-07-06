@@ -67,6 +67,7 @@
 		<jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
 		
 		<rsb.test.names>**/*TestCase.java, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.test.names>
+		<trimStackTrace>false</trimStackTrace>
 		
 	</properties>
 	
