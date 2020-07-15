@@ -81,15 +81,17 @@
 
     <repositories>
         <repository>
-            <id>oa-public</id>
-            <name>Open Analytics Public Repository</name>
+            <id>oa-nexus-releases</id>
+            <name>Open Analytics Releases Repository</name>
+            <url>https://nexus.openanalytics.eu/repository/releases</url>
+        </repository>
+        <repository>
+            <id>oa-nexus-snapshots</id>
+            <name>Open Analytics Snapshots Repository</name>
+            <url>https://nexus.openanalytics.eu/repository/snapshots</url>
             <releases>
-                <enabled>true</enabled>
+               <enabled>false</enabled>
             </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>https://nexus.openanalytics.eu/nexus/content/groups/public</url>
         </repository>
         <repository>
             <id>eclipse-statet</id>
@@ -112,17 +114,17 @@
         <snapshotRepository>
             <id>oa-nexus-snapshots</id>
             <name>Open Analytics Snapshots Repository</name>
-            <url>https://nexus.openanalytics.eu/nexus/content/repositories/snapshots</url>
+            <url>https://nexus.openanalytics.eu/repository/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>oa-nexus-releases</id>
             <name>Open Analytics Releases Repository</name>
-            <url>https://nexus.openanalytics.eu/nexus/content/repositories/releases</url>
+            <url>https://nexus.openanalytics.eu/repository/releases</url>
         </repository>
         <site>
             <id>oa-nexus-docs</id>
             <name>Open Analytics Maven Docs Repository</name>
-            <url>dav:https://nexus.openanalytics.eu/nexus/content/sites/docs/rsb/${project.version}</url>
+            <url>dav:https://nexus.openanalytics.eu/repository/docs/rsb/${project.version}</url>
         </site>
     </distributionManagement>
 	
