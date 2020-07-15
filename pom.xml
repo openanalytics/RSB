@@ -29,12 +29,12 @@
 	<parent>
 		<groupId>eu.openanalytics</groupId>
 		<artifactId>rpooli-parent</artifactId>
-		<version>1.3.0-SNAPSHOT</version>
+		<version>1.3.0</version>
 	</parent>
 	
 	<groupId>eu.openanalytics.rsb</groupId>
 	<artifactId>rsb-parent</artifactId>
-	<version>6.4.0-SNAPSHOT</version>
+	<version>6.4.0</version>
 	<packaging>pom</packaging>
 	
 	<name>R Service Bus - Parent</name>
@@ -55,7 +55,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		
-		<rpooli.version>1.3.0-SNAPSHOT</rpooli.version>
+		<rpooli.version>1.3.0</rpooli.version>
 		
 		<spring.version>5.2.7.RELEASE</spring.version>
 		<spring-security.version>5.3.3.RELEASE</spring-security.version>
