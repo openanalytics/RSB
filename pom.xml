@@ -57,9 +57,9 @@
 		
 		<rpooli.version>1.4.0-SNAPSHOT</rpooli.version>
 		
-		<spring.version>5.2.7.RELEASE</spring.version>
-		<spring-security.version>5.3.3.RELEASE</spring-security.version>
-		<spring-integration.version>5.3.1.RELEASE</spring-integration.version>
+		<spring.version>5.2.9.RELEASE</spring.version>
+		<spring-security.version>5.3.4.RELEASE</spring-security.version>
+		<spring-integration.version>5.3.2.RELEASE</spring-integration.version>
 		<activemq.version>5.7.0</activemq.version>
 		<cxf.version>3.3.7</cxf.version>
 		<soapui.version>5.5.0</soapui.version>
