@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
    - name: maven
-     image: maven:3-openjdk-8
+     image: maven:3.6-openjdk-11
      command:
      - cat
      tty: true	
