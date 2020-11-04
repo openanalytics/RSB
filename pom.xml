@@ -160,6 +160,17 @@
 				<version>1.7.30</version>
 			</dependency>
 			
+			<!-- Testing -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.13.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hamcrest</groupId>
+				<artifactId>hamcrest</artifactId>
+				<version>2.2</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
