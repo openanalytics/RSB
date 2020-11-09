@@ -364,7 +364,6 @@
 						<port>${local.server.port}</port>
 						<idleTimeout>0</idleTimeout>
 					</httpConnector>
-					<useTestClasspath>true</useTestClasspath>
 					<webAppConfig>
 						<contextPath>/rsb</contextPath>
 					</webAppConfig>
