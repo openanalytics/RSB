@@ -52,24 +52,13 @@
 	</organization>
 	
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
-		<java.version>11</java.version>
-		<maven.compiler.release>${java.version}</maven.compiler.release>
-		
-		<rpooli.version>1.4.0-SNAPSHOT</rpooli.version>
-		
-		<spring.version>5.2.10.RELEASE</spring.version>
-		<spring-security.version>5.3.5.RELEASE</spring-security.version>
 		<spring-integration.version>5.3.3.RELEASE</spring-integration.version>
 		<activemq.version>5.7.0</activemq.version>
-		<cxf.version>3.3.7</cxf.version>
-		<soapui.version>5.5.0</soapui.version>
-		<tomcat.version>9.0.39</tomcat.version>
-		<jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
 		
+		<soapui.version>5.5.0</soapui.version>
 		<rsb.test.names>**/*TestCase.java, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.test.names>
-		<trimStackTrace>false</trimStackTrace>
+		
+		<tomcat.version>9.0.39</tomcat.version>
 		
 	</properties>
 	
@@ -132,19 +121,6 @@
 	
 	<dependencyManagement>
 		<dependencies>
-			<!-- Spring -->
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-core</artifactId>
-				<version>${spring.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.springframework</groupId>
-						<artifactId>spring-jcl</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			
 			<!-- Logging -->
 			<dependency>
 				<groupId>commons-logging</groupId>
@@ -162,98 +138,10 @@
 				<version>1.7.30</version>
 			</dependency>
 			
-			<!-- Testing -->
-			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.13.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.hamcrest</groupId>
-				<artifactId>hamcrest</artifactId>
-				<version>2.2</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	
-	
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.1.2</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.1.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
-					<configuration>
-						<source>${java.version}</source>
-						<target>${java.version}</target>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-war-plugin</artifactId>
-					<version>3.3.0</version>
-					<configuration>
-						<archive>
-							<manifest>
-								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							</manifest>
-						</archive>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.22.2</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>2.22.2</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.3.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.1.0</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.9.1</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.wagon</groupId>
-						<artifactId>wagon-webdav-jackrabbit</artifactId>
-						<version>3.4.1</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-		</plugins>
 	</build>
 	
 	<modules>
