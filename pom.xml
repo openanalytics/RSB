@@ -55,7 +55,8 @@
 		<spring-integration.version>5.3.3.RELEASE</spring-integration.version>
 		<activemq.version>5.7.0</activemq.version>
 		
-		<soapui.version>5.5.0</soapui.version>
+		<htmlunit.version>2.44.0</htmlunit.version>
+		<soapui.version>5.6.0</soapui.version>
 		<rsb.test.names>**/*TestCase.java, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.test.names>
 		
 		<tomcat.version>9.0.39</tomcat.version>
