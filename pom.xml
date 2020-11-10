@@ -139,6 +139,20 @@
 				<version>1.7.30</version>
 			</dependency>
 			
+			<!-- Testing -->
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>1.10.19</version>
+				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.hamcrest</groupId>
+						<artifactId>hamcrest-core</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			
 		</dependencies>
 	</dependencyManagement>
 	

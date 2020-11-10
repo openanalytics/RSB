@@ -48,6 +48,11 @@
             <artifactId>org.eclipse.statet.rj.servi</artifactId>
         </dependency>
 
+		<dependency>
+			<groupId>com.sun.activation</groupId>
+			<artifactId>jakarta.activation</artifactId>
+		</dependency>
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -118,38 +123,32 @@
             <artifactId>spring-security-taglibs</artifactId>
             <version>${spring-security.version}</version>
         </dependency>
-
-        <!-- CXF -->
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-javamail_1.4_spec</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-databinding-aegis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-extension-providers</artifactId>
-        </dependency>
+		
+		<!-- CXF -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-databinding-aegis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-extension-providers</artifactId>
+		</dependency>
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
@@ -285,12 +284,10 @@
             <artifactId>hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+		</dependency>
         <dependency>
             <groupId>xmlunit</groupId>
             <artifactId>xmlunit</artifactId>
@@ -486,11 +483,17 @@
                     <artifactId>taglibs-standard-impl</artifactId>
                     <version>1.2.5</version>
                 </dependency>
-                <dependency>
-                    <groupId>com.sun.mail</groupId>
-                    <artifactId>javax.mail</artifactId>
-                    <version>1.6.2</version>
-                </dependency>
+				<dependency>
+					<groupId>com.sun.mail</groupId>
+					<artifactId>javax.mail</artifactId>
+					<version>1.6.2</version>
+					<exclusions>
+						<exclusion>
+							<groupId>javax.activation</groupId>
+							<artifactId>activation</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
                 <dependency>
                     <groupId>javax.jms</groupId>
                     <artifactId>jms</artifactId>
@@ -572,6 +575,12 @@
 					<artifactId>xercesImpl</artifactId>
 					<version>2.12.0</version>
 					<scope>test</scope>
+					<exclusions>
+						<exclusion>
+							<groupId>*</groupId>
+							<artifactId>xml-apis</artifactId>
+						</exclusion>
+					</exclusions>
 				</dependency>
 				<dependency>
 					<groupId>org.httpunit</groupId>
@@ -579,6 +588,14 @@
 					<version>1.7.3</version>
 					<scope>test</scope>
 					<exclusions>
+						<exclusion>
+							<groupId>javax.servlet</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>nekohtml</groupId>
+							<artifactId>nekohtml</artifactId>
+						</exclusion>
 						<exclusion>
 							<groupId>rhino</groupId>
 							<artifactId>js</artifactId>
@@ -598,12 +615,44 @@
 					<scope>test</scope>
 					<exclusions>
 						<exclusion>
+							<groupId>*</groupId>
+							<artifactId>xml-apis</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>javax.activation</groupId>
+							<artifactId>activation</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>bouncycastle</groupId>
+							<artifactId>bcprov-jdk15</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>net.sf.saxon</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion>
 							<groupId>activesoap</groupId>
 							<artifactId>jaxb-impl</artifactId>
 						</exclusion>
 						<exclusion>
+							<groupId>*</groupId>
+							<artifactId>servlet-api</artifactId>
+						</exclusion>
+						<exclusion>
 							<groupId>rhino</groupId>
 							<artifactId>js</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.apache.xmlbeans</groupId>
+							<artifactId>xmlbeans-xmlpublic</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.apache.xmlbeans</groupId>
+							<artifactId>xmlbeans-xpath</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>javax.mail</groupId>
+							<artifactId>*</artifactId>
 						</exclusion>
 					</exclusions>
 				</dependency>
@@ -623,12 +672,6 @@
 					<groupId>com.jgoodies</groupId>
 					<artifactId>forms</artifactId>
 					<version>1.2.1</version>
-					<scope>test</scope>
-				</dependency>
-				<dependency>
-					<groupId>javax.mail</groupId>
-					<artifactId>javax.mail-api</artifactId>
-					<version>1.6.2</version>
 					<scope>test</scope>
 				</dependency>
 				<dependency>
