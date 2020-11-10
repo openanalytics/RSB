@@ -617,11 +617,13 @@
 					<groupId>org.opensaml</groupId>
 					<artifactId>opensaml</artifactId>
 					<version>2.6.4</version>
+					<scope>test</scope>
 				</dependency>
 				<dependency><!-- for soapui -->
 					<groupId>com.jgoodies</groupId>
 					<artifactId>forms</artifactId>
 					<version>1.2.1</version>
+					<scope>test</scope>
 				</dependency>
 				<dependency>
 					<groupId>javax.mail</groupId>
