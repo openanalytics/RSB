@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%date{ISO8601_PERIOD} %-5level [%thread] %logger{36}  %message%n"/>
+		</Console>
+<!--
+		<RollingFile name="WebappFile"
+				filePattern="${sys:catalina.base}/logs/${web:contextPathName}.%d{yyyy-MM-dd}.log">
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+			<PatternLayout pattern="%date{ISO8601_PERIOD} %-5level [%thread] %logger{36}  %message%n"/>
+		</RollingFile>
+ -->
+<!--
+		<Servlet name="WebappContext">
+			<PatternLayout pattern="%date{ISO8601_PERIOD} %-5level [%thread] %logger{36}  %message%exception{none}"/>
+		</Servlet>
+ -->
+	</Appenders>
+	<Loggers>
+		<Root level="INFO">
+			<AppenderRef ref="Console"/>
+		</Root>
+	</Loggers>
+</Configuration>

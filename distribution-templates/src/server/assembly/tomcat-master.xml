@@ -38,7 +38,7 @@
 			<directory>${project.build.directory}/apache-tomcat-${tomcat.version}</directory>
 			<outputDirectory>/</outputDirectory>
 			<excludes>
-			<exclude>webapps/docs/**</exclude>
+				<exclude>webapps/docs/**</exclude>
 				<exclude>webapps/examples/**</exclude>
 				<exclude>webapps/ROOT/favicon.ico</exclude>
 				<exclude>conf/tomcat-users.xml</exclude>
@@ -86,6 +86,17 @@
 		<file>
 			<source>src/server/resources/favicon.ico</source>
 			<outputDirectory>/webapps/ROOT</outputDirectory>
+			<fileMode>0644</fileMode>
+		</file>
+		
+		<file>
+			<source>src/server/resources/webapps/log4j2.xml</source>
+			<outputDirectory>/webapps/rpooli/WEB-INF</outputDirectory>
+			<fileMode>0644</fileMode>
+		</file>
+		<file>
+			<source>src/server/resources/webapps/log4j2.xml</source>
+			<outputDirectory>/webapps/rsb/WEB-INF</outputDirectory>
 			<fileMode>0644</fileMode>
 		</file>
 	</files>

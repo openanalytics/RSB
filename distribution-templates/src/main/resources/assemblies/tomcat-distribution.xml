@@ -52,6 +52,9 @@
 		<fileSet>
 			<directory>${project.build.directory}/rpooli</directory>
 			<outputDirectory>/webapps/rpooli</outputDirectory>
+			<excludes>
+				<exclude>**/log4j2.xml</exclude>
+			</excludes>
 			<fileMode>0644</fileMode>
 		</fileSet>
 	</fileSets>
@@ -63,6 +66,11 @@
 				<include>${project.groupId}:${project.artifactId}</include>
 			</includes>
 			<unpack>true</unpack>
+			<unpackOptions>
+				<excludes>
+					<exclude>**/log4j2.xml</exclude>
+				</excludes>
+			</unpackOptions>
 			<fileMode>0644</fileMode>
 		</dependencySet>
 	</dependencySets>
