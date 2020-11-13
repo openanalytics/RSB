@@ -425,15 +425,12 @@
                 <artifactId>maven-war-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.9.0</version>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
                 <configuration>
-                    <header>LICENSE_HEADER</header>
-                    <aggregate>true</aggregate>
+                    <header>../LICENSE_HEADER</header>
                     <excludes>
-                        <exclude>**/package-info.java</exclude>
-
+						<exclude>LICENSE</exclude>
                         <exclude>src/main/webapp/admin/file-browser.jsp</exclude>
 
                         <exclude>src/main/webapp/css/jstree-classic/*.css</exclude>
@@ -452,7 +449,8 @@
                         <exclude>src/misc/tomcat-users.xml</exclude>
                         <exclude>src/main/webapp/WEB-INF/web.xml</exclude>
 
-                        <exclude>src/test/resources/data/*.txt</exclude>
+                        <exclude>src/test/resources/data/*.*</exclude>
+                        <exclude>src/test/resources/rsb-configuration*.json</exclude>
 
                         <exclude>src/it/config/rsb-it-soapui-*.xml</exclude>
 
