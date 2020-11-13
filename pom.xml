@@ -55,7 +55,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		
-		<rpooli.version>1.4.0-SNAPSHOT</rpooli.version>
+		<rpooli.version>1.3.1-SNAPSHOT</rpooli.version>
 		
 		<spring.version>5.2.9.RELEASE</spring.version>
 		<spring-security.version>5.3.4.RELEASE</spring-security.version>
