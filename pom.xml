@@ -62,14 +62,14 @@
 		
 	</properties>
 	
-    <scm>
-        <url>https://github.com/openanalytics/RSB</url>
-    </scm>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/openanalytics/RSB/issues</url>
-    </issueManagement>
-
+	<scm>
+		<url>https://github.com/openanalytics/RSB</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/openanalytics/RSB/issues</url>
+	</issueManagement>
+	
     <repositories>
         <repository>
             <id>oa-nexus-releases</id>

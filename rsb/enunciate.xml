@@ -24,9 +24,13 @@
     @author rsb.development@openanalytics.eu
 -->
 <enunciate
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://enunciate.webcohesion.com/schemas/enunciate-1.31.xsd">
-
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="http://enunciate.webcohesion.com/schemas/enunciate-2.13.0.xsd">
+	
+	<title>R Service Bus API</title>
+	<description package="eu.openanalytics.rsb.component"/>
+	<copyright>Open Analytics NV, 2010-2020</copyright>
+	
     <namespaces>
         <namespace
             id="soap"
@@ -39,13 +43,8 @@
             uri="http://rest.rsb.openanalytics.eu/types" />
     </namespaces>
 
-    <modules>
-        <docs
-            docsDir="wsdocs"
-            splashPackage="eu.openanalytics.rsb.component"
-            title="R Service Bus API"
-            css="src/site/enunciate/wsdocs.css"
-            xslt="src/site/enunciate/wsdocs.xsl"
-            copyright="Open Analytics NV, 2010-2020" />
-    </modules>
+	<modules>
+		<docs
+				docsSubdir="wsdocs" />
+	</modules>
 </enunciate>
