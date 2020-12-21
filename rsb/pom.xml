@@ -790,13 +790,14 @@
 								<port>8888</port>
 								<idleTimeout>0</idleTimeout>
 							</httpConnector>
-							<stopPort>8805</stopPort>
+							<stopPort>8898</stopPort>
 							<stopKey>STOP</stopKey>
+							<stopWait>60</stopWait>
 							<useTestClasspath>true</useTestClasspath>
-							<webAppConfig>
+							<webApp>
 								<contextPath>/rsb</contextPath>
 								<overrideDescriptor>${project.basedir}/src/it/resources/override-web.xml</overrideDescriptor>
-							</webAppConfig>
+							</webApp>
 							<systemProperties>
 								<systemProperty>
 									<name>org.eclipse.jetty.util.log.INFO</name>
@@ -853,16 +854,16 @@
 											<version>${project.version}</version>
 											<classifier>tomcat-master</classifier>
 											<type>zip</type>
-											<overWrite>false</overWrite>
 											<outputDirectory>${project.build.directory}/tomcat-master</outputDirectory>
+											<overWrite>false</overWrite>
 										</artifactItem>
 										<artifactItem>
 											<groupId>eu.openanalytics</groupId>
 											<artifactId>rpooli</artifactId>
 											<version>${rpooli.version}</version>
 											<type>war</type>
-											<overWrite>false</overWrite>
 											<outputDirectory>${project.build.directory}/rpooli</outputDirectory>
+											<overWrite>false</overWrite>
 										</artifactItem>
 									</artifactItems>
 								</configuration>

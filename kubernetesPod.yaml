@@ -5,8 +5,8 @@ metadata:
     ci: rsb-public-build
 spec:
   containers:
-   - name: maven
-     image: maven:3.6-openjdk-11
-     command:
-     - cat
-     tty: true	
+  - name: rpooli-build
+    image: 196229073436.dkr.ecr.eu-west-1.amazonaws.com/openanalytics/rpooli-build
+    command:
+    - cat
+    tty: true
