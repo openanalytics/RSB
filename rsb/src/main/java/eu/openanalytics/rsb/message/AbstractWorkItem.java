@@ -39,26 +39,30 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractWorkItem implements WorkItem, Serializable
-{
-    public enum Source
-    {
-        REST("job.error", "job.abort", 4), REST_IMMEDIATE("job.error", "job.abort", 4), SOAP("job.error",
-                        "job.abort", 8), EMAIL("email.job.error", "email.job.abort", 4), DIRECTORY(
-                        "directory.job.error", "directory.job.abort", 4);
-
-        private final String errorMessageId;
-        private final String abortMessageId;
-        private final int priority;
-
-        private Source(final String errorMessageId, final String abortMessageId, final int priority)
-        {
-            this.errorMessageId = errorMessageId;
-            this.abortMessageId = abortMessageId;
-            this.priority = priority;
-        }
-    };
-
+public abstract class AbstractWorkItem implements WorkItem, Serializable {
+	
+	public enum Source {
+		
+		REST("job.error", "job.abort", 4),
+		REST_IMMEDIATE("job.error", "job.abort", 4),
+		SOAP("job.error", "job.abort", 8),
+		EMAIL("email.job.error", "email.job.abort", 4),
+		DIRECTORY("directory.job.error", "directory.job.abort", 4);
+		
+		
+		private final String errorMessageId;
+		private final String abortMessageId;
+		private final int priority;
+		
+		private Source(final String errorMessageId, final String abortMessageId, final int priority) {
+			this.errorMessageId= errorMessageId;
+			this.abortMessageId= abortMessageId;
+			this.priority= priority;
+		}
+		
+	}
+	
+	
     private static final long serialVersionUID = 1L;
 
     private final Source source;

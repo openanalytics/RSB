@@ -41,6 +41,9 @@ import javax.activation.MimeType;
  */
 public class Constants
 {
+
+	public static final String BUNDLE_ID= "eu.openanalytics.rsb"; //$NON-NLS-1$
+	
     /**
      * This header allows support of SSL termination to happen upstream of RSB.
      */

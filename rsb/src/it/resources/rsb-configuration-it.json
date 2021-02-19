@@ -7,18 +7,23 @@
     "resultsDirectory": "/tmp/.rsb/results",
     "depositEmailAccounts": [
         {
-            "accountURI":"pop3://rsb-default:test@localhost:9110/INBOX",
+            "accountURI":"imap://rsb-default:test@localhost:9143/INBOX",
             "applicationName": "lab1",
             "pollingPeriod": 5000
         },
         {
-            "accountURI":"pop3://rsb-conf:test@localhost:9110/INBOX",
+            "accountURI":"pop3://rsb-pop3:test@localhost:9110/INBOX",
+            "applicationName": "lab1",
+            "pollingPeriod": 5000
+        },
+        {
+            "accountURI":"imap://rsb-conf:test@localhost:9143/INBOX",
             "applicationName": "lab2",
             "pollingPeriod": 5000,
             "jobConfigurationFileName": "test-configuration.txt"
         },
         {
-            "accountURI":"pop3://rsb-resp:test@localhost:9110/INBOX",
+            "accountURI":"imap://rsb-resp:test@localhost:9143/INBOX",
             "applicationName": "lab3",
             "pollingPeriod": 5000,
             "responseFileName": "test-email-response.txt"

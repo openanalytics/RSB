@@ -64,6 +64,7 @@ public class SuiteITCase
     protected static GreenMail greenMail;
     protected static GreenMailUser userAccount;
     protected static GreenMailUser rsbAccountWithDefaultSettings;
+    protected static GreenMailUser rsbAccountWithDefaultSettingsPop3;
     protected static GreenMailUser rsbAccountWithJobConfiguration;
     protected static GreenMailUser rsbAccountWithResponseFile;
     protected static final String TEST_USER_EMAIL_DOMAIN = "host.tld";
@@ -119,23 +120,27 @@ public class SuiteITCase
             .getContextClassLoader()
             .getResourceAsStream("messages.properties"));
     }
-
-    private static void startEmailServer()
-    {
-        final ServerSetup pop3ServerSetup = new ServerSetup(9110, "localhost", ServerSetup.PROTOCOL_POP3);
-        final ServerSetup imapServerSetup = new ServerSetup(9143, "localhost", ServerSetup.PROTOCOL_IMAP);
-        final ServerSetup smtpServerSetup = new ServerSetup(9025, "localhost", ServerSetup.PROTOCOL_SMTP);
-        greenMail = new GreenMail(new ServerSetup[]{pop3ServerSetup, smtpServerSetup, imapServerSetup});
-
-        userAccount = greenMail.setUser("user@" + TEST_USER_EMAIL_DOMAIN, "user", "test");
-        rsbAccountWithDefaultSettings = greenMail.setUser("rsb-default@rsb.openalytics.eu", "rsb-default",
-            "test");
-        rsbAccountWithJobConfiguration = greenMail.setUser("rsb-conf@rsb.openalytics.eu", "rsb-conf", "test");
-        rsbAccountWithResponseFile = greenMail.setUser("rsb-resp@rsb.openalytics.eu", "rsb-resp", "test");
-
-        greenMail.start();
-    }
-
+	
+	
+	private static void startEmailServer() {
+		final ServerSetup pop3ServerSetup= new ServerSetup(9110, "localhost", ServerSetup.PROTOCOL_POP3);
+		final ServerSetup imapServerSetup= new ServerSetup(9143, "localhost", ServerSetup.PROTOCOL_IMAP);
+		final ServerSetup smtpServerSetup= new ServerSetup(9025, "localhost", ServerSetup.PROTOCOL_SMTP);
+		greenMail= new GreenMail(new ServerSetup[]{pop3ServerSetup, smtpServerSetup, imapServerSetup});
+		
+		userAccount= greenMail.setUser("user@" + TEST_USER_EMAIL_DOMAIN, "user", "test");
+		rsbAccountWithDefaultSettings= greenMail.setUser("rsb-default@rsb.openalytics.eu",
+				"rsb-default", "test" );
+		rsbAccountWithDefaultSettingsPop3= greenMail.setUser("rsb-pop3@rsb.openalytics.eu",
+				"rsb-pop3", "test" );
+		rsbAccountWithJobConfiguration= greenMail.setUser("rsb-conf@rsb.openalytics.eu",
+				"rsb-conf", "test" );
+		rsbAccountWithResponseFile= greenMail.setUser("rsb-resp@rsb.openalytics.eu",
+				"rsb-resp", "test" );
+		
+		greenMail.start();
+	}
+	
     public static void registerCreatedCatalogFile(final CatalogSection catalogSection, final String fileName)
     {
         if ((configuration == null) || (catalogManager == null))

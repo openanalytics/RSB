@@ -35,6 +35,8 @@ import org.eclipse.statet.jcommons.status.util.ACommonsLoggingStatusLogger;
 import org.eclipse.statet.rj.server.RjsComConfig;
 import org.eclipse.statet.rj.server.client.RClientGraphicDummyFactory;
 
+import eu.openanalytics.rsb.Constants;
+
 
 /**
  * Handles the RServi runtime environment.
@@ -48,7 +50,7 @@ public class RServiEnvironmentServletContextListener extends BasicAppEnvironment
 
     public RServiEnvironmentServletContextListener() throws StatusException
     {
-        super("eu.openanalytics.rsb", new ACommonsLoggingStatusLogger(), Bundles.createResolver());
+        super(Constants.BUNDLE_ID, new ACommonsLoggingStatusLogger(), Bundles.createResolver());
     }
 
 

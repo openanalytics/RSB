@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -80,14 +81,16 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
 import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
 
+
 /**
  * Handles email based R job and result exchanges.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("emailDepositHandler")
-public class EmailDepositHandler extends AbstractComponentWithCatalog implements BeanFactoryAware
-{
+public class EmailDepositHandler extends AbstractComponentWithCatalog implements BeanFactoryAware {
+	
+	
     public static final String EMAIL_CONFIG_HEADER_NAME = DepositEmailConfiguration.class.getName();
 
     public static final String EMAIL_REPLY_CC_META_NAME = "emailReplyCC";
@@ -141,29 +144,23 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
             final PeriodicTrigger trigger = new PeriodicTrigger(depositEmailConfiguration.getPollingPeriod(),
                 TimeUnit.MILLISECONDS);
             trigger.setInitialDelay(5000L);
-
-            AbstractMailReceiver mailReceiver = null;
-
-            final URI emailAccountURI = depositEmailConfiguration.getAccountURI();
-            if (StringUtils.startsWith(emailAccountURI.getScheme(), "pop3"))
-            {
-                mailReceiver = new Pop3MailReceiver(emailAccountURI.toString());
-            }
-            else if (StringUtils.startsWith(emailAccountURI.getScheme(), "imap"))
-            {
-                mailReceiver = new ImapMailReceiver(emailAccountURI.toString());
-                ((ImapMailReceiver) mailReceiver).setShouldMarkMessagesAsRead(true);
-            }
-            else
-            {
-                throw new IllegalArgumentException("Invalid email account URI: " + emailAccountURI);
-            }
-
-            mailReceiver.setBeanFactory(beanFactory);
-            mailReceiver.setBeanName("rsb-email-ms-" + emailAccountURI.getHost() + emailAccountURI.hashCode());
-            mailReceiver.setShouldDeleteMessages(true);
-            mailReceiver.setMaxFetchSize(1);
-            mailReceiver.afterPropertiesSet();
+			
+			AbstractMailReceiver mailReceiver = null;
+			final URI emailAccountURI= depositEmailConfiguration.getAccountURI();
+			if (StringUtils.startsWith(emailAccountURI.getScheme(), "pop3")) {
+				mailReceiver= new SafePop3MailReceiver(emailAccountURI.toString());
+			}
+			else if (StringUtils.startsWith(emailAccountURI.getScheme(), "imap")) {
+				mailReceiver= new SafeImapMailReceiver(emailAccountURI.toString());
+			}
+			else {
+				throw new IllegalArgumentException("Invalid email account URI: " + emailAccountURI);
+			}
+			mailReceiver.setBeanFactory(beanFactory);
+			mailReceiver.setBeanName("rsb-email-ms-" + emailAccountURI.getHost() + emailAccountURI.hashCode());
+			mailReceiver.setShouldDeleteMessages(true);
+			mailReceiver.setMaxFetchSize(1);
+			mailReceiver.afterPropertiesSet();
             final MailReceivingMessageSource fileMessageSource = new MailReceivingMessageSource(mailReceiver);
             final HeaderSettingMessageSourceWrapper<?> messageSource = new HeaderSettingMessageSourceWrapper<Object>(
                 fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailConfiguration);
@@ -194,41 +191,36 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
         }
     }
 
-    public void handleJob(final Message<MimeMessage> message) throws MessagingException, IOException
-    {
-        final DepositEmailConfiguration depositEmailConfiguration = message.getHeaders().get(
-            EMAIL_CONFIG_HEADER_NAME, DepositEmailConfiguration.class);
-        final String applicationName = depositEmailConfiguration.getApplicationName();
-        final MimeMessage mimeMessage = message.getPayload();
-
-        final Address[] replyTo = mimeMessage.getReplyTo();
-        Validate.notEmpty(
-            replyTo,
-            "no reply address found for job emailed with headers:"
-                            + Collections.list(mimeMessage.getAllHeaders()));
-
-        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
-        meta.put(EMAIL_SUBJECT_META_NAME, mimeMessage.getSubject());
-        meta.put(EMAIL_ADDRESSEE_META_NAME, getPrimaryAddressee(mimeMessage));
-        meta.put(EMAIL_REPLY_TO_META_NAME, replyTo[0].toString());
-        meta.put(EMAIL_REPLY_CC_META_NAME, getCCAddressees(mimeMessage));
-        meta.put(EMAIL_BODY_META_NAME, getResponseBody(depositEmailConfiguration));
-
-        final MultiFilesJob job = new MultiFilesJob(Source.EMAIL, applicationName,
-            ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
-            (GregorianCalendar) GregorianCalendar.getInstance(), meta);
-
-        try
-        {
-            addEmailAttachmentsToJob(depositEmailConfiguration, mimeMessage, job);
-            getMessageDispatcher().dispatch(job);
-        }
-        catch (final Exception e)
-        {
-            final MultiFilesResult errorResult = job.buildErrorResult(e, getMessages());
-            handleResult(errorResult);
-        }
-    }
+	public void handleJob(final Message<MimeMessage> message) throws MessagingException, IOException {
+		final DepositEmailConfiguration depositEmailConfiguration= message.getHeaders().get(
+				EMAIL_CONFIG_HEADER_NAME, DepositEmailConfiguration.class);
+		final String applicationName= depositEmailConfiguration.getApplicationName();
+		final MimeMessage mimeMessage= message.getPayload();
+		
+		final Address[] replyTo= mimeMessage.getReplyTo();
+		Validate.notEmpty(replyTo,
+				"no reply address found for job emailed with headers:"
+						+ Collections.list(mimeMessage.getAllHeaders()));
+		
+		final Map<String, Serializable> meta= new HashMap<String, Serializable>();
+		meta.put(EMAIL_SUBJECT_META_NAME, mimeMessage.getSubject());
+		meta.put(EMAIL_ADDRESSEE_META_NAME, getPrimaryAddressee(mimeMessage));
+		meta.put(EMAIL_REPLY_TO_META_NAME, replyTo[0].toString());
+		meta.put(EMAIL_REPLY_CC_META_NAME, getCCAddressees(mimeMessage));
+		meta.put(EMAIL_BODY_META_NAME, getResponseBody(depositEmailConfiguration));
+		
+		final MultiFilesJob job= new MultiFilesJob(Source.EMAIL, applicationName,
+				ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
+				(GregorianCalendar)GregorianCalendar.getInstance(), meta );
+		try {
+			addEmailAttachmentsToJob(depositEmailConfiguration, mimeMessage, job);
+			getMessageDispatcher().dispatch(job);
+		}
+		catch (final Exception e) {
+			final MultiFilesResult errorResult= job.buildErrorResult(e, getMessages());
+			handleResult(errorResult);
+		}
+	}
 
     public void handleResult(final MultiFilesResult result) throws MessagingException, IOException
     {
@@ -327,4 +319,86 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
         }
         return result;
     }
+	
+	
+	/* Improved MailReceivers
+		simpleContent == true -> full copy
+		autoClose == true -> purge
+		receiveLock -> really thread-safe loading of messages (don't close while another read)
+	 */
+	
+	private static class SafePop3MailReceiver extends Pop3MailReceiver {
+		
+		
+		private final Object receiveLock= new Object();
+		
+		
+		private SafePop3MailReceiver(final String url) {
+			super(url);
+			setSimpleContent(true);
+			setAutoCloseFolder(true);
+		}
+		
+		@Override
+		public Object[] receive() throws MessagingException {
+			synchronized (this.receiveLock) {
+				return super.receive();
+			}
+		}
+		
+	}
+	
+	
+	private static class SafeImapMailReceiver extends ImapMailReceiver {
+		
+		
+		final ReentrantReadWriteLock receiveLock= new ReentrantReadWriteLock();
+		
+		
+		private SafeImapMailReceiver(final String url) {
+			super(url);
+			setSimpleContent(true);
+			setAutoCloseFolder(true);
+			setShouldMarkMessagesAsRead(true);
+		}
+		
+		@Override
+		public Object[] receive() throws MessagingException {
+			this.receiveLock.readLock().lock();
+			try {
+				return super.receive();
+			}
+			finally {
+				if (this.receiveLock.getReadHoldCount() > 0) {
+					this.receiveLock.readLock().unlock();
+				}
+			}
+		}
+		
+		@Override
+		protected void closeFolder() {
+			if (this.receiveLock.getReadHoldCount() > 0) {
+				this.receiveLock.readLock().unlock();
+				if (this.receiveLock.writeLock().tryLock()) {
+					try {
+						super.closeFolder();
+					}
+					finally {
+						this.receiveLock.writeLock().unlock();
+					}
+				}
+			}
+			else {
+				this.receiveLock.writeLock().lock();
+				try {
+					super.closeFolder();
+				}
+				finally {
+					this.receiveLock.writeLock().unlock();
+				}
+			}
+		}
+		
+	}
+	
 }
