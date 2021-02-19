@@ -42,10 +42,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jms.core.JmsTemplate;
 
 import eu.openanalytics.rsb.config.Configuration;
-import eu.openanalytics.rsb.message.AbstractJob;
-import eu.openanalytics.rsb.message.AbstractResult;
-import eu.openanalytics.rsb.message.JmsMessageDispatcher;
 import eu.openanalytics.rsb.message.JmsMessageDispatcher.WorkItemMessagePostProcessor;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
