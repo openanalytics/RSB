@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
@@ -34,9 +35,9 @@ import javax.mail.Multipart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.statet.jcommons.lang.Nullable;
 import org.junit.After;
 import org.junit.Test;
 
@@ -78,7 +79,8 @@ public class EmailDepositITCase extends AbstractITCase {
 	public void submissionToAccountWithResponseFile() throws Exception {
 		final String subject= sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "r-job-sample.zip");
 		final MimeMessage rsbResponseMessage= ponderForRsbResponse(subject);
-		verifyValidResult(rsbResponseMessage, IOUtils.toString(getTestData("test-email-response.txt")));
+		verifyValidResult(rsbResponseMessage,
+				new String(getTestData("test-email-response.txt").readAllBytes(), StandardCharsets.UTF_8));
 	}
 	
 	@Test
@@ -94,7 +96,7 @@ public class EmailDepositITCase extends AbstractITCase {
 		final String subject= sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile,
 			"r-job-meta-required.zip");
 		final MimeMessage rsbResponseMessage= ponderForRsbResponse(subject);
-		verifyErrorResult(rsbResponseMessage);
+		verifyErrorResult(rsbResponseMessage, null);
 	}
 	
 	@Test
@@ -102,7 +104,7 @@ public class EmailDepositITCase extends AbstractITCase {
 		final String subject= sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile,
 				"invalid-job-subdir.zip" );
 		final MimeMessage rsbResponseMessage= ponderForRsbResponse(subject);
-		verifyErrorResult(rsbResponseMessage);
+		verifyErrorResult(rsbResponseMessage, "invalid zip");
 	}
 	
 	@Test
@@ -110,13 +112,14 @@ public class EmailDepositITCase extends AbstractITCase {
 		final String subject= sendZipJobEmail(SuiteITCase.rsbAccountWithDefaultSettingsPop3,
 				"invalid-job-subdir.zip" );
 		final MimeMessage rsbResponseMessage= ponderForRsbResponse(subject);
-		verifyErrorResult(rsbResponseMessage);
+		verifyErrorResult(rsbResponseMessage, "invalid zip");
 	}
 	
 	
 	private String sendZipJobEmail(final GreenMailUser rsbAccount, final String zipFile)
 			throws MessagingException, IOException {
-		return sendJobEmail(rsbAccount, IOUtils.toByteArray(getTestData(zipFile)), "application/zip", zipFile);
+		return sendJobEmail(rsbAccount,
+				getTestData(zipFile).readAllBytes(), "application/zip", zipFile );
 	}
 	
 	private String sendJobEmail(final GreenMailUser rsbAccount,
@@ -160,7 +163,8 @@ public class EmailDepositITCase extends AbstractITCase {
 		assertEquals("rnorm.pdf", getMailBodyPart(parts, "application/pdf").getFileName());
 	}
 	
-	private void verifyErrorResult(final MimeMessage rsbResponseMessage)
+	private void verifyErrorResult(final MimeMessage rsbResponseMessage,
+			final @Nullable String expectedCause)
 			throws IOException, MessagingException {
 		final Multipart parts= (Multipart)rsbResponseMessage.getContent();
 		
@@ -168,6 +172,10 @@ public class EmailDepositITCase extends AbstractITCase {
 				((MimeMultipart)getMailBodyPart(parts, "multipart/related").getContent())
 						.getBodyPart(0).getContent().toString() );
 		assertTrue(StringUtils.containsIgnoreCase(responseBody, "error"));
+		
+		if (expectedCause != null) {
+			assertTrue(StringUtils.containsIgnoreCase(responseBody, expectedCause));
+		}
 	}
 	
 	

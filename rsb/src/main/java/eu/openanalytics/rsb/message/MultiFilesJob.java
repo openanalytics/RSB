@@ -50,15 +50,17 @@ import org.stringtemplate.v4.ST;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 
+
 /**
  * Represents a RSB job that consists of multiple files.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class MultiFilesJob extends AbstractJob
-{
-    private static final long serialVersionUID = 1L;
-
+public class MultiFilesJob extends AbstractJob {
+	
+	private static final long serialVersionUID = 1L;
+	
+	
     private final File temporaryDirectory;
     private File rScriptFile;
 
@@ -72,37 +74,55 @@ public class MultiFilesJob extends AbstractJob
         super(source, applicationName, userName, jobId, submissionTime, meta);
         this.temporaryDirectory = Util.createTemporaryDirectory("job");
     }
-
-    public void addFile(final String name, final InputStream is) throws IOException
-    {
-        if (Constants.MULTIPLE_FILES_JOB_CONFIGURATION.equals(name))
-        {
-            loadJobConfiguration(is);
-        }
-        else
-        {
-            addJobFile(name, is);
-        }
-    }
-
-    private void addJobFile(final String name, final InputStream is)
-        throws FileNotFoundException, IOException
-    {
-        final File jobFile = new File(temporaryDirectory, name);
-
-        if (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(name), Constants.R_SCRIPT_FILE_EXTENSION))
-        {
-            if (rScriptFile != null)
-            {
-                throw new IllegalArgumentException("Only one R script is allowed per job");
-            }
-            rScriptFile = jobFile;
-        }
-
-        try(final FileOutputStream fos = new FileOutputStream(jobFile)) {
-          IOUtils.copy(is, fos);
-        }
-    }
+	
+	
+	public void addFile(final String name, final InputStream is)
+			throws IllegalJobDataException, IOException {
+		if (Constants.MULTIPLE_FILES_JOB_CONFIGURATION.equals(name)) {
+			loadJobConfiguration(is);
+		}
+		else {
+			addJobFile(name, is);
+		}
+	}
+	
+	/**
+	 * Adds all the files contained in a Zip archive to a job. Rejects Zips that contain
+	 * sub-directories.
+	 * 
+	 * @param data input stream of zip file
+	 */
+	public void addFilesFromZip(final InputStream data)
+			throws IllegalJobDataException, IOException {
+		try (final ZipInputStream zis = new ZipInputStream(data)) {
+			ZipEntry ze= null;
+			
+			while ((ze= zis.getNextEntry()) != null) {
+				if (ze.isDirectory()) {
+					destroy();
+					throw new IllegalJobDataException("Invalid zip archive: nested directories are not supported");
+				}
+				addFile(ze.getName(), zis);
+				zis.closeEntry();
+			}
+		}
+	}
+	
+	private void addJobFile(final String name, final InputStream is)
+			throws IllegalJobDataException, FileNotFoundException, IOException {
+		final File jobFile= new File(this.temporaryDirectory, name);
+		
+		if (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(name), Constants.R_SCRIPT_FILE_EXTENSION)) {
+			if (this.rScriptFile != null) {
+				throw new IllegalJobDataException("Only one R script is allowed per job");
+			}
+			this.rScriptFile= jobFile;
+		}
+		
+		try (final FileOutputStream fos= new FileOutputStream(jobFile)) {
+			IOUtils.copy(is, fos);
+		}
+	}
 
     private void loadJobConfiguration(final InputStream is) throws IOException
     {
@@ -121,20 +141,18 @@ public class MultiFilesJob extends AbstractJob
         getMeta().clear();
         getMeta().putAll(mergedMeta);
     }
-
-    @Override
-    protected void releaseResources()
-    {
-        try
-        {
-            FileUtils.forceDelete(temporaryDirectory);
-        }
-        catch (final IOException ioe)
-        {
-            throw new RuntimeException("Can't release resources of: " + this, ioe);
-        }
-    }
-
+	
+	@Override
+	protected void releaseResources() {
+		try {
+			if (temporaryDirectory.isDirectory()) {
+				FileUtils.forceDelete(temporaryDirectory);
+			}
+		} catch (final IOException e) {
+			throw new RuntimeException("Can't release resources of: " + this, e);
+		}
+	}
+	
     public MultiFilesResult buildSuccessResult() throws IOException
     {
         return new MultiFilesResult(getSource(), getApplicationName(), getUserName(), getJobId(),
@@ -177,11 +195,12 @@ public class MultiFilesJob extends AbstractJob
      * @param data
      * @param job
      * @throws IOException
+     * @throws IllegalJobDataException 
      */
     public static void addDataToJob(final String contentType,
                                     final String name,
                                     final InputStream data,
-                                    final MultiFilesJob job) throws IOException
+                                    final MultiFilesJob job) throws IOException, IllegalJobDataException
     {
         // some browsers send zip file as application/octet-stream, forcing a
         // fallback to an
@@ -189,38 +208,12 @@ public class MultiFilesJob extends AbstractJob
         if ((Constants.ZIP_CONTENT_TYPES.contains(contentType) || (StringUtils.endsWithIgnoreCase(
             FilenameUtils.getExtension(name), Constants.ZIP_MIME_TYPE.getSubType()))))
         {
-            addZipFilesToJob(data, job);
+            job.addFilesFromZip(data);
         }
         else
         {
             job.addFile(name, data);
         }
     }
-
-    /**
-     * Adds all the files contained in a Zip archive to a job. Rejects Zips that
-     * contain sub-directories.
-     * 
-     * @param data
-     * @param job
-     * @throws IOException
-     */
-    public static void addZipFilesToJob(final InputStream data, final MultiFilesJob job) throws IOException
-    {
-        try(final ZipInputStream zis = new ZipInputStream(data)) {
-          ZipEntry ze = null;
-  
-          while ((ze = zis.getNextEntry()) != null)
-          {
-              if (ze.isDirectory())
-              {
-                  job.destroy();
-                  throw new IllegalArgumentException(
-                      "Invalid zip archive: nested directories are not supported");
-              }
-              job.addFile(ze.getName(), zis);
-              zis.closeEntry();
-          }
-        }
-    }
+    
 }

@@ -48,6 +48,7 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
+import eu.openanalytics.rsb.message.IllegalJobDataException;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.JsonFunctionCallResult;
 import eu.openanalytics.rsb.message.MultiFilesJob;
@@ -61,6 +62,7 @@ import eu.openanalytics.rsb.soap.types.JobType.Parameter;
 import eu.openanalytics.rsb.soap.types.ObjectFactory;
 import eu.openanalytics.rsb.soap.types.PayloadType;
 import eu.openanalytics.rsb.soap.types.ResultType;
+
 
 /**
  * Handles synchronous SOAP/MTOM R job processing requests.
@@ -96,11 +98,10 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 
             return processMultiFilesJob(applicationName, job, meta);
         }
-        catch (final IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
-    }
+		catch (final IllegalJobDataException | IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
     private Map<String, Serializable> getMeta(final JobType job)
     {
@@ -160,27 +161,28 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         // function call jobs have a single attachment and no meta
         return (job.getPayload().size() == 1) && (meta.isEmpty());
     }
-
-    private ResultType processMultiFilesJob(final String applicationName,
-                                            final JobType job,
-                                            final Map<String, Serializable> meta)
-        throws IOException, FileNotFoundException
-    {
-
-        final MultiFilesJob multiFilesJob = new MultiFilesJob(Source.SOAP, applicationName,
-            ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
-            (GregorianCalendar) GregorianCalendar.getInstance(), meta);
-
-        for (final PayloadType payload : job.getPayload())
-        {
-            MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(), payload.getData()
-                .getInputStream(), multiFilesJob);
-        }
-
-        final MultiFilesResult multiFilesResult = getMessageDispatcher().process(multiFilesJob);
-        return buildResult(job, multiFilesResult);
-    }
-
+	
+	private ResultType processMultiFilesJob(final String applicationName,
+			final JobType soapJob, final Map<String, Serializable> meta)
+			throws IllegalJobDataException, IOException {
+		final MultiFilesJob job= new MultiFilesJob(Source.SOAP, applicationName,
+				ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME, UUID.randomUUID(),
+				(GregorianCalendar)GregorianCalendar.getInstance(), meta);
+		try {
+			for (final PayloadType payload : soapJob.getPayload()) {
+				MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(),
+						payload.getData().getInputStream(), job );
+			}
+			
+			final MultiFilesResult multiFilesResult= getMessageDispatcher().process(job);
+			return buildResult(soapJob, multiFilesResult);
+		}
+		catch (final Exception e) {
+			job.destroy();
+			throw e;
+		}
+	}
+	
     private ResultType buildResult(final AbstractFunctionCallResult functionCallResult) throws IOException
     {
         Validate.notNull(functionCallResult, NULL_RESULT_RECEIVED);
