@@ -2,7 +2,7 @@
 <!--
     R Service Bus
     
-    Copyright (c) Copyright of Open Analytics NV, 2010-2020
+    Copyright (c) Copyright of Open Analytics NV, 2010-2021
  
     ===========================================================================
  
@@ -29,7 +29,7 @@
 	
 	<title>R Service Bus API</title>
 	<description package="eu.openanalytics.rsb.component"/>
-	<copyright>Open Analytics NV, 2010-2020</copyright>
+	<copyright>Open Analytics NV, 2010-2021</copyright>
 	
     <namespaces>
         <namespace
