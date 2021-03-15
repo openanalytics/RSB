@@ -7,7 +7,7 @@
 Sweave("testSweave.Rnw")
 
 # compile .tex file into .pdf (using pdfLaTeX)
-require(tools)
+library(tools)
 texi2dvi(file = "testSweave.tex", pdf = TRUE, clean = TRUE)
 
 # remove some more files that should not be part of output zip file
