@@ -46,6 +46,7 @@ import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.custommonkey.xmlunit.XpathEngine;
 import org.custommonkey.xmlunit.exceptions.XpathException;
 import org.junit.After;
 import org.junit.Before;
@@ -70,6 +71,8 @@ import com.meterware.httpunit.WebResponse;
 
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.test.ComparisonFailureWithDetail;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -94,7 +97,8 @@ public class RestJobsITCase extends AbstractITCase {
         }
 
         final File[] testResultFiles = configuration.getResultsDirectory().listFiles(new FilenameFilter() {
-            public boolean accept(final File dir, final String name) {
+            @Override
+			public boolean accept(final File dir, final String name) {
                 return StringUtils.startsWith(name, TEST_APPLICATION_NAME_PREFIX);
             }
         });
@@ -387,27 +391,27 @@ public class RestJobsITCase extends AbstractITCase {
     // -------- Supporting Methods ---------
 
     private void retrieveAndValidateXmlResult(final String resultUri) throws Exception {
-        final String dataUri = doTestResultAvailability(resultUri, "xml");
+        final String dataUri = doTestResultAvailability(resultUri, true, "xml");
         final String result = getStringResponse(dataUri);
         final Document resultDocument = XMLUnit.buildTestDocument(result);
         assertXpathEvaluatesTo("provideMeansAndPlotPerDosageGroup", "/statDataPackage/statHeader/RFunction/text()", resultDocument);
     }
 
     private void retrieveAndValidateXmlError(final String resultUri, final String jobId) throws Exception {
-        final String dataUri = doTestResultAvailability(resultUri, "xml");
+        final String dataUri = doTestResultAvailability(resultUri, false, "xml");
         final String result = getStringResponse(dataUri);
         final Document resultDocument = XMLUnit.buildTestDocument(result);
         assertXpathEvaluatesTo(jobId, "/rsb:errorResult/@jobId", resultDocument);
     }
 
     private void retrieveAndValidateJsonResult(final String resultUri) throws Exception {
-        final String dataUri = doTestResultAvailability(resultUri, "json");
+        final String dataUri = doTestResultAvailability(resultUri, true, "json");
         final String result = getStringResponse(dataUri);
         assertNotNull(Util.fromJson(result, List.class));
     }
 
     private void retrieveAndValidateJsonError(final String resultUri) throws Exception {
-        final String dataUri = doTestResultAvailability(resultUri, "json");
+        final String dataUri = doTestResultAvailability(resultUri, false, "json");
         final String result = getStringResponse(dataUri);
 
         final Map<?, ?> jsonResult = Util.fromJson(result, Map.class);
@@ -505,12 +509,12 @@ public class RestJobsITCase extends AbstractITCase {
     }
 
     private void retrieveAndValidateZipResult(final String resultUri) throws Exception {
-        final String dataUri = doTestResultAvailability(resultUri, "zip");
+        final String dataUri = doTestResultAvailability(resultUri, true, "zip");
         validateZipResult(getStreamResponse(dataUri));
     }
 
     private void retrieveAndValidateZipError(final String resultUri) throws Exception {
-        final String dataUri = doTestResultAvailability(resultUri, "txt");
+        final String dataUri = doTestResultAvailability(resultUri, false, "txt");
         validateErrorResult(getStreamResponse(dataUri));
     }
 
@@ -606,25 +610,45 @@ public class RestJobsITCase extends AbstractITCase {
         return jsonResult;
     }
 
-    private String doTestResultAvailability(final String resultUri, final String expectedType) throws Exception {
-        final WebConversation wc = new WebConversation();
-        final WebResponse response = wc.sendRequest(new GetMethodWebRequest(resultUri));
-        assertEquals(200, response.getResponseCode());
-        assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
-
-        final String responseText = response.getText();
-        final Document responseDocument = XMLUnit.buildTestDocument(responseText);
-        assertXpathExists("//rsb:result/@jobId", responseDocument);
-        assertXpathExists("//rsb:result/@applicationName", responseDocument);
-        assertXpathExists("//rsb:result/@resultTime", responseDocument);
-        assertXpathExists("//rsb:result/@selfUri", responseDocument);
-        assertXpathExists("//rsb:result/@type", responseDocument);
-        assertXpathEvaluatesTo(expectedType, "//rsb:result/@type", responseDocument);
-
-        assertXpathExists("//rsb:result/@dataUri", responseDocument);
-        return XMLUnit.newXpathEngine().evaluate("//rsb:result/@dataUri", responseDocument);
-    }
-
+	private String doTestResultAvailability(final String resultUri,
+			final boolean expectedSuccess, final String expectedType) throws Exception {
+		final WebConversation wc= new WebConversation();
+		final WebResponse response= wc.sendRequest(new GetMethodWebRequest(resultUri));
+		assertEquals(200, response.getResponseCode());
+		assertEquals("application/vnd.rsb+xml", response.getHeaderField("Content-Type"));
+		
+		final String responseText= response.getText();
+		final Document responseDocument= XMLUnit.buildTestDocument(responseText);
+		final XpathEngine xpathEngine= XMLUnit.newXpathEngine();
+		assertXpathExists("//rsb:result/@jobId", responseDocument);
+		assertXpathExists("//rsb:result/@applicationName", responseDocument);
+		assertXpathExists("//rsb:result/@resultTime", responseDocument);
+		assertXpathExists("//rsb:result/@selfUri", responseDocument);
+		assertXpathExists("//rsb:result/@type", responseDocument);
+		
+		final String successString= xpathEngine.evaluate("//rsb:result/@success", responseDocument);
+		if (!Boolean.toString(expectedSuccess).equals(successString)) {
+			throw new ComparisonFailureWithDetail("success", expectedType, successString,
+					(expectedSuccess) ? getErrorText(responseDocument) : null );
+		}
+		assertXpathEvaluatesTo(expectedType, "//rsb:result/@type", responseDocument);
+		
+		assertXpathExists("//rsb:result/@dataUri", responseDocument);
+		return xpathEngine.evaluate("//rsb:result/@dataUri", responseDocument);
+	}
+	
+	private String getErrorText(final Document responseDocument) {
+		try {
+			final XpathEngine xpathEngine= XMLUnit.newXpathEngine();
+			if ("txt".equals(xpathEngine.evaluate("//rsb:result/@type", responseDocument))) {
+				final String dataUri= xpathEngine.evaluate("//rsb:result/@dataUri", responseDocument);
+				return getStringResponse(dataUri);
+			}
+		}
+		catch (final Exception e) {}
+		return "<not available>";
+	}
+	
     private static String getStringResponse(final String resultUri) throws IOException, SAXException {
         return getResponse(resultUri).getText();
     }
