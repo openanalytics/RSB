@@ -26,10 +26,11 @@ package eu.openanalytics.rsb.message;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
-import org.springframework.util.FileCopyUtils;
 import org.stringtemplate.v4.ST;
 
 import eu.openanalytics.rsb.Constants;
@@ -172,7 +172,7 @@ public class MultiFilesJob extends AbstractJob {
             getUserName(), getJobId(), getSubmissionTime(), getMeta(), false);
         final File resultFile = result.createNewResultFile(getJobId() + "."
                                                            + Util.getResourceType(Constants.TEXT_MIME_TYPE));
-        FileCopyUtils.copy(template.render(), new FileWriter(resultFile));
+        Files.writeString(resultFile.toPath(), template.render(), StandardCharsets.UTF_8);
         return result;
     }
 
