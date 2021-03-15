@@ -39,7 +39,7 @@ pipeline {
 		
 		stage('run integration tests') {
 			steps {
-				sh "export JENKINS_NODE_COOKIE=dontKillMe &&\
+				sh "export JENKINS_NODE_COOKIE=dontKillMe R_HOME=/usr/lib/R &&\
 					mvn -f it-rpooli/ jetty:run-war\
 						--batch-mode > it-rpooli/jetty-rpooli.out 2>&1 &"
 				sh "sleep 2 && wget --tries=60 --waitretry=1 --retry-connrefused --output-document /dev/null\
