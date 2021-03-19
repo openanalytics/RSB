@@ -1,8 +1,5 @@
 /target/
 *~
-.classpath
-.project
-.settings
 .springBeans
 *.log
 rsb/conf/rsb.properties
