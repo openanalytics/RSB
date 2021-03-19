@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
@@ -42,7 +43,6 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.activemq.util.ByteArrayOutputStream;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.math3.random.RandomDataGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +73,7 @@ public class ResultResourceTestCase
     @Before
     public void prepareTest()
     {
-        testResultPayload = RandomStringUtils.randomAlphanumeric(25 + new RandomDataGenerator().nextInt(0, 25));
+        testResultPayload = RandomStringUtils.randomAlphanumeric(25 + new Random().nextInt(25));
 
         resultResource = new ResultResource();
         resultResource.setResultStore(resultStore);
