@@ -49,15 +49,18 @@ import eu.openanalytics.rsb.data.CatalogManager;
 import eu.openanalytics.rsb.data.CatalogManager.PutCatalogFileResult;
 import eu.openanalytics.rsb.data.FileCatalogManager;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @RunWith(Suite.class)
-@SuiteClasses({EmailDepositITCase.class, DirectoryDepositITCase.class,
-    ConfiguredDirectoryDepositITCase.class, RestJobsITCase.class, RestProcessITCase.class,
-    RestAdminITCase.class, RestMiscITCase.class, SoapMtomITCase.class})
-public class SuiteITCase
-{
+@SuiteClasses({
+	EmailDepositITCase.class,
+	DirectoryDepositITCase.class, ConfiguredDirectoryDepositITCase.class,
+	RestJobsITCase.class, RestProcessITCase.class, RestAdminITCase.class, RestMiscITCase.class,
+	SoapMtomITCase.class })
+public class SuiteITCase {
+	
     protected static Configuration configuration;
     protected static CatalogManager catalogManager;
     protected static Properties rawMessages;
@@ -69,7 +72,7 @@ public class SuiteITCase
     protected static GreenMailUser rsbAccountWithResponseFile;
     protected static final String TEST_USER_EMAIL_DOMAIN = "host.tld";
 
-    private static Set<File> catalogTestFiles = new HashSet<File>();
+    private static Set<File> catalogTestFiles = new HashSet<>();
 
     @BeforeClass
     public static void setupTestSuite() throws Exception

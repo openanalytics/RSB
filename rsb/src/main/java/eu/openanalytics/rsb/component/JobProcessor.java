@@ -24,6 +24,7 @@
 package eu.openanalytics.rsb.component;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,16 +41,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
+
 import org.eclipse.statet.jcommons.status.StatusException;
+
 import org.eclipse.statet.rj.data.RDataUtils;
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.data.UnexpectedRDataException;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.FunctionCall;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
@@ -63,6 +69,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 import eu.openanalytics.rsb.rservi.RServiUriSelector;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
+
 
 /**
  * Processes job requests and builds job responses.
@@ -120,7 +127,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
             @Override
             public AbstractResult<File[]> runOn(final RServi rServi) throws Exception
             {
-                final Set<String> filesUploadedToR = new HashSet<String>();
+                final Set<String> filesUploadedToR = new HashSet<>();
 
                 // locate and upload the R script
                 final File rScriptFile = getRScriptFile(job);
@@ -181,7 +188,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
             private Map<String, Serializable> getUploadableJobMeta(final Job job)
             {
-                final Map<String, Serializable> meta = new HashMap<String, Serializable>(job.getMeta());
+                final Map<String, Serializable> meta = new HashMap<>(job.getMeta());
 
                 if ((JobProcessor.this.getConfiguration().isPropagateSecurityContext())
                     && (StringUtils.isNotBlank(job.getUserName())))
@@ -255,7 +262,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
     {
         AbstractResult<?> result = null;
         final long startTime = System.currentTimeMillis();
-        final URI rserviPoolAddress = rServiUriSelector.getUriForApplication(job.getApplicationName());
+        final URI rserviPoolAddress = this.rServiUriSelector.getUriForApplication(job.getApplicationName());
 
         // using instanceof of is not OO-friendly but defining pooling strategy is none of
         // AbstractWorkItem business
@@ -265,7 +272,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
         // don't catch RServi pool here so the error is propagated and the job can be
         // retried
-        final RServi rServi = rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(),
+        final RServi rServi = this.rServiInstanceProvider.getRServiInstance(rserviPoolAddress.toString(),
             Constants.RSERVI_CLIENT_ID, poolingStrategy);
 
         try
@@ -274,7 +281,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
             final long processTime = System.currentTimeMillis() - startTime;
 
-            jobStatisticsHandler.storeJobStatistics(job, new GregorianCalendar(), processTime,
+            this.jobStatisticsHandler.storeJobStatistics(job, new GregorianCalendar(), processTime,
                 rserviPoolAddress.toString());
 
             if (getLogger().isInfoEnabled())
@@ -304,7 +311,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
             {
                 rServi.close();
             }
-            catch (StatusException e)
+            catch (final StatusException e)
             {
                 getLogger().error(e.getMessage(), e);
             }
@@ -383,6 +390,6 @@ public class JobProcessor extends AbstractComponentWithCatalog
         throws UnexpectedRDataException, StatusException
     {
         final RObject evalResult = rServi.evalData("dir()", null);
-        return new HashSet<String>(Arrays.asList(RDataUtils.checkRCharVector(evalResult).getData().toArray()));
+        return new HashSet<>(Arrays.asList(RDataUtils.checkRCharVector(evalResult).getData().toArray()));
     }
 }
