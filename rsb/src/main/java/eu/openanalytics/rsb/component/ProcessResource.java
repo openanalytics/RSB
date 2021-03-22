@@ -47,6 +47,7 @@ import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 
+
 /**
  * Processes synchronous R job requests. Currently only supports XML and JSON function calls.<br/>
  * <b>This processor bypasses the messaging infrastructure so it is not a fair player compared to
@@ -90,7 +91,8 @@ public class ProcessResource extends AbstractResource
     {
         return handleNewRestJob(httpHeaders, new FunctionCallJobBuilder()
         {
-            public AbstractFunctionCallJob build(final String applicationName,
+            @Override
+			public AbstractFunctionCallJob build(final String applicationName,
                                                  final UUID jobId,
                                                  final GregorianCalendar submissionTime)
             {
@@ -117,7 +119,8 @@ public class ProcessResource extends AbstractResource
 
         return handleNewRestJob(httpHeaders, new FunctionCallJobBuilder()
         {
-            public AbstractFunctionCallJob build(final String applicationName,
+            @Override
+			public AbstractFunctionCallJob build(final String applicationName,
                                                  final UUID jobId,
                                                  final GregorianCalendar submissionTime)
             {
@@ -126,16 +129,15 @@ public class ProcessResource extends AbstractResource
             }
         });
     }
-
-    private Response handleNewRestJob(final HttpHeaders httpHeaders, final FunctionCallJobBuilder jobBuilder)
-        throws Exception
-    {
-
-        final String applicationName = Util.getSingleHeader(httpHeaders,
-            Constants.APPLICATION_NAME_HTTP_HEADER);
-        return handleNewJob(applicationName, jobBuilder);
-    }
-
+	
+	private Response handleNewRestJob(final HttpHeaders httpHeaders,
+			final FunctionCallJobBuilder jobBuilder)
+			throws Exception {
+		final String applicationName= Util.getSingleHeader(httpHeaders,
+				Constants.APPLICATION_NAME_FIELD_NAME );
+		return handleNewJob(applicationName, jobBuilder);
+	}
+	
     private Response handleNewJob(final String applicationName, final FunctionCallJobBuilder jobBuilder)
         throws Exception
     {
@@ -143,7 +145,7 @@ public class ProcessResource extends AbstractResource
         final UUID jobId = UUID.randomUUID();
         final AbstractFunctionCallJob job = jobBuilder.build(applicationName, jobId,
             (GregorianCalendar) GregorianCalendar.getInstance());
-        final AbstractResult<?> result = jobProcessor.processDirect(job);
+        final AbstractResult<?> result = this.jobProcessor.processDirect(job);
         if (result.isSuccess())
         {
             return Response.ok(result.getPayload()).build();

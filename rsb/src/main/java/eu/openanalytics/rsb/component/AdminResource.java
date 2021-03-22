@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -59,6 +60,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -73,6 +75,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
@@ -86,6 +89,7 @@ import eu.openanalytics.rsb.rest.types.CatalogFileType;
 import eu.openanalytics.rsb.rest.types.RServiPoolType;
 import eu.openanalytics.rsb.rest.types.RServiPools;
 import eu.openanalytics.rsb.rservi.RServiPackageManager;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -150,8 +154,8 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @POST
     public Response restart()
     {
-        applicationContext.close();
-        applicationContext.refresh();
+        this.applicationContext.close();
+        this.applicationContext.refresh();
         return Response.ok("RESTARTED").build();
     }
 
@@ -160,7 +164,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
     public RServiPools getRServiPools()
     {
-        final Map<URI, Set<String>> pools = new HashMap<URI, Set<String>>();
+        final Map<URI, Set<String>> pools = new HashMap<>();
 
         addToPools(getConfiguration().getDefaultRserviPoolUri(), null, pools);
 
@@ -218,7 +222,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
             }
 
             // upload to RServi
-            rServiPackageManager.install(packageSourceFile, rServiPoolUri);
+            this.rServiPackageManager.install(packageSourceFile, rServiPoolUri);
 
             // extract catalog files from $PKG_ROOT/inst/rsb/catalog
             extractCatalogFiles(packageSourceFile);
@@ -280,7 +284,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @Path("/" + CATALOG_SUBPATH)
     @GET
     @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
-    public Catalog getCatalogIndex(@HeaderParam(Constants.APPLICATION_NAME_HTTP_HEADER) final String applicationName,
+    public Catalog getCatalogIndex(@HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final String applicationName,
                                    @Context final HttpHeaders httpHeaders,
                                    @Context final UriInfo uriInfo) throws IOException, URISyntaxException
     {
@@ -303,7 +307,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @GET
     public Response getCatalogFile(@PathParam("catalogName") final String catalogName,
                                    @PathParam("fileName") final String fileName,
-                                   @HeaderParam(Constants.APPLICATION_NAME_HTTP_HEADER) final String applicationName)
+                                   @HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final String applicationName)
         throws IOException, URISyntaxException
     {
         final File catalogFile = getCatalogManager().getCatalogFile(CatalogSection.valueOf(catalogName),
@@ -334,7 +338,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     @Consumes(Constants.TEXT_CONTENT_TYPE)
     public Response putCatalogFile(@PathParam("catalogName") final String catalogName,
                                    @PathParam("fileName") final String fileName,
-                                   @HeaderParam(Constants.APPLICATION_NAME_HTTP_HEADER) final String applicationName,
+                                   @HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final String applicationName,
                                    final InputStream in,
                                    @Context final HttpHeaders httpHeaders,
                                    @Context final UriInfo uriInfo) throws IOException, URISyntaxException
@@ -359,7 +363,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         Set<String> applicationNames = pools.get(rServiPoolUri);
         if (applicationNames == null)
         {
-            applicationNames = new HashSet<String>();
+            applicationNames = new HashSet<>();
         }
         if (StringUtils.isNotBlank(applicationName))
         {

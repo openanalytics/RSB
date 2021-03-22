@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -85,7 +86,7 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 
     private BeanFactory beanFactory;
 
-    private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<SourcePollingChannelAdapter>();
+    private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<>();
 
     @Override
     public void setBeanFactory(final BeanFactory beanFactory) throws BeansException
@@ -121,20 +122,20 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 
             final FileReadingMessageSource fileMessageSource = new FileReadingMessageSource();
             fileMessageSource.setAutoCreateDirectory(true);
-            fileMessageSource.setBeanFactory(beanFactory);
+            fileMessageSource.setBeanFactory(this.beanFactory);
             fileMessageSource.setBeanName("rsb-deposit-dir-ms-" + depositRootDirectory.getPath());
             fileMessageSource.setDirectory(new File(depositRootDirectory, Configuration.DEPOSIT_JOBS_SUBDIR));
-            fileMessageSource.setFilter(zipJobFilter);
+            fileMessageSource.setFilter(this.zipJobFilter);
             fileMessageSource.setLocker(nioFileLocker);
             fileMessageSource.afterPropertiesSet();
 
-            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<File>(
+            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<>(
                 fileMessageSource, DIRECTORY_CONFIG_HEADER_NAME, depositDirectoryConfiguration);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
-            channelAdapter.setBeanFactory(beanFactory);
+            channelAdapter.setBeanFactory(this.beanFactory);
             channelAdapter.setBeanName("rsb-deposit-dir-ca-" + depositRootDirectory.getPath());
-            channelAdapter.setOutputChannel(directoryDepositChannel);
+            channelAdapter.setOutputChannel(this.directoryDepositChannel);
             channelAdapter.setSource(messageSource);
             channelAdapter.setTrigger(fileTrigger);
             channelAdapter.afterPropertiesSet();
@@ -142,14 +143,14 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 
             getLogger().info("Started channel adapter: " + channelAdapter);
 
-            channelAdapters.add(channelAdapter);
+            this.channelAdapters.add(channelAdapter);
         }
     }
 
     @PreDestroy
     public void closeChannelAdapters()
     {
-        for (final SourcePollingChannelAdapter channelAdapter : channelAdapters)
+        for (final SourcePollingChannelAdapter channelAdapter : this.channelAdapters)
         {
             channelAdapter.stop();
             getLogger().info("Stopped channel adapter: " + channelAdapter);
@@ -172,7 +173,7 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
                                                // exists
         FileUtils.moveFile(dataFile, acceptedFile);
 
-        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
+        final Map<String, Serializable> meta = new HashMap<>();
         meta.put(DEPOSIT_ROOT_DIRECTORY_META_NAME, depositRootDirectory);
         meta.put(ORIGINAL_FILENAME_META_NAME, dataFile.getName());
         meta.put(INBOX_DIRECTORY_META_NAME, dataFile.getParent());
@@ -180,7 +181,7 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 		final MultiFilesJob job= new MultiFilesJob(Source.DIRECTORY, applicationName,
 				getUserName(), UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), meta);
 		try {
-			if (FilenameUtils.isExtension(acceptedFile.getName().toLowerCase(), "zip")) {
+			if (FilenameUtils.isExtension(acceptedFile.getName().toLowerCase(Locale.ROOT), "zip")) {
 				job.addFilesFromZip(new FileInputStream(acceptedFile));
 			}
 			else {

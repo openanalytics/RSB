@@ -91,7 +91,7 @@ public class JobsResourceTestCase
     @Test(expected = IllegalArgumentException.class)
     public void handleBadApplicationName() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList("_bad:app!$name"));
         jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
         verifyZeroInteractions(messageDispatcher);
@@ -100,7 +100,7 @@ public class JobsResourceTestCase
     @Test
     public void handleJobWithProtocolOverride() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(httpHeaders.getRequestHeader(Constants.FORWARDED_PROTOCOL_HTTP_HEADER)).thenReturn(
             Collections.singletonList("foo"));
@@ -114,7 +114,7 @@ public class JobsResourceTestCase
     @Test
     public void handleJsonFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         assertSuccessfullHandling(jobsResource.handleJsonFunctionCallJob("fake_json", httpHeaders, uriInfo));
@@ -123,7 +123,7 @@ public class JobsResourceTestCase
     @Test
     public void handleXmlFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
@@ -132,7 +132,7 @@ public class JobsResourceTestCase
     @Test(expected = IllegalArgumentException.class)
     public void handleInvalidZipJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
@@ -143,7 +143,7 @@ public class JobsResourceTestCase
     @Test
     public void handleZipJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
@@ -158,7 +158,7 @@ public class JobsResourceTestCase
         final ContentDisposition applicationContentDisposition = mock(ContentDisposition.class);
         when(applicationNamePart.getContentDisposition()).thenReturn(applicationContentDisposition);
         when(applicationContentDisposition.getParameter(eq("name"))).thenReturn(
-            Constants.APPLICATION_NAME_HTTP_HEADER);
+            Constants.APPLICATION_NAME_FIELD_NAME);
         when(applicationNamePart.getObject(eq(String.class))).thenReturn(TEST_APP_NAME);
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 

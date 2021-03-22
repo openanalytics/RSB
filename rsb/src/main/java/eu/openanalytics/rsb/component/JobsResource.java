@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -45,8 +46,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.springframework.stereotype.Component;
 
@@ -74,8 +76,7 @@ public class JobsResource extends AbstractResource {
 	
 	private static interface JobBuilder {
 		
-		AbstractJob build(final String applicationName, final UUID jobId,
-				final GregorianCalendar submissionTime) 
+		AbstractJob build(String applicationName, UUID jobId, GregorianCalendar submissionTime) 
 				throws IllegalJobDataException, IOException;
 	}
 	
@@ -169,20 +170,24 @@ public class JobsResource extends AbstractResource {
 			@Context final UriInfo uriInfo)
 			throws IllegalArgumentException, URISyntaxException, IOException {
 		String jobApplicationName= null;
-		final Map<String, Serializable> jobMeta= new HashMap<String, Serializable>();
+		final Map<String, Serializable> jobMeta= new HashMap<>();
 		
 		for (final Attachment part : parts) {
 			final String partName= getPartName(part);
-			if (StringUtils.equals(partName, Constants.APPLICATION_NAME_HTTP_HEADER)) {
-				jobApplicationName= part.getObject(String.class);
+			if (partName == null) {
+				continue;
 			}
-			else if (StringUtils.startsWith(partName, Constants.RSB_META_HEADER_HTTP_PREFIX)) {
-				final String metaName= StringUtils.substringAfter(partName,
-						Constants.RSB_META_HEADER_HTTP_PREFIX);
+			final String fieldName= partName.toLowerCase(Locale.ROOT);
+			if (fieldName.equals(Constants.APPLICATION_NAME_FIELD_NAME)) {
+				jobApplicationName= part.getObject(String.class);
+				continue;
+			}
+			if (fieldName.startsWith(Constants.RSB_META_A_FIELD_NAME_PREFIX)) {
 				final String metaValue= part.getObject(String.class);
-				if (StringUtils.isNotEmpty(metaValue)) {
-					jobMeta.put(metaName, metaValue);
+				if (metaValue != null && !metaValue.isEmpty()) {
+					addJobMetaA(jobMeta, partName, metaValue);
 				}
+				continue;
 			}
 		}
 		
@@ -191,7 +196,12 @@ public class JobsResource extends AbstractResource {
 			final MultiFilesJob job= new MultiFilesJob(Source.REST, applicationName,
 					getUserName(), jobId, submissionTime, jobMeta);
 			for (final Attachment part : parts) {
-				if (StringUtils.equals(getPartName(part), Constants.JOB_FILES_MULTIPART_NAME)) {
+				final String partName= getPartName(part);
+				if (partName == null) {
+					continue;
+				}
+				final String fieldName= partName.toLowerCase(Locale.ROOT);
+				if (fieldName.equals(Constants.JOB_FILES_FIELD_NAME)) {
 					final InputStream data= part.getDataHandler().getInputStream();
 					if (data.available() == 0) {
 						// if the form is submitted with no file attached, we get an empty part
@@ -210,7 +220,7 @@ public class JobsResource extends AbstractResource {
 			final JobBuilder jobBuilder)
 			throws IllegalArgumentException, URISyntaxException, IOException {
 		final String applicationName= Util.getSingleHeader(httpHeaders,
-				Constants.APPLICATION_NAME_HTTP_HEADER );
+				Constants.APPLICATION_NAME_FIELD_NAME );
 		return handleNewJob(applicationName, httpHeaders, uriInfo, jobBuilder);
 	}
 	
@@ -231,58 +241,64 @@ public class JobsResource extends AbstractResource {
 		}
 	}
 	
-    private Map<String, Serializable> getJobMeta(final HttpHeaders httpHeaders)
-    {
-        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
-
-        for (final Entry<String, List<String>> multiValues : httpHeaders.getRequestHeaders().entrySet())
-        {
-            if (!StringUtils.startsWithIgnoreCase(multiValues.getKey(), Constants.RSB_META_HEADER_HTTP_PREFIX))
-            {
-                continue;
-            }
-
-            if (multiValues.getValue().size() > 1)
-            {
-                throw new IllegalArgumentException("Multiple values found for header: "
-                                                   + multiValues.getKey());
-            }
-
-            meta.put(
-                StringUtils.substring(multiValues.getKey(), Constants.RSB_META_HEADER_HTTP_PREFIX.length()),
-                multiValues.getValue().get(0));
-        }
-
-        return Util.normalizeJobMeta(meta);
-    }
-
-    private JobToken buildJobToken(final UriInfo uriInfo, final HttpHeaders httpHeaders, final AbstractJob job)
-        throws URISyntaxException
-    {
-        final JobToken jobToken = Util.REST_OBJECT_FACTORY.createJobToken();
-        jobToken.setApplicationName(job.getApplicationName());
-        jobToken.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
-
-        final String jobIdAsString = job.getJobId().toString();
-        jobToken.setJobId(jobIdAsString);
-
-        final URI uriBuilder = Util.getUriBuilder(uriInfo, httpHeaders)
-            .path(Constants.RESULTS_PATH)
-            .path(job.getApplicationName())
-            .build();
-        jobToken.setApplicationResultsUri(uriBuilder.toString());
-        jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders,
-            uriInfo).toString());
-        return jobToken;
-    }
-
-    private static String getPartName(final Attachment part)
-    {
-        return part.getContentDisposition().getParameter("name");
-    }
-
-    private static String getPartFileName(final Attachment part)
-    {
-        return FilenameUtils.getName(part.getContentDisposition().getParameter("filename"));
-    }
+	private Map<String, Serializable> getJobMeta(final HttpHeaders httpHeaders) {
+		final Map<String, Serializable> jobMeta= new HashMap<>();
+		
+		for (final Entry<String, List<String>> field : httpHeaders.getRequestHeaders().entrySet()) {
+			final String fieldName= field.getKey().toLowerCase(Locale.ROOT);
+			if (fieldName.startsWith(Constants.RSB_META_A_FIELD_NAME_PREFIX)) {
+				if (field.getValue().size() > 1) {
+					throw new IllegalArgumentException(String.format("Multiple values found for header: %1$s",
+							field.getKey() ));
+				}
+				addJobMetaA(jobMeta, fieldName, field.getValue().get(0)); // force lower case name
+				continue;
+			}
+		}
+		
+		return jobMeta;
+	}
+	
+	private void addJobMetaA(final Map<String, Serializable> jobMeta,
+			final String fieldName, final String fieldValue) {
+		String metaKey= fieldName.substring(Constants.RSB_META_A_FIELD_NAME_PREFIX.length());
+		if (metaKey.isEmpty()) {
+			throw new IllegalArgumentException("Invalid specification of meta information parameter (type A): parameter name is missing.");
+		}
+		metaKey= Util.normalizeJobMetaKey(metaKey);
+		if (jobMeta.put(metaKey, fieldValue) != null) {
+			throw new IllegalArgumentException(String.format("Duplicate specification of meta information parameter '%1$s'.",
+					metaKey ));
+		}
+	}
+	
+	private JobToken buildJobToken(final UriInfo uriInfo, final HttpHeaders httpHeaders,
+			final AbstractJob job)
+			throws URISyntaxException {
+		final JobToken jobToken = Util.REST_OBJECT_FACTORY.createJobToken();
+		jobToken.setApplicationName(job.getApplicationName());
+		jobToken.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
+		
+		final String jobIdAsString = job.getJobId().toString();
+		jobToken.setJobId(jobIdAsString);
+		
+		final URI uriBuilder = Util.getUriBuilder(uriInfo, httpHeaders)
+				.path(Constants.RESULTS_PATH)
+				.path(job.getApplicationName())
+				.build();
+		jobToken.setApplicationResultsUri(uriBuilder.toString());
+		jobToken.setResultUri(Util.buildResultUri(job.getApplicationName(), jobIdAsString, httpHeaders,
+				uriInfo).toString());
+		return jobToken;
+	}
+	
+	
+	private static @Nullable String getPartName(final Attachment part) {
+		return part.getContentDisposition().getParameter("name");
+	}
+	
+	private static @Nullable String getPartFileName(final Attachment part) {
+		return FilenameUtils.getName(part.getContentDisposition().getParameter("filename"));
+	}
+	
 }

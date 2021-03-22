@@ -310,11 +310,11 @@ public class RestJobsITCase extends AbstractITCase {
 	}
 	
 	@Test
-	public void submitValidJobRequiringMeta() throws Exception {
+	public void submitValidJobRequiringMetaA() throws Exception {
 		final String applicationName= newTestApplicationName();
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-meta-required.zip"),
-				Map.of("X-RSB-Meta-reportAuthor", "Jules Verne") );
+				getTestData("r-job-meta-required-lc.zip"),
+				Map.of("X-RSB-Meta-Report.Author", "Jules Verne") );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
 	}
@@ -375,7 +375,7 @@ public class RestJobsITCase extends AbstractITCase {
 	}
 	
 	@Test
-	public void submitMultipartValidJobRequiringMeta() throws Exception {
+	public void submitMultipartValidJobRequiringMetaA() throws Exception {
 		final String applicationName= newTestApplicationName();
 		final Document resultDoc= doSubmitValidMultipartJob(applicationName,
 				List.of(new UploadedFile("r-job-meta-required.zip")),

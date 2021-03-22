@@ -38,6 +38,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -46,6 +47,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.junit.Test;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -129,12 +131,12 @@ public class UtilTestCase
     @Test
     public void normalizeJobMeta()
     {
-        final Map<String, Serializable> source = new HashMap<String, Serializable>();
+        final Map<String, Serializable> source = new HashMap<>();
         source.put("foo", "bar");
-        source.put(Constants.R_SCRIPT_CONFIGURATION_KEY.toLowerCase(), "r");
+        source.put(Constants.R_SCRIPT_CONFIGURATION_KEY.toLowerCase(Locale.ROOT), "r");
         source.put(Constants.SWEAVE_FILE_CONFIGURATION_KEY, "sweave");
 
-        final Map<String, Serializable> expected = new HashMap<String, Serializable>();
+        final Map<String, Serializable> expected = new HashMap<>();
         expected.put("foo", "bar");
         expected.put(Constants.R_SCRIPT_CONFIGURATION_KEY, "r");
         expected.put(Constants.SWEAVE_FILE_CONFIGURATION_KEY, "sweave");

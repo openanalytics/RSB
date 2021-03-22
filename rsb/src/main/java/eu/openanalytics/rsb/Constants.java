@@ -29,20 +29,25 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import javax.activation.MimeType;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
 
 /**
  * Useful constants.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class Constants
-{
-
+@NonNullByDefault
+public class Constants {
+	
 	public static final String BUNDLE_ID= "eu.openanalytics.rsb"; //$NON-NLS-1$
+	
 	
     /**
      * This header allows support of SSL termination to happen upstream of RSB.
@@ -50,10 +55,39 @@ public class Constants
     public static final String FORWARDED_PROTOCOL_HTTP_HEADER = "X-Forwarded-Protocol";
 
     public static final String CONTENT_TYPE_HTTP_HEADER = "Content-Type";
-    public static final String APPLICATION_NAME_HTTP_HEADER = "X-RSB-Application-Name";
-    public static final String RSB_META_HEADER_HTTP_PREFIX = "X-RSB-Meta-";
-    public static final String JOB_FILES_MULTIPART_NAME = "X-RSB-JobFile[]";
-
+	
+	
+	/**
+	 * The name of the field for the application name.
+	 */
+	public static final String APPLICATION_NAME_FIELD_NAME= "x-rsb-application-name";
+	
+	/**
+	 * The name prefix of fields for job meta information parameter (specification type A).
+	 * 
+	 * The parameter name is defined by the substring of the field name following this prefix.
+	 * The field value is the parameter value.
+	 * 
+	 * If the parameter is a custom parameter specified by a HTTP header field, the parameter name
+	 * is always converted to lower case.
+	 */
+	public static final String RSB_META_A_FIELD_NAME_PREFIX= "x-rsb-meta-";
+	
+	/**
+	 * The name of the field for the jobfile names.
+	 */
+	public static final String JOB_FILES_FIELD_NAME= "x-rsb-jobfile[]";
+	
+	/** @deprecated use {@link #APPLICATION_NAME_FIELD_NAME} instead */
+	@Deprecated
+	public static final String APPLICATION_NAME_HTTP_HEADER= "X-RSB-Application-Name";
+	/** @deprecated use {@link #RSB_META_A_FIELD_NAME_PREFIX} instead */
+	@Deprecated
+	public static final String RSB_META_HEADER_HTTP_PREFIX= "X-RSB-Meta-";
+	/** @deprecated use {@link #JOB_FILES_FIELD_NAME} instead */
+	@Deprecated
+	public static final String JOB_FILES_MULTIPART_NAME= "X-RSB-JobFile[]";
+	
     public final static String JOBS_PATH = "jobs";
     public final static String PROCESS_PATH = "process";
     public final static String RESULTS_PATH = "results";
@@ -74,10 +108,10 @@ public class Constants
     public static final Map<String, String> WELL_KNOWN_CONFIGURATION_KEYS;
     static
     {
-        WELL_KNOWN_CONFIGURATION_KEYS = new HashMap<String, String>();
-        WELL_KNOWN_CONFIGURATION_KEYS.put(R_SCRIPT_CONFIGURATION_KEY.toLowerCase(),
+        WELL_KNOWN_CONFIGURATION_KEYS = new HashMap<>();
+        WELL_KNOWN_CONFIGURATION_KEYS.put(R_SCRIPT_CONFIGURATION_KEY.toLowerCase(Locale.ROOT),
             R_SCRIPT_CONFIGURATION_KEY);
-        WELL_KNOWN_CONFIGURATION_KEYS.put(SWEAVE_FILE_CONFIGURATION_KEY.toLowerCase(),
+        WELL_KNOWN_CONFIGURATION_KEYS.put(SWEAVE_FILE_CONFIGURATION_KEY.toLowerCase(Locale.ROOT),
             SWEAVE_FILE_CONFIGURATION_KEY);
     }
 
@@ -93,7 +127,7 @@ public class Constants
     public static final String ZIP_CONTENT_TYPE = "application/zip";
     public static final String ZIP_CONTENT_TYPE2 = "application/x-zip";
     public static final String ZIP_CONTENT_TYPE3 = "application/x-zip-compressed";
-    public static final Set<String> ZIP_CONTENT_TYPES = new HashSet<String>(Arrays.asList(ZIP_CONTENT_TYPE,
+    public static final Set<String> ZIP_CONTENT_TYPES = new HashSet<>(Arrays.asList(ZIP_CONTENT_TYPE,
         ZIP_CONTENT_TYPE2, ZIP_CONTENT_TYPE3));
     public static final String MULTIPART_CONTENT_TYPE = "multipart/form-data";
     public static final String GZIP_CONTENT_TYPE = "application/gzip";
@@ -131,7 +165,8 @@ public class Constants
 
     private static final class FileOnlyFilter implements FileFilter
     {
-        public boolean accept(final File f)
+        @Override
+		public boolean accept(final File f)
         {
             return f.isFile();
         }

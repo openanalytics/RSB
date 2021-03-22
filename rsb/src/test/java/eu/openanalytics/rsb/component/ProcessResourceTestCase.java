@@ -90,7 +90,7 @@ public class ProcessResourceTestCase
     @Test(expected = IllegalArgumentException.class)
     public void handleBadApplicationName() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList("_bad:app!$name"));
         processResource.processXmlFunctionCallJob("fake_xml", httpHeaders);
         verifyZeroInteractions(messageDispatcher);
@@ -99,7 +99,7 @@ public class ProcessResourceTestCase
     @Test
     public void handleJsonFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(true);
@@ -112,7 +112,7 @@ public class ProcessResourceTestCase
     @Test
     public void handleFailedJsonFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(false);
@@ -125,7 +125,7 @@ public class ProcessResourceTestCase
     @Test
     public void handleXmlFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(true);
@@ -138,7 +138,7 @@ public class ProcessResourceTestCase
     @Test
     public void handleFailedXmlFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_HTTP_HEADER)).thenReturn(
+        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
         when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         when(result.isSuccess()).thenReturn(false);

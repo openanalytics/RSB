@@ -32,11 +32,13 @@ import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.activation.MimetypesFileTypeMap;
@@ -48,22 +50,27 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+
 import org.eclipse.statet.jcommons.status.StatusException;
+
 import org.eclipse.statet.rj.data.RObject;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.FunctionCall;
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroup;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 import eu.openanalytics.rsb.rest.types.ObjectFactory;
+
 
 /**
  * Shared utilities.
@@ -81,7 +88,7 @@ public abstract class Util
 
     private static final MimetypesFileTypeMap MIMETYPES_FILETYPE_MAP = new MimetypesFileTypeMap();
     private static final String DEFAULT_FILE_EXTENSION = "dat";
-    private static final Map<String, String> DEFAULT_FILE_EXTENSIONS = new HashMap<String, String>();
+    private static final Map<String, String> DEFAULT_FILE_EXTENSIONS = new HashMap<>();
     private static final STGroup $_STRING_TEMPLATE_GROUP = new STGroup('$', '$');
 
     static
@@ -254,7 +261,7 @@ public abstract class Util
             final String port = StringUtils.substringAfter(host, ":");
             if (StringUtils.isNotBlank(port))
             {
-                uriBuilder.port(Integer.valueOf(port));
+                uriBuilder.port(Integer.parseInt(port));
             }
         }
 
@@ -450,35 +457,27 @@ public abstract class Util
             throw new IllegalArgumentException(uri + " is not a valid URI", urise);
         }
     }
-
-    /**
-     * Rename well known meta properties to their canonical names.
-     * 
-     * @param meta
-     * @return
-     */
-    public static Map<String, Serializable> normalizeJobMeta(final Map<String, Serializable> meta)
-    {
-        final Map<String, Serializable> normalized = new HashMap<String, Serializable>(meta.size());
-
-        for (final Entry<String, Serializable> entry : meta.entrySet())
-        {
-            final String normalizedName = Constants.WELL_KNOWN_CONFIGURATION_KEYS.get(entry.getKey()
-                .toLowerCase());
-
-            if (normalizedName != null)
-            {
-                normalized.put(normalizedName, entry.getValue());
-            }
-            else
-            {
-                normalized.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        return normalized;
-    }
-
+	
+	public static String normalizeJobMetaKey(final String key) {
+		final String knownKey= Constants.WELL_KNOWN_CONFIGURATION_KEYS.get(key.toLowerCase(Locale.ROOT));
+		return (knownKey != null) ? knownKey : key;
+	}
+	
+	/**
+	 * Rename known meta properties to their canonical keys.
+	 * 
+	 * @param meta
+	 * @return
+	 */
+	public static Map<String, Serializable> normalizeJobMeta(final Map<String, Serializable> meta) {
+		final Map<String, Serializable> normalized= new HashMap<>(meta.size());
+		for (final Entry<String, Serializable> entry : meta.entrySet()) {
+			normalized.put(normalizeJobMetaKey(entry.getKey()), entry.getValue());
+		}
+		return normalized;
+	}
+	
+	
     /**
      * Safely decodes a {@link String} into an {@link UUID} instance.
      * 
