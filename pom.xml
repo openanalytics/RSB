@@ -63,7 +63,7 @@
 		<activemq.version>5.7.0</activemq.version>
 		<cxf.version>3.3.8</cxf.version>
 		<soapui.version>5.5.0</soapui.version>
-		<tomcat.version>9.0.43</tomcat.version>
+		<tomcat.version>9.0.44</tomcat.version>
 		<jetty-plugin.version>9.4.26.v20200117</jetty-plugin.version>
 		
 		<rsb.test.names>**/*TestCase.java, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.test.names>
