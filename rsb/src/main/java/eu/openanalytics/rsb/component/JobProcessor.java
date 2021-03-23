@@ -345,7 +345,7 @@ public class JobProcessor extends AbstractComponentWithCatalog
         }
 
         final RObject result = functionCall.evalData(null);
-        if (!RDataUtils.isSingleString(result))
+        if (!RDataUtils.isSingleChar(result))
         {
             throw new RuntimeException("Unexpected return value for function: " + job.getFunctionName());
         }
