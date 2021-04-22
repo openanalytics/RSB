@@ -185,7 +185,12 @@ public class JobsResource extends AbstractResource {
 			if (fieldName.startsWith(Constants.RSB_META_A_FIELD_NAME_PREFIX)) {
 				final String metaValue= part.getObject(String.class);
 				if (metaValue != null && !metaValue.isEmpty()) {
-					addJobMetaA(jobMeta, partName, metaValue);
+					if (fieldName.startsWith(Constants.RSB_META_B_FIELD_NAME_PREFIX)) {
+						addJobMetaB(jobMeta, metaValue);
+					}
+					else {
+						addJobMetaA(jobMeta, partName, metaValue);
+					}
 				}
 				continue;
 			}
@@ -251,7 +256,12 @@ public class JobsResource extends AbstractResource {
 					throw new IllegalArgumentException(String.format("Multiple values found for header: %1$s",
 							field.getKey() ));
 				}
-				addJobMetaA(jobMeta, fieldName, field.getValue().get(0)); // force lower case name
+				if (fieldName.startsWith(Constants.RSB_META_B_FIELD_NAME_PREFIX)) {
+					addJobMetaB(jobMeta, field.getValue().get(0));
+				}
+				else {
+					addJobMetaA(jobMeta, fieldName, field.getValue().get(0)); // force lower case name
+				}
 				continue;
 			}
 		}
@@ -259,7 +269,7 @@ public class JobsResource extends AbstractResource {
 		return jobMeta;
 	}
 	
-	private void addJobMetaA(final Map<String, Serializable> jobMeta,
+	protected void addJobMetaA(final Map<String, Serializable> jobMeta,
 			final String fieldName, final String fieldValue) {
 		String metaKey= fieldName.substring(Constants.RSB_META_A_FIELD_NAME_PREFIX.length());
 		if (metaKey.isEmpty()) {
@@ -267,6 +277,23 @@ public class JobsResource extends AbstractResource {
 		}
 		metaKey= Util.normalizeJobMetaKey(metaKey);
 		if (jobMeta.put(metaKey, fieldValue) != null) {
+			throw new IllegalArgumentException(String.format("Duplicate specification of meta information parameter '%1$s'.",
+					metaKey ));
+		}
+	}
+	
+	protected void addJobMetaB(final Map<String, Serializable> jobMeta, final String fieldValue) {
+		final int sep= fieldValue.indexOf('=');
+		if (sep == -1) {
+			throw new IllegalArgumentException(String.format("Invalid specification of meta information parameter (type B): \"%1$s\".",
+					fieldValue ));
+		}
+		String metaKey= substringTrim(fieldValue, 0, sep);
+		if (metaKey.isEmpty()) {
+			throw new IllegalArgumentException("Invalid specification of meta information parameter (type B): parameter name is missing.");
+		}
+		metaKey= Util.normalizeJobMetaKey(metaKey);
+		if (jobMeta.put(metaKey, substringTrim(fieldValue, sep + 1, fieldValue.length())) != null) {
 			throw new IllegalArgumentException(String.format("Duplicate specification of meta information parameter '%1$s'.",
 					metaKey ));
 		}
@@ -299,6 +326,19 @@ public class JobsResource extends AbstractResource {
 	
 	private static @Nullable String getPartFileName(final Attachment part) {
 		return FilenameUtils.getName(part.getContentDisposition().getParameter("filename"));
+	}
+	
+	private static String substringTrim(final String s, int start, int end) {
+		if (start == 0 && end == s.length()) {
+			return s.trim();
+		}
+		while (start < end && s.charAt(start) <= ' ') {
+			start++;
+		}
+		while (start < end && s.charAt(end - 1) <= ' ') {
+			end--;
+		}
+		return s.substring(start, end);
 	}
 	
 }

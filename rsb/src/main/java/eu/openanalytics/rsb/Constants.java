@@ -74,6 +74,16 @@ public class Constants {
 	public static final String RSB_META_A_FIELD_NAME_PREFIX= "x-rsb-meta-";
 	
 	/**
+	 * The name prefix of fields for job meta information parameter (specification type B).
+	 * 
+	 * The substring of the field name following this prefix is supposed to make the field name
+	 * unqiue, it has no role in RSB.
+	 * The parameter is specified by a name-value-pair <code>ParameterName= ParameterValue</code>
+	 * in the field value.
+	 */
+	public static final String RSB_META_B_FIELD_NAME_PREFIX= "x-rsb-meta-#";
+	
+	/**
 	 * The name of the field for the jobfile names.
 	 */
 	public static final String JOB_FILES_FIELD_NAME= "x-rsb-jobfile[]";

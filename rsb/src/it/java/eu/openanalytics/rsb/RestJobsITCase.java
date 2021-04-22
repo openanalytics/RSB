@@ -320,6 +320,16 @@ public class RestJobsITCase extends AbstractITCase {
 	}
 	
 	@Test
+	public void submitValidJobRequiringMetaB() throws Exception {
+		final String applicationName= newTestApplicationName();
+		final Document resultDoc= doTestSubmitZipJob(applicationName,
+				getTestData("r-job-meta-required.zip"),
+				Map.of("X-RSB-Meta-#1", "reportAuthor = Jules Verne") );
+		final String resultUri= getResultUri(resultDoc);
+		ponderRetrieveAndValidateZipResult(resultUri);
+	}
+	
+	@Test
 	public void submitValidJobRequiringMetaWithoutMeta() throws Exception {
 		final String applicationName= newTestApplicationName();
 		@SuppressWarnings("unchecked")
@@ -380,6 +390,16 @@ public class RestJobsITCase extends AbstractITCase {
 		final Document resultDoc= doSubmitValidMultipartJob(applicationName,
 				List.of(new UploadedFile("r-job-meta-required.zip")),
 				Map.of("X-RSB-Meta-reportAuthor", "Jules Verne") );
+		final String resultUri= getResultUri(resultDoc);
+		ponderRetrieveAndValidateZipResult(resultUri);
+	}
+	
+	@Test
+	public void submitMultipartValidJobRequiringMetaB() throws Exception {
+		final String applicationName= newTestApplicationName();
+		final Document resultDoc= doSubmitValidMultipartJob(applicationName,
+				List.of(new UploadedFile("r-job-meta-required.zip")),
+				Map.of("X-RSB-Meta-#1", "reportAuthor= Jules Verne") );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
 	}

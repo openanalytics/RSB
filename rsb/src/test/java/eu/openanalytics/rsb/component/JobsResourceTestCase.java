@@ -25,6 +25,7 @@ package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -33,10 +34,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -83,74 +87,118 @@ public class JobsResourceTestCase
     @Before
     public void prepareTest() throws UnknownHostException
     {
-        jobsResource = new JobsResource();
-        jobsResource.setConfiguration(configuration);
-        jobsResource.setMessageDispatcher(messageDispatcher);
+        this.jobsResource = new JobsResource();
+        this.jobsResource.setConfiguration(this.configuration);
+        this.jobsResource.setMessageDispatcher(this.messageDispatcher);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void handleBadApplicationName() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList("_bad:app!$name"));
-        jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo);
-        verifyZeroInteractions(messageDispatcher);
+        this.jobsResource.handleXmlFunctionCallJob("fake_xml", this.httpHeaders, this.uriInfo);
+        verifyZeroInteractions(this.messageDispatcher);
     }
 
     @Test
     public void handleJobWithProtocolOverride() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
-        when(httpHeaders.getRequestHeader(Constants.FORWARDED_PROTOCOL_HTTP_HEADER)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.FORWARDED_PROTOCOL_HTTP_HEADER)).thenReturn(
             Collections.singletonList("foo"));
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 
-        final JobToken jobToken = assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml",
-            httpHeaders, uriInfo));
+        final JobToken jobToken = assertSuccessfullHandling(this.jobsResource.handleXmlFunctionCallJob("fake_xml",
+            this.httpHeaders, this.uriInfo));
         assertThat(jobToken.getResultUri(), is(new StartsWith("foo:/")));
     }
-
+	
     @Test
     public void handleJsonFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-        assertSuccessfullHandling(jobsResource.handleJsonFunctionCallJob("fake_json", httpHeaders, uriInfo));
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        assertSuccessfullHandling(this.jobsResource.handleJsonFunctionCallJob("fake_json", this.httpHeaders, this.uriInfo));
     }
 
     @Test
     public void handleXmlFunctionCallJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-        assertSuccessfullHandling(jobsResource.handleXmlFunctionCallJob("fake_xml", httpHeaders, uriInfo));
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        assertSuccessfullHandling(this.jobsResource.handleXmlFunctionCallJob("fake_xml", this.httpHeaders, this.uriInfo));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void handleInvalidZipJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
-        when(httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-        assertSuccessfullHandling(jobsResource.handleZipJob(getTestDataAsStream("invalid-job-subdir.zip"),
-            httpHeaders, uriInfo));
+        when(this.httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        assertSuccessfullHandling(this.jobsResource.handleZipJob(getTestDataAsStream("invalid-job-subdir.zip"),
+            this.httpHeaders, this.uriInfo));
     }
 
     @Test
     public void handleZipJob() throws Exception
     {
-        when(httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
+        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
             Collections.singletonList(TEST_APP_NAME));
-        when(httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-        assertSuccessfullHandling(jobsResource.handleZipJob(getTestDataAsStream("r-job-sample.zip"),
-            httpHeaders, uriInfo));
+        when(this.httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        assertSuccessfullHandling(this.jobsResource.handleZipJob(getTestDataAsStream("r-job-sample.zip"),
+            this.httpHeaders, this.uriInfo));
     }
-
+	
+	
+	@Test
+	public void addJobMetaA() throws Exception {
+		final Map<String, Serializable>jobMeta= new HashMap<>();
+		this.jobsResource.addJobMetaA(jobMeta, Constants.RSB_META_A_FIELD_NAME_PREFIX + "par1", "foo");
+		
+		assertEquals("foo", jobMeta.get("par1"));
+	}
+	
+	@Test(expected= IllegalArgumentException.class)
+	public void addJobMetaA_missingName() throws Exception {
+		final Map<String, Serializable>jobMeta= new HashMap<>();
+		this.jobsResource.addJobMetaA(jobMeta, Constants.RSB_META_A_FIELD_NAME_PREFIX, "foo");
+	}
+	
+	@Test
+	public void addJobMetaB() throws Exception {
+		final Map<String, Serializable>jobMeta= new HashMap<>();
+		this.jobsResource.addJobMetaB(jobMeta, "par1=foo");
+		
+		assertEquals("foo", jobMeta.get("par1"));
+	}
+	
+	@Test
+	public void addJobMetaB_ignoreWhitespace() throws Exception {
+		final Map<String, Serializable>jobMeta= new HashMap<>();
+		this.jobsResource.addJobMetaB(jobMeta, "par1 = \tfoo");
+		
+		assertEquals("foo", jobMeta.get("par1"));
+	}
+	
+	@Test(expected= IllegalArgumentException.class)
+	public void addJobMetaB_invalid() throws Exception {
+		final Map<String, Serializable>jobMeta= new HashMap<>();
+		this.jobsResource.addJobMetaB(jobMeta, "par1: foo");
+	}
+	
+	@Test(expected= IllegalArgumentException.class)
+	public void addJobMetaB_missingName() throws Exception {
+		final Map<String, Serializable>jobMeta= new HashMap<>();
+		this.jobsResource.addJobMetaB(jobMeta, "= foo");
+	}
+	
+	
     @Test
     public void handleMultipartFormJob() throws Exception
     {
@@ -160,10 +208,10 @@ public class JobsResourceTestCase
         when(applicationContentDisposition.getParameter(eq("name"))).thenReturn(
             Constants.APPLICATION_NAME_FIELD_NAME);
         when(applicationNamePart.getObject(eq(String.class))).thenReturn(TEST_APP_NAME);
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
 
         final List<Attachment> parts = Arrays.asList(applicationNamePart);
-        assertSuccessfullHandling(jobsResource.handleMultipartFormJob(parts, httpHeaders, uriInfo));
+        assertSuccessfullHandling(this.jobsResource.handleMultipartFormJob(parts, this.httpHeaders, this.uriInfo));
     }
 
     private JobToken assertSuccessfullHandling(final Response response)
@@ -179,7 +227,7 @@ public class JobsResourceTestCase
         assertThat(jobToken.getApplicationResultsUri(), notNullValue());
 
         final ArgumentCaptor<AbstractJob> jobCaptor = ArgumentCaptor.forClass(AbstractJob.class);
-        verify(messageDispatcher).dispatch(jobCaptor.capture());
+        verify(this.messageDispatcher).dispatch(jobCaptor.capture());
         jobCaptor.getValue().destroy();
 
         return jobToken;
