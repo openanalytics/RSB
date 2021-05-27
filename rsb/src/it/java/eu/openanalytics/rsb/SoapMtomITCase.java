@@ -23,23 +23,25 @@
 
 package eu.openanalytics.rsb;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import com.eviware.soapui.tools.SoapUITestCaseRunner;
+import org.junit.Test;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class SoapMtomITCase extends AbstractITCase {
-    @Test
-    public void soapMtomJobsApi() throws Exception {
-        final SoapUITestCaseRunner runner = new SoapUITestCaseRunner("RSB SOAP MTOM Integration Tests");
-        runner.setSettingsFile("src/it/config/rsb-it-soapui-settings.xml");
-        runner.setProjectFile("src/it/config/rsb-it-soapui-project.xml");
-        runner.setGlobalProperties(new String[] { "rsb.soap.uri=" + RSB_BASE_URI + "/api/soap/mtom-jobs" });
-        assertThat(runner.run(), is(true));
-    }
+	
+	
+	@Test
+	public void soapMtomJobsApi() throws Exception {
+		final SoapUITestCaseRunner runner= new SoapUITestCaseRunner("RSB SOAP MTOM Integration Tests");
+		runner.setSettingsFile("src/it/config/rsb-it-soapui-settings.xml");
+		runner.setProjectFile("src/it/config/rsb-it-soapui-project.xml");
+		runner.setGlobalProperties(new String[] { "rsb.soap.uri=" + RSB_BASE_URI + "/api/soap/mtom-jobs" });
+		assertTrue(runner.run());
+	}
+	
 }
