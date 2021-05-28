@@ -527,14 +527,8 @@
                 </dependency>
 				<dependency>
 					<groupId>com.sun.mail</groupId>
-					<artifactId>javax.mail</artifactId>
-					<version>1.6.2</version>
-					<exclusions>
-						<exclusion>
-							<groupId>javax.activation</groupId>
-							<artifactId>activation</artifactId>
-						</exclusion>
-					</exclusions>
+					<artifactId>jakarta.mail</artifactId>
+					<version>1.6.7</version>
 				</dependency>
 				<dependency>
 					<groupId>org.apache.geronimo.specs</groupId>
