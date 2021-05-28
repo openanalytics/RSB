@@ -710,6 +710,10 @@
 							<groupId>org.slf4j</groupId>
 							<artifactId>*</artifactId>
 						</exclusion>
+						<exclusion>
+							<groupId>jetty</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
 						<exclusion><!-- gui -->
 							<groupId>org.openjfx</groupId>
 							<artifactId>*</artifactId>
