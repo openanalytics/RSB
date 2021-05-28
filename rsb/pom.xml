@@ -661,12 +661,16 @@
 					<scope>test</scope>
 					<exclusions>
 						<exclusion>
+							<groupId>javax.activation</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion>
 							<groupId>*</groupId>
 							<artifactId>xml-apis</artifactId>
 						</exclusion>
 						<exclusion>
-							<groupId>javax.activation</groupId>
-							<artifactId>activation</artifactId>
+							<groupId>xom</groupId>
+							<artifactId>xom</artifactId>
 						</exclusion>
 						<exclusion>
 							<groupId>bouncycastle</groupId>
@@ -708,9 +712,17 @@
 							<groupId>org.slf4j</groupId>
 							<artifactId>*</artifactId>
 						</exclusion>
-						<exclusion>
-							<groupId>xom</groupId>
-							<artifactId>xom</artifactId>
+						<exclusion><!-- gui -->
+							<groupId>org.openjfx</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion><!-- gui -->
+							<groupId>l2fprod</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion><!-- gui -->
+							<groupId>org.sonatype.install4j</groupId>
+							<artifactId>*</artifactId>
 						</exclusion>
 					</exclusions>
 				</dependency>
