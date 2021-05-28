@@ -166,36 +166,32 @@
             <version>1.4.0</version>
         </dependency>
 
-        <!-- JMS -->
-        <dependency>
-            <groupId>javax.jms</groupId>
-            <artifactId>jms</artifactId>
-            <version>1.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core</artifactId>
-            <version>${activemq.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-context</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-jms_1.1_spec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.fusesource.fuse-extra</groupId>
-                    <artifactId>fusemq-leveldb</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<!-- JMS -->
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jms_1.1_spec</artifactId>
+			<version>${jms.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-core</artifactId>
+			<version>${activemq.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jms_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.fusesource.fuse-extra</groupId>
+					<artifactId>fusemq-leveldb</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
         <!-- JMX -->
         <dependency>
@@ -540,16 +536,16 @@
 						</exclusion>
 					</exclusions>
 				</dependency>
-                <dependency>
-                    <groupId>javax.jms</groupId>
-                    <artifactId>jms</artifactId>
-                    <version>1.1</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-                    <version>1.0.1</version>
-                </dependency>
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jms_1.1_spec</artifactId>
+					<version>${jms.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+					<version>1.0.1</version>
+				</dependency>
             </dependencies>
         </profile>
         <profile>
@@ -699,6 +695,10 @@
 						<exclusion>
 							<groupId>org.apache.xmlbeans</groupId>
 							<artifactId>xmlbeans-xpath</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>javax.jms</groupId>
+							<artifactId>*</artifactId>
 						</exclusion>
 						<exclusion>
 							<groupId>javax.mail</groupId>
