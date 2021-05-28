@@ -24,35 +24,58 @@
     @author rsb.development@openanalytics.eu
 -->
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="
-          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-    <bean name="amqDeadLetterStrategy"
-        class="org.apache.activemq.broker.region.policy.IndividualDeadLetterStrategy"
-        p:queuePrefix="DLQ." />
-
-    <bean name="amqDefaultPolicyEntry" class="org.apache.activemq.broker.region.policy.PolicyEntry"
-        p:queue="r.*" p:deadLetterStrategy-ref="amqDeadLetterStrategy"
-        p:prioritizedMessages="true" />
-
-    <bean name="amqPolicyMap" class="org.apache.activemq.broker.region.policy.PolicyMap"
-        p:defaultEntry-ref="amqDefaultPolicyEntry" />
-
-    <bean name="amqBroker" class="org.apache.activemq.broker.BrokerService"
-        p:brokerName="rsb-amq-broker" p:persistent="true"
-        p:dataDirectoryFile="#{configuration.activeMqWorkDirectory}" p:useJmx="true"
-        p:useShutdownHook="false" p:destinationPolicy-ref="amqPolicyMap"
-        init-method="start" destroy-method="stop" />
-
-    <bean name="amqRedeliveryPolicy" class="org.apache.activemq.RedeliveryPolicy"
-        p:useExponentialBackOff="true" p:maximumRedeliveries="6"
-        p:queue="*" />
-
-    <bean name="amqPrefetchPolicy" class="org.apache.activemq.ActiveMQPrefetchPolicy"
-        p:all="1" />
-
-    <bean name="amqConnectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory"
-        p:brokerURL="vm://rsb-amq-broker" p:redeliveryPolicy-ref="amqRedeliveryPolicy"
-        p:prefetchPolicy-ref="amqPrefetchPolicy" depends-on="amqBroker" />
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean name="amqDeadLetterStrategy"
+			class="org.apache.activemq.broker.region.policy.IndividualDeadLetterStrategy"
+			p:queuePrefix="DLQ." />
+	
+	<bean name="amqDefaultPolicyEntry"
+			class="org.apache.activemq.broker.region.policy.PolicyEntry"
+			p:queue="r.*"
+			p:deadLetterStrategy-ref="amqDeadLetterStrategy"
+			p:prioritizedMessages="true" />
+	
+	<bean name="amqPolicyMap"
+			class="org.apache.activemq.broker.region.policy.PolicyMap"
+			p:defaultEntry-ref="amqDefaultPolicyEntry" />
+	
+	<bean name="amqBroker"
+			class="org.apache.activemq.broker.BrokerService"
+			init-method="start" destroy-method="stop"
+			p:brokerName="rsb-amq-broker"
+			p:persistent="true"
+			p:dataDirectoryFile="#{configuration.activeMqWorkDirectory}"
+			p:destinationPolicy-ref="amqPolicyMap"
+			p:useJmx="true"
+			p:useShutdownHook="false" />
+	
+	<bean name="amqRedeliveryPolicy"
+			class="org.apache.activemq.RedeliveryPolicy"
+			p:useExponentialBackOff="true"
+			p:maximumRedeliveries="6"
+			p:queue="*" />
+	
+	<bean name="amqPrefetchPolicy"
+			class="org.apache.activemq.ActiveMQPrefetchPolicy"
+			p:all="1" />
+	
+	<bean name="amqConnectionFactory"
+			class="org.apache.activemq.spring.ActiveMQConnectionFactory"
+			depends-on="amqBroker">
+		<property name="brokerURL" value="vm://rsb-amq-broker"/>
+		<property name="redeliveryPolicy" ref="amqRedeliveryPolicy"/>
+		<property name="prefetchPolicy" ref="amqPrefetchPolicy"/>
+		<property name="trustedPackages">
+			<list>
+				<value>eu.openanalytics.rsb.message</value>
+				<value>java.util</value>
+				<value>java.net</value>
+				<value>java.io</value>
+				<value>sun.util.calendar</value>
+			</list>
+		</property>
+	</bean>
+	
 </beans>

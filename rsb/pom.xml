@@ -181,20 +181,51 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-core</artifactId>
+			<artifactId>activemq-broker</artifactId>
 			<version>${activemq.version}</version>
 			<exclusions>
-				<exclusion>
+				<exclusion><!-- provided -->
 					<groupId>org.apache.geronimo.specs</groupId>
 					<artifactId>geronimo-jms_1.1_spec</artifactId>
 				</exclusion>
-				<exclusion>
+				<exclusion><!-- provided -->
 					<groupId>org.apache.geronimo.specs</groupId>
 					<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.fusesource.fuse-extra</groupId>
 					<artifactId>fusemq-leveldb</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-kahadb-store</artifactId>
+			<version>${activemq.version}</version>
+			<scope>runtime</scope>
+			<exclusions>
+				<exclusion><!-- provided -->
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jms_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion><!-- provided -->
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-spring</artifactId>
+			<version>${activemq.version}</version>
+			<exclusions>
+				<exclusion><!-- provided -->
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-jms_1.1_spec</artifactId>
+				</exclusion>
+				<exclusion><!-- provided -->
+					<groupId>org.apache.geronimo.specs</groupId>
+					<artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
