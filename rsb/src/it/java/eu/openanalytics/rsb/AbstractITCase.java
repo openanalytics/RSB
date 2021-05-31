@@ -46,6 +46,7 @@ import org.junit.Before;
 
 import eu.openanalytics.rsb.config.Configuration;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -56,7 +57,7 @@ public abstract class AbstractITCase {
 
     @Before
     public void setupXmlNameSpaces() {
-        final Map<String, String> m = new HashMap<String, String>();
+        final Map<String, String> m = new HashMap<>();
         m.put("rsb", "http://rest.rsb.openanalytics.eu/types");
 
         final NamespaceContext ctx = new SimpleNamespaceContext(m);

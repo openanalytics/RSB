@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.config.Configuration;
 
+
 /**
  * Provides RServi URIs, using a circular buffer when several URIs are configured for
  * one application.
@@ -62,7 +63,7 @@ public class CircularRServiUriSelector implements RServiUriSelector
     @PostConstruct
     public void initialize()
     {
-        final Map<String, Deque<URI>> newCircularApplicationUris = new HashMap<String, Deque<URI>>();
+        final Map<String, Deque<URI>> newCircularApplicationUris = new HashMap<>();
 
         final Map<String, Set<URI>> applicationSpecificRserviPoolUris = configuration.getApplicationSpecificRserviPoolUris();
         if ((applicationSpecificRserviPoolUris != null) && (!applicationSpecificRserviPoolUris.isEmpty()))
@@ -70,14 +71,15 @@ public class CircularRServiUriSelector implements RServiUriSelector
             for (final Entry<String, Set<URI>> applicationSpecificRserviPoolUri : applicationSpecificRserviPoolUris.entrySet())
             {
                 newCircularApplicationUris.put(applicationSpecificRserviPoolUri.getKey(),
-                    new ArrayDeque<URI>(applicationSpecificRserviPoolUri.getValue()));
+                    new ArrayDeque<>(applicationSpecificRserviPoolUri.getValue()));
             }
         }
 
         circularApplicationUris = Collections.unmodifiableMap(newCircularApplicationUris);
     }
 
-    public URI getUriForApplication(final String applicationName)
+	@Override
+	public URI getUriForApplication(final String applicationName)
     {
         if ((circularApplicationUris == null) || (circularApplicationUris.isEmpty()))
         {

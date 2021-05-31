@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.data.CatalogManager;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

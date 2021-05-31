@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,12 +49,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -84,7 +88,7 @@ public class DirectoryDepositHandlerTestCase
     {
         try {
           directoryDepositHandler.setupChannelAdapters();
-        } catch (Exception e) {
+        } catch (final Exception e) {
           e.printStackTrace();
           fail("Unexpected exception thrown in @PostConstruct method setupChannelAdapters() of DirectoryDepositHandler");
         }
@@ -155,7 +159,7 @@ public class DirectoryDepositHandlerTestCase
     @Test
     public void handleResult() throws IOException
     {
-        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
+        final Map<String, Serializable> meta = new HashMap<>();
         meta.put(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME, FileUtils.getTempDirectory());
 
         final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);

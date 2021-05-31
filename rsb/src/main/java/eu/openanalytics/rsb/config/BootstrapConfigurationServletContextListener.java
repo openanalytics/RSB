@@ -43,6 +43,7 @@ import org.springframework.util.FileCopyUtils;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedSmtpConfiguration;
 
+
 /**
  * Verifies that the RSB configuration is loadable and, if not, creates a default one so RSB can
  * start anyway.

@@ -29,6 +29,7 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+
 /**
  * Represents the result of a {@link AbstractJob}.
  * 
@@ -52,10 +53,12 @@ public abstract class AbstractResult<T> extends AbstractWorkItem implements Resu
         this.success = success;
     }
 
-    public boolean isSuccess()
+	@Override
+	public boolean isSuccess()
     {
         return success;
     }
 
-    public abstract T getPayload() throws IOException;
+	@Override
+	public abstract T getPayload() throws IOException;
 }

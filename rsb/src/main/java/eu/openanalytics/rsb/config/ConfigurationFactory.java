@@ -50,6 +50,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.data.FileCatalogManager;
 
+
 /**
  * Loads and validated an RSB configuration file and builds a configuration object out of it.
  * 
@@ -156,7 +157,7 @@ public abstract class ConfigurationFactory
 
     static Set<String> validate(final PersistedConfigurationAdapter pca) throws IOException
     {
-        final Set<String> validationErrors = new HashSet<String>();
+        final Set<String> validationErrors = new HashSet<>();
 
         LOGGER.info("Validating configuration: " + pca.getConfigurationUrl());
         validateNotNull(pca.getActiveMqWorkDirectory(), "activeMqWorkDirectory", validationErrors);

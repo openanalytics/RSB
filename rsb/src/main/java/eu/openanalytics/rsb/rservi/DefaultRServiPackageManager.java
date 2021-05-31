@@ -27,14 +27,16 @@ import java.io.File;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.util.RPkgInstallation;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -47,7 +49,8 @@ public class DefaultRServiPackageManager implements RServiPackageManager
     @Resource
     private RServiInstanceProvider rServiInstanceProvider;
 
-    public void install(final File packageSourceFile, final String rServiPoolUri) throws Exception
+	@Override
+	public void install(final File packageSourceFile, final String rServiPoolUri) throws Exception
     {
         RServi rServiInstance = null;
 

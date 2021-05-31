@@ -38,6 +38,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import eu.openanalytics.rsb.Util;
 
+
 /**
  * A {@link UserDetailsService} that accepts any user presented to it, which makes it
  * usable in scenarios where it is enough to merely identify a user.
@@ -54,7 +55,7 @@ public class IdentifiedUserDetailsService implements UserDetailsService
     @PostConstruct
     public void initializeGrantedAuthorities()
     {
-        grantedAuthorities = new HashSet<GrantedAuthority>();
+        grantedAuthorities = new HashSet<>();
 
         if (StringUtils.isBlank(configuredAuthorities))
         {
@@ -71,7 +72,8 @@ public class IdentifiedUserDetailsService implements UserDetailsService
         }
     }
 
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException
+	@Override
+	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException
     {
         return new User(Util.replaceNonWordChars(username, "_"), NO_PASSWORD, grantedAuthorities);
     }

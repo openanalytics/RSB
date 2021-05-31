@@ -34,12 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.PersistedConfiguration.PersistedJobStatisticsHandlerConfiguration;
+
 
 /**
  * Adapts a {@link PersistedConfiguration} into a {@link Configuration}.
@@ -143,7 +146,7 @@ public class PersistedConfigurationAdapter implements Configuration
             return Collections.emptyMap();
         }
 
-        final Map<String, Set<URI>> applicationSpecificRserviPoolUris = new HashMap<String, Set<URI>>();
+        final Map<String, Set<URI>> applicationSpecificRserviPoolUris = new HashMap<>();
 
         for (final Entry<String, ?> sourcePoolUri : sourcePoolUris.entrySet())
         {
@@ -157,7 +160,7 @@ public class PersistedConfigurationAdapter implements Configuration
                 // assuming array of string, will die otherwise
                 @SuppressWarnings("unchecked")
                 final Collection<String> urisForOneApplication = (Collection<String>) sourcePoolUri.getValue();
-                final Set<URI> uris = new HashSet<URI>();
+                final Set<URI> uris = new HashSet<>();
                 for (final String uri : urisForOneApplication)
                 {
                     uris.add(Util.newURI(uri));

@@ -110,7 +110,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 
     private BeanFactory beanFactory;
 
-    private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<SourcePollingChannelAdapter>();
+    private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<>();
 
     @Override
     public void setBeanFactory(final BeanFactory beanFactory) throws BeansException
@@ -162,7 +162,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 			mailReceiver.setMaxFetchSize(1);
 			mailReceiver.afterPropertiesSet();
             final MailReceivingMessageSource fileMessageSource = new MailReceivingMessageSource(mailReceiver);
-            final HeaderSettingMessageSourceWrapper<?> messageSource = new HeaderSettingMessageSourceWrapper<Object>(
+            final HeaderSettingMessageSourceWrapper<?> messageSource = new HeaderSettingMessageSourceWrapper<>(
                 fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailConfiguration);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
@@ -202,7 +202,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 				"no reply address found for job emailed with headers:"
 						+ Collections.list(mimeMessage.getAllHeaders()));
 		
-		final Map<String, Serializable> meta= new HashMap<String, Serializable>();
+		final Map<String, Serializable> meta= new HashMap<>();
 		meta.put(EMAIL_SUBJECT_META_NAME, mimeMessage.getSubject());
 		meta.put(EMAIL_ADDRESSEE_META_NAME, getPrimaryAddressee(mimeMessage));
 		meta.put(EMAIL_REPLY_TO_META_NAME, replyTo[0].toString());
@@ -256,7 +256,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
             mmh.setText(FileUtils.readFileToString(result.getPayload()[0], Charset.defaultCharset()));
         }
 
-        final Message<MimeMailMessage> message = new GenericMessage<MimeMailMessage>(new MimeMailMessage(mmh));
+        final Message<MimeMailMessage> message = new GenericMessage<>(new MimeMailMessage(mmh));
         outboundEmailChannel.send(message);
     }
 	

@@ -30,7 +30,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
+
 
 /**
  * Defines the configuration of RSB, which is injected in all components in order to support runtime
@@ -199,7 +201,7 @@ public interface Configuration
             config.setTestOnBorrow(true);
             config.setTestOnReturn(true);
         }
-    };
+    }
 
     public interface AdminSecurityAuthorization extends Serializable
     {

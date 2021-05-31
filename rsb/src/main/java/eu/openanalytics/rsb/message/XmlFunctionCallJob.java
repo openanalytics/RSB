@@ -30,6 +30,7 @@ import org.springframework.context.MessageSource;
 
 import eu.openanalytics.rsb.Util;
 
+
 /**
  * Represents a RSB job that consists in calling the RSBXmlService function on R.
  * 

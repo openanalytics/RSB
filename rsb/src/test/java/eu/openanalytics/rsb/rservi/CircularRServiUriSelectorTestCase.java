@@ -42,6 +42,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import eu.openanalytics.rsb.config.Configuration;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -99,7 +100,7 @@ public class CircularRServiUriSelectorTestCase
         final URI appSpecificPoolUri2 = new URI("fake://pool2");
         when(configuration.getApplicationSpecificRserviPoolUris()).thenReturn(
             Collections.singletonMap(TEST_APPLICATION_NAME,
-                (Set<URI>) new TreeSet<URI>(Arrays.asList(appSpecificPoolUri1, appSpecificPoolUri2))));
+                (Set<URI>) new TreeSet<>(Arrays.asList(appSpecificPoolUri1, appSpecificPoolUri2))));
 
         selector.initialize();
 

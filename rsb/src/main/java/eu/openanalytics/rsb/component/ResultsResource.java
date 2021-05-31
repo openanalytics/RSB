@@ -51,6 +51,7 @@ import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.rest.types.Result;
 import eu.openanalytics.rsb.rest.types.Results;
 
+
 /**
  * Exposes results meta-information, allowing their deletion too.
  * 

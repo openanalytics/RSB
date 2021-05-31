@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

@@ -55,6 +55,7 @@ import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.data.PersistedResult;
 import eu.openanalytics.rsb.data.SecureResultStore;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

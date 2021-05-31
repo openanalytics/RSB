@@ -28,6 +28,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

@@ -28,6 +28,7 @@ import java.util.Map;
 
 import eu.openanalytics.rsb.message.Job;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -40,7 +41,8 @@ public class NoopJobStatisticsHandler implements JobStatisticsHandler
         // use singleton
     }
 
-    public void storeJobStatistics(final Job job,
+	@Override
+	public void storeJobStatistics(final Job job,
                                    final Calendar jobCompletionTime,
                                    final long millisecondsSpentProcessing,
                                    final String rServiAddress)
@@ -48,17 +50,20 @@ public class NoopJobStatisticsHandler implements JobStatisticsHandler
         // NOOP
     }
 
-    public void setConfiguration(final Map<String, Object> configuration)
+	@Override
+	public void setConfiguration(final Map<String, Object> configuration)
     {
         // NOOP
     }
 
-    public void initialize()
+	@Override
+	public void initialize()
     {
         // NOOP
     }
 
-    public void destroy()
+	@Override
+	public void destroy()
     {
         // NOOP
     }

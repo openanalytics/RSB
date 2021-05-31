@@ -60,6 +60,7 @@ import eu.openanalytics.rsb.soap.types.JobType.Parameter;
 import eu.openanalytics.rsb.soap.types.PayloadType;
 import eu.openanalytics.rsb.soap.types.ResultType;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -97,7 +98,8 @@ public class SoapMtomJobHandlerTestCase {
         when(result.getPayload()).thenReturn("<fake_result/>");
         when(result.getJobId()).thenReturn(UUID.randomUUID());
         when(messageDispatcher.process(any(XmlFunctionCallJob.class))).thenAnswer(new Answer<AbstractResult<?>>() {
-            public AbstractResult<?> answer(final InvocationOnMock invocation) throws Throwable {
+			@Override
+			public AbstractResult<?> answer(final InvocationOnMock invocation) throws Throwable {
                 return result;
             }
         });
@@ -121,7 +123,8 @@ public class SoapMtomJobHandlerTestCase {
         when(result.getPayload()).thenReturn("\"fake_result\"");
         when(result.getJobId()).thenReturn(UUID.randomUUID());
         when(messageDispatcher.process(any(JsonFunctionCallJob.class))).thenAnswer(new Answer<AbstractResult<?>>() {
-            public AbstractResult<?> answer(final InvocationOnMock invocation) throws Throwable {
+			@Override
+			public AbstractResult<?> answer(final InvocationOnMock invocation) throws Throwable {
                 return result;
             }
         });
@@ -149,7 +152,8 @@ public class SoapMtomJobHandlerTestCase {
         when(result.getPayload()).thenReturn(new File[0]);
         when(result.getJobId()).thenReturn(UUID.randomUUID());
         when(messageDispatcher.process(any(MultiFilesJob.class))).thenAnswer(new Answer<AbstractResult<?>>() {
-            public AbstractResult<?> answer(final InvocationOnMock invocation) throws Throwable {
+			@Override
+			public AbstractResult<?> answer(final InvocationOnMock invocation) throws Throwable {
                 return result;
             }
         });

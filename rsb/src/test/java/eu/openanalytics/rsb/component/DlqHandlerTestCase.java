@@ -49,6 +49,7 @@ import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

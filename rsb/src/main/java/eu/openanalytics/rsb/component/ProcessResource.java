@@ -91,7 +91,7 @@ public class ProcessResource extends AbstractResource
     {
         return handleNewRestJob(httpHeaders, new FunctionCallJobBuilder()
         {
-            @Override
+			@Override
 			public AbstractFunctionCallJob build(final String applicationName,
                                                  final UUID jobId,
                                                  final GregorianCalendar submissionTime)
@@ -119,7 +119,7 @@ public class ProcessResource extends AbstractResource
 
         return handleNewRestJob(httpHeaders, new FunctionCallJobBuilder()
         {
-            @Override
+			@Override
 			public AbstractFunctionCallJob build(final String applicationName,
                                                  final UUID jobId,
                                                  final GregorianCalendar submissionTime)

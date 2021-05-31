@@ -82,7 +82,8 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
      * 
      * @throws IOException
      */
-    public ResultType process(final JobType job)
+	@Override
+	public ResultType process(final JobType job)
     {
         try
         {
@@ -105,7 +106,7 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 
     private Map<String, Serializable> getMeta(final JobType job)
     {
-        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
+        final Map<String, Serializable> meta = new HashMap<>();
         for (final Parameter parameter : job.getParameter())
         {
             meta.put(parameter.getName(), parameter.getValue());

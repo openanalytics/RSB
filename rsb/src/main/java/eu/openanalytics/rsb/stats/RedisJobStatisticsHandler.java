@@ -28,15 +28,18 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import eu.openanalytics.rsb.Util;
-import eu.openanalytics.rsb.message.Job;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+
+import eu.openanalytics.rsb.Util;
+import eu.openanalytics.rsb.message.Job;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -60,13 +63,15 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
         void run(Jedis jedis);
     }
 
-    public void setConfiguration(final Map<String, Object> configuration)
+	@Override
+	public void setConfiguration(final Map<String, Object> configuration)
     {
         redisHost = (String) configuration.get("host");
         redisPort = (Integer) configuration.get("port");
     }
 
-    public void initialize()
+	@Override
+	public void initialize()
     {
         final GenericObjectPoolConfig<?> poolConfig = new GenericObjectPoolConfig<>();
         poolConfig.setBlockWhenExhausted(false);
@@ -75,7 +80,8 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
 
         final boolean redisConfigurationOk = runWithJedis(new RedisAction()
         {
-            public void run(final Jedis jedis)
+			@Override
+			public void run(final Jedis jedis)
             {
                 final String pingResponse = jedis.ping();
 
@@ -92,12 +98,14 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
             "Redis can't be contacted: please check parameter 'rsb.jobs.stats.handler' (set it to 'none' to disable statistics altogether)");
     }
 
-    public void destroy()
+	@Override
+	public void destroy()
     {
         pool.destroy();
     }
 
-    public void storeJobStatistics(final Job job,
+	@Override
+	public void storeJobStatistics(final Job job,
                                    final Calendar jobCompletionTime,
                                    final long millisecondsSpentProcessing,
                                    final String rServiAddress)
@@ -105,7 +113,8 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
 
         runWithJedis(new RedisAction()
         {
-            public void run(final Jedis jedis)
+			@Override
+			public void run(final Jedis jedis)
             {
                 // ensure application is registered as a statistics producer
                 jedis.sadd(RSB_STATS_APPLICATIONS_SET_KEY, job.getApplicationName());
@@ -116,7 +125,7 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
                 jedis.sadd(RSB_STATS_KEY_PREFIX + job.getApplicationName() + ":monthstamps", monthStamp);
 
                 // create persisted statistics JSON structure and store it in monthstamp list
-                final Map<String, Object> statsMap = new HashMap<String, Object>(5);
+                final Map<String, Object> statsMap = new HashMap<>(5);
                 statsMap.put("application_name", job.getApplicationName());
                 statsMap.put("job_id", job.getJobId());
                 statsMap.put("utc_timestamp", jobCompletionTime.getTimeInMillis());

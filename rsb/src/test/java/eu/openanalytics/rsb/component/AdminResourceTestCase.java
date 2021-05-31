@@ -71,6 +71,7 @@ import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.RServiPools;
 import eu.openanalytics.rsb.rservi.RServiPackageManager;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

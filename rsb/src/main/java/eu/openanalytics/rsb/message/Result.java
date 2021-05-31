@@ -25,6 +25,7 @@ package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
 
+
 /**
  * RSB job definition.
  * 

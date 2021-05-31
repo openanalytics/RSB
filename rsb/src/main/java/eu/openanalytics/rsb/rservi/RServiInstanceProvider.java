@@ -25,6 +25,7 @@ package eu.openanalytics.rsb.rservi;
 
 import org.eclipse.statet.rj.servi.RServi;
 
+
 /**
  * Defines a RServi connection provider.
  * 
@@ -33,7 +34,7 @@ import org.eclipse.statet.rj.servi.RServi;
 public interface RServiInstanceProvider {
     public enum PoolingStrategy {
         NEVER, IF_POSSIBLE
-    };
+    }
 
     RServi getRServiInstance(final String address, final String clientId, PoolingStrategy poolingStrategy) throws Exception;
 }

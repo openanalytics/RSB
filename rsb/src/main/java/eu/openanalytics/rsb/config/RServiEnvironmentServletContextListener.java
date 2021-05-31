@@ -32,6 +32,7 @@ import org.eclipse.statet.jcommons.runtime.CommonsRuntime;
 import org.eclipse.statet.jcommons.runtime.bundle.Bundles;
 import org.eclipse.statet.jcommons.status.StatusException;
 import org.eclipse.statet.jcommons.status.util.ACommonsLoggingStatusLogger;
+
 import org.eclipse.statet.rj.server.RjsComConfig;
 import org.eclipse.statet.rj.server.client.RClientGraphicDummyFactory;
 

@@ -27,6 +27,7 @@ import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 
+
 /**
  * A message source that wraps an existing one and adds an arbitrary header to the in-flight message.
  * 
@@ -43,7 +44,8 @@ public class HeaderSettingMessageSourceWrapper<T> implements MessageSource<T> {
         this.headerValue = headerValue;
     }
 
-    public Message<T> receive() {
+	@Override
+	public Message<T> receive() {
         final Message<T> receivedMessage = wrappedMessageSource.receive();
 
         if (receivedMessage == null) {

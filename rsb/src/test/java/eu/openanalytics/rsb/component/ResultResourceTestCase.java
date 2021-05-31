@@ -54,6 +54,7 @@ import eu.openanalytics.rsb.data.PersistedResult;
 import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

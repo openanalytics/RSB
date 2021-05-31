@@ -65,6 +65,7 @@ import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -143,7 +144,7 @@ public class EmailDepositHandlerTestCase {
 
     @Test
     public void handleResult() throws Exception {
-        final Map<String, Serializable> meta = new HashMap<String, Serializable>();
+        final Map<String, Serializable> meta = new HashMap<>();
         meta.put(EmailDepositHandler.EMAIL_ADDRESSEE_META_NAME, "addressee@test.com");
         meta.put(EmailDepositHandler.EMAIL_REPLY_TO_META_NAME, "replyto@test.com");
         meta.put(EmailDepositHandler.EMAIL_REPLY_CC_META_NAME, new String[] { "replyCC@test.com" });

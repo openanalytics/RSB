@@ -28,6 +28,7 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.springframework.integration.file.filters.AbstractFileListFilter;
 
+
 /**
  * Spring Integration file filter that selects only files of a certain age, preventing picking files
  * that are being written.

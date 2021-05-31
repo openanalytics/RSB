@@ -28,11 +28,11 @@ import java.io.IOException;
 import javax.annotation.Resource;
 
 import mx4j.tools.adaptor.http.HttpAdaptor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -53,7 +53,8 @@ public class SpringContextEventListener implements ApplicationListener<ContextRe
     /**
      * Perform post init operations.
      */
-    public void onApplicationEvent(final ContextRefreshedEvent event)
+	@Override
+	public void onApplicationEvent(final ContextRefreshedEvent event)
     {
         try
         {

@@ -25,7 +25,9 @@ package eu.openanalytics.rsb.config;
 
 import org.apache.commons.pool2.impl.BaseObjectPoolConfig;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
+
 import eu.openanalytics.rsb.rservi.RmiRServiInstanceProvider.PooledRServiWrapper;
+
 
 public class RServiPoolConfig extends GenericKeyedObjectPoolConfig<PooledRServiWrapper> {
   
@@ -48,7 +50,7 @@ public class RServiPoolConfig extends GenericKeyedObjectPoolConfig<PooledRServiW
   /**
    * @param maxActive the maxActive to set
    */
-  public void setMaxActive(int maxActive) {
+  public void setMaxActive(final int maxActive) {
     this.maxActive = maxActive;
     setMaxTotalPerKey(maxActive);
   }
@@ -61,7 +63,7 @@ public class RServiPoolConfig extends GenericKeyedObjectPoolConfig<PooledRServiW
   /**
    * @param maxIdle the maxIdle to set
    */
-  public void setMaxIdle(int maxIdle) {
+  public void setMaxIdle(final int maxIdle) {
     this.maxIdle = maxIdle;
     setMaxIdlePerKey(maxIdle);
   }
@@ -74,7 +76,7 @@ public class RServiPoolConfig extends GenericKeyedObjectPoolConfig<PooledRServiW
   /**
    * @param minIdle the minIdle to set
    */
-  public void setMinIdle(int minIdle) {
+  public void setMinIdle(final int minIdle) {
     this.minIdle = minIdle;
     setMinIdlePerKey(minIdle);
   }
@@ -83,7 +85,7 @@ public class RServiPoolConfig extends GenericKeyedObjectPoolConfig<PooledRServiW
     return maxWait;
   }
 
-  public void setMaxWait(long maxWait) {
+  public void setMaxWait(final long maxWait) {
     this.maxWait = maxWait;
     setMaxWaitMillis(maxWait);
   }
@@ -98,7 +100,7 @@ public class RServiPoolConfig extends GenericKeyedObjectPoolConfig<PooledRServiW
   /**
    * @param whenExhaustedAction the whenExhaustedAction to set
    */
-  public void setWhenExhaustedAction(int whenExhaustedAction) {
+  public void setWhenExhaustedAction(final int whenExhaustedAction) {
     this.whenExhaustedAction = whenExhaustedAction;
     if(whenExhaustedAction == 1) {
       setBlockWhenExhausted(true);

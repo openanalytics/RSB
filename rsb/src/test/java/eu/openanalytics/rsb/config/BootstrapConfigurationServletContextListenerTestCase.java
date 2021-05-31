@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.nio.charset.Charset;
+
 import javax.servlet.ServletContextEvent;
 
 import org.apache.commons.io.FileUtils;
@@ -38,6 +39,7 @@ import org.springframework.mock.web.MockServletContext;
 import org.stringtemplate.v4.ST;
 
 import eu.openanalytics.rsb.Util;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
@@ -60,7 +62,7 @@ public class BootstrapConfigurationServletContextListenerTestCase
             public String getRealPath(final String path)
             {
                 return FileUtils.getTempDirectoryPath();
-            };
+            }
         };
         servletContextEvent = new ServletContextEvent(mockServletContext);
     }

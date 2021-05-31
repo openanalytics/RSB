@@ -42,6 +42,7 @@ import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.AbstractWorkItem;
 
+
 /**
  * Handles messages that end up in the dead letter queue.
  * 
@@ -94,12 +95,12 @@ public class DlqHandler extends AbstractComponent {
         getLogger().error("Abandonning processing of: " + workItem);
 
         if (StringUtils.isNotBlank(getConfiguration().getAdministratorEmail())) {
-            final Map<String, Object> headers = new HashMap<String, Object>();
+            final Map<String, Object> headers = new HashMap<>();
             headers.put(MailHeaders.FROM, getConfiguration().getAdministratorEmail());
             headers.put(MailHeaders.TO, getConfiguration().getAdministratorEmail());
             headers.put(MailHeaders.SUBJECT, "Notification of RSB Fatal Error");
 
-            final Message<String> message = new GenericMessage<String>(descriptiveMessage, headers);
+            final Message<String> message = new GenericMessage<>(descriptiveMessage, headers);
             outboundEmailChannel.send(message);
         }
     }

@@ -49,6 +49,7 @@ import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
 import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 
+
 /**
  * Defines a {@link PermissionEvaluator} that considers the applications a user is granted to use.
  *
@@ -275,7 +276,7 @@ public class ApplicationPermissionEvaluator implements PermissionEvaluator
             return true;
         }
 
-        final Set<String> roles = new HashSet<String>();
+        final Set<String> roles = new HashSet<>();
         for (final GrantedAuthority authority : authentication.getAuthorities())
         {
             roles.add(authority.getAuthority());

@@ -34,6 +34,7 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.util.Assert;
 
+
 /**
  * An {@link AbstractPreAuthenticatedProcessingFilter} that is designed to work behind Nginx dealing
  * with X.509 validation.

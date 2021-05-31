@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.ext.ExceptionMapper;
 
+
 /**
  * Converts {@link IllegalArgumentException} into BAD_REQUEST HTTP responses.
  * 
@@ -46,21 +47,24 @@ public class IllegalArgumentExceptionMapper implements ExceptionMapper<IllegalAr
             this.reasonPhrase = reasonPhrase;
         }
 
-        public int getStatusCode()
+		@Override
+		public int getStatusCode()
         {
             return Status.BAD_REQUEST.getStatusCode();
         }
 
-        public Family getFamily()
+		@Override
+		public Family getFamily()
         {
             return Status.BAD_REQUEST.getFamily();
         }
 
-        public String getReasonPhrase()
+		@Override
+		public String getReasonPhrase()
         {
             return reasonPhrase;
         }
-    };
+    }
 
     @Override
     public Response toResponse(final IllegalArgumentException iae)

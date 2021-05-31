@@ -30,6 +30,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 
 import org.springframework.security.access.AccessDeniedException;
 
+
 /**
  * Converts {@link AccessDeniedException} into FORBIDDEN HTTP responses.
  * 
@@ -37,7 +38,8 @@ import org.springframework.security.access.AccessDeniedException;
  */
 public class AccessDeniedExceptionMapper implements ExceptionMapper<AccessDeniedException>
 {
-    public Response toResponse(final AccessDeniedException ade)
+	@Override
+	public Response toResponse(final AccessDeniedException ade)
     {
         return Response.status(Status.FORBIDDEN).type(MediaType.TEXT_PLAIN).entity(ade.getMessage()).build();
     }

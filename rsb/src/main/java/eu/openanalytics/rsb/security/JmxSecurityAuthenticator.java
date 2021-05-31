@@ -43,6 +43,7 @@ import org.springframework.util.CollectionUtils;
 
 import eu.openanalytics.rsb.config.Configuration;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -111,7 +112,7 @@ public class JmxSecurityAuthenticator implements JMXAuthenticator
             return false;
         }
 
-        final Set<String> authoritiesNames = new HashSet<String>();
+        final Set<String> authoritiesNames = new HashSet<>();
         for (final GrantedAuthority authority : authenticatedUser.getAuthorities())
         {
             authoritiesNames.add(authority.getAuthority());

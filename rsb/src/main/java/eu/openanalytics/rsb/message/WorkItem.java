@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 
+
 /**
  * RSB work item definition.
  * 

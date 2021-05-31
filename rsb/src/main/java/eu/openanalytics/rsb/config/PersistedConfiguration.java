@@ -28,8 +28,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+
 import eu.openanalytics.rsb.config.Configuration.AdminSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.ApplicationSecurityAuthorization;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
@@ -38,6 +40,7 @@ import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
 import eu.openanalytics.rsb.config.Configuration.JobStatisticsHandlerConfiguration;
 import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
 import eu.openanalytics.rsb.config.Configuration.SmtpConfiguration;
+
 
 /**
  * Defines the persisted configuration of RSB, from which the actual {@link Configuration} is

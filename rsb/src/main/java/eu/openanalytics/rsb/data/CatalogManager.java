@@ -33,6 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 
+
 /**
  * The RSB catalog. The <code>applicationName</code> argument are mandatory if the catalog runs in
  * application-aware mode.
@@ -54,7 +55,7 @@ public interface CatalogManager
     enum PutCatalogFileResult
     {
         CREATED, UPDATED
-    };
+    }
 
     Pair<PutCatalogFileResult, File> putCatalogFile(CatalogSection catalogSection,
                                                     String applicationName,

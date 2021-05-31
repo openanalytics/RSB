@@ -65,6 +65,7 @@ import eu.openanalytics.rsb.message.AbstractJob;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.rest.types.JobToken;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

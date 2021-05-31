@@ -44,6 +44,7 @@ import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

@@ -27,6 +27,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

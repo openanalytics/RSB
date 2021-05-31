@@ -42,6 +42,7 @@ import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.AbstractResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
 
+
 /**
  * Processes results of jobs that have submitted over the REST API.
  * 

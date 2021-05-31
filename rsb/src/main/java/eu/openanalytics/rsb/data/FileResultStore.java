@@ -51,6 +51,7 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.component.AbstractComponent;
 
+
 /**
  * A file-based result store.
  * 
@@ -62,23 +63,27 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
     private static final String ERROR_MESSAGE = "This method shouldn't have been called: please report the issue.";
     private static final String ERROR_FILE_INFIX_EXTENSION = ".err";
 
-    public boolean deleteByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+	@Override
+	public boolean deleteByApplicationNameAndJobId(final String applicationName, final UUID jobId)
         throws IOException
     {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
-    public Collection<PersistedResult> findByApplicationName(final String applicationName)
+	@Override
+	public Collection<PersistedResult> findByApplicationName(final String applicationName)
     {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
-    public PersistedResult findByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+	@Override
+	public PersistedResult findByApplicationNameAndJobId(final String applicationName, final UUID jobId)
     {
         throw new UnsupportedOperationException(ERROR_MESSAGE);
     }
 
-    public void store(final PersistedResult result) throws IOException
+	@Override
+	public void store(final PersistedResult result) throws IOException
     {
         final String resultFileName = result.getJobId().toString()
                                       + (result.isSuccess() ? "" : ERROR_FILE_INFIX_EXTENSION) + "."
@@ -93,8 +98,9 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
         }
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
-    public boolean deleteByApplicationNameAndJobId(final String applicationName,
+	@PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
+	@Override
+	public boolean deleteByApplicationNameAndJobId(final String applicationName,
                                                    final String userName,
                                                    final UUID jobId) throws IOException
     {
@@ -109,8 +115,9 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
         return true;
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
-    public Collection<PersistedResult> findByApplicationName(final String applicationName,
+	@PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
+	@Override
+	public Collection<PersistedResult> findByApplicationName(final String applicationName,
                                                              final String userName)
     {
         final File[] resultFiles = getResultsDirectory(applicationName, userName).listFiles();
@@ -120,9 +127,9 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
             return Collections.emptyList();
         }
 
-        final Collection<PersistedResult> persistedResults = new ArrayList<PersistedResult>();
+        final Collection<PersistedResult> persistedResults = new ArrayList<>();
 
-        final List<File> sortedFiles = new ArrayList<File>(Arrays.asList(resultFiles));
+        final List<File> sortedFiles = new ArrayList<>(Arrays.asList(resultFiles));
         Collections.sort(sortedFiles, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
 
         for (final File resultFile : sortedFiles)
@@ -137,8 +144,9 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
         return persistedResults;
     }
 
-    @PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
-    public PersistedResult findByApplicationNameAndJobId(final String applicationName,
+	@PreAuthorize("hasPermission(#applicationName, 'APPLICATION_USER')")
+	@Override
+	public PersistedResult findByApplicationNameAndJobId(final String applicationName,
                                                          final String userName,
                                                          final UUID jobId)
     {
@@ -152,7 +160,8 @@ public class FileResultStore extends AbstractComponent implements SecureResultSt
         final File[] resultFiles = getResultsDirectory(applicationName, userName).listFiles(
             new FilenameFilter()
             {
-                public boolean accept(final File dir, final String name)
+				@Override
+				public boolean accept(final File dir, final String name)
                 {
                     return jobIdAsString.equals(StringUtils.substringBefore(name, "."));
                 }

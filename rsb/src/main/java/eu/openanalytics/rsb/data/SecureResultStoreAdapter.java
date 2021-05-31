@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+
 /**
  * This class exists for backwards compatibility reason: it allows existing
  * implementations of {@link ResultStore} to be used when a {@link SecureResultStore}
@@ -44,23 +45,27 @@ public class SecureResultStoreAdapter implements SecureResultStore
 
     private ResultStore resultStore;
 
-    public boolean deleteByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+	@Override
+	public boolean deleteByApplicationNameAndJobId(final String applicationName, final UUID jobId)
         throws IOException
     {
         return resultStore.deleteByApplicationNameAndJobId(applicationName, jobId);
     }
 
-    public Collection<PersistedResult> findByApplicationName(final String applicationName)
+	@Override
+	public Collection<PersistedResult> findByApplicationName(final String applicationName)
     {
         return resultStore.findByApplicationName(applicationName);
     }
 
-    public PersistedResult findByApplicationNameAndJobId(final String applicationName, final UUID jobId)
+	@Override
+	public PersistedResult findByApplicationNameAndJobId(final String applicationName, final UUID jobId)
     {
         return resultStore.findByApplicationNameAndJobId(applicationName, jobId);
     }
 
-    public void store(final PersistedResult result) throws IOException
+	@Override
+	public void store(final PersistedResult result) throws IOException
     {
         if ((!isAdaptedResultStoreSecure()) && (StringUtils.isNotBlank(result.getUserName())))
         {
@@ -69,7 +74,8 @@ public class SecureResultStoreAdapter implements SecureResultStore
         resultStore.store(result);
     }
 
-    public boolean deleteByApplicationNameAndJobId(final String applicationName,
+	@Override
+	public boolean deleteByApplicationNameAndJobId(final String applicationName,
                                                    final String userName,
                                                    final UUID jobId) throws IOException
     {
@@ -80,7 +86,8 @@ public class SecureResultStoreAdapter implements SecureResultStore
         return deleteByApplicationNameAndJobId(applicationName, jobId);
     }
 
-    public Collection<PersistedResult> findByApplicationName(final String applicationName,
+	@Override
+	public Collection<PersistedResult> findByApplicationName(final String applicationName,
                                                              final String userName)
     {
         if ((!isAdaptedResultStoreSecure()) && (StringUtils.isNotBlank(userName)))
@@ -90,7 +97,8 @@ public class SecureResultStoreAdapter implements SecureResultStore
         return findByApplicationName(applicationName);
     }
 
-    public PersistedResult findByApplicationNameAndJobId(final String applicationName,
+	@Override
+	public PersistedResult findByApplicationNameAndJobId(final String applicationName,
                                                          final String userName,
                                                          final UUID jobId)
     {

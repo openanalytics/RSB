@@ -49,6 +49,7 @@ import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.rest.types.Result;
 import eu.openanalytics.rsb.rest.types.Results;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

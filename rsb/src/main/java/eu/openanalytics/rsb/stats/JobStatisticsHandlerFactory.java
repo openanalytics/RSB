@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

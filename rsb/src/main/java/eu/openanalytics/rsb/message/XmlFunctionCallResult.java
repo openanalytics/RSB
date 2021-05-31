@@ -30,6 +30,7 @@ import javax.activation.MimeType;
 
 import eu.openanalytics.rsb.Constants;
 
+
 /**
  * Represents the result of a {@link XmlFunctionCallJob}.
  * 

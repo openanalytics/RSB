@@ -37,6 +37,7 @@ import org.junit.Test;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

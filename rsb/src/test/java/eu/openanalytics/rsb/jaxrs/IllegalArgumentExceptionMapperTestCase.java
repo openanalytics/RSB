@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

@@ -43,9 +43,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.statet.rj.servi.RServi;
+
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.eclipse.statet.rj.servi.RServi;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +55,7 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.rest.types.NodeInformation;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
+
 
 /**
  * Handles health check requests.
@@ -148,7 +150,7 @@ public class SystemHealthResource extends AbstractResource
     private void verifyRServiConnectivity() throws Exception
     {
         // check default pool
-        final Set<URI> urisToCheck = new TreeSet<URI>();
+        final Set<URI> urisToCheck = new TreeSet<>();
         urisToCheck.add(getConfiguration().getDefaultRserviPoolUri());
 
         // and application specific pools

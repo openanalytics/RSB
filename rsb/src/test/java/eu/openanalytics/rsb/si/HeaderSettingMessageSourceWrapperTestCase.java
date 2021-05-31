@@ -37,6 +37,7 @@ import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -53,7 +54,7 @@ public class HeaderSettingMessageSourceWrapperTestCase {
 
     @Before
     public void prepareWrapper() {
-        headerSettingMessageSourceWrapper = new HeaderSettingMessageSourceWrapper<String>(wrappedMessageSource, TEST_HEADER_NAME,
+        headerSettingMessageSourceWrapper = new HeaderSettingMessageSourceWrapper<>(wrappedMessageSource, TEST_HEADER_NAME,
                 TEST_HEADER_VALUE);
     }
 

@@ -41,6 +41,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 
+import org.eclipse.statet.jcommons.status.ProgressMonitor;
+import org.eclipse.statet.jcommons.status.StatusException;
+
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.data.impl.RCharacter32Store;
+import org.eclipse.statet.rj.data.impl.RVectorImpl;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.services.FunctionCall;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,14 +58,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.MessageSource;
-
-import org.eclipse.statet.jcommons.status.ProgressMonitor;
-import org.eclipse.statet.jcommons.status.StatusException;
-import org.eclipse.statet.rj.data.RObject;
-import org.eclipse.statet.rj.data.impl.RCharacter32Store;
-import org.eclipse.statet.rj.data.impl.RVectorImpl;
-import org.eclipse.statet.rj.servi.RServi;
-import org.eclipse.statet.rj.services.FunctionCall;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.message.AbstractFunctionCallJob;
@@ -69,6 +70,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 import eu.openanalytics.rsb.rservi.RServiUriSelector;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"

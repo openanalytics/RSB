@@ -34,6 +34,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import eu.openanalytics.rsb.Util;
 
+
 /**
  * Parent of all the work item messages.
  * 
@@ -111,47 +112,56 @@ public abstract class AbstractWorkItem implements WorkItem, Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
-    public Source getSource()
+	@Override
+	public Source getSource()
     {
-        return source;
+        return this.source;
     }
 
-    public String getApplicationName()
+	@Override
+	public String getApplicationName()
     {
-        return applicationName;
+        return this.applicationName;
     }
 
-    public String getUserName()
+	@Override
+	public String getUserName()
     {
-        return userName;
+        return this.userName;
     }
 
-    public UUID getJobId()
+	@Override
+	public UUID getJobId()
     {
-        return jobId;
+        return this.jobId;
     }
 
-    public GregorianCalendar getSubmissionTime()
+	@Override
+	public GregorianCalendar getSubmissionTime()
     {
-        return submissionTime;
+        return this.submissionTime;
     }
 
-    public Map<String, Serializable> getMeta()
+	@Override
+	public Map<String, Serializable> getMeta()
     {
-        return meta;
+        return this.meta;
     }
 
-    public String getErrorMessageId()
+	@Override
+	public String getErrorMessageId()
     {
         return getSource().errorMessageId;
     }
 
-    public String getAbortMessageId()
+	@Override
+	public String getAbortMessageId()
     {
         return getSource().abortMessageId;
     }
 
-    public int getPriority()
+	@Override
+	public int getPriority()
     {
         // potentially support per application priority
         return getSource().priority;

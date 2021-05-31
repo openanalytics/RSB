@@ -34,6 +34,7 @@ import org.springframework.context.MessageSource;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.rest.types.ErrorResult;
 
+
 /**
  * Represents a generic RSB job.
  * 
@@ -53,7 +54,8 @@ public abstract class AbstractJob extends AbstractWorkItem implements Job
         super(source, applicationName, userName, jobId, submissionTime, meta);
     }
 
-    public String getType()
+	@Override
+	public String getType()
     {
         return getClass().getSimpleName();
     }

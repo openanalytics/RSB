@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.component.AbstractComponent;
 
+
 /**
  * A JMS-backed a Job and Result message dispatcher.
  * 
@@ -52,7 +53,8 @@ public class JmsMessageDispatcher extends AbstractComponent implements MessageDi
             this.workItem = workItem;
         }
 
-        public Message postProcessMessage(final Message message) throws JMSException
+		@Override
+		public Message postProcessMessage(final Message message) throws JMSException
         {
             message.setStringProperty(Constants.SOURCE_MESSAGE_HEADER, workItem.getSource().toString());
             message.setStringProperty(Constants.APPLICATION_NAME_MESSAGE_HEADER,
@@ -72,20 +74,23 @@ public class JmsMessageDispatcher extends AbstractComponent implements MessageDi
         this.jmsTemplate = jmsTemplate;
     }
 
-    @PreAuthorize("hasPermission(#job, 'APPLICATION_JOB')")
-    public void dispatch(final AbstractJob job)
+	@PreAuthorize("hasPermission(#job, 'APPLICATION_JOB')")
+	@Override
+	public void dispatch(final AbstractJob job)
     {
         jmsTemplate.convertAndSend(getJobQueueName(job), job, new WorkItemMessagePostProcessor(job));
     }
 
-    public void dispatch(final AbstractResult<?> result)
+	@Override
+	public void dispatch(final AbstractResult<?> result)
     {
         jmsTemplate.convertAndSend(getResultQueueName(result), result, new WorkItemMessagePostProcessor(
             result));
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractResult<?>> T process(final AbstractJob job)
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T extends AbstractResult<?>> T process(final AbstractJob job)
     {
         dispatch(job);
         final Object result = jmsTemplate.receiveSelectedAndConvert(getResultQueueName(job),

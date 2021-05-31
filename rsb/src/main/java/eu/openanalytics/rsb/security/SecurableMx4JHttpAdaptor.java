@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import mx4j.tools.adaptor.http.HttpAdaptor;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +34,7 @@ import org.apache.commons.ssl.OpenSSL;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.JmxConfiguration;
+
 
 /**
  * Sub-class of {@link HttpAdaptor} that reads security configuration from RSB configuration and

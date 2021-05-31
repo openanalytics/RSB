@@ -31,6 +31,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+
 /**
  * Converts {@link Throwable} into HTTP responses.
  * 
@@ -40,7 +41,8 @@ public class ThrowableExceptionMapper implements ExceptionMapper<Throwable>
 {
     private static final Log LOGGER = LogFactory.getLog(ThrowableExceptionMapper.class);
 
-    public Response toResponse(final Throwable t)
+	@Override
+	public Response toResponse(final Throwable t)
     {
         LOGGER.error(t.getMessage(), t);
 

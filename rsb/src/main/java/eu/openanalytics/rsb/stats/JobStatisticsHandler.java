@@ -28,6 +28,7 @@ import java.util.Map;
 
 import eu.openanalytics.rsb.message.Job;
 
+
 /**
  * Defines a handler for RSB job statistics.
  * 

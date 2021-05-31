@@ -50,6 +50,7 @@ import eu.openanalytics.rsb.message.JsonFunctionCallJob;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.XmlFunctionCallJob;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

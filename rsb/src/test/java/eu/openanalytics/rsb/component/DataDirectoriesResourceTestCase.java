@@ -48,6 +48,7 @@ import org.springframework.security.access.AccessDeniedException;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.rest.types.Directory;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */

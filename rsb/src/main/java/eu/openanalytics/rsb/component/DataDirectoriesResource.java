@@ -53,6 +53,7 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.rest.types.Directory;
 import eu.openanalytics.rsb.rest.types.FileType;
 
+
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
@@ -64,7 +65,7 @@ import eu.openanalytics.rsb.rest.types.FileType;
     Constants.RSB_JSON_CONTENT_TYPE})
 public class DataDirectoriesResource extends AbstractResource
 {
-    private final Map<String, File> rootMap = new HashMap<String, File>();
+    private final Map<String, File> rootMap = new HashMap<>();
 
     // exposed for unit testing
     Map<String, File> getRootMap()

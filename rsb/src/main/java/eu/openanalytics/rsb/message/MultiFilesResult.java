@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 
 import eu.openanalytics.rsb.Util;
 
+
 /**
  * Represents a RSB result that consists of multiple files.
  * 

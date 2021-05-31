@@ -31,6 +31,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import com.meterware.httpunit.HttpException;
+import com.meterware.httpunit.PostMethodWebRequest;
+import com.meterware.httpunit.WebConversation;
+import com.meterware.httpunit.WebRequest;
+import com.meterware.httpunit.WebResponse;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
@@ -38,13 +43,8 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.meterware.httpunit.HttpException;
-import com.meterware.httpunit.PostMethodWebRequest;
-import com.meterware.httpunit.WebConversation;
-import com.meterware.httpunit.WebRequest;
-import com.meterware.httpunit.WebResponse;
-
 import eu.openanalytics.httpunit.DeleteMethodWebRequest;
+
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"

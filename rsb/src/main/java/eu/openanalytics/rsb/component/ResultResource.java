@@ -50,6 +50,7 @@ import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.data.PersistedResult;
 import eu.openanalytics.rsb.data.SecureResultStore;
 
+
 /**
  * Serves R job process result files.<br/>
  * <i>NB. Could very well be replaced with a static file serving context on a frontal
@@ -90,7 +91,8 @@ public class ResultResource extends AbstractResource
         addEtagHeader(persistedResult, rb);
         rb.entity(new StreamingOutput()
         {
-            public void write(final OutputStream output) throws IOException
+			@Override
+			public void write(final OutputStream output) throws IOException
             {
                 try(final InputStream data = persistedResult.getData(); final OutputStream autoCloseOutput = output) {
                   IOUtils.copy(data, output);

@@ -25,10 +25,26 @@ package eu.openanalytics.rsb.rservi;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.management.ObjectName;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+import org.eclipse.statet.jcommons.status.ProgressMonitor;
+import org.eclipse.statet.jcommons.status.StatusException;
+
+import org.eclipse.statet.rj.data.RObject;
+import org.eclipse.statet.rj.data.RReference;
+import org.eclipse.statet.rj.servi.RServi;
+import org.eclipse.statet.rj.servi.RServiUtils;
+import org.eclipse.statet.rj.services.FQRObject;
+import org.eclipse.statet.rj.services.FunctionCall;
+import org.eclipse.statet.rj.services.RGraphicCreator;
+import org.eclipse.statet.rj.services.RPlatform;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -40,25 +56,15 @@ import org.apache.commons.pool2.KeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
-import org.eclipse.statet.jcommons.lang.NonNullByDefault;
-import org.eclipse.statet.jcommons.lang.Nullable;
-import org.eclipse.statet.jcommons.status.ProgressMonitor;
-import org.eclipse.statet.jcommons.status.StatusException;
-import org.eclipse.statet.rj.data.RObject;
-import org.eclipse.statet.rj.data.RReference;
-import org.eclipse.statet.rj.servi.RServi;
-import org.eclipse.statet.rj.servi.RServiUtils;
-import org.eclipse.statet.rj.services.FQRObject;
-import org.eclipse.statet.rj.services.FunctionCall;
-import org.eclipse.statet.rj.services.RGraphicCreator;
-import org.eclipse.statet.rj.services.RPlatform;
 import org.springframework.jmx.export.MBeanExportOperations;
 import org.springframework.stereotype.Component;
+
 import eu.openanalytics.rsb.Constants;
 import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.RServiClientPoolValidationStrategy;
 import eu.openanalytics.rsb.config.RServiPoolConfig;
+
 
 /**
  * Provides RServi connection over RMI.
@@ -244,10 +250,10 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
         @Override
         public @Nullable FQRObject<?> findData(final String expression,
                                      final @Nullable RObject object,
-                                     boolean arg2,
+                                     final boolean arg2,
                                      final @Nullable String arg3,
-                                     int arg4,
-                                     int arg5,
+                                     final int arg4,
+                                     final int arg5,
                                      final ProgressMonitor monitor) throws StatusException
         {
             return rServi.findData(expression, object, arg2, arg3, arg4, arg5, monitor);
@@ -331,7 +337,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
 
     private void initializeRServiClientPool(final RServiPoolConfig config)
     {
-        final KeyedPooledObjectFactory<RServiPoolKey, PooledRServiWrapper> factory = new BaseKeyedPooledObjectFactory<RServiPoolKey, PooledRServiWrapper>()
+        final KeyedPooledObjectFactory<RServiPoolKey, PooledRServiWrapper> factory = new BaseKeyedPooledObjectFactory<>()
         {
 
             @Override
@@ -344,7 +350,7 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
             @Override
             public boolean validateObject(final RServiPoolKey key, final PooledObject<PooledRServiWrapper> rServiWrapper)
             {
-                PooledRServiWrapper rServi = rServiWrapper.getObject();
+                final PooledRServiWrapper rServi = rServiWrapper.getObject();
                 if (rServi.isClosed())
                 {
                     return false;
@@ -376,18 +382,18 @@ public class RmiRServiInstanceProvider implements RServiInstanceProvider
 
 
             @Override
-            public PooledRServiWrapper create(RServiPoolKey key) throws Exception {
+            public PooledRServiWrapper create(final RServiPoolKey key) throws Exception {
               final RServi rServi = RServiUtils.getRServi(key.getAddress(), key.getClientId());
               return new PooledRServiWrapper(rServiPool, key, rServi);
             }
 
             @Override
-            public PooledObject<PooledRServiWrapper> wrap(PooledRServiWrapper value) {
-              return new DefaultPooledObject<PooledRServiWrapper>(value);
+            public PooledObject<PooledRServiWrapper> wrap(final PooledRServiWrapper value) {
+              return new DefaultPooledObject<>(value);
             }
         };
 
-        rServiPool = new GenericKeyedObjectPool<RServiPoolKey, PooledRServiWrapper>(factory, config);
+        rServiPool = new GenericKeyedObjectPool<>(factory, config);
         LOGGER.info("RServi pool instantiated and configured with: "
                     + ToStringBuilder.reflectionToString(config));
     }

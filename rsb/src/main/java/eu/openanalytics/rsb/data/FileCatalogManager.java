@@ -51,6 +51,7 @@ import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.config.Configuration.DepositEmailConfiguration;
 
+
 /**
  * A file-based optionally-aware file catalog.
  * 
@@ -76,7 +77,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
 
     private Set<String> collectionAllApplicationNames()
     {
-        final Set<String> applicationNames = new HashSet<String>();
+        final Set<String> applicationNames = new HashSet<>();
 
         if (getConfiguration().getApplicationSecurityConfiguration() != null)
         {
@@ -111,7 +112,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
     @PreAuthorize("hasPermission(#applicationName, 'CATALOG_USER')")
     public Map<Pair<CatalogSection, File>, List<File>> getCatalog(final String applicationName)
     {
-        final Map<Pair<CatalogSection, File>, List<File>> catalog = new HashMap<Pair<CatalogSection, File>, List<File>>();
+        final Map<Pair<CatalogSection, File>, List<File>> catalog = new HashMap<>();
 
         for (final CatalogSection catalogSection : CatalogSection.values())
         {

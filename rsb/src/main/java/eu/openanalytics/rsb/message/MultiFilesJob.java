@@ -129,7 +129,7 @@ public class MultiFilesJob extends AbstractJob {
         final Properties jobConfiguration = new Properties();
         jobConfiguration.load(is);
 
-        final Map<String, Serializable> mergedMeta = new HashMap<String, Serializable>();
+        final Map<String, Serializable> mergedMeta = new HashMap<>();
         for (final Entry<?, ?> e : jobConfiguration.entrySet())
         {
             mergedMeta.put(e.getKey().toString(), e.getValue().toString());
