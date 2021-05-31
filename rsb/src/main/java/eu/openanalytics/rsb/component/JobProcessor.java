@@ -33,6 +33,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -137,21 +139,18 @@ public class JobProcessor extends AbstractComponentWithCatalog
                 // optionally uploads a Sweave file
                 final String sweaveFileFromCatalog = (String) getUploadableJobMeta(job).get(
                     Constants.SWEAVE_FILE_CONFIGURATION_KEY);
-
-                if (sweaveFileFromCatalog != null)
-                {
-                    final File sweaveFile = getCatalogManager().internalGetCatalogFile(
-                        CatalogSection.SWEAVE_FILES, job.getApplicationName(), sweaveFileFromCatalog);
-
-                    if (!sweaveFile.isFile())
-                    {
-                        throw new IllegalArgumentException("Invalid catalog Sweave file reference in job: "
-                                                           + job);
-                    }
-
-                    uploadFileToR(rServi, sweaveFile, filesUploadedToR);
-                }
-
+				
+				if (sweaveFileFromCatalog != null) {
+					final Path sweaveFile= getCatalogManager().internalGetCatalogFile(
+							CatalogSection.SWEAVE_FILES,
+							job.getApplicationName(), sweaveFileFromCatalog );
+					if (sweaveFile == null || !Files.exists(sweaveFile)) {
+						throw new IllegalArgumentException("Invalid catalog Sweave file reference in job: " + job);
+					}
+					
+					uploadFileToR(rServi, sweaveFile.toFile(), filesUploadedToR);
+				}
+				
                 // upload the job files (except the R Script which has already been
                 // taken care of)
                 for (final File jobFile : job.getFiles())
@@ -202,31 +201,27 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
             private File getRScriptFile(final MultiFilesJob job)
             {
-                final String rScriptFromCatalog = (String) getUploadableJobMeta(job).get(
-                    Constants.R_SCRIPT_CONFIGURATION_KEY);
-
-                return rScriptFromCatalog != null
-                                                 ? getRScriptFileFromCatalog(rScriptFromCatalog, job)
-                                                 : getRScriptFileFromJob(job);
-            }
-
-            private File getRScriptFileFromCatalog(final String rScriptFromCatalog, final MultiFilesJob job)
-            {
-                final File rScriptFile = getCatalogManager().internalGetCatalogFile(CatalogSection.R_SCRIPTS,
-                    job.getApplicationName(), rScriptFromCatalog);
-
-                if ((rScriptFile == null) || (!rScriptFile.isFile()))
-                {
-                    throw new IllegalArgumentException("No R script has been found for job: " + job
-                                                       + ", in the catalog under the name: "
-                                                       + rScriptFromCatalog);
-                }
-                else
-                {
-                    return rScriptFile;
-                }
-            }
-
+				final String rScriptFromCatalog= (String)getUploadableJobMeta(job)
+						.get(Constants.R_SCRIPT_CONFIGURATION_KEY);
+				
+				return (rScriptFromCatalog != null) ?
+						getRScriptFileFromCatalog(rScriptFromCatalog, job).toFile() :
+						getRScriptFileFromJob(job);
+			}
+			
+			private Path getRScriptFileFromCatalog(final String rScriptFromCatalog, final MultiFilesJob job) {
+				final Path rScriptFile= getCatalogManager().internalGetCatalogFile(
+						CatalogSection.R_SCRIPTS,
+						job.getApplicationName(), rScriptFromCatalog );
+				if (rScriptFile == null || !Files.isRegularFile(rScriptFile)) {
+					throw new IllegalArgumentException("No R script has been found for job: " + job
+							+ ", in the catalog under the name: " + rScriptFromCatalog );
+				}
+				else {
+					return rScriptFile;
+				}
+			}
+			
             private File getRScriptFileFromJob(final MultiFilesJob job)
             {
                 if ((job.getRScriptFile() == null) || (!job.getRScriptFile().isFile()))

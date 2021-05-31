@@ -23,8 +23,6 @@
 
 package eu.openanalytics.rsb;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -173,16 +171,6 @@ public class Constants {
         }
     }
 
-    private static final class FileOnlyFilter implements FileFilter
-    {
-		@Override
-		public boolean accept(final File f)
-        {
-            return f.isFile();
-        }
-    }
-
-    public static final FileFilter FILE_ONLY_FILTER = new FileOnlyFilter();
 
     private Constants()
     {

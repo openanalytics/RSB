@@ -25,8 +25,8 @@ package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -34,12 +34,15 @@ import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static eu.openanalytics.rsb.test.TestUtils.getTestDataFile;
+
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +52,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
@@ -70,6 +72,7 @@ import eu.openanalytics.rsb.data.CatalogManager.PutCatalogFileResult;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.RServiPools;
 import eu.openanalytics.rsb.rservi.RServiPackageManager;
+import eu.openanalytics.rsb.test.TestUtils;
 
 
 /**
@@ -94,19 +97,19 @@ public class AdminResourceTestCase
     @Before
     public void prepareTest() throws UnknownHostException
     {
-        adminResource = new AdminResource();
-        adminResource.setApplicationContext(applicationContext);
-        adminResource.setConfiguration(configuration);
-        adminResource.setCatalogManager(catalogManager);
+        this.adminResource = new AdminResource();
+        this.adminResource.setApplicationContext(this.applicationContext);
+        this.adminResource.setConfiguration(this.configuration);
+        this.adminResource.setCatalogManager(this.catalogManager);
 
-        when(uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
     }
 
     @Test
     public void getSystemConfiguration() throws Exception
     {
-        adminResource.setConfiguration(ConfigurationFactory.loadJsonConfiguration());
-        final Response response = adminResource.getSystemConfiguration();
+        this.adminResource.setConfiguration(ConfigurationFactory.loadJsonConfiguration());
+        final Response response = this.adminResource.getSystemConfiguration();
         assertThat(response.getStatus(), is(200));
         assertThat(Util.fromJson(response.getEntity().toString(), PersistedConfiguration.class),
             is(instanceOf(PersistedConfiguration.class)));
@@ -115,8 +118,8 @@ public class AdminResourceTestCase
     @Test
     public void putSystemConfiguration() throws Exception
     {
-        adminResource.setConfiguration(ConfigurationFactory.loadJsonConfiguration());
-        final Response response = adminResource.putSystemConfiguration(Thread.currentThread()
+        this.adminResource.setConfiguration(ConfigurationFactory.loadJsonConfiguration());
+        final Response response = this.adminResource.putSystemConfiguration(Thread.currentThread()
             .getContextClassLoader()
             .getResourceAsStream("rsb-configuration.json"));
         assertThat(response.getStatus(), is(204));
@@ -125,7 +128,7 @@ public class AdminResourceTestCase
     @Test
     public void restart() throws Exception
     {
-        final Response response = adminResource.restart();
+        final Response response = this.adminResource.restart();
         assertThat(response.getStatus(), is(200));
         assertThat(response.getEntity().toString(), is("RESTARTED"));
     }
@@ -134,136 +137,151 @@ public class AdminResourceTestCase
     public void installRPackageBadChecksum() throws Exception
     {
         final byte[] fakePackageBytes = "fake_package".getBytes();
-        adminResource.installRPackage("ignored", "bad", "bad.tar.gz", new ByteArrayInputStream(
+        this.adminResource.installRPackage("ignored", "bad", "bad.tar.gz", new ByteArrayInputStream(
             fakePackageBytes));
     }
 
     @Test
     public void installRPackageSuccess() throws Exception
     {
-        adminResource.setrServiPackageManager(mock(RServiPackageManager.class));
+        this.adminResource.setrServiPackageManager(mock(RServiPackageManager.class));
 
         final byte[] fakePackageBytes = IOUtils.toByteArray(JobsResourceTestCase.getTestDataAsStream("fake-package.tar.gz"));
 
-        adminResource.installRPackage("ignored", DigestUtils.sha1Hex(fakePackageBytes),
+        this.adminResource.installRPackage("ignored", DigestUtils.sha1Hex(fakePackageBytes),
             "fake_package.tar.gz", new ByteArrayInputStream(fakePackageBytes));
     }
 
     @Test
     public void getRServiPools() throws Exception
     {
-        when(configuration.getDefaultRserviPoolUri()).thenReturn(new URI("fake://pool_uri"));
+        when(this.configuration.getDefaultRserviPoolUri()).thenReturn(new URI("fake://pool_uri"));
 
-        final RServiPools rServiPools = adminResource.getRServiPools();
+        final RServiPools rServiPools = this.adminResource.getRServiPools();
         assertThat(rServiPools.getContents().size(), is(1));
     }
-
-    @Test
-    public void getApplicationUnawareCatalog() throws Exception
-    {
-        final File fakeCatalogDir = new File(FileUtils.getTempDirectory(), "rsb_test_catalog");
-        FileUtils.forceMkdir(fakeCatalogDir);
-        final Map<Pair<CatalogSection, File>, List<File>> fakeCatalog = Collections.singletonMap(
-            Pair.of(CatalogSection.R_SCRIPTS, fakeCatalogDir), Collections.<File> emptyList());
-        when(catalogManager.getCatalog(null)).thenReturn(fakeCatalog);
-
-        final Catalog catalog = adminResource.getCatalogIndex(null, httpHeaders, uriInfo);
-        assertThat(catalog, is(not(nullValue())));
-        assertThat(catalog.getDirectories().size(), is(1));
-    }
-
-    @Test
-    public void getApplicationAwareCatalog() throws Exception
-    {
-        when(configuration.isApplicationAwareCatalog()).thenReturn(true);
-
-        final File fakeCatalogDir = new File(FileUtils.getTempDirectory(), "rsb_test_catalog");
-        FileUtils.forceMkdir(fakeCatalogDir);
-        final Map<Pair<CatalogSection, File>, List<File>> fakeCatalog = Collections.singletonMap(
-            Pair.of(CatalogSection.R_SCRIPTS, fakeCatalogDir), Collections.<File> emptyList());
-        when(catalogManager.getCatalog("TEST_APP")).thenReturn(fakeCatalog);
-
-        final Catalog catalog = adminResource.getCatalogIndex("TEST_APP", httpHeaders, uriInfo);
-        assertThat(catalog, is(not(nullValue())));
-        assertThat(catalog.getDirectories().size(), is(1));
-    }
-
-    @Test
-    public void getApplicationUnawareCatalogFile() throws Exception
-    {
-        final File testFile = new File(Thread.currentThread()
-            .getContextClassLoader()
-            .getResource("data/test.R")
-            .toURI());
-
-        when(catalogManager.getCatalogFile(CatalogSection.R_SCRIPTS, null, "test.R")).thenReturn(testFile);
-
-        final Response response = adminResource.getCatalogFile("R_SCRIPTS", "test.R", null);
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void getApplicationAwareCatalogFile() throws Exception
-    {
-        when(configuration.isApplicationAwareCatalog()).thenReturn(true);
-
-        final File testFile = new File(Thread.currentThread()
-            .getContextClassLoader()
-            .getResource("data/test.R")
-            .toURI());
-
-        when(catalogManager.getCatalogFile(CatalogSection.R_SCRIPTS, "TEST_APP", "test.R")).thenReturn(
-            testFile);
-
-        final Response response = adminResource.getCatalogFile("R_SCRIPTS", "test.R", "TEST_APP");
-        assertThat(response.getStatus(), is(200));
-    }
-
-    @Test
-    public void putApplicationUnawareCatalogFile() throws Exception
-    {
-        final File testFile = new File(FileUtils.getTempDirectory(), "fake.R");
-
-        when(
-            catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS), isNull(String.class), eq("fake.R"),
-                any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.CREATED, testFile));
-
-        final Response firstResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", null,
-            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
-        assertThat(firstResponse.getStatus(), is(201));
-
-        when(
-            catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS), isNull(String.class), eq("fake.R"),
-                any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.UPDATED, testFile));
-
-        final Response secondResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", null,
-            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
-        assertThat(secondResponse.getStatus(), is(204));
-    }
-
-    @Test
-    public void putApplicationAwareCatalogFile() throws Exception
-    {
-        when(configuration.isApplicationAwareCatalog()).thenReturn(true);
-
-        when(httpHeaders.getHeaderString("X-RSB-Application-Name")).thenReturn("TEST_APP");
-
-        final File testFile = new File(FileUtils.getTempDirectory(), "fake.R");
-
-        when(
-            catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS), eq("TEST_APP"), eq("fake.R"),
-                any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.CREATED, testFile));
-
-        final Response firstResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", "TEST_APP",
-            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
-        assertThat(firstResponse.getStatus(), is(201));
-
-        when(
-            catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS), eq("TEST_APP"), eq("fake.R"),
-                any(InputStream.class))).thenReturn(Pair.of(PutCatalogFileResult.UPDATED, testFile));
-
-        final Response secondResponse = adminResource.putCatalogFile("R_SCRIPTS", "fake.R", "TEST_APP",
-            IOUtils.toInputStream("fake script", Charset.defaultCharset()), httpHeaders, uriInfo);
-        assertThat(secondResponse.getStatus(), is(204));
-    }
+	
+	
+	@Test
+	public void getApplicationUnawareCatalog() throws Exception {
+		final Path fakeCatalogDir= TestUtils.getTempDirectory().resolve("rsb_test_catalog");
+		Files.createDirectories(fakeCatalogDir);
+		final Map<CatalogSection, Pair<Path, List<Path>>> fakeCatalog= Map.of(
+				CatalogSection.R_SCRIPTS,
+				Pair.of(fakeCatalogDir, Collections.<Path>emptyList()) );
+		when(this.catalogManager.getCatalog(null)).thenReturn(fakeCatalog);
+		
+		final Catalog catalog= this.adminResource.getCatalogIndex(null,
+				this.httpHeaders, this.uriInfo );
+		assertNotNull(catalog);
+		assertEquals(1, catalog.getDirectories().size());
+	}
+	
+	@Test
+	public void getApplicationAwareCatalog() throws Exception {
+		when(this.configuration.isApplicationAwareCatalog()).thenReturn(true);
+		
+		final Path fakeCatalogDir= TestUtils.getTempDirectory().resolve("rsb_test_catalog");
+		Files.createDirectories(fakeCatalogDir);
+		final Map<CatalogSection, Pair<Path, List<Path>>> fakeCatalog= Map.of(
+				CatalogSection.R_SCRIPTS,
+				Pair.of(fakeCatalogDir, Collections.<Path>emptyList()) );
+		when(this.catalogManager.getCatalog("TEST_APP")).thenReturn(fakeCatalog);
+		
+		final Catalog catalog= this.adminResource.getCatalogIndex("TEST_APP",
+				this.httpHeaders, this.uriInfo );
+		assertNotNull(catalog);
+		assertEquals(1, catalog.getDirectories().size());
+	}
+	
+	@Test
+	public void getApplicationUnawareCatalogFile() throws Exception {
+		final Path testFile= getTestDataFile("test.R");
+		
+		when(this.catalogManager.getCatalogFile(CatalogSection.R_SCRIPTS,
+						null, "test.R" ))
+				.thenReturn(testFile);
+		
+		final Response response= this.adminResource.getCatalogFile("R_SCRIPTS",
+				"test.R", null );
+		assertEquals(200, response.getStatus());
+	}
+	
+	@Test
+	public void getApplicationAwareCatalogFile() throws Exception {
+		when(this.configuration.isApplicationAwareCatalog()).thenReturn(true);
+		
+		final Path testFile= getTestDataFile("test.R");
+		
+		when(this.catalogManager.getCatalogFile(CatalogSection.R_SCRIPTS,
+						"TEST_APP", "test.R" ))
+				.thenReturn(testFile);
+		
+		final Response response= this.adminResource.getCatalogFile("R_SCRIPTS",
+				"test.R", "TEST_APP" );
+		assertEquals(200, response.getStatus());
+	}
+	
+	@Test
+	public void putApplicationUnawareCatalogFile() throws Exception {
+		final Path testFile= TestUtils.getTempDirectory().resolve("fake.R");
+		
+		when(this.catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS),
+						isNull(String.class), eq("fake.R"), any(InputStream.class) ))
+				.thenReturn(new PutCatalogFileResult(
+						PutCatalogFileResult.ChangeType.CREATED,
+						testFile ));
+		
+		final Response firstResponse= this.adminResource.putCatalogFile("R_SCRIPTS",
+				"fake.R", null,
+				IOUtils.toInputStream("fake script", Charset.defaultCharset()),
+				this.httpHeaders, this.uriInfo );
+		assertEquals(201, firstResponse.getStatus());
+		
+		when(this.catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS),
+						isNull(String.class), eq("fake.R"), any(InputStream.class) ))
+				.thenReturn(new PutCatalogFileResult(
+						PutCatalogFileResult.ChangeType.UPDATED,
+						testFile ));
+		
+		final Response secondResponse= this.adminResource.putCatalogFile("R_SCRIPTS",
+				"fake.R", null,
+				IOUtils.toInputStream("fake script", Charset.defaultCharset()),
+				this.httpHeaders, this.uriInfo );
+		assertEquals(204, secondResponse.getStatus());
+	}
+	
+	@Test
+	public void putApplicationAwareCatalogFile() throws Exception {
+		when(this.configuration.isApplicationAwareCatalog()).thenReturn(true);
+		
+		when(this.httpHeaders.getHeaderString("X-RSB-Application-Name")).thenReturn("TEST_APP");
+		
+		final Path testFile= TestUtils.getTempDirectory().resolve("fake.R");
+		
+		when(this.catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS),
+						eq("TEST_APP"), eq("fake.R"), any(InputStream.class) ))
+				.thenReturn(new PutCatalogFileResult(
+						PutCatalogFileResult.ChangeType.CREATED,
+						testFile ));
+		
+		final Response firstResponse= this.adminResource.putCatalogFile("R_SCRIPTS",
+				"fake.R", "TEST_APP",
+				IOUtils.toInputStream("fake script", Charset.defaultCharset()),
+				this.httpHeaders, this.uriInfo );
+		assertEquals(201, firstResponse.getStatus());
+		
+		when(this.catalogManager.putCatalogFile(eq(CatalogSection.R_SCRIPTS),
+						eq("TEST_APP"), eq("fake.R"), any(InputStream.class) ))
+				.thenReturn(new PutCatalogFileResult(
+						PutCatalogFileResult.ChangeType.UPDATED,
+						testFile ));
+		
+		final Response secondResponse= this.adminResource.putCatalogFile("R_SCRIPTS",
+				"fake.R", "TEST_APP",
+				IOUtils.toInputStream("fake script", Charset.defaultCharset()),
+				this.httpHeaders, this.uriInfo );
+		assertEquals(204, secondResponse.getStatus());
+	}
+	
 }

@@ -24,12 +24,13 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -156,7 +157,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 			else {
 				throw new IllegalArgumentException("Invalid email account URI: " + emailAccountURI);
 			}
-			mailReceiver.setBeanFactory(beanFactory);
+			mailReceiver.setBeanFactory(this.beanFactory);
 			mailReceiver.setBeanName("rsb-email-ms-" + emailAccountURI.getHost() + emailAccountURI.hashCode());
 			mailReceiver.setShouldDeleteMessages(true);
 			mailReceiver.setMaxFetchSize(1);
@@ -166,10 +167,10 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
                 fileMessageSource, EMAIL_CONFIG_HEADER_NAME, depositEmailConfiguration);
 
             final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
-            channelAdapter.setBeanFactory(beanFactory);
+            channelAdapter.setBeanFactory(this.beanFactory);
             channelAdapter.setBeanName("rsb-email-ca-" + emailAccountURI.getHost()
                                        + emailAccountURI.hashCode());
-            channelAdapter.setOutputChannel(emailDepositChannel);
+            channelAdapter.setOutputChannel(this.emailDepositChannel);
             channelAdapter.setSource(messageSource);
             channelAdapter.setTrigger(trigger);
             channelAdapter.afterPropertiesSet();
@@ -177,14 +178,14 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 
             getLogger().info("Started channel adapter: " + channelAdapter);
 
-            channelAdapters.add(channelAdapter);
+            this.channelAdapters.add(channelAdapter);
         }
     }
 
     @PreDestroy
     public void closeChannelAdapters()
     {
-        for (final SourcePollingChannelAdapter channelAdapter : channelAdapters)
+        for (final SourcePollingChannelAdapter channelAdapter : this.channelAdapters)
         {
             channelAdapter.stop();
             getLogger().info("Stopped channel adapter: " + channelAdapter);
@@ -235,7 +236,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
                                                                 ? FileUtils.readFileToString((File) responseBody, Charset.defaultCharset())
                                                                 : responseBody.toString();
 
-        final MimeMessage mimeMessage = mailSender.createMimeMessage();
+        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
         final MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
 
         mmh.setFrom((String) result.getMeta().get(EMAIL_ADDRESSEE_META_NAME));
@@ -257,7 +258,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
         }
 
         final Message<MimeMailMessage> message = new GenericMessage<>(new MimeMailMessage(mmh));
-        outboundEmailChannel.send(message);
+        this.outboundEmailChannel.send(message);
     }
 	
 	private void addEmailAttachmentsToJob(final DepositEmailConfiguration depositEmailConfiguration,
@@ -266,9 +267,11 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 			throws IllegalJobDataException, MessagingException, IOException {
 		final String jobConfigurationFileName= depositEmailConfiguration.getJobConfigurationFileName();
 		if (jobConfigurationFileName != null && !jobConfigurationFileName.isBlank()) {
-			final File jobConfigurationFile= getJobConfigurationFile(
-					depositEmailConfiguration.getApplicationName(), jobConfigurationFileName);
-			job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, new FileInputStream(jobConfigurationFile));
+			final Path jobConfigurationFile= getJobConfigurationFile(
+					depositEmailConfiguration.getApplicationName(), jobConfigurationFileName );
+			try (final var in= Files.newInputStream(jobConfigurationFile)) {
+				job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, in);
+			}
 		}
 		
 		final Object content= mimeMessage.getContent();
@@ -288,17 +291,16 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 		}
 	}
 	
-    private Serializable getResponseBody(final DepositEmailConfiguration depositEmailConfiguration)
-    {
-        if (StringUtils.isBlank(depositEmailConfiguration.getResponseFileName()))
-        {
-            return getMessages().getMessage("email.result.body", null, null);
-        }
-
-        return getCatalogManager().internalGetCatalogFile(CatalogSection.EMAIL_REPLIES,
-            depositEmailConfiguration.getApplicationName(), depositEmailConfiguration.getResponseFileName());
-    }
-
+	private Serializable getResponseBody(final DepositEmailConfiguration configuration) {
+		if (StringUtils.isBlank(configuration.getResponseFileName())) {
+			return getMessages().getMessage("email.result.body", null, null);
+		}
+		
+		return getCatalogManager().internalGetCatalogFile(CatalogSection.EMAIL_REPLIES,
+						configuration.getApplicationName(), configuration.getResponseFileName() )
+				.toFile();
+	}
+	
     private String getPrimaryAddressee(final MimeMessage mimeMessage) throws MessagingException
     {
         final Address[] recipients = mimeMessage.getRecipients(RecipientType.TO);

@@ -23,6 +23,8 @@
 
 package eu.openanalytics.rsb.component;
 
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -33,6 +35,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,15 +64,16 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -82,7 +86,6 @@ import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.ConfigurationFactory;
 import eu.openanalytics.rsb.config.PersistedConfiguration;
-import eu.openanalytics.rsb.data.CatalogManager.PutCatalogFileResult;
 import eu.openanalytics.rsb.rest.types.Catalog;
 import eu.openanalytics.rsb.rest.types.CatalogDirectory;
 import eu.openanalytics.rsb.rest.types.CatalogFileType;
@@ -96,16 +99,18 @@ import eu.openanalytics.rsb.rservi.RServiPackageManager;
  */
 @Component("adminResource")
 @Path("/" + Constants.ADMIN_PATH)
-public class AdminResource extends AbstractResource implements ApplicationContextAware
-{
-    private static final String CATALOG_SUBPATH = "catalog";
-    private static final String SYSTEM_SUBPATH = "system";
-
-    public static final String ADMIN_SYSTEM_PATH = Constants.ADMIN_PATH + "/" + SYSTEM_SUBPATH;
-    public static final String ADMIN_CATALOG_PATH = Constants.ADMIN_PATH + "/" + CATALOG_SUBPATH;
-
-    private static final Pattern TAR_CATALOG_FILE_PATTERN = Pattern.compile(".*/inst/rsb/catalog/(.*)");
-
+@NonNullByDefault
+public class AdminResource extends AbstractResource implements ApplicationContextAware {
+	
+	private static final String SYSTEM_SUBPATH= "system";
+	private static final String CATALOG_SUBPATH= "catalog";
+	
+	public static final String ADMIN_SYSTEM_PATH= Constants.ADMIN_PATH + "/" + SYSTEM_SUBPATH;
+	public static final String ADMIN_CATALOG_PATH= Constants.ADMIN_PATH + "/" + CATALOG_SUBPATH;
+	
+	private static final Pattern TAR_CATALOG_FILE_PATTERN= Pattern.compile(".*/inst/rsb/catalog/(.*)");
+	
+	
     private ConfigurableApplicationContext applicationContext;
 
     @Resource
@@ -191,7 +196,24 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         }
         return result;
     }
-
+    
+    private void addToPools(final URI rServiPoolUri,
+                            final String applicationName,
+                            final Map<URI, Set<String>> pools)
+    {
+        Set<String> applicationNames= pools.get(rServiPoolUri);
+        if (applicationNames == null)
+        {
+            applicationNames= new HashSet<>();
+        }
+        if (StringUtils.isNotBlank(applicationName))
+        {
+            applicationNames.add(applicationName);
+        }
+        pools.put(rServiPoolUri, applicationNames);
+    }
+	
+	
     @Path("/" + SYSTEM_SUBPATH + "/r_packages")
     @POST
     @Consumes({Constants.GZIP_CONTENT_TYPE})
@@ -204,8 +226,8 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
 
         // store the package and tar files in temporary files
-        final File tempDirectory = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
-        FileUtils.forceMkdir(tempDirectory);
+        final File tempDirectory = new File(org.apache.commons.io.FileUtils.getTempDirectory(), UUID.randomUUID().toString());
+        org.apache.commons.io.FileUtils.forceMkdir(tempDirectory);
 
         final File packageSourceFile = new File(tempDirectory, packageName);
 
@@ -233,7 +255,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
         {
             try
             {
-                FileUtils.forceDelete(tempDirectory);
+                org.apache.commons.io.FileUtils.forceDelete(tempDirectory);
             }
             catch (final Exception e)
             {
@@ -280,135 +302,115 @@ public class AdminResource extends AbstractResource implements ApplicationContex
           }
         }
     }
-
-    @Path("/" + CATALOG_SUBPATH)
-    @GET
-    @Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
-    public Catalog getCatalogIndex(@HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final String applicationName,
-                                   @Context final HttpHeaders httpHeaders,
-                                   @Context final UriInfo uriInfo) throws IOException, URISyntaxException
-    {
-        final Catalog result = Util.REST_OBJECT_FACTORY.createCatalog();
-
-        for (final Entry<Pair<CatalogSection, File>, List<File>> catalogSectionFiles : getCatalogManager().getCatalog(
-            applicationName)
-            .entrySet())
-        {
-            final CatalogDirectory catalogDirectory = createCatalogDirectory(catalogSectionFiles.getKey()
-                .getLeft(), catalogSectionFiles.getKey().getRight(), catalogSectionFiles.getValue(),
-                httpHeaders, uriInfo);
-            result.getDirectories().add(catalogDirectory);
-        }
-
-        return result;
-    }
-
-    @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
-    @GET
-    public Response getCatalogFile(@PathParam("catalogName") final String catalogName,
-                                   @PathParam("fileName") final String fileName,
-                                   @HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final String applicationName)
-        throws IOException, URISyntaxException
-    {
-        final File catalogFile = getCatalogManager().getCatalogFile(CatalogSection.valueOf(catalogName),
-            applicationName, fileName);
-
-        if (!catalogFile.isFile())
-        {
-            return Response.status(Status.NOT_FOUND).build();
-        }
-
-        final ResponseBuilder rb = Response.ok();
-        rb.type(Util.getContentType(catalogFile));
-        rb.entity(new StreamingOutput()
-        {
-            @Override
-            public void write(final OutputStream output) throws IOException
-            {
-                try(final FileInputStream fis = new FileInputStream(catalogFile); OutputStream autoCloseOutput = output) {
-                  IOUtils.copy(fis, autoCloseOutput);
-                }
-            }
-        });
-        return rb.build();
-    }
-
-    @Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
-    @PUT
-    @Consumes(Constants.TEXT_CONTENT_TYPE)
-    public Response putCatalogFile(@PathParam("catalogName") final String catalogName,
-                                   @PathParam("fileName") final String fileName,
-                                   @HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final String applicationName,
-                                   final InputStream in,
-                                   @Context final HttpHeaders httpHeaders,
-                                   @Context final UriInfo uriInfo) throws IOException, URISyntaxException
-    {
-        final CatalogSection catalogSection = CatalogSection.valueOf(catalogName);
-        final Pair<PutCatalogFileResult, File> result = getCatalogManager().putCatalogFile(catalogSection,
-            applicationName, fileName, in);
-
-        if (result.getLeft() == PutCatalogFileResult.UPDATED)
-        {
-            return Response.noContent().build();
-        }
-
-        final URI location = buildCatalogFileUri(catalogSection, result.getRight(), httpHeaders, uriInfo);
-        return Response.created(location).build();
-    }
-
-    private void addToPools(final URI rServiPoolUri,
-                            final String applicationName,
-                            final Map<URI, Set<String>> pools)
-    {
-        Set<String> applicationNames = pools.get(rServiPoolUri);
-        if (applicationNames == null)
-        {
-            applicationNames = new HashSet<>();
-        }
-        if (StringUtils.isNotBlank(applicationName))
-        {
-            applicationNames.add(applicationName);
-        }
-        pools.put(rServiPoolUri, applicationNames);
-    }
-
-    private CatalogDirectory createCatalogDirectory(final CatalogSection catalogSection,
-                                                    final File catalogSectionDirectory,
-                                                    final List<File> catalogFiles,
-                                                    final HttpHeaders httpHeaders,
-                                                    final UriInfo uriInfo)
-        throws URISyntaxException, IOException
-    {
-
-        final String catalogTypeAsString = catalogSection.toString();
-
-        final CatalogDirectory catalogDirectory = Util.REST_OBJECT_FACTORY.createCatalogDirectory();
-        catalogDirectory.setType(catalogTypeAsString);
-        catalogDirectory.setPath(catalogSectionDirectory.getCanonicalPath());
-
-        for (final File file : catalogFiles)
-        {
-            final URI dataUri = buildCatalogFileUri(catalogSection, file, httpHeaders, uriInfo);
-            final CatalogFileType catalogFile = Util.REST_OBJECT_FACTORY.createCatalogFileType();
-            catalogFile.setName(file.getName());
-            catalogFile.setDataUri(dataUri.toString());
-            catalogDirectory.getFiles().add(catalogFile);
-        }
-
-        return catalogDirectory;
-    }
-
-    private URI buildCatalogFileUri(final CatalogSection catalogSection,
-                                    final File file,
-                                    final HttpHeaders httpHeaders,
-                                    final UriInfo uriInfo) throws URISyntaxException
-    {
-
-        return Util.getUriBuilder(uriInfo, httpHeaders)
-            .path(Constants.ADMIN_PATH)
-            .path(CATALOG_SUBPATH)
-            .path(catalogSection.toString())
-            .path(file.getName())
-            .build();
-    }
+	
+	
+	@Path("/" + CATALOG_SUBPATH)
+	@GET
+	@Produces({Constants.RSB_XML_CONTENT_TYPE, Constants.RSB_JSON_CONTENT_TYPE})
+	public Catalog getCatalogIndex(
+			@HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final @Nullable String applicationName,
+			@Context final HttpHeaders httpHeaders,
+			@Context final UriInfo uriInfo)
+			throws IOException, URISyntaxException {
+		final Catalog result= Util.REST_OBJECT_FACTORY.createCatalog();
+		
+		for (final var catalogSectionFiles : getCatalogManager().getCatalog(applicationName)
+				.entrySet() ) {
+			final CatalogDirectory catalogDirectory= createCatalogDirectory(
+					catalogSectionFiles.getKey(),
+					catalogSectionFiles.getValue().getLeft(),
+					catalogSectionFiles.getValue().getRight(),
+					httpHeaders, uriInfo );
+			result.getDirectories().add(catalogDirectory);
+		}
+		
+		return result;
+	}
+	
+	@Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
+	@GET
+	public Response getCatalogFile(
+			@PathParam("catalogName") final String catalogName,
+			@PathParam("fileName") final String fileName,
+			@HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final @Nullable String applicationName)
+			throws IOException, URISyntaxException {
+		final CatalogSection catalogSection= CatalogSection.valueOf(catalogName);
+		final var catalogFile= getCatalogManager().getCatalogFile(catalogSection,
+				applicationName, fileName );
+		
+		if (!Files.isRegularFile(catalogFile)) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+		final ResponseBuilder rb= Response.ok();
+		rb.type(Util.getContentType(catalogFile));
+		rb.entity(new StreamingOutput() {
+			@Override
+			public void write(final OutputStream out) throws IOException {
+				Files.copy(catalogFile, out);
+			}
+		});
+		return rb.build();
+	}
+	
+	@Path("/" + CATALOG_SUBPATH + "/{catalogName}/{fileName}")
+	@PUT
+	@Consumes(Constants.TEXT_CONTENT_TYPE)
+	public Response putCatalogFile(
+			@PathParam("catalogName") final String catalogName,
+			@PathParam("fileName") final String fileName,
+			@HeaderParam(Constants.APPLICATION_NAME_FIELD_NAME) final @Nullable String applicationName,
+			final InputStream in,
+			@Context final HttpHeaders httpHeaders,
+			@Context final UriInfo uriInfo)
+			throws IOException, URISyntaxException {
+		final CatalogSection catalogSection= CatalogSection.valueOf(catalogName);
+		final var result= getCatalogManager().putCatalogFile(catalogSection,
+				applicationName, fileName, in );
+		
+		switch (result.getChangeType()) {
+		case UPDATED:
+			return Response.noContent().build();
+//		case CREATED:
+		default:
+			final URI location= buildCatalogFileUri(catalogSection, result.getPath(),
+					httpHeaders, uriInfo );
+			return Response.created(location).build();
+		}
+	}
+	
+	private CatalogDirectory createCatalogDirectory(final CatalogSection catalogSection,
+			final java.nio.file.Path catalogSectionDirectory,
+			final List<java.nio.file.Path> catalogFiles,
+			final HttpHeaders httpHeaders, final UriInfo uriInfo)
+			throws URISyntaxException, IOException {
+		final String catalogTypeAsString= catalogSection.toString();
+		
+		final CatalogDirectory catalogDirectory= Util.REST_OBJECT_FACTORY.createCatalogDirectory();
+		catalogDirectory.setType(catalogTypeAsString);
+		catalogDirectory.setPath(catalogSectionDirectory.toAbsolutePath().normalize().toString());
+		
+		for (final var file : catalogFiles) {
+			final URI dataUri= buildCatalogFileUri(catalogSection, file, httpHeaders, uriInfo);
+			final CatalogFileType catalogFile= Util.REST_OBJECT_FACTORY.createCatalogFileType();
+			catalogFile.setName(requireFileName(file).toString());
+			catalogFile.setDataUri(dataUri.toString());
+			catalogDirectory.getFiles().add(catalogFile);
+		}
+		
+		return catalogDirectory;
+	}
+	
+	private URI buildCatalogFileUri(final CatalogSection catalogSection,
+			final java.nio.file.Path file,
+			final HttpHeaders httpHeaders, final UriInfo uriInfo)
+			throws URISyntaxException {
+		return Util.getUriBuilder(uriInfo, httpHeaders)
+				.path(Constants.ADMIN_PATH)
+				.path(CATALOG_SUBPATH)
+				.path(catalogSection.toString())
+				.path(requireFileName(file).toString())
+				.build();
+	}
+	
 }

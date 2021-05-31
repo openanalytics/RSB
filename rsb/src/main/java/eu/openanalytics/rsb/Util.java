@@ -23,12 +23,15 @@
 
 package eu.openanalytics.rsb;
 
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -151,7 +154,17 @@ public abstract class Util
         final String result = DEFAULT_FILE_EXTENSIONS.get(mimeType.toString());
         return result != null ? result : DEFAULT_FILE_EXTENSION;
     }
-
+	
+	/**
+	 * Returns the must probable content type for a file.
+	 * 
+	 * @param file
+	 * @return "application/octet-stream" if unknown.
+	 */
+	public static String getContentType(final Path file) {
+		return MIMETYPES_FILETYPE_MAP.getContentType(requireFileName(file).toString());
+	}
+	
     /**
      * Returns the must probable content type for a file.
      * 
@@ -160,9 +173,9 @@ public abstract class Util
      */
     public static String getContentType(final File file)
     {
-        return MIMETYPES_FILETYPE_MAP.getContentType(file);
+    	return MIMETYPES_FILETYPE_MAP.getContentType(file);
     }
-
+    
     /**
      * Returns the must probable mime type for a file.
      * 

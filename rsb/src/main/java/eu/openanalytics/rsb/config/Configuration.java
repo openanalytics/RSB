@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
 
 
@@ -47,25 +49,30 @@ public interface Configuration
     public static final String DEPOSIT_JOBS_SUBDIR = "inbox";
     public static final String DEPOSIT_ACCEPTED_SUBDIR = "accepted";
     public static final String DEPOSIT_RESULTS_SUBDIR = "outbox";
-
-    public enum CatalogSection
-    {
-        R_SCRIPTS("r_scripts"), SWEAVE_FILES("sweave_files"), JOB_CONFIGURATIONS("job_configurations"), EMAIL_REPLIES(
-                        "email_replies");
-
-        private final String subDir;
-
-        private CatalogSection(final String subDir)
-        {
-            this.subDir = subDir;
-        }
-
-        public String getSubDir()
-        {
-            return subDir;
-        }
-    }
-
+	
+	
+	@NonNullByDefault
+	public enum CatalogSection {
+		
+		R_SCRIPTS("r_scripts"),
+		SWEAVE_FILES("sweave_files"),
+		JOB_CONFIGURATIONS("job_configurations"),
+		EMAIL_REPLIES("email_replies");
+		
+		
+		private final String subDir;
+		
+		private CatalogSection(final String subDir) {
+			this.subDir= subDir;
+		}
+		
+		public String getSubDir() {
+			return this.subDir;
+		}
+		
+	}
+	
+	
     /**
      * SMTP server configuration used for all RSB outbound email operations.
      */

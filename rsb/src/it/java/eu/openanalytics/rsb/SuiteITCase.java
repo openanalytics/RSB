@@ -23,18 +23,19 @@
 
 package eu.openanalytics.rsb;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.eclipse.statet.jcommons.io.FileUtils;
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -58,7 +59,10 @@ import eu.openanalytics.rsb.data.FileCatalogManager;
 	DirectoryDepositITCase.class, ConfiguredDirectoryDepositITCase.class,
 	RestJobsITCase.class, RestProcessITCase.class, RestAdminITCase.class, RestMiscITCase.class,
 	SoapMtomITCase.class })
+@NonNullByDefault
 public class SuiteITCase {
+	
+	protected static final String TEST_USER_EMAIL_DOMAIN= "host.tld";
 	
     protected static Configuration configuration;
     protected static CatalogManager catalogManager;
@@ -69,27 +73,24 @@ public class SuiteITCase {
     protected static GreenMailUser rsbAccountWithDefaultSettingsPop3;
     protected static GreenMailUser rsbAccountWithJobConfiguration;
     protected static GreenMailUser rsbAccountWithResponseFile;
-    protected static final String TEST_USER_EMAIL_DOMAIN = "host.tld";
-
-    private static Set<File> catalogTestFiles = new HashSet<>();
-
-    @BeforeClass
-    public static void setupTestSuite() throws Exception
-    {
-        loadDefaultConfiguration();
-        setupCatalog();
-        loadTestConfiguration();
-        loadRawMessages();
-        startEmailServer();
-    }
-
-    @AfterClass
-    public static void teardownTestSuite() throws Exception
-    {
-        stopEmailServer();
-        cleanupCatalog();
-    }
-
+	
+	
+	@BeforeClass
+	public static void setupTestSuite() throws Exception {
+		loadDefaultConfiguration();
+		setupCatalog();
+		loadTestConfiguration();
+		loadRawMessages();
+		startEmailServer();
+	}
+	
+	@AfterClass
+	public static void teardownTestSuite() throws Exception {
+		stopEmailServer();
+		cleanupCatalog();
+	}
+	
+	
     private static void loadDefaultConfiguration() throws IOException
     {
         configuration = ConfigurationFactory.loadJsonConfiguration();
@@ -143,30 +144,44 @@ public class SuiteITCase {
 		greenMail.start();
 	}
 	
-    public static void registerCreatedCatalogFile(final CatalogSection catalogSection, final String fileName)
-    {
-        if ((configuration == null) || (catalogManager == null))
-        {
-            return;
-        }
-
-        final File fileToRegister = catalogManager.getCatalogFile(catalogSection, "ignored", fileName);
-        catalogTestFiles.add(fileToRegister);
-    }
-
     private static void stopEmailServer()
     {
         greenMail.stop();
     }
-
-    private static void cleanupCatalog()
-    {
-        for (final File testFile : catalogTestFiles)
-        {
-            FileUtils.deleteQuietly(testFile);
-        }
-    }
-
+	
+	
+	private static Set<Path> catalogTestFiles= new HashSet<>();
+	
+	private static void cleanupCatalog() {
+		for (final Path testFile : catalogTestFiles) {
+			try {
+				FileUtils.deleteRecursively(testFile);
+			}
+			catch (final IOException e) {}
+		}
+	}
+	
+	public static void registerCreatedCatalogFile(final CatalogSection catalogSection,
+			final String fileName) {
+		final var catalogManager= SuiteITCase.catalogManager;
+		if (configuration == null || catalogManager == null) {
+			return;
+		}
+		
+		final Path fileToRegister= catalogManager.getCatalogFile(catalogSection,
+				"ignored", fileName );
+		catalogTestFiles.add(fileToRegister);
+	}
+	
+	private static void putTestFileInCatalog(final CatalogSection catalogSection, final String fileName)
+			throws IOException {
+		final PutCatalogFileResult putResult= catalogManager.putCatalogFile(catalogSection,
+				"ignored", fileName, AbstractITCase.getTestData(fileName) );
+		
+		catalogTestFiles.add(putResult.getPath());
+	}
+	
+	
     /**
      * To help with any sort of manual testing.
      */
@@ -181,13 +196,5 @@ public class SuiteITCase {
 
         teardownTestSuite();
     }
-
-    private static void putTestFileInCatalog(final CatalogSection catalogSection, final String fileName)
-        throws IOException
-    {
-        final Pair<PutCatalogFileResult, File> putResult = catalogManager.putCatalogFile(catalogSection,
-            "ignored", fileName, AbstractITCase.getTestData(fileName));
-
-        catalogTestFiles.add(putResult.getRight());
-    }
+	
 }

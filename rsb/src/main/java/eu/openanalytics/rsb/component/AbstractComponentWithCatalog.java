@@ -23,9 +23,12 @@
 
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import javax.annotation.Resource;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
 
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.data.CatalogManager;
@@ -34,24 +37,30 @@ import eu.openanalytics.rsb.data.CatalogManager;
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractComponentWithCatalog extends AbstractComponent
-{
-    @Resource
-    private CatalogManager catalogManager;
-
-    public void setCatalogManager(final CatalogManager catalogManager)
-    {
-        this.catalogManager = catalogManager;
-    }
-
-    protected CatalogManager getCatalogManager()
-    {
-        return catalogManager;
-    }
-
-    protected File getJobConfigurationFile(final String applicationName, final String jobConfigurationFileName)
-    {
-        return getCatalogManager().internalGetCatalogFile(CatalogSection.JOB_CONFIGURATIONS, applicationName,
-            jobConfigurationFileName);
-    }
+@NonNullByDefault
+public abstract class AbstractComponentWithCatalog extends AbstractComponent {
+	
+	
+	@Resource
+	private CatalogManager catalogManager;
+	
+	
+	protected AbstractComponentWithCatalog() {
+	}
+	
+	
+	public void setCatalogManager(final CatalogManager catalogManager) {
+		this.catalogManager= catalogManager;
+	}
+	
+	protected CatalogManager getCatalogManager() {
+		return this.catalogManager;
+	}
+	
+	protected Path getJobConfigurationFile(final @Nullable String applicationName,
+			final String fileName) {
+		return getCatalogManager().internalGetCatalogFile(CatalogSection.JOB_CONFIGURATIONS,
+				applicationName, fileName );
+	}
+	
 }

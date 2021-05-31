@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -191,10 +193,11 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 			
 			final String jobConfigurationFileName= depositDirectoryConfiguration.getJobConfigurationFileName();
 			if (StringUtils.isNotBlank(jobConfigurationFileName)) {
-				final File jobConfigurationFile= getJobConfigurationFile(applicationName,
+				final Path jobConfigurationFile= getJobConfigurationFile(applicationName,
 						jobConfigurationFileName );
-				job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION,
-						new FileInputStream(jobConfigurationFile) );
+				try (final var in= Files.newInputStream(jobConfigurationFile)) {
+					job.addFile(Constants.MULTIPLE_FILES_JOB_CONFIGURATION, in);
+				}
 			}
 			
 			getMessageDispatcher().dispatch(job);

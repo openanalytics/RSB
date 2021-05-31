@@ -23,8 +23,13 @@
 
 package eu.openanalytics.rsb.component;
 
+import java.security.Principal;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
 
 import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 
@@ -32,22 +37,26 @@ import eu.openanalytics.rsb.security.ApplicationPermissionEvaluator;
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResource extends AbstractComponentWithCatalog
-{
-    @Context
-    private SecurityContext securityContext;
-
-    protected String getUserName()
-    {
-        return securityContext != null && securityContext.getUserPrincipal() != null
-                                                                                    ? securityContext.getUserPrincipal()
-                                                                                        .getName()
-                                                                                    : ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME;
-    }
-
-    // exposed for unit testing
-    void setSecurityContext(final SecurityContext securityContext)
-    {
-        this.securityContext = securityContext;
-    }
+@NonNullByDefault
+public abstract class AbstractResource extends AbstractComponentWithCatalog {
+	
+	
+	@Context
+	private @Nullable SecurityContext securityContext;
+	
+	
+	// exposed for unit testing
+	void setSecurityContext(final SecurityContext securityContext) {
+		this.securityContext= securityContext;
+	}
+	
+	
+	protected String getUserName() {
+		final var securityContext= this.securityContext;
+		final Principal user;
+		return (securityContext != null && (user= securityContext.getUserPrincipal()) != null) ?
+				user.getName() :
+				ApplicationPermissionEvaluator.NO_AUTHENTICATED_USERNAME;
+	}
+	
 }

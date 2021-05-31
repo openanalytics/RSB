@@ -23,11 +23,14 @@
 
 package eu.openanalytics.rsb.data;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -40,25 +43,53 @@ import eu.openanalytics.rsb.config.Configuration.CatalogSection;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface CatalogManager
-{
-    Map<Pair<CatalogSection, File>, List<File>> getCatalog(String applicationName);
-
-    File getCatalogFile(CatalogSection catalogSection, String applicationName, String fileName);
-
-    /**
-     * This must only be called when it's impossible to have a security context (ie after going
-     * through JMS)
-     */
-    File internalGetCatalogFile(CatalogSection catalogSection, String applicationName, String fileName);
-
-    enum PutCatalogFileResult
-    {
-        CREATED, UPDATED
-    }
-
-    Pair<PutCatalogFileResult, File> putCatalogFile(CatalogSection catalogSection,
-                                                    String applicationName,
-                                                    String fileName,
-                                                    InputStream in) throws IOException;
+@NonNullByDefault
+public interface CatalogManager {
+	
+	
+	Map<CatalogSection, Pair<Path, List<Path>>> getCatalog(
+			@Nullable String applicationName);
+	
+	
+	Path getCatalogFile(CatalogSection catalogSection,
+			@Nullable String applicationName,
+			String fileName);
+	
+	/**
+	 * This must only be called when it's impossible to have a security context (ie after going
+	 * through JMS)
+	 */
+	Path internalGetCatalogFile(CatalogSection catalogSection,
+			@Nullable String applicationName,
+			String fileName);
+	
+	static final class PutCatalogFileResult {
+		
+		public static enum ChangeType {
+			CREATED, UPDATED;
+		}
+		
+		private final ChangeType changeType;
+		
+		private final Path path;
+		
+		public PutCatalogFileResult(final ChangeType changeType, final Path path) {
+			this.changeType= changeType;
+			this.path= path;
+		}
+		
+		public ChangeType getChangeType() {
+			return this.changeType;
+		}
+		
+		public Path getPath() {
+			return this.path;
+		}
+		
+	}
+	
+	PutCatalogFileResult putCatalogFile(CatalogSection catalogSection,
+			@Nullable String applicationName,
+			String fileName, InputStream in) throws IOException;
+	
 }

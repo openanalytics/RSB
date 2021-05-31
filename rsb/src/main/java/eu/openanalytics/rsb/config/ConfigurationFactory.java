@@ -29,6 +29,8 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -190,28 +192,29 @@ public abstract class ConfigurationFactory
             for (final DepositEmailConfiguration depositEmailAccount : pca.getDepositEmailAccounts())
             {
                 final String applicationName = depositEmailAccount.getApplicationName();
-
-                validateIsTrue(Util.isValidApplicationName(applicationName),
-                    "invalid deposit email application name: " + applicationName, validationErrors);
-
-                if (depositEmailAccount.getResponseFileName() != null)
-                {
-                    final File responseFile = fileCatalogManager.internalGetCatalogFile(
-                        CatalogSection.EMAIL_REPLIES, applicationName,
-                        depositEmailAccount.getResponseFileName());
-
-                    validateIsTrue(responseFile.exists(), "missing response file: " + responseFile,
-                        validationErrors);
-                }
-
-                if (depositEmailAccount.getJobConfigurationFileName() != null)
-                {
-                    final File jobConfigurationFile = fileCatalogManager.internalGetCatalogFile(
-                        CatalogSection.JOB_CONFIGURATIONS, applicationName,
-                        depositEmailAccount.getJobConfigurationFileName());
-
-                    validateIsTrue(jobConfigurationFile.exists(), "missing job configuration file: "
-                                                                  + jobConfigurationFile, validationErrors);
+				
+				validateIsTrue(Util.isValidApplicationName(applicationName),
+						"invalid deposit email application name: " + applicationName,
+						validationErrors );
+				
+				if (depositEmailAccount.getResponseFileName() != null) {
+					final Path responseFile= fileCatalogManager.internalGetCatalogFile(
+							CatalogSection.EMAIL_REPLIES,
+							applicationName, depositEmailAccount.getResponseFileName() );
+					
+					validateIsTrue(Files.isRegularFile(responseFile),
+							"missing response file: " + responseFile,
+							validationErrors );
+				}
+				
+				if (depositEmailAccount.getJobConfigurationFileName() != null) {
+					final Path jobConfigurationFile= fileCatalogManager.internalGetCatalogFile(
+							CatalogSection.JOB_CONFIGURATIONS,
+							applicationName, depositEmailAccount.getJobConfigurationFileName() );
+					
+					validateIsTrue(Files.isRegularFile(jobConfigurationFile),
+							"missing job configuration file: " + jobConfigurationFile,
+							validationErrors );
                 }
             }
         }
