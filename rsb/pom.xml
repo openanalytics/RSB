@@ -63,6 +63,12 @@
 			<artifactId>javax.servlet-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<version>${jakarta.mail.version}</version>
+			<scope>provided</scope>
+		</dependency>
 
         <!-- Spring -->
         <dependency>
@@ -528,7 +534,7 @@
 				<dependency>
 					<groupId>com.sun.mail</groupId>
 					<artifactId>jakarta.mail</artifactId>
-					<version>1.6.7</version>
+					<version>${jakarta.mail.version}</version>
 				</dependency>
 				<dependency>
 					<groupId>org.apache.geronimo.specs</groupId>
