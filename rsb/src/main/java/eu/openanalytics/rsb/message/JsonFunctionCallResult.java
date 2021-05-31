@@ -28,6 +28,9 @@ import java.util.UUID;
 
 import javax.activation.MimeType;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import eu.openanalytics.rsb.Constants;
 
 
@@ -36,24 +39,23 @@ import eu.openanalytics.rsb.Constants;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class JsonFunctionCallResult extends AbstractFunctionCallResult
-{
-    private static final long serialVersionUID = 1L;
-
-    public JsonFunctionCallResult(final Source source,
-                                  final String applicationName,
-                                  final String userName,
-                                  final UUID jobId,
-                                  final GregorianCalendar submissionTime,
-                                  final boolean success,
-                                  final String result)
-    {
-        super(source, applicationName, userName, jobId, submissionTime, success, result);
-    }
-
-    @Override
-    public MimeType getMimeType()
-    {
-        return Constants.JSON_MIME_TYPE;
-    }
+@NonNullByDefault
+public class JsonFunctionCallResult extends AbstractFunctionCallResult {
+	
+	private static final long serialVersionUID= 1L;
+	
+	
+	public JsonFunctionCallResult(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final boolean success, final String result) {
+		super(source, applicationName, userName, jobId, submissionTime, success, result);
+	}
+	
+	
+	@Override
+	public MimeType getMimeType() {
+		return Constants.JSON_MIME_TYPE;
+	}
+	
 }

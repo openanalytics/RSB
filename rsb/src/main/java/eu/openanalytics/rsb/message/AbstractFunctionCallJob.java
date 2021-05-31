@@ -28,43 +28,48 @@ import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 
 /**
  * Represents a RSB job that consists in calling a unary function on R.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractFunctionCallJob extends AbstractJob
-{
-    private static final long serialVersionUID = 1L;
-
-    private final String argument;
-
-    @SuppressWarnings("unchecked")
-    public AbstractFunctionCallJob(final Source source,
-                                   final String applicationName,
-                                   final String userName,
-                                   final UUID jobId,
-                                   final GregorianCalendar submissionTime,
-                                   final String argument)
-    {
-        // function call jobs and results have no meta
-        super(source, applicationName, userName, jobId, submissionTime, Collections.EMPTY_MAP);
-        this.argument = argument;
-    }
-
-    public abstract AbstractResult<String> buildSuccessResult(String result) throws IOException;
-
-    @Override
-    protected void releaseResources()
-    {
-        // NOOP
-    }
-
-    public abstract String getFunctionName();
-
-    public String getArgument()
-    {
-        return argument;
-    }
+@NonNullByDefault
+public abstract class AbstractFunctionCallJob extends AbstractJob {
+	
+	private static final long serialVersionUID= 1L;
+	
+	
+	private final String argument;
+	
+	
+	@SuppressWarnings("unchecked")
+	public AbstractFunctionCallJob(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final String argument) {
+		// function call jobs and results have no meta
+		super(source, applicationName, userName, jobId, submissionTime, Collections.EMPTY_MAP);
+		this.argument= argument;
+	}
+	
+	@Override
+	protected void releaseResources() {
+		// NOOP
+	}
+	
+	
+	public abstract String getFunctionName();
+	
+	public String getArgument() {
+		return this.argument;
+	}
+	
+	
+	public abstract AbstractResult<String> buildSuccessResult(String result) throws IOException;
+	
+	
 }

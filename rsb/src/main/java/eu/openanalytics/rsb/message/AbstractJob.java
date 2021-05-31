@@ -29,6 +29,9 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import org.springframework.context.MessageSource;
 
 import eu.openanalytics.rsb.Util;
@@ -40,43 +43,44 @@ import eu.openanalytics.rsb.rest.types.ErrorResult;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractJob extends AbstractWorkItem implements Job
-{
-    private static final long serialVersionUID = 1L;
-
-    public AbstractJob(final Source source,
-                       final String applicationName,
-                       final String userName,
-                       final UUID jobId,
-                       final GregorianCalendar submissionTime,
-                       final Map<String, Serializable> meta)
-    {
-        super(source, applicationName, userName, jobId, submissionTime, meta);
-    }
-
+@NonNullByDefault
+public abstract class AbstractJob extends AbstractWorkItem implements Job {
+	
+	private static final long serialVersionUID= 1L;
+	
+	
+	public AbstractJob(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final Map<String, Serializable> meta) {
+		super(source, applicationName, userName, jobId, submissionTime, meta);
+	}
+	
+	
 	@Override
-	public String getType()
-    {
-        return getClass().getSimpleName();
-    }
-
-    public abstract AbstractResult<?> buildErrorResult(Throwable t, MessageSource messageSource)
-        throws IOException;
-
-    /**
-     * Builds an {@link ErrorResult} for a job whose processing has failed.
-     * 
-     * @param job
-     * @param error
-     * @return
-     */
-    public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job, final Throwable error)
-    {
-        final ErrorResult errorResult = Util.REST_OBJECT_FACTORY.createErrorResult();
-        errorResult.setApplicationName(job.getApplicationName());
-        errorResult.setJobId(job.getJobId().toString());
-        errorResult.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
-        errorResult.setErrorMessage(error.getMessage());
-        return errorResult;
-    }
+	public String getType() {
+		return getClass().getSimpleName();
+	}
+	
+	
+	public abstract AbstractResult<?> buildErrorResult(Throwable t, MessageSource messageSource)
+			throws IOException;
+	
+	/**
+	 * Builds an {@link ErrorResult} for a job whose processing has failed.
+	 * 
+	 * @param job
+	 * @param error
+	 * @return
+	 */
+	public static ErrorResult buildJobProcessingErrorResult(final AbstractJob job,
+			final Throwable error) {
+		final ErrorResult errorResult= Util.REST_OBJECT_FACTORY.createErrorResult();
+		errorResult.setApplicationName(job.getApplicationName());
+		errorResult.setJobId(job.getJobId().toString());
+		errorResult.setSubmissionTime(Util.convertToXmlDate(job.getSubmissionTime()));
+		errorResult.setErrorMessage(error.getMessage());
+		return errorResult;
+	}
+	
 }

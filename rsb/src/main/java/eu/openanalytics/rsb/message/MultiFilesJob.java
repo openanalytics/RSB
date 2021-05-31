@@ -40,6 +40,10 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.eclipse.statet.jcommons.lang.NonNull;
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -56,25 +60,46 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@NonNullByDefault
 public class MultiFilesJob extends AbstractJob {
 	
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID= 1L;
 	
 	
-    private final File temporaryDirectory;
-    private File rScriptFile;
-
-    public MultiFilesJob(final Source source,
-                         final String applicationName,
-                         final String userName,
-                         final UUID jobId,
-                         final GregorianCalendar submissionTime,
-                         final Map<String, Serializable> meta) throws IOException
-    {
-        super(source, applicationName, userName, jobId, submissionTime, meta);
-        this.temporaryDirectory = Util.createTemporaryDirectory("job");
-    }
+	private final File temporaryDirectory;
 	
+	private @Nullable File rScriptFile;
+	
+	
+	public MultiFilesJob(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final Map<String, Serializable> meta)
+			throws IOException {
+		super(source, applicationName, userName, jobId, submissionTime, meta);
+		this.temporaryDirectory= Util.createTemporaryDirectory("job");
+	}
+	
+	@Override
+	protected void releaseResources() {
+		try {
+			if (this.temporaryDirectory.isDirectory()) {
+				FileUtils.forceDelete(this.temporaryDirectory);
+			}
+		}
+		catch (final IOException e) {
+			throw new RuntimeException("Can't release resources of: " + this, e);
+		}
+	}
+	
+	
+	public @Nullable File getRScriptFile() {
+		return this.rScriptFile;
+	}
+	
+	public @NonNull File[] getFiles() {
+		return this.temporaryDirectory.listFiles();
+	}
 	
 	public void addFile(final String name, final InputStream is)
 			throws IllegalJobDataException, IOException {
@@ -94,7 +119,7 @@ public class MultiFilesJob extends AbstractJob {
 	 */
 	public void addFilesFromZip(final InputStream data)
 			throws IllegalJobDataException, IOException {
-		try (final ZipInputStream zis = new ZipInputStream(data)) {
+		try (final ZipInputStream zis= new ZipInputStream(data)) {
 			ZipEntry ze= null;
 			
 			while ((ze= zis.getNextEntry()) != null) {
@@ -123,97 +148,73 @@ public class MultiFilesJob extends AbstractJob {
 			IOUtils.copy(is, fos);
 		}
 	}
-
-    private void loadJobConfiguration(final InputStream is) throws IOException
-    {
-        final Properties jobConfiguration = new Properties();
-        jobConfiguration.load(is);
-
-        final Map<String, Serializable> mergedMeta = new HashMap<>();
-        for (final Entry<?, ?> e : jobConfiguration.entrySet())
-        {
-            mergedMeta.put(e.getKey().toString(), e.getValue().toString());
-        }
-
-        // give priority to pre-existing metas by overriding the ones from the config
-        // file
-        mergedMeta.putAll(getMeta());
-        getMeta().clear();
-        getMeta().putAll(mergedMeta);
-    }
+	
+	
+	private void loadJobConfiguration(final InputStream is) throws IOException {
+		final Properties jobConfiguration= new Properties();
+		jobConfiguration.load(is);
+		
+		final Map<String, Serializable> mergedMeta= new HashMap<>();
+		for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
+			mergedMeta.put(e.getKey().toString(), e.getValue().toString());
+		}
+		
+		// give priority to pre-existing metas by overriding the ones from the config file
+		mergedMeta.putAll(getMeta());
+		getMeta().clear();
+		getMeta().putAll(mergedMeta);
+	}
+	
+	
+	public MultiFilesResult buildSuccessResult() throws IOException {
+		return new MultiFilesResult(getSource(), getApplicationName(),
+				getUserName(), getJobId(), getSubmissionTime(),
+				getMeta(), true );
+	}
 	
 	@Override
-	protected void releaseResources() {
-		try {
-			if (temporaryDirectory.isDirectory()) {
-				FileUtils.forceDelete(temporaryDirectory);
-			}
-		} catch (final IOException e) {
-			throw new RuntimeException("Can't release resources of: " + this, e);
+	public MultiFilesResult buildErrorResult(final Throwable t, final MessageSource messageSource)
+			throws IOException {
+		final String message= messageSource.getMessage(getErrorMessageId(), null, null);
+		final ST template= Util.newStringTemplate(message);
+		template.add("job", this);
+		template.add("throwable", t);
+		
+		final MultiFilesResult result= new MultiFilesResult(getSource(), getApplicationName(),
+				getUserName(), getJobId(), getSubmissionTime(),
+				getMeta(), false );
+		final File resultFile= result.createNewResultFile(getJobId()
+				+ "." + Util.getResourceType(Constants.TEXT_MIME_TYPE) );
+		Files.writeString(resultFile.toPath(), template.render(), StandardCharsets.UTF_8);
+		return result;
+	}
+	
+	
+	/**
+	 * Add a stream to a job, exploding it if it is a Zip input. Closes the provided
+	 * data stream.
+	 * 
+	 * @param contentType
+	 * @param name
+	 * @param data
+	 * @param job
+	 * @throws IOException
+	 * @throws IllegalJobDataException 
+	 */
+	public static void addDataToJob(final String contentType,
+			final String name,
+			final InputStream data, final MultiFilesJob job)
+			throws IOException, IllegalJobDataException {
+		// some browsers send zip file as application/octet-stream, forcing a fallback to an
+		// extension check
+		if (Constants.ZIP_CONTENT_TYPES.contains(contentType)
+				|| StringUtils.endsWithIgnoreCase(
+						FilenameUtils.getExtension(name), Constants.ZIP_MIME_TYPE.getSubType()) ) {
+			job.addFilesFromZip(data);
+		}
+		else {
+			job.addFile(name, data);
 		}
 	}
 	
-    public MultiFilesResult buildSuccessResult() throws IOException
-    {
-        return new MultiFilesResult(getSource(), getApplicationName(), getUserName(), getJobId(),
-            getSubmissionTime(), getMeta(), true);
-    }
-
-    @Override
-    public MultiFilesResult buildErrorResult(final Throwable t, final MessageSource messageSource)
-        throws IOException
-    {
-        final String message = messageSource.getMessage(getErrorMessageId(), null, null);
-        final ST template = Util.newStringTemplate(message);
-        template.add("job", this);
-        template.add("throwable", t);
-
-        final MultiFilesResult result = new MultiFilesResult(getSource(), getApplicationName(),
-            getUserName(), getJobId(), getSubmissionTime(), getMeta(), false);
-        final File resultFile = result.createNewResultFile(getJobId() + "."
-                                                           + Util.getResourceType(Constants.TEXT_MIME_TYPE));
-        Files.writeString(resultFile.toPath(), template.render(), StandardCharsets.UTF_8);
-        return result;
-    }
-
-    public File getRScriptFile()
-    {
-        return rScriptFile;
-    }
-
-    public File[] getFiles()
-    {
-        return temporaryDirectory.listFiles();
-    }
-
-    /**
-     * Add a stream to a job, exploding it if it is a Zip input. Closes the provided
-     * data stream.
-     * 
-     * @param contentType
-     * @param name
-     * @param data
-     * @param job
-     * @throws IOException
-     * @throws IllegalJobDataException 
-     */
-    public static void addDataToJob(final String contentType,
-                                    final String name,
-                                    final InputStream data,
-                                    final MultiFilesJob job) throws IOException, IllegalJobDataException
-    {
-        // some browsers send zip file as application/octet-stream, forcing a
-        // fallback to an
-        // extension check
-        if ((Constants.ZIP_CONTENT_TYPES.contains(contentType) || (StringUtils.endsWithIgnoreCase(
-            FilenameUtils.getExtension(name), Constants.ZIP_MIME_TYPE.getSubType()))))
-        {
-            job.addFilesFromZip(data);
-        }
-        else
-        {
-            job.addFile(name, data);
-        }
-    }
-    
 }

@@ -23,31 +23,38 @@
 
 package eu.openanalytics.rsb.message;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
+
 /**
  * Defines a Job and Result message dispatcher.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@NonNullByDefault
 public interface MessageDispatcher {
-    /**
-     * Dispatches an {@link AbstractJob}.
-     * 
-     * @param job
-     */
-    void dispatch(final AbstractJob job);
-
-    /**
-     * Dispatches an {@link AbstractResult}.
-     * 
-     * @param result
-     */
-    void dispatch(final AbstractResult<?> result);
-
-    /**
-     * Dispatches an {@link AbstractJob} and waits for an {@link AbstractResult}.
-     * 
-     * @param job
-     * @return
-     */
-    <T extends AbstractResult<?>> T process(AbstractJob job);
+	
+	
+	/**
+	 * Dispatches an {@link AbstractJob}.
+	 * 
+	 * @param job
+	 */
+	void dispatch(AbstractJob job);
+	
+	/**
+	 * Dispatches an {@link AbstractResult}.
+	 * 
+	 * @param result
+	 */
+	void dispatch(AbstractResult<?> result);
+	
+	/**
+	 * Dispatches an {@link AbstractJob} and waits for an {@link AbstractResult}.
+	 * 
+	 * @param job
+	 * @return
+	 */
+	<T extends AbstractResult<?>> T process(AbstractJob job);
+	
 }

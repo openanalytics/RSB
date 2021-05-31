@@ -28,6 +28,9 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -40,6 +43,7 @@ import eu.openanalytics.rsb.Util;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@NonNullByDefault
 public abstract class AbstractWorkItem implements WorkItem, Serializable {
 	
 	public enum Source {
@@ -64,106 +68,95 @@ public abstract class AbstractWorkItem implements WorkItem, Serializable {
 	}
 	
 	
-    private static final long serialVersionUID = 1L;
-
-    private final Source source;
-    private final String applicationName;
-    private final String userName;
-    private final UUID jobId;
-    private final GregorianCalendar submissionTime;
-    private final Map<String, Serializable> meta;
-
-    public AbstractWorkItem(final Source source,
-                            final String applicationName,
-                            final String userName,
-                            final UUID jobId,
-                            final GregorianCalendar submissionTime,
-                            final Map<String, Serializable> meta)
-    {
-        Validate.notNull(source, "source can't be null");
-        Validate.notEmpty(applicationName, "applicationName can't be empty");
-        Validate.notNull(jobId, "jobId can't be null");
-        Validate.notNull(submissionTime, "submissionTime can't be null");
-        Validate.notNull(meta, "meta can't be null");
-
-        if (!Util.isValidApplicationName(applicationName))
-        {
-            throw new IllegalArgumentException("Invalid application name: " + applicationName);
-        }
-
-        this.source = source;
-        this.applicationName = applicationName;
-        this.userName = userName;
-        this.jobId = jobId;
-        this.submissionTime = submissionTime;
-        this.meta = meta;
-    }
-
-    public void destroy()
-    {
-        releaseResources();
-    }
-
-    protected abstract void releaseResources();
-
-    @Override
-    public String toString()
-    {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
-
+	private static final long serialVersionUID= 1L;
+	
+	
+	private final Source source;
+	private final String applicationName;
+	private final @Nullable String userName;
+	private final UUID jobId;
+	private final GregorianCalendar submissionTime;
+	private final Map<String, Serializable> meta;
+	
+	public AbstractWorkItem(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final Map<String, Serializable> meta) {
+		Validate.notNull(source, "source can't be null");
+		Validate.notEmpty(applicationName, "applicationName can't be empty");
+		Validate.notNull(jobId, "jobId can't be null");
+		Validate.notNull(submissionTime, "submissionTime can't be null");
+		Validate.notNull(meta, "meta can't be null");
+		if (!Util.isValidApplicationName(applicationName)) {
+			throw new IllegalArgumentException("Invalid application name: " + applicationName);
+		}
+		
+		this.source= source;
+		this.applicationName= applicationName;
+		this.userName= userName;
+		this.jobId= jobId;
+		this.submissionTime= submissionTime;
+		this.meta= meta;
+	}
+	
+	public void destroy() {
+		releaseResources();
+	}
+	
+	protected abstract void releaseResources();
+	
+	
 	@Override
-	public Source getSource()
-    {
-        return this.source;
-    }
-
+	public Source getSource() {
+		return this.source;
+	}
+	
 	@Override
-	public String getApplicationName()
-    {
-        return this.applicationName;
-    }
-
+	public String getApplicationName() {
+		return this.applicationName;
+	}
+	
 	@Override
-	public String getUserName()
-    {
-        return this.userName;
-    }
-
+	public @Nullable String getUserName() {
+		return this.userName;
+	}
+	
 	@Override
-	public UUID getJobId()
-    {
-        return this.jobId;
-    }
-
+	public UUID getJobId() {
+		return this.jobId;
+	}
+	
 	@Override
-	public GregorianCalendar getSubmissionTime()
-    {
-        return this.submissionTime;
-    }
-
+	public GregorianCalendar getSubmissionTime() {
+		return this.submissionTime;
+	}
+	
 	@Override
-	public Map<String, Serializable> getMeta()
-    {
-        return this.meta;
-    }
-
+	public int getPriority() {
+		// potentially support per application priority
+		return getSource().priority;
+	}
+	
 	@Override
-	public String getErrorMessageId()
-    {
-        return getSource().errorMessageId;
-    }
-
+	public String getErrorMessageId() {
+		return getSource().errorMessageId;
+	}
+	
 	@Override
-	public String getAbortMessageId()
-    {
-        return getSource().abortMessageId;
-    }
-
+	public String getAbortMessageId() {
+		return getSource().abortMessageId;
+	}
+	
+	
 	@Override
-	public int getPriority()
-    {
-        // potentially support per application priority
-        return getSource().priority;
-    }
+	public Map<String, Serializable> getMeta() {
+		return this.meta;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+	
 }

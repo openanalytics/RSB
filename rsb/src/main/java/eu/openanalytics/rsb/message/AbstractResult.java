@@ -29,36 +29,39 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 
 /**
  * Represents the result of a {@link AbstractJob}.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractResult<T> extends AbstractWorkItem implements Result<T>
-{
-    private static final long serialVersionUID = 1L;
-
-    private final boolean success;
-
-    public AbstractResult(final Source source,
-                          final String applicationName,
-                          final String userName,
-                          final UUID jobId,
-                          final GregorianCalendar submissionTime,
-                          final Map<String, Serializable> meta,
-                          final boolean success)
-    {
-        super(source, applicationName, userName, jobId, submissionTime, meta);
-        this.success = success;
-    }
-
+@NonNullByDefault
+public abstract class AbstractResult<T> extends AbstractWorkItem implements Result<T> {
+	
+	private static final long serialVersionUID= 1L;
+	
+	
+	private final boolean success;
+	
+	
+	public AbstractResult(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final Map<String, Serializable> meta, final boolean success) {
+		super(source, applicationName, userName, jobId, submissionTime, meta);
+		this.success= success;
+	}
+	
+	
 	@Override
-	public boolean isSuccess()
-    {
-        return success;
-    }
-
+	public boolean isSuccess() {
+		return this.success;
+	}
+	
 	@Override
 	public abstract T getPayload() throws IOException;
+	
 }

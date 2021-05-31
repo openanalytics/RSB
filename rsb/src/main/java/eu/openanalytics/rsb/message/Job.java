@@ -23,12 +23,18 @@
 
 package eu.openanalytics.rsb.message;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
+
 /**
  * RSB job definition.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface Job extends WorkItem
-{
-    String getType();
+@NonNullByDefault
+public interface Job extends WorkItem {
+	
+	
+	String getType();
+	
 }

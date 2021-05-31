@@ -29,49 +29,50 @@ import java.util.UUID;
 
 import javax.activation.MimeType;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 
 /**
  * Represents the result of a {@link AbstractFunctionCallJob}.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class AbstractFunctionCallResult extends AbstractResult<String>
-{
-    private static final long serialVersionUID = 1L;
-
-    private final String result;
-
-    @SuppressWarnings("unchecked")
-    public AbstractFunctionCallResult(final Source source,
-                                      final String applicationName,
-                                      final String userName,
-                                      final UUID jobId,
-                                      final GregorianCalendar submissionTime,
-                                      final boolean success,
-                                      final String result)
-    {
-        // function call jobs and results have no meta
-        super(source, applicationName, userName, jobId, submissionTime, Collections.EMPTY_MAP, success);
-        this.result = result;
-    }
-
-    public abstract MimeType getMimeType();
-
-    @Override
-    protected void releaseResources()
-    {
-        // NOOP
-    }
-
-    @Override
-    public String getPayload()
-    {
-        return result;
-    }
-
-    public String getResultFileName()
-    {
-        final String resultFileExtension = (isSuccess() ? "" : "err.") + getMimeType().getSubType();
-        return getJobId() + "." + resultFileExtension;
-    }
+@NonNullByDefault
+public abstract class AbstractFunctionCallResult extends AbstractResult<String> {
+	
+	private static final long serialVersionUID= 1L;
+	
+	
+	private final String result;
+	
+	
+	@SuppressWarnings("unchecked")
+	public AbstractFunctionCallResult(final Source source, final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar submissionTime,
+			final boolean success, final String result) {
+		// function call jobs and results have no meta
+		super(source, applicationName, userName, jobId, submissionTime, Collections.EMPTY_MAP, success);
+		this.result= result;
+	}
+	
+	@Override
+	protected void releaseResources() {
+		// NOOP
+	}
+	
+	
+	public abstract MimeType getMimeType();
+	
+	@Override
+	public String getPayload() {
+		return this.result;
+	}
+	
+	public String getResultFileName() {
+		final String resultFileExtension= (isSuccess() ? "" : "err.") + getMimeType().getSubType();
+		return getJobId() + "." + resultFileExtension;
+	}
+	
 }

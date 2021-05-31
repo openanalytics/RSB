@@ -25,15 +25,20 @@ package eu.openanalytics.rsb.message;
 
 import java.io.IOException;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
 
 /**
  * RSB job definition.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface Result<T> extends WorkItem
-{
-    boolean isSuccess();
-
-    T getPayload() throws IOException;
+@NonNullByDefault
+public interface Result<T> extends WorkItem {
+	
+	
+	boolean isSuccess();
+	
+	T getPayload() throws IOException;
+	
 }

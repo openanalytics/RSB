@@ -28,6 +28,9 @@ import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 
 
@@ -36,23 +39,27 @@ import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface WorkItem
-{
-    Source getSource();
-
-    String getApplicationName();
-
-    String getUserName();
-
-    UUID getJobId();
-
-    GregorianCalendar getSubmissionTime();
-
-    Map<String, Serializable> getMeta();
-
-    String getErrorMessageId();
-
-    String getAbortMessageId();
-
-    int getPriority();
+@NonNullByDefault
+public interface WorkItem {
+	
+	
+	Source getSource();
+	
+	String getApplicationName();
+	
+	@Nullable String getUserName();
+	
+	UUID getJobId();
+	
+	GregorianCalendar getSubmissionTime();
+	
+	int getPriority();
+	
+	String getErrorMessageId();
+	
+	String getAbortMessageId();
+	
+	
+	Map<String, Serializable> getMeta();
+	
 }
