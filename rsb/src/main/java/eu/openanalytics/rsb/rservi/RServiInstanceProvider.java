@@ -23,6 +23,8 @@
 
 package eu.openanalytics.rsb.rservi;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
 import org.eclipse.statet.rj.servi.RServi;
 
 
@@ -31,10 +33,15 @@ import org.eclipse.statet.rj.servi.RServi;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@NonNullByDefault
 public interface RServiInstanceProvider {
-    public enum PoolingStrategy {
-        NEVER, IF_POSSIBLE
-    }
-
-    RServi getRServiInstance(final String address, final String clientId, PoolingStrategy poolingStrategy) throws Exception;
+	
+	
+	enum PoolingStrategy {
+		NEVER, IF_POSSIBLE
+	}
+	
+	RServi getRServiInstance(String address, String clientId, PoolingStrategy poolingStrategy)
+			throws Exception;
+	
 }

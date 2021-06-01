@@ -23,13 +23,18 @@
 
 package eu.openanalytics.rsb.rservi;
 
-import java.io.File;
+import java.nio.file.Path;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface RServiPackageManager
-{
-    void install(File packageSourceFile, String rServiPoolUri) throws Exception;
+@NonNullByDefault
+public interface RServiPackageManager {
+	
+	
+	void install(Path packageSourceFile, String rServiPoolUri) throws Exception;
+	
 }

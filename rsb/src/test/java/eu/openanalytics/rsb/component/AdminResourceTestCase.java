@@ -133,25 +133,6 @@ public class AdminResourceTestCase
         assertThat(response.getEntity().toString(), is("RESTARTED"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void installRPackageBadChecksum() throws Exception
-    {
-        final byte[] fakePackageBytes = "fake_package".getBytes();
-        this.adminResource.installRPackage("ignored", "bad", "bad.tar.gz", new ByteArrayInputStream(
-            fakePackageBytes));
-    }
-
-    @Test
-    public void installRPackageSuccess() throws Exception
-    {
-        this.adminResource.setrServiPackageManager(mock(RServiPackageManager.class));
-
-        final byte[] fakePackageBytes = IOUtils.toByteArray(JobsResourceTestCase.getTestDataAsStream("fake-package.tar.gz"));
-
-        this.adminResource.installRPackage("ignored", DigestUtils.sha1Hex(fakePackageBytes),
-            "fake_package.tar.gz", new ByteArrayInputStream(fakePackageBytes));
-    }
-
     @Test
     public void getRServiPools() throws Exception
     {
@@ -160,6 +141,25 @@ public class AdminResourceTestCase
         final RServiPools rServiPools = this.adminResource.getRServiPools();
         assertThat(rServiPools.getContents().size(), is(1));
     }
+	
+	
+	@Test(expected= IllegalArgumentException.class)
+	public void installRPackageBadChecksum() throws Exception {
+		final byte[] fakePackageBytes= "fake_package".getBytes();
+		
+		this.adminResource.installRPackage("ignored", "bad", "bad.tar.gz",
+				new ByteArrayInputStream(fakePackageBytes) );
+	}
+	
+	@Test
+	public void installRPackageSuccess() throws Exception {
+		this.adminResource.setrServiPackageManager(mock(RServiPackageManager.class));
+		
+		final byte[] fakePackageBytes= Files.readAllBytes(getTestDataFile("fake-package.tar.gz"));
+		
+		this.adminResource.installRPackage("ignored", DigestUtils.sha1Hex(fakePackageBytes),
+				"fake_package.tar.gz", new ByteArrayInputStream(fakePackageBytes) );
+	}
 	
 	
 	@Test

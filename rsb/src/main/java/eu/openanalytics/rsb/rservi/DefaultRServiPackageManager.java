@@ -23,9 +23,11 @@
 
 package eu.openanalytics.rsb.rservi;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import javax.annotation.Resource;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 
 import org.eclipse.statet.rj.servi.RServi;
 import org.eclipse.statet.rj.services.util.RPkgInstallation;
@@ -42,37 +44,35 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component
-public class DefaultRServiPackageManager implements RServiPackageManager
-{
-    private static final Log LOGGER = LogFactory.getLog(DefaultRServiPackageManager.class);
-
-    @Resource
-    private RServiInstanceProvider rServiInstanceProvider;
-
+@NonNullByDefault
+public class DefaultRServiPackageManager implements RServiPackageManager {
+	
+	
+	private static final Log LOGGER= LogFactory.getLog(DefaultRServiPackageManager.class);
+	
+	
+	@Resource
+	private RServiInstanceProvider rServiInstanceProvider;
+	
+	
 	@Override
-	public void install(final File packageSourceFile, final String rServiPoolUri) throws Exception
-    {
-        RServi rServiInstance = null;
-
-        try
-        {
-            rServiInstance = rServiInstanceProvider.getRServiInstance(rServiPoolUri,
-                Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
-            new RPkgInstallation(packageSourceFile).install(rServiInstance, null);
-        }
-        finally
-        {
-            if (rServiInstance != null)
-            {
-                try
-                {
-                    rServiInstance.close();
-                }
-                catch (final Exception e)
-                {
-                    LOGGER.warn("Failed to close RServi instance: " + rServiInstance, e);
-                }
-            }
-        }
-    }
+	public void install(final Path packageSourceFile, final String rServiPoolUri) throws Exception {
+		RServi rServiInstance= null;
+		try {
+			rServiInstance= this.rServiInstanceProvider.getRServiInstance(rServiPoolUri,
+					Constants.RSERVI_CLIENT_ID, PoolingStrategy.NEVER);
+			new RPkgInstallation(packageSourceFile).install(rServiInstance, null);
+		}
+		finally {
+			if (rServiInstance != null) {
+				try {
+					rServiInstance.close();
+				}
+				catch (final Exception e) {
+					LOGGER.warn("Failed to close RServi instance: " + rServiInstance, e);
+				}
+			}
+		}
+	}
+	
 }

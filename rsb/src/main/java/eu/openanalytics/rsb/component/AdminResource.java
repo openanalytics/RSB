@@ -24,10 +24,9 @@
 package eu.openanalytics.rsb.component;
 
 import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+import static org.eclipse.statet.jcommons.io.FileUtils.requireParent;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +62,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.statet.jcommons.io.FileUtils;
 import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 import org.eclipse.statet.jcommons.lang.Nullable;
 
@@ -214,94 +213,85 @@ public class AdminResource extends AbstractResource implements ApplicationContex
     }
 	
 	
-    @Path("/" + SYSTEM_SUBPATH + "/r_packages")
-    @POST
-    @Consumes({Constants.GZIP_CONTENT_TYPE})
-    public void installRPackage(@QueryParam("rServiPoolUri") final String rServiPoolUri,
-                                @QueryParam("sha1hexsum") final String sha1HexSum,
-                                @QueryParam("packageName") final String packageName,
-                                final InputStream input) throws Exception
-    {
-        Validate.notBlank(rServiPoolUri, "missing query param: rServiPoolUri");
-        Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
-
-        // store the package and tar files in temporary files
-        final File tempDirectory = new File(org.apache.commons.io.FileUtils.getTempDirectory(), UUID.randomUUID().toString());
-        org.apache.commons.io.FileUtils.forceMkdir(tempDirectory);
-
-        final File packageSourceFile = new File(tempDirectory, packageName);
-
-        try
-        {
-            try(final FileOutputStream output = new FileOutputStream(packageSourceFile)) {
-              IOUtils.copyLarge(input, output);
-            }
-
-            // validate the checksum
-            try(final FileInputStream packageSourceInputStream = new FileInputStream(packageSourceFile)) {
-              final String calculatedSha1HexSum = DigestUtils.sha1Hex(packageSourceInputStream);
-              Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
-            }
-
-            // upload to RServi
-            this.rServiPackageManager.install(packageSourceFile, rServiPoolUri);
-
-            // extract catalog files from $PKG_ROOT/inst/rsb/catalog
-            extractCatalogFiles(packageSourceFile);
-
-            getLogger().info("Package with checksum " + sha1HexSum + " installed to " + rServiPoolUri);
-        }
-        finally
-        {
-            try
-            {
-                org.apache.commons.io.FileUtils.forceDelete(tempDirectory);
-            }
-            catch (final Exception e)
-            {
-                getLogger().warn("Failed to delete temporary directory: " + tempDirectory, e);
-            }
-        }
-    }
-
-    private void extractCatalogFiles(final File packageSourceFile) throws IOException
-    {
-        final File tempDirectory = packageSourceFile.getParentFile();
-
-        // 1) extract TAR
-        final File packageTarFile = File.createTempFile("rsb-install.", ".tar", tempDirectory);
-        try(final GzipCompressorInputStream gzIn = new GzipCompressorInputStream(new FileInputStream(
-            packageSourceFile)); FileOutputStream output = new FileOutputStream(packageTarFile)) {
-          IOUtils.copyLarge(gzIn, output);
-        }
-
-        // 2) parse TAR and drop files in catalog
-        try(final TarArchiveInputStream tarIn = new TarArchiveInputStream(new FileInputStream(packageTarFile))) {
-          TarArchiveEntry tarEntry = null;
-          while ((tarEntry = tarIn.getNextTarEntry()) != null)
-          {
-              if (!tarEntry.isFile())
-              {
-                  continue;
-              }
-  
-              final Matcher matcher = TAR_CATALOG_FILE_PATTERN.matcher(tarEntry.getName());
-              if (matcher.matches())
-              {
-                  final byte[] data = IOUtils.toByteArray(tarIn, tarEntry.getSize());
-  
-                  final String catalogFile = matcher.group(1);
-                  final File targetCatalogFile = new File(getConfiguration().getCatalogRootDirectory(),
-                      catalogFile);
-                  try(FileOutputStream output = new FileOutputStream(targetCatalogFile)) {
-                    IOUtils.write(data, output);
-                  }
-  
-                  getLogger().info("Wrote " + data.length + " bytes in catalog file: " + targetCatalogFile);
-              }
-          }
-        }
-    }
+	@Path("/" + SYSTEM_SUBPATH + "/r_packages")
+	@POST
+	@Consumes({Constants.GZIP_CONTENT_TYPE})
+	public void installRPackage(
+			@QueryParam("rServiPoolUri") final String rServiPoolUri,
+			@QueryParam("sha1hexsum") final String sha1HexSum,
+			@QueryParam("packageName") final String packageName,
+			final InputStream input)
+			throws Exception {
+		Validate.notBlank(rServiPoolUri, "missing query param: rServiPoolUri");
+		Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
+		Validate.notBlank(sha1HexSum, "missing query param: packageName");
+		
+		// store the package and tar files in temporary files
+		final var tempDirectory= Files.createTempDirectory("rsb-rpkg-");
+		
+		final var packageSourceFile= tempDirectory.resolve(packageName);
+		
+		try {
+			Files.copy(input, packageSourceFile);
+			
+			// validate the checksum
+			try (final var fileIn= Files.newInputStream(packageSourceFile)) {
+				final String calculatedSha1HexSum= DigestUtils.sha1Hex(fileIn);
+				Validate.isTrue(calculatedSha1HexSum.equals(sha1HexSum), "Invalid SHA-1 HEX checksum");
+			}
+			
+			// upload to RServi
+			this.rServiPackageManager.install(packageSourceFile, rServiPoolUri);
+			
+			// extract catalog files from $PKG_ROOT/inst/rsb/catalog
+			extractCatalogFiles(packageSourceFile);
+			
+			getLogger().info("Package with checksum " + sha1HexSum + " installed to " + rServiPoolUri);
+		}
+		finally {
+			try {
+				FileUtils.deleteRecursively(tempDirectory);
+			}
+			catch (final Exception e) {
+				getLogger().warn("Failed to delete temporary directory: " + tempDirectory, e);
+			}
+		}
+	}
+	
+	private void extractCatalogFiles(final java.nio.file.Path packageSourceFile) throws IOException {
+		final var tempDirectory= requireParent(packageSourceFile);
+		
+		// 1) extract TAR
+		final var packageTarFile= Files.createTempFile(tempDirectory, "rsb-install.", ".tar");
+		try (	final var fileIn= Files.newInputStream(packageSourceFile);
+				final GzipCompressorInputStream gzIn= new GzipCompressorInputStream(fileIn);
+				final var out= Files.newOutputStream(packageTarFile) ) {
+			gzIn.transferTo(out);
+		}
+		
+		// 2) parse TAR and drop files in catalog
+		try (	final var fileIn= Files.newInputStream(packageTarFile);
+				final TarArchiveInputStream tarIn= new TarArchiveInputStream(fileIn) ) {
+			final Matcher matcher= TAR_CATALOG_FILE_PATTERN.matcher("");
+			TarArchiveEntry tarEntry= null;
+			while ((tarEntry= tarIn.getNextTarEntry()) != null) {
+				if (!tarEntry.isFile()) {
+					continue;
+				}
+				
+				if (matcher.reset(tarEntry.getName()).matches()) {
+					final byte[] data= IOUtils.toByteArray(tarIn, tarEntry.getSize());
+					
+					final String catalogFileName= matcher.group(1);
+					final var targetCatalogFile= getConfiguration().getCatalogRootDirectory().toPath()
+							.resolve(catalogFileName);
+					Files.write(targetCatalogFile, data);
+					
+					getLogger().info("Wrote " + data.length + " bytes in catalog file: " + targetCatalogFile);
+				}
+			}
+		}
+	}
 	
 	
 	@Path("/" + CATALOG_SUBPATH)
