@@ -28,10 +28,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +42,7 @@ import eu.openanalytics.rsb.data.PersistedResult;
 import eu.openanalytics.rsb.data.SecureResultStore;
 import eu.openanalytics.rsb.message.AbstractFunctionCallResult;
 import eu.openanalytics.rsb.message.MultiFilesResult;
+import eu.openanalytics.rsb.test.TestUtils;
 
 
 /**
@@ -116,8 +116,8 @@ public class RestResultProcessorTestCase
     {
         final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
         when(multiFilesResult.getApplicationName()).thenReturn("test_app_name");
-        when(multiFilesResult.getPayload()).thenReturn(new File[0]);
-        when(multiFilesResult.getTemporaryDirectory()).thenReturn(FileUtils.getTempDirectory());
+        when(multiFilesResult.getPayload()).thenReturn(List.of());
+        when(multiFilesResult.getTemporaryDirectory()).thenReturn(TestUtils.getTempDirectory());
         return multiFilesResult;
     }
 

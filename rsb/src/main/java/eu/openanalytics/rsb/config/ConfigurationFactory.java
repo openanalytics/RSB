@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -276,14 +275,18 @@ public abstract class ConfigurationFactory
     {
         if (pca.getDepositRootDirectories() != null)
         {
-            for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories())
-            {
-                final File depositRootDir = depositRootDirectoryConfig.getRootDirectory();
-                FileUtils.forceMkdir(depositRootDir);
-                FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_ACCEPTED_SUBDIR));
-                FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_JOBS_SUBDIR));
-                FileUtils.forceMkdir(new File(depositRootDir, Configuration.DEPOSIT_RESULTS_SUBDIR));
-            }
-        }
-    }
+			for (final DepositDirectoryConfiguration depositRootDirectoryConfig : pca.getDepositRootDirectories()) {
+				createDepositeDirectories(depositRootDirectoryConfig.getRootDirectory().toPath());
+			}
+		}
+	}
+	
+	
+	public static void createDepositeDirectories(final Path root) throws IOException {
+		Files.createDirectories(root);
+		Files.createDirectories(root.resolve(Configuration.DEPOSIT_ACCEPTED_SUBDIR));
+		Files.createDirectories(root.resolve(Configuration.DEPOSIT_JOBS_SUBDIR));
+		Files.createDirectories(root.resolve(Configuration.DEPOSIT_RESULTS_SUBDIR));
+	}
+	
 }

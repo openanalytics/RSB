@@ -23,25 +23,24 @@
 
 package eu.openanalytics.rsb.message;
 
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.statet.jcommons.io.FileUtils;
 import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 import org.eclipse.statet.jcommons.lang.Nullable;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import eu.openanalytics.rsb.Util;
 
 
 /**
@@ -50,7 +49,7 @@ import eu.openanalytics.rsb.Util;
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @NonNullByDefault
-public class MultiFilesResult extends AbstractResult<File[]> {
+public class MultiFilesResult extends AbstractResult<List<Path>> {
 	
 	private static final long serialVersionUID= 1L;
 	
@@ -64,14 +63,14 @@ public class MultiFilesResult extends AbstractResult<File[]> {
 			final Map<String, Serializable> meta, final boolean success)
 			throws IOException {
 		super(source, applicationName, userName, jobId, submissionTime, meta, success);
-		this.temporaryDirectory= Util.createTemporaryDirectory("job");
+		this.temporaryDirectory= Files.createTempDirectory("rsb-result-").toFile();
 	}
 	
 	
 	@Override
 	protected void releaseResources() {
 		try {
-			FileUtils.forceDelete(this.temporaryDirectory);
+			FileUtils.deleteRecursively(getTemporaryDirectory());
 		}
 		catch (final IOException e) {
 			throw new RuntimeException("Can't release resources of: " + this, e);
@@ -80,18 +79,23 @@ public class MultiFilesResult extends AbstractResult<File[]> {
 	
 	
 	// exposed only for unit tests
-	public File getTemporaryDirectory() {
-		return this.temporaryDirectory;
+	public Path getTemporaryDirectory() {
+		return this.temporaryDirectory.toPath();
 	}
 	
 	@Override
-	public File[] getPayload() throws IOException {
-		final File[] resultFiles= this.temporaryDirectory.listFiles();
-		return resultFiles == null ? new File[0] : resultFiles;
+	public List<Path> getPayload() throws IOException {
+		final var payload= new ArrayList<Path>();
+		try (final var directoryStream= Files.newDirectoryStream(getTemporaryDirectory())) {
+			for (final Path path : directoryStream) {
+				payload.add(path);
+			}
+		}
+		return payload;
 	}
 	
-	public File createNewResultFile(final String name) throws IOException {
-		return new File(this.temporaryDirectory, name);
+	public Path createNewResultFile(final String name) throws IOException {
+		return getTemporaryDirectory().resolve(name);
 	}
 	
 	
@@ -102,25 +106,23 @@ public class MultiFilesResult extends AbstractResult<File[]> {
 	 * 
 	 * @param result
 	 * @return
-	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static File zipResultFilesIfNotError(final MultiFilesResult result)
-			throws FileNotFoundException, IOException {
-		final File[] resultFiles= result.getPayload();
+	public static Path zipResultFilesIfNotError(final MultiFilesResult result)
+			throws IOException {
+		final var resultFiles= result.getPayload();
 		
-		if (!result.isSuccess() && resultFiles.length == 1) {
-			return resultFiles[0];
+		if (!result.isSuccess() && resultFiles.size() == 1) {
+			return resultFiles.get(0);
 		}
 		
-		final File resultZipFile= new File(result.getTemporaryDirectory(), result.getJobId() + ".zip");
-		try (final ZipOutputStream resultZOS= new ZipOutputStream(new FileOutputStream(resultZipFile))) {
-			for (final File resultFile : resultFiles) {
-				resultZOS.putNextEntry(new ZipEntry(resultFile.getName()));
-				try(final FileInputStream fis= new FileInputStream(resultFile)) {
-					IOUtils.copy(fis, resultZOS);
-				}
-				resultZOS.closeEntry();
+		final var resultZipFile= result.getTemporaryDirectory().resolve(result.getJobId() + ".zip");
+		try (	final var fileOut= Files.newOutputStream(resultZipFile);
+				final ZipOutputStream resultZipOut= new ZipOutputStream(fileOut) ) {
+			for (final var resultFile : resultFiles) {
+				resultZipOut.putNextEntry(new ZipEntry(requireFileName(resultFile).toString()));
+				Files.copy(resultFile, resultZipOut);
+				resultZipOut.closeEntry();
 			}
 		}
 		

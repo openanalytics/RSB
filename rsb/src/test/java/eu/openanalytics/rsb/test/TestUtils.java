@@ -27,6 +27,7 @@ import static org.eclipse.statet.jcommons.lang.ObjectUtils.nonNullAssert;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.StackWalker.StackFrame;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +40,7 @@ public class TestUtils {
 	
 	
 	private static final Path TEMP_DIRECTORY;
+	private static final int RSB_PREFIX_LENGTH= "eu.openanalytics.rsb.".length();
 	static {
 		try {
 			TEMP_DIRECTORY= Files.createTempDirectory("rsb-test-");
@@ -50,6 +52,18 @@ public class TestUtils {
 	
 	public static Path getTempDirectory() {
 		return TEMP_DIRECTORY;
+	}
+	
+	public static Path createTestDirectory() throws IOException {
+		final StackFrame stackFrame= StackWalker.getInstance().walk((stream) -> stream.skip(1)
+				.findFirst().get());
+		final String name= stackFrame.getClassName().substring(RSB_PREFIX_LENGTH)
+				+ '.' + stackFrame.getMethodName();
+		final Path directory= TEMP_DIRECTORY.resolve(name);
+		
+		Files.createDirectories(directory);
+		
+		return directory;
 	}
 	
 	

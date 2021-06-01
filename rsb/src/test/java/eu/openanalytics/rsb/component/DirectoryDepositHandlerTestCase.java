@@ -23,23 +23,28 @@
 
 package eu.openanalytics.rsb.component;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static eu.openanalytics.rsb.test.TestUtils.getTestDataFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
+import org.eclipse.statet.jcommons.io.FileUtils;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,10 +57,12 @@ import org.springframework.messaging.Message;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
+import eu.openanalytics.rsb.config.ConfigurationFactory;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
+import eu.openanalytics.rsb.test.TestUtils;
 
 
 /**
@@ -77,17 +84,17 @@ public class DirectoryDepositHandlerTestCase
     @Before
     public void prepareTest() throws UnknownHostException
     {
-        directoryDepositHandler = new DirectoryDepositHandler();
-        directoryDepositHandler.setConfiguration(configuration);
-        directoryDepositHandler.setMessageDispatcher(messageDispatcher);
-        directoryDepositHandler.setBeanFactory(beanFactory);
+        this.directoryDepositHandler = new DirectoryDepositHandler();
+        this.directoryDepositHandler.setConfiguration(this.configuration);
+        this.directoryDepositHandler.setMessageDispatcher(this.messageDispatcher);
+        this.directoryDepositHandler.setBeanFactory(this.beanFactory);
     }
 
     @Test
     public void setupChannelAdapters()
     {
         try {
-          directoryDepositHandler.setupChannelAdapters();
+          this.directoryDepositHandler.setupChannelAdapters();
         } catch (final Exception e) {
           e.printStackTrace();
           fail("Unexpected exception thrown in @PostConstruct method setupChannelAdapters() of DirectoryDepositHandler");
@@ -97,77 +104,81 @@ public class DirectoryDepositHandlerTestCase
     @Test
     public void closeChannelAdapters()
     {
-        directoryDepositHandler.closeChannelAdapters();
+        this.directoryDepositHandler.closeChannelAdapters();
     }
-
-    @Test
-    public void handleJobWithZipFile() throws Exception
-    {
-        final File jobParentFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
-        FileUtils.forceMkdir(jobParentFile);
-
-        final File zipJobFile = File.createTempFile("test-", ".zip", jobParentFile);
-        FileUtils.copyInputStreamToFile(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("data/r-job-sample.zip"),
-            zipJobFile);
-
-        testHandleJob(jobParentFile, zipJobFile);
-    }
-
-    @Test
-    public void handleJobWithPlainFile() throws Exception
-    {
-        final File jobParentFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
-        FileUtils.forceMkdir(jobParentFile);
-
-        final File zipJobFile = File.createTempFile("test-", ".dat", jobParentFile);
-        FileUtils.copyInputStreamToFile(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("data/fake_data.dat"),
-            zipJobFile);
-
-        testHandleJob(jobParentFile, zipJobFile);
-    }
-
-    private void testHandleJob(final File jobParentFile, final File zipJobFile) throws IOException
-    {
-        final DepositDirectoryConfiguration depositRootDirectoryConfig = mock(DepositDirectoryConfiguration.class);
-        when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
-        when(configuration.getDepositRootDirectories()).thenReturn(
-            Collections.singletonList(depositRootDirectoryConfig));
-
-        final Message<File> message = MessageBuilder.withPayload(zipJobFile)
-            .setHeader(DirectoryDepositHandler.DIRECTORY_CONFIG_HEADER_NAME, depositRootDirectoryConfig)
-            .build();
-
-        directoryDepositHandler.handleJob(message);
-
-        final ArgumentCaptor<MultiFilesJob> jobCaptor = ArgumentCaptor.forClass(MultiFilesJob.class);
-        verify(messageDispatcher).dispatch(jobCaptor.capture());
-
-        final MultiFilesJob job = jobCaptor.getValue();
-        assertThat(job.getApplicationName(), is(TEST_APPLICATION_NAME));
-        assertThat(job.getMeta().containsKey(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME),
-            is(true));
-        assertThat(job.getMeta().containsKey(DirectoryDepositHandler.INBOX_DIRECTORY_META_NAME), is(true));
-        assertThat(job.getMeta().containsKey(DirectoryDepositHandler.ORIGINAL_FILENAME_META_NAME), is(true));
-        assertThat(job.getSource(), is(Source.DIRECTORY));
-        job.destroy();
-
-        FileUtils.forceDelete(jobParentFile);
-    }
-
-    @Test
-    public void handleResult() throws IOException
-    {
-        final Map<String, Serializable> meta = new HashMap<>();
-        meta.put(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME, FileUtils.getTempDirectory());
-
-        final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
-        when(multiFilesResult.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
-        when(multiFilesResult.getPayload()).thenReturn(new File[0]);
-        when(multiFilesResult.getTemporaryDirectory()).thenReturn(FileUtils.getTempDirectory());
-        when(multiFilesResult.getMeta()).thenReturn(meta);
-
-        directoryDepositHandler.handleResult(multiFilesResult);
-    }
+	
+	
+	@Test
+	public void handleJobWithZipFile() throws Exception {
+		final Path testDirectory= TestUtils.createTestDirectory();
+		ConfigurationFactory.createDepositeDirectories(testDirectory);
+		
+		final Path jobFile= Files.createTempFile(
+				testDirectory.resolve(Configuration.DEPOSIT_JOBS_SUBDIR), "test-", ".zip");
+		try (final var out= Files.newOutputStream(jobFile)) {
+			Files.copy(getTestDataFile("r-job-sample.zip"), out);
+		}
+		
+		testHandleJob(testDirectory, jobFile);
+	}
+	
+	@Test
+	public void handleJobWithPlainFile() throws Exception {
+		final Path testDirectory= TestUtils.createTestDirectory();
+		ConfigurationFactory.createDepositeDirectories(testDirectory);
+		
+		final Path jobFile= Files.createTempFile(
+				testDirectory.resolve(Configuration.DEPOSIT_JOBS_SUBDIR), "test-", ".dat" );
+		try (final var out= Files.newOutputStream(jobFile)) {
+			Files.copy(getTestDataFile("fake_data.dat"), out);
+		}
+		
+		testHandleJob(testDirectory, jobFile);
+	}
+	
+	private void testHandleJob(final Path testDirectory, final Path jobFile) throws IOException {
+		final DepositDirectoryConfiguration depositRootDirectoryConfig= mock(DepositDirectoryConfiguration.class);
+		when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
+		when(this.configuration.getDepositRootDirectories()).thenReturn(
+				Collections.singletonList(depositRootDirectoryConfig));
+		
+		final Message<File> message= MessageBuilder.withPayload(jobFile.toFile())
+				.setHeader(DirectoryDepositHandler.DIRECTORY_CONFIG_HEADER_NAME, depositRootDirectoryConfig)
+				.build();
+		
+		this.directoryDepositHandler.handleJob(message);
+		
+		final ArgumentCaptor<MultiFilesJob> jobCaptor= ArgumentCaptor.forClass(MultiFilesJob.class);
+		verify(this.messageDispatcher).dispatch(jobCaptor.capture());
+		
+		final MultiFilesJob job= jobCaptor.getValue();
+		assertEquals(TEST_APPLICATION_NAME, job.getApplicationName());
+		assertTrue(job.getMeta().containsKey(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME));
+		assertTrue(job.getMeta().containsKey(DirectoryDepositHandler.INBOX_DIRECTORY_META_NAME));
+		assertTrue(job.getMeta().containsKey(DirectoryDepositHandler.ORIGINAL_FILENAME_META_NAME));
+		assertEquals(Source.DIRECTORY, job.getSource());
+		
+		job.destroy();
+		
+		FileUtils.deleteRecursively(testDirectory);
+	}
+	
+	
+	@Test
+	public void handleResult() throws IOException {
+		final Path testDirectory= TestUtils.createTestDirectory();
+		ConfigurationFactory.createDepositeDirectories(testDirectory);
+		
+		final Map<String, Serializable> meta= new HashMap<>();
+		meta.put(DirectoryDepositHandler.DEPOSIT_ROOT_DIRECTORY_META_NAME, testDirectory.toUri());
+		
+		final MultiFilesResult multiFilesResult= mock(MultiFilesResult.class);
+		when(multiFilesResult.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
+		when(multiFilesResult.getPayload()).thenReturn(List.of());
+		when(multiFilesResult.getTemporaryDirectory()).thenReturn(testDirectory);
+		when(multiFilesResult.getMeta()).thenReturn(meta);
+		
+		this.directoryDepositHandler.handleResult(multiFilesResult);
+	}
+	
 }

@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
@@ -149,7 +150,7 @@ public class SoapMtomJobHandlerTestCase {
         // .getContentType())));
         // job.getPayload().add(jsonFunctionCallPayload);
         final MultiFilesResult result = mock(MultiFilesResult.class);
-        when(result.getPayload()).thenReturn(new File[0]);
+        when(result.getPayload()).thenReturn(List.of());
         when(result.getJobId()).thenReturn(UUID.randomUUID());
         when(messageDispatcher.process(any(MultiFilesJob.class))).thenAnswer(new Answer<AbstractResult<?>>() {
 			@Override

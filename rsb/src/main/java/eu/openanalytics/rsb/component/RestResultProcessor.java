@@ -24,14 +24,15 @@
 package eu.openanalytics.rsb.component;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.GregorianCalendar;
 
 import javax.activation.MimeType;
 import javax.annotation.Resource;
+
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 
 import org.springframework.stereotype.Component;
 
@@ -49,36 +50,39 @@ import eu.openanalytics.rsb.message.MultiFilesResult;
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 @Component("restResultProcessor")
-public class RestResultProcessor extends AbstractComponent
-{
-    @Resource
-    private SecureResultStore resultStore;
-
-    // exposed for testing
-    void setResultStore(final SecureResultStore resultStore)
-    {
-        this.resultStore = resultStore;
-    }
-
-    public void process(final AbstractFunctionCallResult result) throws IOException
-    {
-        persistResult(result, result.getMimeType(), new ByteArrayInputStream(result.getPayload().getBytes()));
-    }
-
-    public void process(final MultiFilesResult result) throws IOException
-    {
-        final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
-        persistResult(result, Util.getMimeType(resultFile), new FileInputStream(resultFile));
-    }
-
+@NonNullByDefault
+public class RestResultProcessor extends AbstractComponent {
+	
+	
+	@Resource
+	private SecureResultStore resultStore;
+	
+	
+	// exposed for testing
+	void setResultStore(final SecureResultStore resultStore) {
+		this.resultStore= resultStore;
+	}
+	
+	
+	public void process(final AbstractFunctionCallResult result) throws IOException {
+		persistResult(result, result.getMimeType(), new ByteArrayInputStream(result.getPayload().getBytes()));
+	}
+	
+	public void process(final MultiFilesResult result) throws IOException {
+		final var resultFile= MultiFilesResult.zipResultFilesIfNotError(result);
+		try (final var in= Files.newInputStream(resultFile)) {
+			persistResult(result, Util.getMimeType(resultFile), in);
+		}
+	}
+	
     private <T> void persistResult(final AbstractResult<?> result,
                                    final MimeType resultMimeType,
                                    final InputStream resultData) throws IOException
     {
 
-        final GregorianCalendar resultTime = (GregorianCalendar) GregorianCalendar.getInstance();
+        final GregorianCalendar resultTime= (GregorianCalendar) GregorianCalendar.getInstance();
 
-        final PersistedResult persistedResult = new PersistedResult(result.getApplicationName(),
+        final PersistedResult persistedResult= new PersistedResult(result.getApplicationName(),
             result.getUserName(), result.getJobId(), resultTime, result.isSuccess(), resultMimeType)
         {
 
@@ -95,7 +99,8 @@ public class RestResultProcessor extends AbstractComponent
             }
         };
 
-        resultStore.store(persistedResult);
+        this.resultStore.store(persistedResult);
         result.destroy();
     }
+	
 }

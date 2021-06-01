@@ -23,22 +23,23 @@
 
 package eu.openanalytics.rsb.component;
 
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -121,25 +122,20 @@ public class JobProcessor extends AbstractComponentWithCatalog
             }
         }, false);
     }
-
-    public void process(final MultiFilesJob job) throws Exception
-    {
-        process(job, new JobRunner()
-        {
-            @Override
-            public AbstractResult<File[]> runOn(final RServi rServi) throws Exception
-            {
-                final Set<String> filesUploadedToR = new HashSet<>();
-
-                // locate and upload the R script
-                final File rScriptFile = getRScriptFile(job);
-
-                uploadFileToR(rServi, rScriptFile, filesUploadedToR);
-
-                // optionally uploads a Sweave file
-                final String sweaveFileFromCatalog = (String) getUploadableJobMeta(job).get(
-                    Constants.SWEAVE_FILE_CONFIGURATION_KEY);
+	
+	public void process(final MultiFilesJob job) throws Exception {
+		process(job, new JobRunner() {
+			@Override
+			public AbstractResult<List<Path>> runOn(final RServi rServi) throws Exception {
+				final Set<String> filesUploadedToR= new HashSet<>();
 				
+				// locate and upload the R script
+				final Path rScriptFile= getRScriptFile(job);
+				final String rScriptFileName= uploadFileToR(rServi, rScriptFile, filesUploadedToR);
+				
+				// optionally uploads a Sweave file
+				final String sweaveFileFromCatalog= (String)getUploadableJobMeta(job)
+						.get(Constants.SWEAVE_FILE_CONFIGURATION_KEY);
 				if (sweaveFileFromCatalog != null) {
 					final Path sweaveFile= getCatalogManager().internalGetCatalogFile(
 							CatalogSection.SWEAVE_FILES,
@@ -148,64 +144,56 @@ public class JobProcessor extends AbstractComponentWithCatalog
 						throw new IllegalArgumentException("Invalid catalog Sweave file reference in job: " + job);
 					}
 					
-					uploadFileToR(rServi, sweaveFile.toFile(), filesUploadedToR);
+					uploadFileToR(rServi, sweaveFile, filesUploadedToR);
 				}
 				
-                // upload the job files (except the R Script which has already been
-                // taken care of)
-                for (final File jobFile : job.getFiles())
-                {
-                    if (!jobFile.equals(rScriptFile))
-                    {
-                        uploadFileToR(rServi, jobFile, filesUploadedToR);
-                    }
-                }
-
-                // upload the configuration file to R
-                uploadPropertiesToR(rServi, getUploadableJobMeta(job), filesUploadedToR);
-
-                // hit R
-                executeScriptOnR(rServi, rScriptFile.getName());
-
-                final MultiFilesResult result = job.buildSuccessResult();
-
-                // download the result files but not the uploaded ones nor the log
-                // file
-                final Set<String> filesToDownload = getFilesInRWorkspace(rServi);
-                filesToDownload.removeAll(filesUploadedToR);
-                filesToDownload.remove(Constants.DEFAULT_R_LOG_FILE);
-                for (final String fileToDownload : filesToDownload)
-                {
-                    final File resultFile = result.createNewResultFile(fileToDownload);
-                    try(final FileOutputStream fos = new FileOutputStream(resultFile)) {
-                      rServi.downloadFile(fos, fileToDownload, 0, null);
-                    }
-                }
-
-                return result;
-            }
-
-            private Map<String, Serializable> getUploadableJobMeta(final Job job)
-            {
-                final Map<String, Serializable> meta = new HashMap<>(job.getMeta());
-
-                if ((JobProcessor.this.getConfiguration().isPropagateSecurityContext())
-                    && (StringUtils.isNotBlank(job.getUserName())))
-                {
-                    meta.put("rsbSecure", true);
-                    meta.put("rsbUserPrincipal", job.getUserName());
-                }
-
-                return meta;
-            }
-
-            private File getRScriptFile(final MultiFilesJob job)
-            {
+				// upload the job files (except the R Script which has already been taken care of)
+				for (final Path jobFile : job.getFiles()) {
+					if (!jobFile.equals(rScriptFile)) {
+						uploadFileToR(rServi, jobFile, filesUploadedToR);
+					}
+				}
+				
+				// upload the configuration file to R
+				uploadPropertiesToR(rServi, getUploadableJobMeta(job), filesUploadedToR);
+				
+				// hit R
+				executeScriptOnR(rServi, rScriptFileName);
+				
+				final MultiFilesResult result= job.buildSuccessResult();
+				
+				// download the result files but not the uploaded ones nor the log file
+				final Set<String> filesToDownload= getFilesInRWorkspace(rServi);
+				filesToDownload.removeAll(filesUploadedToR);
+				filesToDownload.remove(Constants.DEFAULT_R_LOG_FILE);
+				for (final String fileToDownload : filesToDownload) {
+					final Path resultFile= result.createNewResultFile(fileToDownload);
+					try (final var out= Files.newOutputStream(resultFile, StandardOpenOption.CREATE_NEW)) {
+						rServi.downloadFile(out, fileToDownload, 0, null);
+					}
+				}
+				
+				return result;
+			}
+			
+			private Map<String, Serializable> getUploadableJobMeta(final Job job) {
+				final Map<String, Serializable> meta= new HashMap<>(job.getMeta());
+				
+				if (JobProcessor.this.getConfiguration().isPropagateSecurityContext()
+						&& StringUtils.isNotBlank(job.getUserName()) ) {
+					meta.put("rsbSecure", true);
+					meta.put("rsbUserPrincipal", job.getUserName());
+				}
+				
+				return meta;
+			}
+			
+			private Path getRScriptFile(final MultiFilesJob job) {
 				final String rScriptFromCatalog= (String)getUploadableJobMeta(job)
 						.get(Constants.R_SCRIPT_CONFIGURATION_KEY);
 				
 				return (rScriptFromCatalog != null) ?
-						getRScriptFileFromCatalog(rScriptFromCatalog, job).toFile() :
+						getRScriptFileFromCatalog(rScriptFromCatalog, job) :
 						getRScriptFileFromJob(job);
 			}
 			
@@ -222,20 +210,17 @@ public class JobProcessor extends AbstractComponentWithCatalog
 				}
 			}
 			
-            private File getRScriptFileFromJob(final MultiFilesJob job)
-            {
-                if ((job.getRScriptFile() == null) || (!job.getRScriptFile().isFile()))
-                {
-                    throw new IllegalArgumentException("No R script has been found for job: " + job);
-                }
-                else
-                {
-                    return job.getRScriptFile();
-                }
-            }
-        }, false);
-    }
-
+			private Path getRScriptFileFromJob(final MultiFilesJob job) {
+				final var rScriptFile= job.getRScriptFile();
+				if (rScriptFile == null || !Files.exists(rScriptFile)) {
+					throw new IllegalArgumentException("No R script has been found for job: " + job);
+				}
+				return rScriptFile;
+			}
+			
+		}, false);
+	}
+	
     // setters exposed for unit testing
     void setRServiInstanceProvider(final RServiInstanceProvider rServiInstanceProvider)
     {
@@ -347,16 +332,20 @@ public class JobProcessor extends AbstractComponentWithCatalog
 
         return result.getData().getChar(0);
     }
-
-    private static void uploadFileToR(final RServi rServi, final File file, final Set<String> filesUploadedToR)
-        throws StatusException, IOException
-    {
-        try(final FileInputStream fis = new FileInputStream(file)) {
-          rServi.uploadFile(fis, file.length(), file.getName(), 0, null);
-        }
-        filesUploadedToR.add(file.getName());
-    }
-
+	
+	private static String uploadFileToR(final RServi rServi, final Path file,
+			final Set<String> filesUploadedToR)
+			throws StatusException, IOException {
+		final String fileName= requireFileName(file).toString();
+		
+		try (final var in= Files.newInputStream(file)) {
+			rServi.uploadFile(in, Files.size(file), fileName, 0, null);
+		}
+		
+		filesUploadedToR.add(fileName);
+		return fileName;
+	}
+	
     private static void uploadPropertiesToR(final RServi rServi,
                                             final Map<String, Serializable> metas,
                                             final Set<String> filesUploadedToR)

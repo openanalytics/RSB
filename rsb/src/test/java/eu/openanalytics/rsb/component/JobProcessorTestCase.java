@@ -35,11 +35,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Calendar;
+import java.util.List;
 
 import org.eclipse.statet.jcommons.status.ProgressMonitor;
 import org.eclipse.statet.jcommons.status.StatusException;
@@ -70,6 +71,7 @@ import eu.openanalytics.rsb.rservi.RServiInstanceProvider;
 import eu.openanalytics.rsb.rservi.RServiInstanceProvider.PoolingStrategy;
 import eu.openanalytics.rsb.rservi.RServiUriSelector;
 import eu.openanalytics.rsb.stats.JobStatisticsHandler;
+import eu.openanalytics.rsb.test.TestUtils;
 
 
 /**
@@ -191,34 +193,33 @@ public class JobProcessorTestCase
 
         verify(messageDispatcher).dispatch(eq(result));
     }
-
-    @Test
-    public void processMultiFilesJob() throws Exception
-    {
-        final URI defaultPoolUri = new URI("fake://default");
-        when(configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
-        final RServi rServi = mock(RServi.class);
-        when(rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER))).thenReturn(
-            rServi);
-        final FunctionCall functionCall = mock(FunctionCall.class);
-        when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
-        final RObject rObject = new RVectorImpl<>(new RCharacter32Store(new String[0]));
-        when(rServi.evalData(anyString(), (ProgressMonitor) isNull())).thenReturn(rObject);
-        final MultiFilesJob job = mock(MultiFilesJob.class);
-        final File scriptFile = File.createTempFile("rsb", "test");
-        scriptFile.deleteOnExit();
-        when(job.getRScriptFile()).thenReturn(scriptFile);
-        when(job.getFiles()).thenReturn(new File[]{scriptFile});
-        final MultiFilesResult result = mock(MultiFilesResult.class);
-        when(job.buildSuccessResult()).thenReturn(result);
-
-        jobProcessor.process(job);
-
-        verify(jobStatisticsHandler).storeJobStatistics(eq(job), any(Calendar.class), anyLong(),
-            eq(defaultPoolUri.toString()));
-        verify(messageDispatcher).dispatch(eq(result));
-    }
-
+	
+	@Test
+	public void processMultiFilesJob() throws Exception {
+		final URI defaultPoolUri= new URI("fake://default");
+		
+		when(this.configuration.getDefaultRserviPoolUri()).thenReturn(defaultPoolUri);
+		final RServi rServi= mock(RServi.class);
+		when(this.rServiInstanceProvider.getRServiInstance(anyString(), anyString(), eq(PoolingStrategy.NEVER)))
+				.thenReturn(rServi);
+		final FunctionCall functionCall= mock(FunctionCall.class);
+		when(rServi.createFunctionCall(anyString())).thenReturn(functionCall);
+		final RObject rObject= new RVectorImpl<>(new RCharacter32Store(new String[0]));
+		when(rServi.evalData(anyString(), (ProgressMonitor)isNull())).thenReturn(rObject);
+		final MultiFilesJob job= mock(MultiFilesJob.class);
+		final var scriptFile= Files.createTempFile(TestUtils.getTempDirectory(), "rsb", "test");
+		when(job.getRScriptFile()).thenReturn(scriptFile);
+		when(job.getFiles()).thenReturn(List.of(scriptFile));
+		final MultiFilesResult result= mock(MultiFilesResult.class);
+		when(job.buildSuccessResult()).thenReturn(result);
+		
+		this.jobProcessor.process(job);
+		
+		verify(this.jobStatisticsHandler).storeJobStatistics(eq(job), any(Calendar.class), anyLong(),
+				eq(defaultPoolUri.toString()));
+		verify(this.messageDispatcher).dispatch(eq(result));
+	}
+	
     private AbstractFunctionCallResult setupResultMockForFunctionCallJob(final AbstractFunctionCallJob job)
         throws IOException
     {

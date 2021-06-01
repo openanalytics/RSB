@@ -25,14 +25,15 @@ package eu.openanalytics.rsb;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -83,17 +84,15 @@ public class UtilTestCase
         when(httpHeaders.getRequestHeader("multi_value")).thenReturn(Arrays.asList("bingo_too", "ignored"));
         assertThat(Util.getSingleHeader(httpHeaders, "multi_value"), is("bingo_too"));
     }
-
-    @Test
-    public void getMimeType()
-    {
-        assertThat(Util.getMimeType(new File("test.zip")).toString(), is(Constants.ZIP_MIME_TYPE.toString()));
-        assertThat(Util.getMimeType(new File("test.err.txt")).toString(),
-            is(Constants.TEXT_MIME_TYPE.toString()));
-        assertThat(Util.getMimeType(new File("test.pdf")).toString(), is(Constants.PDF_MIME_TYPE.toString()));
-        assertThat(Util.getMimeType(new File("test.foo")).toString(), is("application/octet-stream"));
-    }
-
+	
+	@Test
+	public void getMimeType() {
+		assertEquals(Constants.ZIP_MIME_TYPE.toString(), Util.getMimeType(Path.of("test.zip")).toString());
+		assertEquals(Constants.TEXT_MIME_TYPE.toString(), Util.getMimeType(Path.of("test.err.txt")).toString());
+		assertEquals(Constants.PDF_MIME_TYPE.toString(), Util.getMimeType(Path.of("test.pdf")).toString());
+		assertEquals("application/octet-stream", Util.getMimeType(Path.of("test.foo")).toString());
+	}
+	
     @Test
     public void getResourceType()
     {

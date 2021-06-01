@@ -33,7 +33,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
+import static eu.openanalytics.rsb.test.TestUtils.getTestDataStream;
+
 import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -133,28 +134,37 @@ public class JobsResourceTestCase
         when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
         assertSuccessfullHandling(this.jobsResource.handleXmlFunctionCallJob("fake_xml", this.httpHeaders, this.uriInfo));
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void handleInvalidZipJob() throws Exception
-    {
-        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
-            Collections.singletonList(TEST_APP_NAME));
-        when(this.httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
-        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-        assertSuccessfullHandling(this.jobsResource.handleZipJob(getTestDataAsStream("invalid-job-subdir.zip"),
-            this.httpHeaders, this.uriInfo));
-    }
-
-    @Test
-    public void handleZipJob() throws Exception
-    {
-        when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME)).thenReturn(
-            Collections.singletonList(TEST_APP_NAME));
-        when(this.httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
-        when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
-        assertSuccessfullHandling(this.jobsResource.handleZipJob(getTestDataAsStream("r-job-sample.zip"),
-            this.httpHeaders, this.uriInfo));
-    }
+	
+	
+	@Test(expected= IllegalArgumentException.class)
+	public void handleInvalidZipJob() throws Exception {
+		when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME))
+				.thenReturn(List.of(TEST_APP_NAME));
+		when(this.httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
+		when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+		
+		final Response response;
+		try (final var in= getTestDataStream("invalid-job-subdir.zip")) {
+			response= this.jobsResource.handleZipJob(in, this.httpHeaders, this.uriInfo);
+		}
+		
+		assertSuccessfullHandling(response);
+	}
+	
+	@Test
+	public void handleZipJob() throws Exception {
+		when(this.httpHeaders.getRequestHeader(Constants.APPLICATION_NAME_FIELD_NAME))
+				.thenReturn(List.of(TEST_APP_NAME));
+		when(this.httpHeaders.getRequestHeaders()).thenReturn(new MetadataMap<String, String>());
+		when(this.uriInfo.getBaseUriBuilder()).thenReturn(new UriBuilderImpl());
+		
+		final Response response;
+		try (final var in= getTestDataStream("r-job-sample.zip")) {
+			response= this.jobsResource.handleZipJob(in, this.httpHeaders, this.uriInfo);
+		}
+		
+		assertSuccessfullHandling(response);
+	}
 	
 	
 	@Test
@@ -234,10 +244,4 @@ public class JobsResourceTestCase
         return jobToken;
     }
 
-    public static InputStream getTestDataAsStream(final String payloadResourceFile)
-    {
-        return Thread.currentThread()
-            .getContextClassLoader()
-            .getResourceAsStream("data/" + payloadResourceFile);
-    }
 }

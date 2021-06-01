@@ -23,27 +23,28 @@
 
 package eu.openanalytics.rsb.component;
 
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+import static org.eclipse.statet.jcommons.io.FileUtils.requireParent;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
@@ -59,6 +60,7 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
 import eu.openanalytics.rsb.Constants;
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
@@ -158,37 +160,35 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
             getLogger().info("Stopped channel adapter: " + channelAdapter);
         }
     }
-
-    public void handleJob(final Message<File> message) throws IOException
-    {
-        final DepositDirectoryConfiguration depositDirectoryConfiguration = message.getHeaders().get(
-            DIRECTORY_CONFIG_HEADER_NAME, DepositDirectoryConfiguration.class);
-
-        final String applicationName = depositDirectoryConfiguration.getApplicationName();
-        final File dataFile = message.getPayload();
-
-        final File depositRootDirectory = dataFile.getParentFile().getParentFile();
-        final File acceptedDirectory = new File(depositRootDirectory, Configuration.DEPOSIT_ACCEPTED_SUBDIR);
-
-        final File acceptedFile = new File(acceptedDirectory, dataFile.getName());
-        FileUtils.deleteQuietly(acceptedFile); // in case a similar job already
-                                               // exists
-        FileUtils.moveFile(dataFile, acceptedFile);
-
-        final Map<String, Serializable> meta = new HashMap<>();
-        meta.put(DEPOSIT_ROOT_DIRECTORY_META_NAME, depositRootDirectory);
-        meta.put(ORIGINAL_FILENAME_META_NAME, dataFile.getName());
-        meta.put(INBOX_DIRECTORY_META_NAME, dataFile.getParent());
+	
+	
+	/** via Spring Integration */
+	public void handleJob(final Message<File> message) throws IOException {
+		final DepositDirectoryConfiguration depositDirectoryConfiguration= message.getHeaders()
+				.get(DIRECTORY_CONFIG_HEADER_NAME, DepositDirectoryConfiguration.class);
+		
+		final String applicationName= depositDirectoryConfiguration.getApplicationName();
+		final var dataFile= message.getPayload().toPath();
+		final String fileName= requireFileName(dataFile).toString();
+		
+		final var depositRootDirectory= requireParent(requireParent(dataFile));
+		final var acceptedFile= depositRootDirectory.resolve(Configuration.DEPOSIT_ACCEPTED_SUBDIR)
+				.resolve(fileName);
+		
+		Files.move(dataFile, acceptedFile, StandardCopyOption.REPLACE_EXISTING);
+		
+		final Map<String, Serializable> meta= new HashMap<>();
+		meta.put(DEPOSIT_ROOT_DIRECTORY_META_NAME, depositRootDirectory.toUri());
+		meta.put(INBOX_DIRECTORY_META_NAME, dataFile.getParent().toUri());
+		meta.put(ORIGINAL_FILENAME_META_NAME, fileName);
 		
 		final MultiFilesJob job= new MultiFilesJob(Source.DIRECTORY, applicationName,
-				getUserName(), UUID.randomUUID(), (GregorianCalendar) GregorianCalendar.getInstance(), meta);
+				getUserName(), UUID.randomUUID(),
+				(GregorianCalendar)GregorianCalendar.getInstance(),
+				meta );
 		try {
-			if (FilenameUtils.isExtension(acceptedFile.getName().toLowerCase(Locale.ROOT), "zip")) {
-				job.addFilesFromZip(new FileInputStream(acceptedFile));
-			}
-			else {
-				MultiFilesJob.addDataToJob(new MimetypesFileTypeMap().getContentType(acceptedFile),
-						acceptedFile.getName(), new FileInputStream(acceptedFile), job);
+			try (final var in= Files.newInputStream(acceptedFile)) {
+				MultiFilesJob.addDataToJob(Util.getContentType(acceptedFile), fileName, in, job);
 			}
 			
 			final String jobConfigurationFileName= depositDirectoryConfiguration.getJobConfigurationFileName();
@@ -214,19 +214,31 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 		}
 	}
 	
-    public void handleResult(final MultiFilesResult result) throws IOException
-    {
-        final File resultFile = MultiFilesResult.zipResultFilesIfNotError(result);
-        final File resultsDirectory = new File((File) result.getMeta().get(DEPOSIT_ROOT_DIRECTORY_META_NAME),
-            Configuration.DEPOSIT_RESULTS_SUBDIR);
-
-        final File outboxResultFile = new File(resultsDirectory,
-            "result-" + FilenameUtils.getBaseName((String) result.getMeta().get(ORIGINAL_FILENAME_META_NAME))
-                            + "." + FilenameUtils.getExtension(resultFile.getName()));
-
-        FileUtils.deleteQuietly(outboxResultFile); // in case a similar result
-                                                   // already exists
-        FileUtils.moveFile(resultFile, outboxResultFile);
-        result.destroy();
-    }
+	public void handleResult(final MultiFilesResult result) throws IOException {
+		try {
+			final var resultFile= MultiFilesResult.zipResultFilesIfNotError(result);
+			final var resultsDirectory= toPath(result.getMeta().get(DEPOSIT_ROOT_DIRECTORY_META_NAME))
+					.resolve(Configuration.DEPOSIT_RESULTS_SUBDIR);
+			
+			final var outboxResultFile= resultsDirectory.resolve("result-"
+					+ FilenameUtils.getBaseName((String)result.getMeta().get(ORIGINAL_FILENAME_META_NAME))
+					+ "." + FilenameUtils.getExtension(requireFileName(resultFile).toString()) );
+			
+			Files.move(resultFile, outboxResultFile, StandardCopyOption.REPLACE_EXISTING);
+		}
+		finally {
+			result.destroy();
+		}
+	}
+	
+	private static Path toPath(final Object o) {
+		if (o instanceof URI) {
+			return Path.of((URI)o);
+		}
+		if (o instanceof File) {
+			return ((File)o).toPath();
+		}
+		throw new IllegalArgumentException(o.getClass().getName());
+	}
+	
 }

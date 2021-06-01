@@ -24,22 +24,23 @@
 package eu.openanalytics.rsb.component;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
+import static eu.openanalytics.rsb.test.TestUtils.getTestDataFile;
+
 import java.io.Serializable;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +65,7 @@ import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MessageDispatcher;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
+import eu.openanalytics.rsb.test.TestUtils;
 
 
 /**
@@ -94,23 +96,23 @@ public class EmailDepositHandlerTestCase {
 
     @Before
     public void prepareTest() {
-        emailDepositHandler = new EmailDepositHandler();
-        emailDepositHandler.setConfiguration(configuration);
-        emailDepositHandler.setMessageDispatcher(messageDispatcher);
-        emailDepositHandler.setMessages(messageSource);
-        emailDepositHandler.setMailSender(mailSender);
-        emailDepositHandler.setOutboundEmailChannel(outboundEmailChannel);
-        emailDepositHandler.setBeanFactory(beanFactory);
+        this.emailDepositHandler = new EmailDepositHandler();
+        this.emailDepositHandler.setConfiguration(this.configuration);
+        this.emailDepositHandler.setMessageDispatcher(this.messageDispatcher);
+        this.emailDepositHandler.setMessages(this.messageSource);
+        this.emailDepositHandler.setMailSender(this.mailSender);
+        this.emailDepositHandler.setOutboundEmailChannel(this.outboundEmailChannel);
+        this.emailDepositHandler.setBeanFactory(this.beanFactory);
     }
 
     @Test
     public void setupChannelAdapters() throws URISyntaxException {
-        emailDepositHandler.setupChannelAdapters();
+        this.emailDepositHandler.setupChannelAdapters();
     }
 
     @Test
     public void closeChannelAdapters() {
-        emailDepositHandler.closeChannelAdapters();
+        this.emailDepositHandler.closeChannelAdapters();
     }
 
     @Test
@@ -126,10 +128,10 @@ public class EmailDepositHandlerTestCase {
         final Message<MimeMessage> message = MessageBuilder.withPayload(mimeMessage)
                 .setHeader(EmailDepositHandler.EMAIL_CONFIG_HEADER_NAME, depositEmailConfiguration).build();
 
-        emailDepositHandler.handleJob(message);
+        this.emailDepositHandler.handleJob(message);
 
         final ArgumentCaptor<MultiFilesJob> jobCaptor = ArgumentCaptor.forClass(MultiFilesJob.class);
-        verify(messageDispatcher).dispatch(jobCaptor.capture());
+        verify(this.messageDispatcher).dispatch(jobCaptor.capture());
 
         final MultiFilesJob job = jobCaptor.getValue();
         assertThat(job.getApplicationName(), is(TEST_APPLICATION_NAME));
@@ -141,35 +143,38 @@ public class EmailDepositHandlerTestCase {
         assertThat(job.getSource(), is(Source.EMAIL));
         job.destroy();
     }
-
-    @Test
-    public void handleResult() throws Exception {
-        final Map<String, Serializable> meta = new HashMap<>();
-        meta.put(EmailDepositHandler.EMAIL_ADDRESSEE_META_NAME, "addressee@test.com");
-        meta.put(EmailDepositHandler.EMAIL_REPLY_TO_META_NAME, "replyto@test.com");
-        meta.put(EmailDepositHandler.EMAIL_REPLY_CC_META_NAME, new String[] { "replyCC@test.com" });
-        meta.put(EmailDepositHandler.EMAIL_SUBJECT_META_NAME, "subject");
-        meta.put(EmailDepositHandler.EMAIL_BODY_META_NAME, "your result");
-
-        final MultiFilesResult multiFilesResult = mock(MultiFilesResult.class);
-        when(multiFilesResult.isSuccess()).thenReturn(true);
-        when(multiFilesResult.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
-        when(multiFilesResult.getTemporaryDirectory()).thenReturn(FileUtils.getTempDirectory());
-        when(multiFilesResult.getMeta()).thenReturn(meta);
-        final URL jobFakingAResult = Thread.currentThread().getContextClassLoader().getResource("data/r-job-sample.zip");
-        when(multiFilesResult.getPayload()).thenReturn(new File[] { new File(jobFakingAResult.toURI()) });
-
-        when(mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
-
-        emailDepositHandler.handleResult(multiFilesResult);
-
-        @SuppressWarnings("rawtypes")
-        final ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(outboundEmailChannel).send(messageCaptor.capture());
-
-        @SuppressWarnings("unchecked")
-        final Message<MimeMailMessage> message = messageCaptor.getValue();
-        final MimeMessage mimeMessage = message.getPayload().getMimeMessage();
-        assertThat(mimeMessage.getSubject(), is("RE: subject"));
-    }
+	
+	@Test
+	public void handleResult() throws Exception {
+		final var tempDirectory= TestUtils.createTestDirectory();
+		
+		final Map<String, Serializable> meta= new HashMap<>();
+		meta.put(EmailDepositHandler.EMAIL_ADDRESSEE_META_NAME, "addressee@test.com");
+		meta.put(EmailDepositHandler.EMAIL_REPLY_TO_META_NAME, "replyto@test.com");
+		meta.put(EmailDepositHandler.EMAIL_REPLY_CC_META_NAME, new String[] { "replyCC@test.com" });
+		meta.put(EmailDepositHandler.EMAIL_SUBJECT_META_NAME, "subject");
+		meta.put(EmailDepositHandler.EMAIL_BODY_META_NAME, "your result");
+		
+		final MultiFilesResult multiFilesResult= mock(MultiFilesResult.class);
+		when(multiFilesResult.isSuccess()).thenReturn(true);
+		when(multiFilesResult.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
+		when(multiFilesResult.getTemporaryDirectory()).thenReturn(tempDirectory);
+		when(multiFilesResult.getMeta()).thenReturn(meta);
+		when(multiFilesResult.getPayload())
+				.thenReturn(List.of(getTestDataFile("r-job-sample.zip")));
+		
+		when(this.mailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
+		
+		this.emailDepositHandler.handleResult(multiFilesResult);
+		
+		@SuppressWarnings("rawtypes")
+		final ArgumentCaptor<Message> messageCaptor= ArgumentCaptor.forClass(Message.class);
+		verify(this.outboundEmailChannel).send(messageCaptor.capture());
+		
+		@SuppressWarnings("unchecked")
+		final Message<MimeMailMessage> message= messageCaptor.getValue();
+		final MimeMessage mimeMessage= message.getPayload().getMimeMessage();
+		assertEquals("RE: subject", mimeMessage.getSubject());
+	}
+	
 }

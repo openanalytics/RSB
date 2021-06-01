@@ -176,6 +176,21 @@ public abstract class Util
     	return MIMETYPES_FILETYPE_MAP.getContentType(file);
     }
     
+	/**
+	 * Returns the must probable mime type for a file.
+	 * 
+	 * @param file
+	 * @return {@link eu.openanalytics.rsb.Constants#DEFAULT_MIME_TYPE} if unknown.
+	 */
+	public static MimeType getMimeType(final Path file) {
+		try {
+			return new MimeType(getContentType(file));
+		}
+		catch (final MimeTypeParseException e) {
+			return Constants.DEFAULT_MIME_TYPE;
+		}
+	}
+	
     /**
      * Returns the must probable mime type for a file.
      * 
@@ -322,33 +337,8 @@ public abstract class Util
 
         return headers.get(0);
     }
-
-    /**
-     * Creates a temporary directory. Lifted from: http://stackoverflow.com/questions/
-     * 617414/create-a-temporary-directory-in-java/617438#617438
-     * 
-     * @return
-     * @throws IOException
-     */
-    public static File createTemporaryDirectory(final String type) throws IOException
-    {
-        final File temp;
-
-        temp = File.createTempFile("rsb_", type);
-
-        if (!(temp.delete()))
-        {
-            throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-        }
-
-        if (!(temp.mkdir()))
-        {
-            throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-        }
-
-        return (temp);
-    }
-
+	
+	
     /**
      * Marshals an {@link ErrorResult} to XML.
      * 

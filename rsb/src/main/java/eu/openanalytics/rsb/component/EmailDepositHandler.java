@@ -23,12 +23,13 @@
 
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+import static org.eclipse.statet.jcommons.lang.ObjectUtils.nonNullAssert;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -51,7 +52,6 @@ import javax.mail.Part;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMessage.RecipientType;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -192,6 +192,8 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
         }
     }
 	
+	
+	/** via Spring Integration */
 	public void handleJob(final Message<MimeMessage> message) throws MessagingException, IOException {
 		final DepositEmailConfiguration depositEmailConfiguration= message.getHeaders().get(
 				EMAIL_CONFIG_HEADER_NAME, DepositEmailConfiguration.class);
@@ -229,37 +231,33 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 		}
 	}
 	
-    public void handleResult(final MultiFilesResult result) throws MessagingException, IOException
-    {
-        final Serializable responseBody = result.getMeta().get(EMAIL_BODY_META_NAME);
-        final String responseText = responseBody instanceof File
-                                                                ? FileUtils.readFileToString((File) responseBody, Charset.defaultCharset())
-                                                                : responseBody.toString();
-
-        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
-        final MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
-
-        mmh.setFrom((String) result.getMeta().get(EMAIL_ADDRESSEE_META_NAME));
-        mmh.setTo((String) result.getMeta().get(EMAIL_REPLY_TO_META_NAME));
-        mmh.setCc((String[]) result.getMeta().get(EMAIL_REPLY_CC_META_NAME));
-        mmh.setSubject("RE: " + result.getMeta().get(EMAIL_SUBJECT_META_NAME));
-
-        if (result.isSuccess())
-        {
-            mmh.setText(responseText);
-            for (final File resultFile : result.getPayload())
-            {
-                mmh.addAttachment(resultFile.getName(), resultFile);
-            }
-        }
-        else
-        {
-            mmh.setText(FileUtils.readFileToString(result.getPayload()[0], Charset.defaultCharset()));
-        }
-
-        final Message<MimeMailMessage> message = new GenericMessage<>(new MimeMailMessage(mmh));
-        this.outboundEmailChannel.send(message);
-    }
+	public void handleResult(final MultiFilesResult result) throws MessagingException, IOException {
+		final Serializable responseBody= nonNullAssert(result.getMeta().get(EMAIL_BODY_META_NAME));
+		final String responseText= (responseBody instanceof URI) ?
+				Files.readString(Path.of((URI)responseBody)) :
+				responseBody.toString();
+		
+		final MimeMessage mimeMessage= this.mailSender.createMimeMessage();
+		final MimeMessageHelper mmh= new MimeMessageHelper(mimeMessage, true);
+		
+		mmh.setFrom((String)result.getMeta().get(EMAIL_ADDRESSEE_META_NAME));
+		mmh.setTo((String)result.getMeta().get(EMAIL_REPLY_TO_META_NAME));
+		mmh.setCc((String[])result.getMeta().get(EMAIL_REPLY_CC_META_NAME));
+		mmh.setSubject("RE: " + result.getMeta().get(EMAIL_SUBJECT_META_NAME));
+		
+		if (result.isSuccess()) {
+			mmh.setText(responseText);
+			for (final var resultFile : result.getPayload()) {
+				mmh.addAttachment(requireFileName(resultFile).toString(), resultFile.toFile());
+			}
+		}
+		else {
+			mmh.setText(Files.readString(result.getPayload().get(0)));
+		}
+		
+		final Message<MimeMailMessage> message= new GenericMessage<>(new MimeMailMessage(mmh));
+		this.outboundEmailChannel.send(message);
+	}
 	
 	private void addEmailAttachmentsToJob(final DepositEmailConfiguration depositEmailConfiguration,
 			final MimeMessage mimeMessage,
@@ -298,7 +296,7 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 		
 		return getCatalogManager().internalGetCatalogFile(CatalogSection.EMAIL_REPLIES,
 						configuration.getApplicationName(), configuration.getResponseFileName() )
-				.toFile();
+				.toUri();
 	}
 	
     private String getPrimaryAddressee(final MimeMessage mimeMessage) throws MessagingException

@@ -24,29 +24,27 @@
 package eu.openanalytics.rsb.message;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.eclipse.statet.jcommons.lang.NonNull;
+import org.eclipse.statet.jcommons.io.FileUtils;
 import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 import org.eclipse.statet.jcommons.lang.Nullable;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.stringtemplate.v4.ST;
@@ -77,15 +75,13 @@ public class MultiFilesJob extends AbstractJob {
 			final Map<String, Serializable> meta)
 			throws IOException {
 		super(source, applicationName, userName, jobId, submissionTime, meta);
-		this.temporaryDirectory= Util.createTemporaryDirectory("job");
+		this.temporaryDirectory= Files.createTempDirectory("rsb-job-").toFile();
 	}
 	
 	@Override
 	protected void releaseResources() {
 		try {
-			if (this.temporaryDirectory.isDirectory()) {
-				FileUtils.forceDelete(this.temporaryDirectory);
-			}
+			FileUtils.deleteRecursively(getTemporaryDirectory());
 		}
 		catch (final IOException e) {
 			throw new RuntimeException("Can't release resources of: " + this, e);
@@ -93,21 +89,32 @@ public class MultiFilesJob extends AbstractJob {
 	}
 	
 	
-	public @Nullable File getRScriptFile() {
-		return this.rScriptFile;
+	protected Path getTemporaryDirectory() {
+		return this.temporaryDirectory.toPath();
 	}
 	
-	public @NonNull File[] getFiles() {
-		return this.temporaryDirectory.listFiles();
+	public @Nullable Path getRScriptFile() {
+		final var rScriptFile= this.rScriptFile;
+		return (rScriptFile != null) ? rScriptFile.toPath() : null;
 	}
 	
-	public void addFile(final String name, final InputStream is)
+	public List<Path> getFiles() throws IOException {
+		final var files= new ArrayList<Path>();
+		try (final var directoryStream= Files.newDirectoryStream(getTemporaryDirectory())) {
+			for (final Path path : directoryStream) {
+				files.add(path);
+			}
+		}
+		return files;
+	}
+	
+	public void addFile(final String name, final InputStream in)
 			throws IllegalJobDataException, IOException {
 		if (Constants.MULTIPLE_FILES_JOB_CONFIGURATION.equals(name)) {
-			loadJobConfiguration(is);
+			loadJobConfiguration(in);
 		}
 		else {
-			addJobFile(name, is);
+			addJobFile(name, in);
 		}
 	}
 	
@@ -119,44 +126,42 @@ public class MultiFilesJob extends AbstractJob {
 	 */
 	public void addFilesFromZip(final InputStream data)
 			throws IllegalJobDataException, IOException {
-		try (final ZipInputStream zis= new ZipInputStream(data)) {
+		try (final ZipInputStream zipIn= new ZipInputStream(data)) {
 			ZipEntry ze= null;
 			
-			while ((ze= zis.getNextEntry()) != null) {
+			while ((ze= zipIn.getNextEntry()) != null) {
 				if (ze.isDirectory()) {
 					destroy();
 					throw new IllegalJobDataException("Invalid zip archive: nested directories are not supported");
 				}
-				addFile(ze.getName(), zis);
-				zis.closeEntry();
+				addFile(ze.getName(), zipIn);
+				zipIn.closeEntry();
 			}
 		}
 	}
 	
-	private void addJobFile(final String name, final InputStream is)
-			throws IllegalJobDataException, FileNotFoundException, IOException {
-		final File jobFile= new File(this.temporaryDirectory, name);
+	private void addJobFile(final String name, final InputStream in)
+			throws IllegalJobDataException, IOException {
+		final var jobFile= getTemporaryDirectory().resolve(name);
 		
 		if (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(name), Constants.R_SCRIPT_FILE_EXTENSION)) {
 			if (this.rScriptFile != null) {
 				throw new IllegalJobDataException("Only one R script is allowed per job");
 			}
-			this.rScriptFile= jobFile;
+			this.rScriptFile= jobFile.toFile();
 		}
 		
-		try (final FileOutputStream fos= new FileOutputStream(jobFile)) {
-			IOUtils.copy(is, fos);
-		}
+		Files.copy(in, jobFile);
 	}
 	
 	
-	private void loadJobConfiguration(final InputStream is) throws IOException {
+	private void loadJobConfiguration(final InputStream in) throws IOException {
 		final Properties jobConfiguration= new Properties();
-		jobConfiguration.load(is);
+		jobConfiguration.load(in);
 		
 		final Map<String, Serializable> mergedMeta= new HashMap<>();
-		for (final Entry<?, ?> e : jobConfiguration.entrySet()) {
-			mergedMeta.put(e.getKey().toString(), e.getValue().toString());
+		for (final var entry : jobConfiguration.entrySet()) {
+			mergedMeta.put(entry.getKey().toString(), entry.getValue().toString());
 		}
 		
 		// give priority to pre-existing metas by overriding the ones from the config file
@@ -183,16 +188,15 @@ public class MultiFilesJob extends AbstractJob {
 		final MultiFilesResult result= new MultiFilesResult(getSource(), getApplicationName(),
 				getUserName(), getJobId(), getSubmissionTime(),
 				getMeta(), false );
-		final File resultFile= result.createNewResultFile(getJobId()
-				+ "." + Util.getResourceType(Constants.TEXT_MIME_TYPE) );
-		Files.writeString(resultFile.toPath(), template.render(), StandardCharsets.UTF_8);
+		final var resultFile= result.createNewResultFile(
+				getJobId() + "." + Util.getResourceType(Constants.TEXT_MIME_TYPE) );
+		Files.writeString(resultFile, template.render(), StandardCharsets.UTF_8);
 		return result;
 	}
 	
 	
 	/**
-	 * Add a stream to a job, exploding it if it is a Zip input. Closes the provided
-	 * data stream.
+	 * Add a stream to a job, exploding it if it is a Zip input.
 	 * 
 	 * @param contentType
 	 * @param name

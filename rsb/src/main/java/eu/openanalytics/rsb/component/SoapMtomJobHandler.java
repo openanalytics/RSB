@@ -23,13 +23,14 @@
 
 package eu.openanalytics.rsb.component;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -200,34 +201,30 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
         result.getPayload().add(payload);
         return result;
     }
-
-    private ResultType buildResult(final JobType job, final MultiFilesResult multiFilesResult)
-        throws FileNotFoundException, IOException
-    {
-        Validate.notNull(multiFilesResult, NULL_RESULT_RECEIVED);
-
-        final boolean isOneZipJob = job.getPayload().size() == 1
-                                    && Constants.ZIP_CONTENT_TYPES.contains(job.getPayload()
-                                        .get(0)
-                                        .getContentType());
-
-        final File[] resultFiles = isOneZipJob
-                                              ? new File[]{MultiFilesResult.zipResultFilesIfNotError(multiFilesResult)}
-                                              : multiFilesResult.getPayload();
-
-        final ResultType result = createResult(multiFilesResult);
-
-        for (final File resultFile : resultFiles)
-        {
-            final PayloadType payload = soapOF.createPayloadType();
-            payload.setContentType(Util.getContentType(resultFile));
-            payload.setName(resultFile.getName());
-            payload.setData(new DataHandler(new FileDataSource(resultFile)));
-            result.getPayload().add(payload);
-        }
-        return result;
-    }
-
+	
+	private ResultType buildResult(final JobType job, final MultiFilesResult multiFilesResult)
+			throws IOException {
+		Validate.notNull(multiFilesResult, NULL_RESULT_RECEIVED);
+		
+		final boolean isOneZipJob= (job.getPayload().size() == 1
+				&& Constants.ZIP_CONTENT_TYPES.contains(job.getPayload().get(0).getContentType()) );
+		
+		final var resultFiles= (isOneZipJob) ?
+				List.of(MultiFilesResult.zipResultFilesIfNotError(multiFilesResult)) :
+				multiFilesResult.getPayload();
+		
+		final ResultType result= createResult(multiFilesResult);
+		
+		for (final var resultFile : resultFiles) {
+			final PayloadType payload= soapOF.createPayloadType();
+			payload.setContentType(Util.getContentType(resultFile));
+			payload.setName(requireFileName(resultFile).toString());
+			payload.setData(new DataHandler(new FileDataSource(resultFile.toFile())));
+			result.getPayload().add(payload);
+		}
+		return result;
+	}
+	
     private ResultType createResult(final AbstractResult<?> result)
     {
         final ResultType response = soapOF.createResultType();
