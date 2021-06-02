@@ -207,13 +207,14 @@ public class JobsResource extends AbstractResource {
 				}
 				final String fieldName= partName.toLowerCase(Locale.ROOT);
 				if (fieldName.equals(Constants.JOB_FILES_FIELD_NAME)) {
-					final InputStream data= part.getDataHandler().getInputStream();
-					if (data.available() == 0) {
-						// if the form is submitted with no file attached, we get an empty part
-						continue;
+					try (final var data= part.getDataHandler().getInputStream()) {
+						if (data.available() == 0) {
+							// if the form is submitted with no file attached, we get an empty part
+							continue;
+						}
+						MultiFilesJob.addDataToJob(part.getContentType().toString(),
+								getPartFileName(part), data, job );
 					}
-					MultiFilesJob.addDataToJob(part.getContentType().toString(), getPartFileName(part),
-							data, job);
 				}
 			}
 			return job;

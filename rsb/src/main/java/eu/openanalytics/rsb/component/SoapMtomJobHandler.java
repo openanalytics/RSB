@@ -172,8 +172,10 @@ public class SoapMtomJobHandler extends AbstractComponent implements MtomJobProc
 				(GregorianCalendar)GregorianCalendar.getInstance(), meta);
 		try {
 			for (final PayloadType payload : soapJob.getPayload()) {
-				MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(),
-						payload.getData().getInputStream(), job );
+				try (final var data= payload.getData().getInputStream()) {
+					MultiFilesJob.addDataToJob(payload.getContentType(), payload.getName(),
+							data, job );
+				}
 			}
 			
 			final MultiFilesResult multiFilesResult= getMessageDispatcher().process(job);

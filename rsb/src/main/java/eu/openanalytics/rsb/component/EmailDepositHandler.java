@@ -284,7 +284,9 @@ public class EmailDepositHandler extends AbstractComponentWithCatalog implements
 					&& (disposition.equals(Part.ATTACHMENT) || disposition.equals(Part.INLINE)) ) {
 				final String name= part.getFileName();
 				final String contentType= StringUtils.substringBefore(part.getContentType(), ";");
-				MultiFilesJob.addDataToJob(contentType, name, part.getInputStream(), job);
+				try (final var data= part.getInputStream()) {
+					MultiFilesJob.addDataToJob(contentType, name, data, job);
+				}
 			}
 		}
 	}
