@@ -27,25 +27,35 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 
 /**
  * Defines a result store.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@NonNullByDefault
 public interface ResultStore {
-
-    void store(PersistedResult result) throws IOException;
-
-    boolean deleteByApplicationNameAndJobId(String applicationName, UUID jobId) throws IOException;
-
-    /**
-     * @return an empty collection if no result was found.
-     */
-    Collection<PersistedResult> findByApplicationName(String applicationName);
-
-    /**
-     * @return null if no result was found.
-     */
-    PersistedResult findByApplicationNameAndJobId(String applicationName, UUID jobId);
+	
+	
+	void store(PersistedResult result) throws IOException;
+	
+	
+	boolean deleteByApplicationNameAndJobId(String applicationName,
+			UUID jobId)
+			throws IOException;
+	
+	/**
+	 * @return an empty collection if no result was found.
+	 */
+	Collection<PersistedResult> findByApplicationName(String applicationName);
+	
+	/**
+	 * @return null if no result was found.
+	 */
+	@Nullable PersistedResult findByApplicationNameAndJobId(String applicationName,
+			UUID jobId );
+	
 }

@@ -41,7 +41,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.springframework.stereotype.Component;
 
@@ -83,23 +82,20 @@ public class ResultResource extends AbstractResource
     public Response getResult(@PathParam("applicationName") final String applicationName,
                               @PathParam("resourceName") final String resourceName) throws IOException
     {
-
-        final PersistedResult persistedResult = getPersistedResultOrDie(applicationName, resourceName);
-
-        final ResponseBuilder rb = Response.ok();
-        addContentTypeHeader(persistedResult, rb);
-        addEtagHeader(persistedResult, rb);
-        rb.entity(new StreamingOutput()
-        {
+		final PersistedResult persistedResult= getPersistedResultOrDie(applicationName, resourceName);
+		
+		final ResponseBuilder rb= Response.ok();
+		addContentTypeHeader(persistedResult, rb);
+		addEtagHeader(persistedResult, rb);
+		rb.entity(new StreamingOutput() {
 			@Override
-			public void write(final OutputStream output) throws IOException
-            {
-                try(final InputStream data = persistedResult.getData(); final OutputStream autoCloseOutput = output) {
-                  IOUtils.copy(data, output);
-                }
-            }
-        });
-        return rb.build();
+			public void write(final OutputStream output) throws IOException {
+				try (final InputStream data= persistedResult.getData()) {
+					data.transferTo(output);
+				}
+			}
+		});
+		return rb.build();
     }
 
     /**
@@ -154,7 +150,7 @@ public class ResultResource extends AbstractResource
 
         final UUID jobId = UUID.fromString(FilenameUtils.getBaseName(resourceName));
 
-        final PersistedResult persistedResult = resultStore.findByApplicationNameAndJobId(applicationName,
+        final PersistedResult persistedResult = this.resultStore.findByApplicationNameAndJobId(applicationName,
             getUserName(), jobId);
 
         if (persistedResult == null)

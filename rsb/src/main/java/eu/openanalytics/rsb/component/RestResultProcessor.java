@@ -75,32 +75,30 @@ public class RestResultProcessor extends AbstractComponent {
 		}
 	}
 	
-    private <T> void persistResult(final AbstractResult<?> result,
-                                   final MimeType resultMimeType,
-                                   final InputStream resultData) throws IOException
-    {
-
-        final GregorianCalendar resultTime= (GregorianCalendar) GregorianCalendar.getInstance();
-
-        final PersistedResult persistedResult= new PersistedResult(result.getApplicationName(),
-            result.getUserName(), result.getJobId(), resultTime, result.isSuccess(), resultMimeType)
-        {
-
-            @Override
-            public long getDataLength() throws IOException
-            {
-                return resultData.available();
-            }
-
-            @Override
-            public InputStream getData()
-            {
-                return resultData;
-            }
-        };
-
-        this.resultStore.store(persistedResult);
-        result.destroy();
-    }
+	private <T> void persistResult(final AbstractResult<?> result, final MimeType resultMimeType,
+			final InputStream resultData)
+			throws IOException {
+		final GregorianCalendar resultTime= (GregorianCalendar)GregorianCalendar.getInstance();
+		
+		final PersistedResult persistedResult= new PersistedResult(result.getApplicationName(),
+				result.getUserName(), result.getJobId(), resultTime,
+				result.isSuccess(),
+				resultMimeType ) {
+			
+			@Override
+			public long getDataLength() throws IOException {
+				return resultData.available();
+			}
+			
+			@Override
+			public InputStream getData() {
+				return resultData;
+			}
+			
+		};
+		
+		this.resultStore.store(persistedResult);
+		result.destroy();
+	}
 	
 }

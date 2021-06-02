@@ -30,6 +30,9 @@ import java.util.UUID;
 
 import javax.activation.MimeType;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -39,67 +42,64 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public abstract class PersistedResult
-{
-    private final String applicationName;
-    private final String userName;
-    private final UUID jobId;
-    private final GregorianCalendar resultTime;
-    private final boolean success;
-    private final MimeType mimeType;
-
-    public PersistedResult(final String applicationName,
-                           final String userName,
-                           final UUID jobId,
-                           final GregorianCalendar resultTime,
-                           final boolean success,
-                           final MimeType mimeType)
-    {
-        this.applicationName = applicationName;
-        this.userName = userName;
-        this.jobId = jobId;
-        this.resultTime = resultTime;
-        this.success = success;
-        this.mimeType = mimeType;
-    }
-
-    @Override
-    public String toString()
-    {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
-
-    public String getApplicationName()
-    {
-        return applicationName;
-    }
-
-    public String getUserName()
-    {
-        return userName;
-    }
-
-    public UUID getJobId()
-    {
-        return jobId;
-    }
-
-    public GregorianCalendar getResultTime()
-    {
-        return resultTime;
-    }
-
-    public boolean isSuccess()
-    {
-        return success;
-    }
-
-    public MimeType getMimeType()
-    {
-        return mimeType;
-    }
-
-    public abstract InputStream getData() throws IOException;
-
-    public abstract long getDataLength() throws IOException;
+@NonNullByDefault
+public abstract class PersistedResult {
+	
+	
+	private final String applicationName;
+	private final @Nullable String userName;
+	private final UUID jobId;
+	private final GregorianCalendar resultTime;
+	private final boolean success;
+	private final MimeType mimeType;
+	
+	public PersistedResult(final String applicationName,
+			final @Nullable String userName, final UUID jobId,
+			final GregorianCalendar resultTime,
+			final boolean success,
+			final MimeType mimeType) {
+		this.applicationName= applicationName;
+		this.userName= userName;
+		this.jobId= jobId;
+		this.resultTime= resultTime;
+		this.success= success;
+		this.mimeType= mimeType;
+	}
+	
+	
+	public String getApplicationName() {
+		return this.applicationName;
+	}
+	
+	public @Nullable String getUserName() {
+		return this.userName;
+	}
+	
+	public UUID getJobId() {
+		return this.jobId;
+	}
+	
+	public GregorianCalendar getResultTime() {
+		return this.resultTime;
+	}
+	
+	public boolean isSuccess() {
+		return this.success;
+	}
+	
+	public MimeType getMimeType() {
+		return this.mimeType;
+	}
+	
+	
+	public abstract long getDataLength() throws IOException;
+	
+	public abstract InputStream getData() throws IOException;
+	
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+	
 }

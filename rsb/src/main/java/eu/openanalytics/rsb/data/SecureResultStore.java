@@ -27,24 +27,33 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
+
 
 /**
  * Defines a username-aware result store.
  * 
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public interface SecureResultStore extends ResultStore
-{
-    boolean deleteByApplicationNameAndJobId(String applicationName, String userName, UUID jobId)
-        throws IOException;
-
-    /**
-     * @return an empty collection if no result was found.
-     */
-    Collection<PersistedResult> findByApplicationName(String applicationName, String userName);
-
-    /**
-     * @return null if no result was found.
-     */
-    PersistedResult findByApplicationNameAndJobId(String applicationName, String userName, UUID jobId);
+@NonNullByDefault
+public interface SecureResultStore extends ResultStore {
+	
+	
+	boolean deleteByApplicationNameAndJobId(String applicationName,
+			@Nullable String userName, UUID jobId)
+			throws IOException;
+	
+	/**
+	 * @return an empty collection if no result was found.
+	 */
+	Collection<PersistedResult> findByApplicationName(String applicationName,
+			@Nullable String userName );
+	
+	/**
+	 * @return null if no result was found.
+	 */
+	@Nullable PersistedResult findByApplicationNameAndJobId(String applicationName,
+			@Nullable String userName, UUID jobId );
+	
 }

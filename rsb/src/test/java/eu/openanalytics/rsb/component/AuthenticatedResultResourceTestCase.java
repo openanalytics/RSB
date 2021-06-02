@@ -135,26 +135,24 @@ public class AuthenticatedResultResourceTestCase
         when(resultStore.findByApplicationNameAndJobId(TEST_APP_NAME, TEST_USER_NAME, TEST_JOB_ID)).thenReturn(
             persistedResult);
     }
-
-    public static PersistedResult buildPersistedResult(final String resultPayload)
-    {
-        final PersistedResult persistedResult = new PersistedResult(TEST_APP_NAME, TEST_USER_NAME,
-            TEST_JOB_ID, (GregorianCalendar) GregorianCalendar.getInstance(), true,
-            Constants.DEFAULT_MIME_TYPE)
-        {
-
-            @Override
-            public long getDataLength() throws IOException
-            {
-                return 1;
-            }
-
-            @Override
-            public InputStream getData() throws IOException
-            {
-                return new ByteArrayInputStream(resultPayload.getBytes());
-            }
-        };
-        return persistedResult;
-    }
+	
+	public static PersistedResult buildPersistedResult(final String resultPayload) {
+		return new PersistedResult(TEST_APP_NAME,
+				TEST_USER_NAME, TEST_JOB_ID, (GregorianCalendar)GregorianCalendar.getInstance(),
+				true,
+				Constants.DEFAULT_MIME_TYPE) {
+			
+			@Override
+			public long getDataLength() throws IOException {
+				return 1;
+			}
+			
+			@Override
+			public InputStream getData() throws IOException {
+				return new ByteArrayInputStream(resultPayload.getBytes());
+			}
+			
+		};
+	}
+	
 }
