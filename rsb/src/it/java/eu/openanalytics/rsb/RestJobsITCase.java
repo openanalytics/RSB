@@ -23,6 +23,8 @@
 
 package eu.openanalytics.rsb;
 
+import static org.eclipse.statet.jcommons.io.FileUtils.requireFileName;
+
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathEvaluatesTo;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathExists;
 import static org.custommonkey.xmlunit.XMLAssert.assertXpathNotExists;
@@ -32,13 +34,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.eclipse.statet.jcommons.io.FileUtils;
 
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.Page;
@@ -55,7 +59,6 @@ import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import org.apache.activemq.util.ByteArrayInputStream;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.XpathEngine;
@@ -96,15 +99,10 @@ public class RestJobsITCase extends AbstractITCase {
 			return;
 		}
 		
-		final File[] testResultFiles= configuration.getResultsDirectory().listFiles(
-				(dir, name) -> StringUtils.startsWith(name, TEST_APPLICATION_NAME_PREFIX) );
-		
-		if (testResultFiles == null) {
-			return;
-		}
-		
-		for (final File testResultFile : testResultFiles) {
-			FileUtils.deleteQuietly(testResultFile);
+		final var directory= configuration.getResultsDirectory().toPath();
+		if (Files.isDirectory(directory)) {
+			FileUtils.cleanDirectory(directory,
+					(path) -> requireFileName(path).toString().startsWith(TEST_APPLICATION_NAME_PREFIX) );
 		}
 	}
 	
@@ -254,7 +252,8 @@ public class RestJobsITCase extends AbstractITCase {
 	@Test
 	public void forwardedProtocol() throws Exception {
 		final String applicationName= newTestApplicationName();
-		final Document resultDoc= doTestSubmitXmlJobWithXmlAck(applicationName, getTestData("r-job-sample.xml"),
+		final Document resultDoc= doTestSubmitXmlJobWithXmlAck(applicationName,
+				getTestDataStream("r-job-sample.xml" ),
 				Map.of("X-Forwarded-Protocol", "foo") );
 		
 		assertThat(getApplicationResultsUri(resultDoc), is(new StartsWith("foo:/")));
@@ -266,7 +265,7 @@ public class RestJobsITCase extends AbstractITCase {
 		final String applicationName= newTestApplicationName();
 		@SuppressWarnings("unchecked")
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-sample.zip"),
+				getTestDataStream("r-job-sample.zip"),
 				Collections.EMPTY_MAP );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
@@ -278,7 +277,7 @@ public class RestJobsITCase extends AbstractITCase {
 		final String applicationName= newTestApplicationName();
 		try {
 			doTestSubmitZipJob(applicationName,
-					getTestData("invalid-job-subdir.zip"),
+					getTestDataStream("invalid-job-subdir.zip"),
 					Collections.EMPTY_MAP );
 			fail("an exception should have been raised");
 		}
@@ -292,7 +291,7 @@ public class RestJobsITCase extends AbstractITCase {
 		final String applicationName= newTestApplicationName();
 		@SuppressWarnings("unchecked")
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-catalog-ref.zip"),
+				getTestDataStream("r-job-catalog-ref.zip"),
 				Collections.EMPTY_MAP );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
@@ -302,7 +301,7 @@ public class RestJobsITCase extends AbstractITCase {
 	public void submitValidDataOnlyZipJob() throws Exception {
 		final String applicationName= newTestApplicationName();
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-data-only.zip"),
+				getTestDataStream("r-job-data-only.zip"),
 				Map.of("X-RSB-Meta-rScript", "test.R") );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
@@ -312,7 +311,7 @@ public class RestJobsITCase extends AbstractITCase {
 	public void submitValidJobRequiringMetaA() throws Exception {
 		final String applicationName= newTestApplicationName();
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-meta-required-lc.zip"),
+				getTestDataStream("r-job-meta-required-lc.zip"),
 				Map.of("X-RSB-Meta-Report.Author", "Jules Verne") );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
@@ -322,7 +321,7 @@ public class RestJobsITCase extends AbstractITCase {
 	public void submitValidJobRequiringMetaB() throws Exception {
 		final String applicationName= newTestApplicationName();
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-meta-required.zip"),
+				getTestDataStream("r-job-meta-required.zip"),
 				Map.of("X-RSB-Meta-#1", "reportAuthor = Jules Verne") );
 		final String resultUri= getResultUri(resultDoc);
 		ponderRetrieveAndValidateZipResult(resultUri);
@@ -333,7 +332,7 @@ public class RestJobsITCase extends AbstractITCase {
 		final String applicationName= newTestApplicationName();
 		@SuppressWarnings("unchecked")
 		final Document resultDoc= doTestSubmitZipJob(applicationName,
-				getTestData("r-job-meta-required.zip"),
+				getTestDataStream("r-job-meta-required.zip"),
 				Collections.EMPTY_MAP );
 		final String resultUri= getResultUri(resultDoc);
 		ponderUntilOneResultAvailable(resultUri);
@@ -457,11 +456,11 @@ public class RestJobsITCase extends AbstractITCase {
     }
 
     private Document doSubmitValidXmlJob(final String applicationName) throws IOException, SAXException, XpathException {
-        return doSubmitXmlJob(applicationName, getTestData("r-job-sample.xml"));
+        return doSubmitXmlJob(applicationName, getTestDataStream("r-job-sample.xml"));
     }
 
     private Map<?, ?> doSubmitValidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
-        return doTestSubmitJobWithJsonAck(applicationName, getTestData("r-job-sample.json"));
+        return doTestSubmitJobWithJsonAck(applicationName, getTestDataStream("r-job-sample.json"));
     }
 
     private Map<?, ?> doSubmitInvalidJsonJob(final String applicationName) throws IOException, SAXException, XpathException {
@@ -533,7 +532,7 @@ public class RestJobsITCase extends AbstractITCase {
     }
 
     private void setUploadedFileOnInputControl(final HtmlFileInput fileInput, final UploadedFile uploadedFile) {
-        fileInput.setValueAttribute(getTestFile(uploadedFile.name).getPath());
+        fileInput.setValueAttribute(getTestDataFile(uploadedFile.name).toString());
 
         if (uploadedFile.contentType != null) {
             fileInput.setContentType(uploadedFile.contentType);

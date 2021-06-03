@@ -31,6 +31,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.List;
 
 import javax.xml.bind.JAXB;
@@ -142,7 +143,7 @@ public class RestAdminITCase extends AbstractITCase
         final WebResponse response = wc.sendRequest(request);
         assertEquals(200, response.getResponseCode());
         assertEquals("text/plain", response.getContentType());
-        assertEquals(IOUtils.toString(getTestData("test.R")), response.getText());
+		assertEquals(Files.readString(getTestDataFile("test.R")), response.getText());
     }
 
     @Test

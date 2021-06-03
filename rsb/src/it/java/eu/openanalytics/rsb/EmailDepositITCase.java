@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
@@ -51,6 +51,9 @@ import org.junit.Test;
  */
 public class EmailDepositITCase extends AbstractITCase {
 	
+	
+	public EmailDepositITCase() {
+	}
 	
 	@After
 	public void purgeReceivedEmails() throws FolderException {
@@ -80,7 +83,7 @@ public class EmailDepositITCase extends AbstractITCase {
 		final String subject= sendZipJobEmail(SuiteITCase.rsbAccountWithResponseFile, "r-job-sample.zip");
 		final MimeMessage rsbResponseMessage= ponderForRsbResponse(subject);
 		verifyValidResult(rsbResponseMessage,
-				new String(getTestData("test-email-response.txt").readAllBytes(), StandardCharsets.UTF_8));
+				Files.readString(getTestDataFile("test-email-response.txt")) );
 	}
 	
 	@Test
@@ -119,7 +122,7 @@ public class EmailDepositITCase extends AbstractITCase {
 	private String sendZipJobEmail(final GreenMailUser rsbAccount, final String zipFile)
 			throws MessagingException, IOException {
 		return sendJobEmail(rsbAccount,
-				getTestData(zipFile).readAllBytes(), "application/zip", zipFile );
+				Files.readAllBytes(getTestDataFile(zipFile)), "application/zip", zipFile );
 	}
 	
 	private String sendJobEmail(final GreenMailUser rsbAccount,

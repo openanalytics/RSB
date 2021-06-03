@@ -53,18 +53,18 @@ public class RestProcessITCase extends AbstractITCase {
 
     @Before
     public void prepareTests() throws IOException {
-        restProcessUri = RSB_BASE_URI + "/api/rest/process";
+        this.restProcessUri = RSB_BASE_URI + "/api/rest/process";
     }
 
     @Test
     public void processBadMethod() throws Exception {
-        doTestUnsupportedDeleteMethod(restProcessUri);
+        doTestUnsupportedDeleteMethod(this.restProcessUri);
     }
 
     @Test
     public void processBadApplicationName() throws Exception {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new PostMethodWebRequest(restProcessUri, new ByteArrayInputStream("ignored".getBytes()),
+        final WebRequest request = new PostMethodWebRequest(this.restProcessUri, new ByteArrayInputStream("ignored".getBytes()),
                 "application/xml");
         request.setHeaderField("X-RSB-Application-Name", ":bad_app$name!");
 
@@ -79,7 +79,7 @@ public class RestProcessITCase extends AbstractITCase {
     @Test
     public void processBadContentType() throws Exception {
         final WebConversation wc = new WebConversation();
-        final WebRequest request = new PostMethodWebRequest(restProcessUri, new ByteArrayInputStream("ignored".getBytes()),
+        final WebRequest request = new PostMethodWebRequest(this.restProcessUri, new ByteArrayInputStream("ignored".getBytes()),
                 "application/unsupported");
         request.setHeaderField("X-RSB-Application-Name", "myApp");
 
@@ -94,7 +94,8 @@ public class RestProcessITCase extends AbstractITCase {
     @Test
     public void submitValidXmlJob() throws Exception {
         final String applicationName = newTestApplicationName();
-        final WebResponse response = sendPostRequest(applicationName, "application/xml", getTestData("r-job-sample.xml"), 200);
+		final WebResponse response = sendPostRequest(applicationName, "application/xml",
+				getTestDataStream("r-job-sample.xml"), 200 );
         final Document resultDoc = XMLUnit.buildTestDocument(response.getText());
         assertEquals("statDataPackage", resultDoc.getDocumentElement().getNodeName());
     }
@@ -110,7 +111,8 @@ public class RestProcessITCase extends AbstractITCase {
     @Test
     public void submitValidJsonJob() throws Exception {
         final String applicationName = newTestApplicationName();
-        final WebResponse response = sendPostRequest(applicationName, "application/json", getTestData("r-job-sample.json"), 200);
+		final WebResponse response = sendPostRequest(applicationName, "application/json",
+				getTestDataStream("r-job-sample.json"), 200 );
         final List<?> responseObject = Util.fromJson(response.getText(), List.class);
         assertEquals(10, responseObject.size());
     }
@@ -128,7 +130,7 @@ public class RestProcessITCase extends AbstractITCase {
             final int expectedResponseStatusCode) throws IOException, SAXException {
         final WebConversation wc = new WebConversation();
         wc.setExceptionsThrownOnErrorStatus(false);
-        final PostMethodWebRequest request = new PostMethodWebRequest(restProcessUri, job, contentType);
+        final PostMethodWebRequest request = new PostMethodWebRequest(this.restProcessUri, job, contentType);
         request.setHeaderField("X-RSB-Application-Name", applicationName);
 
         final WebResponse response = wc.sendRequest(request);

@@ -58,7 +58,8 @@ import eu.openanalytics.rsb.data.FileCatalogManager;
 	EmailDepositITCase.class,
 	DirectoryDepositITCase.class, ConfiguredDirectoryDepositITCase.class,
 	RestJobsITCase.class, RestProcessITCase.class, RestAdminITCase.class, RestMiscITCase.class,
-	SoapMtomITCase.class })
+	SoapMtomITCase.class
+})
 @NonNullByDefault
 public class SuiteITCase {
 	
@@ -175,8 +176,10 @@ public class SuiteITCase {
 	
 	private static void putTestFileInCatalog(final CatalogSection catalogSection, final String fileName)
 			throws IOException {
-		final PutCatalogFileResult putResult= catalogManager.putCatalogFile(catalogSection,
-				"ignored", fileName, AbstractITCase.getTestData(fileName) );
+		final PutCatalogFileResult putResult;
+		try (final var in= AbstractITCase.getTestDataStream(fileName)) {
+			putResult= catalogManager.putCatalogFile(catalogSection, "ignored", fileName, in);
+		}
 		
 		catalogTestFiles.add(putResult.getPath());
 	}

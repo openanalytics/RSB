@@ -26,17 +26,18 @@ package eu.openanalytics.rsb;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.io.IOUtils;
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.custommonkey.xmlunit.NamespaceContext;
@@ -45,16 +46,20 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 
 import eu.openanalytics.rsb.config.Configuration;
+import eu.openanalytics.rsb.test.TestUtils;
 
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
+@NonNullByDefault
 public abstract class AbstractITCase {
-    protected static final String TEST_APPLICATION_NAME_PREFIX = "rsb_it_";
-
-    protected final static String RSB_BASE_URI = "http://localhost:8888/rsb";
-
+	
+	protected static final String TEST_APPLICATION_NAME_PREFIX= "rsb_it_";
+	
+	protected final static String RSB_BASE_URI= "http://localhost:8888/rsb";
+	
+	
     @Before
     public void setupXmlNameSpaces() {
         final Map<String, String> m = new HashMap<>();
@@ -71,37 +76,39 @@ public abstract class AbstractITCase {
     protected Properties getRawMessages() {
         return SuiteITCase.rawMessages;
     }
-
-    public static InputStream getTestData(final String payloadResourceFile) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream("data/" + payloadResourceFile);
-    }
-
-    public static File getTestFile(final String payloadResourceFile) {
-        try {
-            return new File(Thread.currentThread().getContextClassLoader().getResource("data/" + payloadResourceFile).toURI());
-        } catch (final URISyntaxException urise) {
-            throw new RuntimeException(urise);
-        }
-    }
-
-    public static void validateZipResult(final InputStream responseStream) throws IOException {
-        final ZipInputStream result = new ZipInputStream(responseStream);
-        ZipEntry ze = null;
-
-        while ((ze = result.getNextEntry()) != null) {
-            if (ze.getName().endsWith(".pdf")) {
-                return;
-            }
-        }
-
-        fail("No PDF file found in Zip result");
-    }
-
-    public static void validateErrorResult(final InputStream responseStream) throws IOException {
-        final String response = IOUtils.toString(responseStream);
-        assertTrue(response + " should contain 'error'", StringUtils.containsIgnoreCase(response, "error"));
-    }
-
+	
+	
+	public static Path getTestDataFile(final String payloadResourceFile) {
+		return TestUtils.getTestDataFile(payloadResourceFile);
+	}
+	
+	public static InputStream getTestDataStream(final String payloadResourceFile) {
+		return TestUtils.getTestDataStream(payloadResourceFile);
+	}
+	
+	
+	public static void validateZipResult(final InputStream responseStream) throws IOException {
+		try (final ZipInputStream result= new ZipInputStream(responseStream)) {
+			ZipEntry ze= null;
+			
+			while ((ze= result.getNextEntry()) != null) {
+				if (ze.getName().endsWith(".pdf")) {
+					return;
+				}
+			}
+		}
+		
+		fail("No PDF file found in Zip result");
+	}
+	
+	public static void validateErrorResult(final InputStream responseStream) throws IOException {
+		final String response= new String(responseStream.readAllBytes(), StandardCharsets.UTF_8);
+		
+		assertTrue(response + " should contain 'error'",
+				StringUtils.containsIgnoreCase(response, "error") );
+	}
+	
+	
     protected String newTestApplicationName() {
         return TEST_APPLICATION_NAME_PREFIX + RandomStringUtils.randomAlphanumeric(20);
     }
