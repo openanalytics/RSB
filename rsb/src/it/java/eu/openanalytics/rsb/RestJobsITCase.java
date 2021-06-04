@@ -47,6 +47,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.meterware.httpunit.DeleteMethodWebRequest;
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpException;
 import com.meterware.httpunit.PostMethodWebRequest;
@@ -65,8 +66,6 @@ import org.junit.Test;
 import org.mockito.internal.matchers.StartsWith;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 
 import eu.openanalytics.rsb.config.Configuration;
 import eu.openanalytics.rsb.test.ComparisonFailureWithDetail;

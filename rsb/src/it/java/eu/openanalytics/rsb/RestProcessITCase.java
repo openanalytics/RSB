@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import com.meterware.httpunit.DeleteMethodWebRequest;
 import com.meterware.httpunit.HttpException;
 import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
@@ -42,8 +43,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import eu.openanalytics.httpunit.DeleteMethodWebRequest;
 
 
 /**
