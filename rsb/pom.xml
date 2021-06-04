@@ -38,7 +38,7 @@
 	<name>R Service Bus</name>
 	
 	<properties>
-		<rsb.tests>*TestCase, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.tests>
+		<rsb.tests>*Test, *TestCase, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.tests>
 		<test>${rsb.tests}</test>
 		<rsb.integration-tests>SuiteITCase</rsb.integration-tests>
 		<it.test>${rsb.integration-tests}</it.test>
@@ -452,6 +452,7 @@
                         <exclude>src/main/webapp/WEB-INF/web.xml</exclude>
 
                         <exclude>src/test/resources/data/*.*</exclude>
+                        <exclude>src/test/resources/sertest/*.*</exclude>
                         <exclude>src/test/resources/rsb-configuration*.json</exclude>
 
                         <exclude>src/it/config/rsb-it-soapui-*.xml</exclude>
