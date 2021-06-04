@@ -139,8 +139,9 @@ public class DirectoryDepositHandlerTestCase
 	private void testHandleJob(final Path testDirectory, final Path jobFile) throws IOException {
 		final DepositDirectoryConfiguration depositRootDirectoryConfig= mock(DepositDirectoryConfiguration.class);
 		when(depositRootDirectoryConfig.getApplicationName()).thenReturn(TEST_APPLICATION_NAME);
+		when(depositRootDirectoryConfig.getRootDirectory()).thenReturn(testDirectory.toFile());
 		when(this.configuration.getDepositRootDirectories()).thenReturn(
-				Collections.singletonList(depositRootDirectoryConfig));
+				Collections.singletonList(depositRootDirectoryConfig) );
 		
 		final Message<File> message= MessageBuilder.withPayload(jobFile.toFile())
 				.setHeader(DirectoryDepositHandler.DIRECTORY_CONFIG_HEADER_NAME, depositRootDirectoryConfig)

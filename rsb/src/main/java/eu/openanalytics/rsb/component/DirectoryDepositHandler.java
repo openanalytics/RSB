@@ -51,11 +51,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.integration.endpoint.SourcePollingChannelAdapter;
+import org.springframework.integration.file.FileLocker;
 import org.springframework.integration.file.FileReadingMessageSource;
 import org.springframework.integration.file.filters.FileListFilter;
-import org.springframework.integration.file.locking.NioFileLocker;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessagingException;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +67,7 @@ import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
 import eu.openanalytics.rsb.message.AbstractWorkItem.Source;
 import eu.openanalytics.rsb.message.MultiFilesJob;
 import eu.openanalytics.rsb.message.MultiFilesResult;
+import eu.openanalytics.rsb.si.BasicFileLocker;
 import eu.openanalytics.rsb.si.HeaderSettingMessageSourceWrapper;
 
 
@@ -87,7 +89,9 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 
     @Resource
     private FileListFilter<File> zipJobFilter;
-
+	
+	private FileLocker fileLocker= new BasicFileLocker();
+	
     private BeanFactory beanFactory;
 
     private final List<SourcePollingChannelAdapter> channelAdapters = new ArrayList<>();
@@ -114,29 +118,43 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
             return;
         }
 
-        final NioFileLocker nioFileLocker = new NioFileLocker();
-
         for (final DepositDirectoryConfiguration depositDirectoryConfiguration : depositDirectoryConfigurations)
         {
             final PeriodicTrigger fileTrigger = new PeriodicTrigger(
                 depositDirectoryConfiguration.getPollingPeriod(), TimeUnit.MILLISECONDS);
             fileTrigger.setInitialDelay(5000L);
-
-            final File depositRootDirectory = depositDirectoryConfiguration.getRootDirectory();
-
-            final FileReadingMessageSource fileMessageSource = new FileReadingMessageSource();
-            fileMessageSource.setAutoCreateDirectory(true);
-            fileMessageSource.setBeanFactory(this.beanFactory);
-            fileMessageSource.setBeanName("rsb-deposit-dir-ms-" + depositRootDirectory.getPath());
-            fileMessageSource.setDirectory(new File(depositRootDirectory, Configuration.DEPOSIT_JOBS_SUBDIR));
-            fileMessageSource.setFilter(this.zipJobFilter);
-            fileMessageSource.setLocker(nioFileLocker);
-            fileMessageSource.afterPropertiesSet();
-
-            final HeaderSettingMessageSourceWrapper<File> messageSource = new HeaderSettingMessageSourceWrapper<>(
-                fileMessageSource, DIRECTORY_CONFIG_HEADER_NAME, depositDirectoryConfiguration);
-
-            final SourcePollingChannelAdapter channelAdapter = new SourcePollingChannelAdapter();
+			
+			final File depositRootDirectory= depositDirectoryConfiguration.getRootDirectory();
+			
+			final var fileMessageSource= new FileReadingMessageSource();
+			fileMessageSource.setAutoCreateDirectory(true);
+			fileMessageSource.setBeanFactory(this.beanFactory);
+			fileMessageSource.setBeanName("rsb-deposit-dir-ms-" + depositRootDirectory.getPath());
+			fileMessageSource.setDirectory(new File(depositRootDirectory, Configuration.DEPOSIT_JOBS_SUBDIR));
+			fileMessageSource.setFilter(this.zipJobFilter);
+			fileMessageSource.setLocker(this.fileLocker);
+			fileMessageSource.afterPropertiesSet();
+			
+			final var messageSource= new HeaderSettingMessageSourceWrapper<>(
+					fileMessageSource, DIRECTORY_CONFIG_HEADER_NAME, depositDirectoryConfiguration );
+			
+			final var channelAdapter= new SourcePollingChannelAdapter() {
+				@Override
+				protected void handleMessage(final Message<?> messageArg) {
+					try {
+						super.handleMessage(messageArg);
+					}
+					finally {
+						final Object payload= messageArg.getPayload();
+						if (payload instanceof File) {
+							try {
+								DirectoryDepositHandler.this.fileLocker.unlock((File)payload);
+							}
+							catch (final MessagingException e) {}
+						}
+					}
+				}
+			};
             channelAdapter.setBeanFactory(this.beanFactory);
             channelAdapter.setBeanName("rsb-deposit-dir-ca-" + depositRootDirectory.getPath());
             channelAdapter.setOutputChannel(this.directoryDepositChannel);
@@ -166,20 +184,20 @@ public class DirectoryDepositHandler extends AbstractResource implements BeanFac
 	public void handleJob(final Message<File> message) throws IOException {
 		final DepositDirectoryConfiguration depositDirectoryConfiguration= message.getHeaders()
 				.get(DIRECTORY_CONFIG_HEADER_NAME, DepositDirectoryConfiguration.class);
+		final var depositRootDirectory= depositDirectoryConfiguration.getRootDirectory().toPath();
+		final var applicationName= depositDirectoryConfiguration.getApplicationName();
 		
-		final String applicationName= depositDirectoryConfiguration.getApplicationName();
 		final var dataFile= message.getPayload().toPath();
-		final String fileName= requireFileName(dataFile).toString();
-		
-		final var depositRootDirectory= requireParent(requireParent(dataFile));
+		final var fileName= requireFileName(dataFile).toString();
 		final var acceptedFile= depositRootDirectory.resolve(Configuration.DEPOSIT_ACCEPTED_SUBDIR)
 				.resolve(fileName);
 		
 		Files.move(dataFile, acceptedFile, StandardCopyOption.REPLACE_EXISTING);
+		this.fileLocker.unlock(dataFile.toFile());
 		
 		final Map<String, Serializable> meta= new HashMap<>();
 		meta.put(DEPOSIT_ROOT_DIRECTORY_META_NAME, depositRootDirectory.toUri());
-		meta.put(INBOX_DIRECTORY_META_NAME, dataFile.getParent().toUri());
+		meta.put(INBOX_DIRECTORY_META_NAME, requireParent(dataFile).toUri());
 		meta.put(ORIGINAL_FILENAME_META_NAME, fileName);
 		
 		final MultiFilesJob job= new MultiFilesJob(Source.DIRECTORY, applicationName,
