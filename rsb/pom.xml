@@ -848,10 +848,10 @@
 							<stopPort>8898</stopPort>
 							<stopKey>STOP</stopKey>
 							<stopWait>60</stopWait>
-							<useTestClasspath>true</useTestClasspath>
 							<webApp>
 								<contextPath>/rsb</contextPath>
 								<overrideDescriptor>${project.basedir}/src/it/resources/override-web.xml</overrideDescriptor>
+								<extraClasspath>${project.basedir}/src/it/resources</extraClasspath>
 							</webApp>
 							<systemProperties>
 								<systemProperty>
@@ -883,6 +883,23 @@
 								</goals>
 							</execution>
 						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>jakarta.management.j2ee</groupId>
+								<artifactId>jakarta.management.j2ee-api</artifactId>
+								<version>${jakarta.management.version}</version>
+							</dependency>
+							<dependency><!-- includes jakarta.mail:jakarta.mail-api -->
+								<groupId>com.sun.mail</groupId>
+								<artifactId>jakarta.mail</artifactId>
+								<version>${jakarta.mail.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>org.apache.geronimo.specs</groupId>
+								<artifactId>geronimo-jms_1.1_spec</artifactId>
+								<version>${jms.version}</version>
+							</dependency>
+						</dependencies>
 					</plugin>
 				</plugins>
 			</build>
