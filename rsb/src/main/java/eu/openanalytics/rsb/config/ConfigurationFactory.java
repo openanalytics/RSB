@@ -75,9 +75,11 @@ public abstract class ConfigurationFactory
         return getConfigurationUrl() != null;
     }
 
-    public static Configuration loadJsonConfiguration() throws IOException
-    {
-        final PersistedConfigurationAdapter pca = load(getConfigurationUrl());
+	public static Configuration loadJsonConfiguration() throws IOException {	
+		final URL configurationUrl= Validate.notNull(getConfigurationUrl(), String.format(
+				"The configuration file ('%1$s') is not present.", getConfigurationFileName() ));
+		
+		final PersistedConfigurationAdapter pca= load(configurationUrl);
         validateConfiguration(pca);
         createMissingDirectories(pca);
         return pca;
@@ -116,8 +118,6 @@ public abstract class ConfigurationFactory
     // exposed for testing
     static PersistedConfigurationAdapter load(final URL configurationUrl) throws IOException
     {
-        Validate.notNull(configurationUrl, "Impossible to find " + configurationUrl);
-
         final InputStream is = configurationUrl.openStream();
         return loadConfigurationStream(configurationUrl, is);
     }
