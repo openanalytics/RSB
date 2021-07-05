@@ -58,9 +58,12 @@ pipeline {
 	
 	post {
 		always {
+			archiveArtifacts(
+					artifacts: '**/target/dependency-*.txt',
+					fingerprint: true )
+			
 			junit '**/target/surefire-reports/*.xml'
 			junit '**/target/failsafe-reports/*.xml'
-			
 			archiveArtifacts artifacts: 'it-rpooli/*.out'
 		}
 	}
