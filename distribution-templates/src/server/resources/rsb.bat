@@ -1,7 +1,7 @@
 @REM
 @REM    R Service Bus
 @REM
-@REM    Copyright (c) Copyright of Open Analytics NV, 2010-2021
+@REM    Copyright (c) Copyright of Open Analytics NV, 2010-2022
 @REM    
 @REM    ===========================================================================
 @REM
