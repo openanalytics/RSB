@@ -634,7 +634,7 @@
 				<dependency>
 					<groupId>org.apache.httpcomponents</groupId>
 					<artifactId>httpclient</artifactId>
-					<version>4.5.12</version>
+					<version>4.5.13</version>
 				</dependency>
 <!-- 				<dependency> -->
 <!-- 					<groupId>xerces</groupId> -->
@@ -707,32 +707,12 @@
 							<artifactId>xom</artifactId>
 						</exclusion>
 						<exclusion>
-							<groupId>bouncycastle</groupId>
-							<artifactId>bcprov-jdk15</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>net.sf.saxon</groupId>
-							<artifactId>*</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>activesoap</groupId>
-							<artifactId>jaxb-impl</artifactId>
-						</exclusion>
-						<exclusion>
 							<groupId>*</groupId>
 							<artifactId>servlet-api</artifactId>
 						</exclusion>
 						<exclusion>
 							<groupId>rhino</groupId>
 							<artifactId>js</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.apache.xmlbeans</groupId>
-							<artifactId>xmlbeans-xmlpublic</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.apache.xmlbeans</groupId>
-							<artifactId>xmlbeans-xpath</artifactId>
 						</exclusion>
 						<exclusion>
 							<groupId>javax.jms</groupId>
@@ -750,6 +730,46 @@
 							<groupId>jetty</groupId>
 							<artifactId>*</artifactId>
 						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-cli-picocli</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-groovysh</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-console</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-ant</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-groovydoc</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-docgenerator</artifactId>
+						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-sql</artifactId>
+						</exclusion>
+						<exclusion><!-- not used -->
+							<groupId>org.apache.xmlbeans</groupId>
+							<artifactId>xmlbeans-xpath</artifactId>
+						</exclusion>
+						<exclusion><!-- not used -->
+							<groupId>thoughtworks</groupId>
+							<artifactId>xstream</artifactId>
+						</exclusion>
+						<exclusion><!-- not used -->
+							<groupId>com.graphql-java</groupId>
+							<artifactId>graphql-java</artifactId>
+						</exclusion>
 						<exclusion><!-- gui -->
 							<groupId>org.openjfx</groupId>
 							<artifactId>*</artifactId>
@@ -759,8 +779,20 @@
 							<artifactId>*</artifactId>
 						</exclusion>
 						<exclusion><!-- gui -->
+							<groupId>com.miglayout</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion><!-- gui -->
+							<groupId>io.swagger</groupId>
+							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion><!-- gui -->
 							<groupId>org.sonatype.install4j</groupId>
 							<artifactId>*</artifactId>
+						</exclusion>
+						<exclusion><!-- not used -->
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-swing</artifactId>
 						</exclusion>
 					</exclusions>
 				</dependency>
