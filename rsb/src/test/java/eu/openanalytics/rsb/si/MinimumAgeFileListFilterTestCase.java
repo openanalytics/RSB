@@ -25,45 +25,47 @@ package eu.openanalytics.rsb.si;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-@RunWith(MockitoJUnitRunner.class)
 public class MinimumAgeFileListFilterTestCase {
-
-    @Mock
-    private File testFile;
-
-    private MinimumAgeFileListFilter filter;
-
-    @Before
-    public void prepareTest() {
-        filter = new MinimumAgeFileListFilter();
-        filter.setMinimumAge(10000);
-
-        when(testFile.exists()).thenReturn(true);
-    }
-
-    @Test
-    public void acceptFile() {
-        when(testFile.lastModified()).thenReturn(0L);
-        assertThat(filter.accept(testFile), is(true));
-    }
-
-    @Test
-    public void rejectFile() {
-        when(testFile.lastModified()).thenReturn(System.currentTimeMillis());
-        assertThat(filter.accept(testFile), is(false));
-    }
+	
+	
+	private File testFile;
+	
+	private MinimumAgeFileListFilter filter;
+	
+	
+	public MinimumAgeFileListFilterTestCase() {
+	}
+	
+	
+	@Before
+	public void prepareTest() throws IOException {
+		this.filter= new MinimumAgeFileListFilter();
+		this.filter.setMinimumAge(10000);
+		
+		this.testFile= File.createTempFile("MinimumAgeFileListFilterTestCase", null);
+	}
+	
+	@Test
+	public void acceptFile() {
+		this.testFile.setLastModified(0);
+		assertThat(this.filter.accept(this.testFile), is(true));
+	}
+	
+	@Test
+	public void rejectFile() {
+		this.testFile.setLastModified(System.currentTimeMillis());
+		assertThat(this.filter.accept(this.testFile), is(false));
+	}
+	
 }

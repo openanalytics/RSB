@@ -24,8 +24,10 @@
 package eu.openanalytics.rsb.si;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.integration.file.filters.AbstractFileListFilter;
 
 
@@ -36,14 +38,29 @@ import org.springframework.integration.file.filters.AbstractFileListFilter;
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
 public class MinimumAgeFileListFilter extends AbstractFileListFilter<File> {
-    private int minimumAge; // in milliseconds
-
-    public void setMinimumAge(final int minimumAge) {
-        this.minimumAge = minimumAge;
-    }
-
-    @Override
-    public boolean accept(final File file) {
-        return FileUtils.isFileOlder(file, System.currentTimeMillis() - minimumAge);
-    }
+	
+	
+	private int minimumAge; // in milliseconds
+	
+	
+	public MinimumAgeFileListFilter() {
+	}
+	
+	
+	public void setMinimumAge(final int minimumAge) {
+		this.minimumAge= minimumAge;
+	}
+	
+	@Override
+	public boolean accept(final File file) {
+		try {
+			final var path= file.toPath();
+			return (Files.exists(path)
+					&& Files.getLastModifiedTime(path).toMillis() < System.currentTimeMillis() - this.minimumAge);
+		}
+		catch (final IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+	
 }
