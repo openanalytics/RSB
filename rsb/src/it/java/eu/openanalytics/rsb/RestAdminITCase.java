@@ -30,7 +30,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 
@@ -42,7 +44,6 @@ import com.meterware.httpunit.PutMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -145,27 +146,34 @@ public class RestAdminITCase extends AbstractITCase
         assertEquals("text/plain", response.getContentType());
 		assertEquals(Files.readString(getTestDataFile("test.R")), response.getText());
     }
-
-    @Test
-    public void putCatalogFile() throws Exception
-    {
-        final String testFileName = "fake-" + RandomStringUtils.randomAlphanumeric(20) + ".R";
-
-        WebConversation wc = new WebConversation();
-        WebRequest request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/"
-                                                     + testFileName,
-            IOUtils.toInputStream("fake R script content for " + testFileName), "text/plain");
-        WebResponse response = wc.sendRequest(request);
-        assertEquals(201, response.getResponseCode());
-        assertTrue(StringUtils.isNotBlank(response.getHeaderField("Location")));
-
-        SuiteITCase.registerCreatedCatalogFile(CatalogSection.R_SCRIPTS, testFileName);
-
-        wc = new WebConversation();
-        request = new PutMethodWebRequest(RSB_BASE_URI + "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
-            IOUtils.toInputStream("fake R script replacement content for " + testFileName), "text/plain");
-        response = wc.sendRequest(request);
-        assertEquals(204, response.getResponseCode());
-        assertTrue(StringUtils.isBlank(response.getHeaderField("Location")));
-    }
+	
+	@Test
+	public void putCatalogFile() throws Exception {
+		final String testFileName= "fake-" + RandomStringUtils.randomAlphanumeric(20) + ".R";
+		final String testFileContent= "fake R script content for " + testFileName + ".";
+		WebConversation wc;
+		WebRequest request;
+		WebResponse response;
+		
+		wc= new WebConversation();
+		request= new PutMethodWebRequest(RSB_BASE_URI
+						+ "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
+				new ByteArrayInputStream(testFileContent.getBytes(StandardCharsets.UTF_8)),
+				"text/plain" );
+		response= wc.sendRequest(request);
+		assertEquals(201, response.getResponseCode());
+		assertTrue(StringUtils.isNotBlank(response.getHeaderField("Location")));
+		
+		SuiteITCase.registerCreatedCatalogFile(CatalogSection.R_SCRIPTS, testFileName);
+		
+		wc= new WebConversation();
+		request= new PutMethodWebRequest(RSB_BASE_URI
+						+ "/api/rest/admin/catalog/R_SCRIPTS/" + testFileName,
+				new ByteArrayInputStream(testFileContent.getBytes(StandardCharsets.UTF_8)),
+				"text/plain" );
+		response= wc.sendRequest(request);
+		assertEquals(204, response.getResponseCode());
+		assertTrue(StringUtils.isBlank(response.getHeaderField("Location")));
+	}
+	
 }
