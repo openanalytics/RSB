@@ -224,7 +224,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 			throws Exception {
 		Validate.notBlank(rServiPoolUri, "missing query param: rServiPoolUri");
 		Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
-		Validate.notBlank(sha1HexSum, "missing query param: packageName");
+		Validate.notBlank(packageName, "missing query param: packageName");
 		
 		// store the package and tar files in temporary files
 		final var tempDirectory= Files.createTempDirectory("rsb-rpkg-");
