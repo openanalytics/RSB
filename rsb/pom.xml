@@ -1014,9 +1014,9 @@
             <id>rdbms</id>
             <dependencies>
                 <dependency>
-                    <groupId>commons-dbcp</groupId>
-                    <artifactId>commons-dbcp</artifactId>
-                    <version>1.4</version>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-dbcp2</artifactId>
+                    <version>2.9.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -1026,7 +1026,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>42.2.14</version>
+                    <version>42.5.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -1036,7 +1036,7 @@
                 <dependency>
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.20</version>
+                    <version>8.0.30</version>
                 </dependency>
             </dependencies>
         </profile>
