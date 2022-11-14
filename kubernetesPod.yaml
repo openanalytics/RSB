@@ -8,12 +8,12 @@ spec:
   - name: rpooli-build
     image: 196229073436.dkr.ecr.eu-west-1.amazonaws.com/openanalytics/rpooli-build
     resources:
-      limits:
-        memory: "2Gi"
-        cpu: "2000m"
       requests:
         memory: "1.5Gi"
         cpu: "1000m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
     command:
     - cat
     tty: true
