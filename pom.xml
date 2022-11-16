@@ -56,6 +56,7 @@
 		<jakarta.mail.version>1.6.7</jakarta.mail.version>
 		<jms.version>1.1.1</jms.version>
 		<activemq.version>5.17.2</activemq.version>
+		<jedis.version>3.9.0</jedis.version>
 		
 		<htmlunit.version>2.64.0</htmlunit.version>
 		<soapui.version>5.7.0</soapui.version>

@@ -44,78 +44,71 @@ import eu.openanalytics.rsb.message.Job;
 /**
  * @author "Open Analytics &lt;rsb.development@openanalytics.eu&gt;"
  */
-public class RedisJobStatisticsHandler implements JobStatisticsHandler 
-{
-    private static final Log LOGGER = LogFactory.getLog(RedisJobStatisticsHandler.class);
-
-    private static final SimpleDateFormat MONTH_STAMP_FORMAT = new SimpleDateFormat("yyyy-MM");
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-
-    private static final String RSB_STATS_KEY_PREFIX = "rsb:stats:";
-    private static final String RSB_STATS_APPLICATIONS_SET_KEY = RSB_STATS_KEY_PREFIX + "applications";
-
-    private JedisPool pool;
-    private String redisHost;
-    private int redisPort;
-
-    private interface RedisAction
-    {
-        void run(Jedis jedis);
-    }
-
+public class RedisJobStatisticsHandler implements JobStatisticsHandler {
+	
+	private static final Log LOGGER= LogFactory.getLog(RedisJobStatisticsHandler.class);
+	
+	private static final SimpleDateFormat MONTH_STAMP_FORMAT= new SimpleDateFormat("yyyy-MM");
+	private static final TimeZone UTC= TimeZone.getTimeZone("UTC");
+	
+	private static final String RSB_STATS_KEY_PREFIX= "rsb:stats:";
+	private static final String RSB_STATS_APPLICATIONS_SET_KEY= RSB_STATS_KEY_PREFIX + "applications";
+	
+	private static interface RedisAction {
+		
+		void run(Jedis jedis);
+		
+	}
+	
+	
+	private String redisHost;
+	private int redisPort;
+	
+	private JedisPool pool;
+	
+	
 	@Override
-	public void setConfiguration(final Map<String, Object> configuration)
-    {
-        redisHost = (String) configuration.get("host");
-        redisPort = (Integer) configuration.get("port");
-    }
-
+	public void setConfiguration(final Map<String, Object> configuration) {
+		this.redisHost= (String)configuration.get("host");
+		this.redisPort= (Integer)configuration.get("port");
+	}
+	
 	@Override
-	public void initialize()
-    {
-        final GenericObjectPoolConfig<?> poolConfig = new GenericObjectPoolConfig<>();
-        poolConfig.setBlockWhenExhausted(false);
-        
-        pool = new JedisPool(poolConfig, redisHost, redisPort);
-
-        final boolean redisConfigurationOk = runWithJedis(new RedisAction()
-        {
+	public void initialize() {
+		final var poolConfig= new GenericObjectPoolConfig<Jedis>();
+		poolConfig.setBlockWhenExhausted(false);
+		
+		this.pool= new JedisPool(poolConfig, this.redisHost, this.redisPort);
+		
+		final boolean redisConfigurationOk= runWithJedis(new RedisAction() {
 			@Override
-			public void run(final Jedis jedis)
-            {
-                final String pingResponse = jedis.ping();
-
-                Validate.isTrue("PONG".equals(pingResponse),
-                    "Unexpected response received from pinging Redis: " + pingResponse);
-
-                LOGGER.info(String.format("%s successfully connected to Redis: %s:%d",
-                    getClass().getSimpleName(), redisHost, redisPort));
-            }
-        });
-
-        Validate.isTrue(
-            redisConfigurationOk,
-            "Redis can't be contacted: please check parameter 'rsb.jobs.stats.handler' (set it to 'none' to disable statistics altogether)");
-    }
-
+			public void run(final Jedis jedis) {
+				final String pingResponse= jedis.ping();
+				
+				Validate.isTrue("PONG".equals(pingResponse),
+						"Unexpected response received from pinging Redis: " + pingResponse );
+				
+				LOGGER.info(String.format("%s successfully connected to Redis: %s:%d",
+						getClass().getSimpleName(), RedisJobStatisticsHandler.this.redisHost, RedisJobStatisticsHandler.this.redisPort ));
+			}
+		});
+		
+		Validate.isTrue(redisConfigurationOk,
+				"Redis can't be contacted: please check parameter 'rsb.jobs.stats.handler' (set it to 'none' to disable statistics altogether)");
+	}
+	
 	@Override
-	public void destroy()
-    {
-        pool.destroy();
-    }
-
+	public void destroy() {
+		this.pool.destroy();
+	}
+	
 	@Override
 	public void storeJobStatistics(final Job job,
-                                   final Calendar jobCompletionTime,
-                                   final long millisecondsSpentProcessing,
-                                   final String rServiAddress)
-    {
-
-        runWithJedis(new RedisAction()
-        {
+			final Calendar jobCompletionTime, final long millisecondsSpentProcessing,
+			final String rServiAddress) {
+		runWithJedis(new RedisAction() {
 			@Override
-			public void run(final Jedis jedis)
-            {
+			public void run(final Jedis jedis) {
                 // ensure application is registered as a statistics producer
                 jedis.sadd(RSB_STATS_APPLICATIONS_SET_KEY, job.getApplicationName());
 
@@ -139,38 +132,32 @@ public class RedisJobStatisticsHandler implements JobStatisticsHandler
 
                 final String statsJson = Util.toJson(statsMap);
                 jedis.lpush(RSB_STATS_KEY_PREFIX + job.getApplicationName() + ":" + monthStamp, statsJson);
-            }
-        });
-    }
-
-    private boolean runWithJedis(final RedisAction action)
-    {
-        Jedis jedis = null;
-
-        try
-        {
-            jedis = pool.getResource();
-            action.run(jedis);
-            return true;
-        }
-        catch (final Throwable t)
-        {
-            LOGGER.warn("Failed to run action on Redis", t);
-            return false;
-        }
-        finally
-        {
-            if (jedis != null)
-            {
-                try
-                {
-                    jedis.close();
-                }
-                catch (final Throwable t)
-                {
-                    LOGGER.warn("Failed to return Redis client to the pool", t);
-                }
-            }
-        }
-    }
+			}
+		});
+	}
+	
+	private boolean runWithJedis(final RedisAction action) {
+		Jedis jedis= null;
+		
+		try {
+			jedis= this.pool.getResource();
+			action.run(jedis);
+			return true;
+		}
+		catch (final Throwable t) {
+			LOGGER.warn("Failed to run action on Redis", t);
+			return false;
+		}
+		finally {
+			if (jedis != null) {
+				try {
+					jedis.close();
+				}
+				catch (final Throwable t) {
+					LOGGER.warn("Failed to return Redis client to the pool", t);
+				}
+			}
+		}
+	}
+	
 }
