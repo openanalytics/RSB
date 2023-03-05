@@ -1008,36 +1008,38 @@
                 </dependency>
             </dependencies>
         </profile>
+		
         <profile>
             <id>rdbms</id>
             <dependencies>
-                <dependency>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-dbcp2</artifactId>
-                    <version>2.9.0</version>
-                </dependency>
+				<dependency>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-dbcp2</artifactId>
+					<version>2.9.0</version>
+				</dependency>
             </dependencies>
         </profile>
         <profile>
             <id>postgresql</id>
             <dependencies>
-                <dependency>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <version>42.5.0</version>
-                </dependency>
+				<dependency>
+					<groupId>org.postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+					<version>42.5.4</version>
+				</dependency>
             </dependencies>
         </profile>
         <profile>
             <id>mysql</id>
             <dependencies>
-                <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
-                    <version>8.0.30</version>
-                </dependency>
+				<dependency>
+					<groupId>com.mysql</groupId>
+					<artifactId>mysql-connector-j</artifactId>
+					<version>8.0.32</version>
+				</dependency>
             </dependencies>
         </profile>
-    </profiles>
+		
+	</profiles>
 	
 </project>
