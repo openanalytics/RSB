@@ -36,6 +36,10 @@
 	
 	<name>R Service Bus - Distribution Templates</name>
 	
+	<properties>
+		<maven.deploy.skip>true</maven.deploy.skip>
+	</properties>
+	
 	<profiles>
 		<profile>
 			<id>tomcat-distribution</id>
