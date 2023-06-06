@@ -27,12 +27,16 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -163,4 +167,32 @@ public class UtilTestCase
         assertThat(Util.replaceNonWordChars("abc_123", "_"), is("abc_123"));
         assertThat(Util.replaceNonWordChars("http://test.com", "_"), is("http___test_com"));
     }
+	
+	@Test
+	public void resolveRelativePath() throws IOException {
+		final Path directory= Files.createTempDirectory("UtilTest-resolveRelativePath");
+		assumeTrue(directory.isAbsolute());
+		
+		assertEquals(directory, Util.resolveRelativePath(directory, "name.txt").getParent());
+		assertThrows(IllegalArgumentException.class, () -> {
+			Util.resolveRelativePath(directory, "");
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			Util.resolveRelativePath(directory, "/");
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			Util.resolveRelativePath(directory, "/name.txt");
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			Util.resolveRelativePath(directory, directory.toString());
+		});
+		assertEquals(directory, Util.resolveRelativePath(directory, "sub/../name.txt").getParent());
+		assertThrows(IllegalArgumentException.class, () -> {
+			Util.resolveRelativePath(directory, "../name.txt");
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			Util.resolveRelativePath(directory, "sub/../../name.txt");
+		});
+	}
+	
 }

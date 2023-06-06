@@ -42,6 +42,8 @@ import org.eclipse.statet.jcommons.io.FileUtils;
 import org.eclipse.statet.jcommons.lang.NonNullByDefault;
 import org.eclipse.statet.jcommons.lang.Nullable;
 
+import eu.openanalytics.rsb.Util;
+
 
 /**
  * Represents a RSB result that consists of multiple files.
@@ -95,7 +97,7 @@ public class MultiFilesResult extends AbstractResult<List<Path>> {
 	}
 	
 	public Path createNewResultFile(final String name) throws IOException {
-		return getTemporaryDirectory().resolve(name);
+		return Util.resolveRelativePath(getTemporaryDirectory(), name);
 	}
 	
 	

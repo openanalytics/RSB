@@ -107,6 +107,7 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 	public static final String ADMIN_SYSTEM_PATH= Constants.ADMIN_PATH + "/" + SYSTEM_SUBPATH;
 	public static final String ADMIN_CATALOG_PATH= Constants.ADMIN_PATH + "/" + CATALOG_SUBPATH;
 	
+	private static final Pattern PACKAGE_NAME_PATTERN= Pattern.compile("[^/\\\\]+");
 	private static final Pattern TAR_CATALOG_FILE_PATTERN= Pattern.compile(".*/inst/rsb/catalog/(.*)");
 	
 	
@@ -225,6 +226,9 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 		Validate.notBlank(rServiPoolUri, "missing query param: rServiPoolUri");
 		Validate.notBlank(sha1HexSum, "missing query param: sha1hexsum");
 		Validate.notBlank(packageName, "missing query param: packageName");
+		if (!PACKAGE_NAME_PATTERN.matcher(packageName).matches()) {
+			throw new IllegalArgumentException("invalid query param: packageName= " + packageName);
+		}
 		
 		// store the package and tar files in temporary files
 		final var tempDirectory= Files.createTempDirectory("rsb-rpkg-");
@@ -283,8 +287,9 @@ public class AdminResource extends AbstractResource implements ApplicationContex
 					final byte[] data= IOUtils.toByteArray(tarIn, tarEntry.getSize());
 					
 					final String catalogFileName= matcher.group(1);
-					final var targetCatalogFile= getConfiguration().getCatalogRootDirectory().toPath()
-							.resolve(catalogFileName);
+					final var targetCatalogFile= Util.resolveRelativePath(
+							getConfiguration().getCatalogRootDirectory().toPath(),
+							catalogFileName );
 					Files.write(targetCatalogFile, data);
 					
 					getLogger().info("Wrote " + data.length + " bytes in catalog file: " + targetCatalogFile);

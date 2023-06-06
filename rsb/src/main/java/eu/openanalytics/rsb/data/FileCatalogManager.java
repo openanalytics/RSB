@@ -45,6 +45,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import eu.openanalytics.rsb.Util;
 import eu.openanalytics.rsb.component.AbstractComponent;
 import eu.openanalytics.rsb.config.Configuration.CatalogSection;
 import eu.openanalytics.rsb.config.Configuration.DepositDirectoryConfiguration;
@@ -140,10 +141,17 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
 	@Override
 	public Path internalGetCatalogFile(final CatalogSection catalogSection,
 			final @Nullable String applicationName,
-			final String fileName) {
+			String fileName) {
 		final Path catalogSectionDirectory= getCatalogSectionDirectory(catalogSection,
 				applicationName );
-		return catalogSectionDirectory.resolve(fileName);
+		
+		if (fileName == null || fileName.isEmpty()) {
+			throw new IllegalArgumentException("fileName= <missing>");
+		}
+		if (fileName.charAt(0) == '/') {
+			fileName= fileName.substring(1);
+		}
+		return Util.resolveRelativePath(catalogSectionDirectory, fileName);
 	}
 	
 	@PreAuthorize("hasPermission(#applicationName, 'CATALOG_ADMIN')")
@@ -151,9 +159,7 @@ public class FileCatalogManager extends AbstractComponent implements CatalogMana
 	public PutCatalogFileResult putCatalogFile(final CatalogSection catalogSection,
 			final @Nullable String applicationName,
 			final String fileName, final InputStream in) throws IOException {
-		final Path catalogSectionDirectory= getCatalogSectionDirectory(catalogSection, applicationName);
-		
-		final var catalogFile= catalogSectionDirectory.resolve(fileName);
+		final var catalogFile= internalGetCatalogFile(catalogSection, applicationName, fileName);
 		
 		final PutCatalogFileResult.ChangeType changeType;
 		if (Files.isRegularFile(catalogFile)) {

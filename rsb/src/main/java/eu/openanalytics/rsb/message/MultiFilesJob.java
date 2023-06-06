@@ -142,7 +142,7 @@ public class MultiFilesJob extends AbstractJob {
 	
 	private void addJobFile(final String name, final InputStream in)
 			throws IllegalJobDataException, IOException {
-		final var jobFile= getTemporaryDirectory().resolve(name);
+		final var jobFile= Util.resolveRelativePath(getTemporaryDirectory(), name);
 		
 		if (StringUtils.equalsIgnoreCase(FilenameUtils.getExtension(name), Constants.R_SCRIPT_FILE_EXTENSION)) {
 			if (this.rScriptFile != null) {

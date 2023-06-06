@@ -54,6 +54,8 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.eclipse.statet.jcommons.lang.NonNullByDefault;
+import org.eclipse.statet.jcommons.lang.Nullable;
 import org.eclipse.statet.jcommons.status.StatusException;
 
 import org.eclipse.statet.rj.data.RObject;
@@ -519,4 +521,29 @@ public abstract class Util
         }
         return source.replaceAll("\\W", replacement);
     }
+	
+	
+	@NonNullByDefault
+	public static Path resolveRelativePath(final Path directory, final @Nullable String s) {
+		final Path relPath;
+		final int relPathNameCount;
+		if (s == null || s.isEmpty() || s.charAt(0) == '/'
+				|| (relPath= directory.getFileSystem().getPath(s).normalize())
+						.isAbsolute()
+				|| (relPathNameCount= relPath.getNameCount()) == 0 ) {
+			throw new IllegalArgumentException("fileName= " + s);
+		}
+		for (int idx= 0; idx < relPathNameCount; idx++) {
+			switch (relPath.getName(idx).toString()) {
+			case "":
+			case ".":
+			case "..":
+				throw new IllegalArgumentException("fileName= " + s);
+			default:
+				continue;
+			}
+		}
+		return directory.resolve(relPath);
+	}
+	
 }
