@@ -38,7 +38,7 @@
 	<name>R Service Bus</name>
 	
 	<properties>
-		<rsb.tests>*Test, *TestCase, !DataDirectoriesResourceTestCase#browsePathCraftyExtension</rsb.tests>
+		<rsb.tests>*Test, *TestCase</rsb.tests><!-- !DataDirectoriesResourceTestCase#browsePathCraftyExtension -->
 		<test>${rsb.tests}</test>
 		<rsb.integration-tests>SuiteITCase</rsb.integration-tests>
 		<it.test>${rsb.integration-tests}</it.test>
@@ -399,6 +399,13 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.vintage</groupId>
+						<artifactId>junit-vintage-engine</artifactId>
+						<version>${junit-jupiter.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
@@ -772,6 +779,10 @@
 							<groupId>org.codehaus.groovy</groupId>
 							<artifactId>groovy-sql</artifactId>
 						</exclusion>
+						<exclusion>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-testng</artifactId>
+						</exclusion>
 						<exclusion><!-- not used -->
 							<groupId>org.apache.xmlbeans</groupId>
 							<artifactId>xmlbeans-xpath</artifactId>
@@ -876,6 +887,13 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
+						<dependencies>
+							<dependency>
+								<groupId>org.junit.vintage</groupId>
+								<artifactId>junit-vintage-engine</artifactId>
+								<version>${junit-jupiter.version}</version>
+							</dependency>
+						</dependencies>
 						<configuration>
 							<additionalClasspathElements>
 								<additionalClasspathElement>${basedir}/conf</additionalClasspathElement>
