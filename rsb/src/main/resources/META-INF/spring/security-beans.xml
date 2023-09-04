@@ -49,19 +49,18 @@
         </authentication-provider>
     </authentication-manager>
 
-    <http pattern="/login.html*" security="none" />
-    <http pattern="/logout.html*" security="none" />
-    <http pattern="/openid.html*" security="none" />
-    <http pattern="/images/**" security="none" />
-    <http pattern="/css/**" security="none" />
-    <http pattern="/js/**" security="none" />
-
     <http realm="RSB" use-expressions="true">
         <expression-handler ref="webExpressionHandler" />
         <intercept-url pattern="/admin/**"
             access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.Constants).ADMIN_PATH, 'RSB_RESOURCE')" />
         <intercept-url pattern="/**/admin/system/**"
             access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.component.AdminResource).ADMIN_SYSTEM_PATH, 'RSB_RESOURCE')" />
+        <intercept-url pattern="/login.html*"       access="permitAll" />
+        <intercept-url pattern="/logout.html*"      access="permitAll" />
+        <intercept-url pattern="/openid.html*"      access="permitAll" />
+        <intercept-url pattern="/images/**"         access="permitAll" />
+        <intercept-url pattern="/css/**"            access="permitAll" />
+        <intercept-url pattern="/js/**"             access="permitAll" />
         <intercept-url pattern="/**" access="isAuthenticated()" />
 
         <logout logout-url="/logout" logout-success-url="/logout.html" invalidate-session="true" />
