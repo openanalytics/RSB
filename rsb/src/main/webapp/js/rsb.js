@@ -426,6 +426,9 @@ $(document).ready(function() {
               
     success: function(data, textStatus, xhr) {
       initializeRemoteDataTree(data);
+    },
+  });
+
   function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie != "") {
