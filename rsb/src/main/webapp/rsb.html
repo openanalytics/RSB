@@ -53,7 +53,17 @@
     <div class="box">
       <sec:authorize access="isAuthenticated()">
         <!-- Authorities: ${user.authorities} -->
-        <div class="alignRight">${user.username} - <a href="logout">Logout</a></div>
+        <div class="alignRight">
+          ${user.username} -
+          <a href="javascript:document.getElementById('logout').submit()"
+            >Logout</a
+          >
+
+          <c:url value="/logout" var="logoutUrl" />
+          <form id="logout" action="${logoutUrl}" method="post">
+            <input type="hidden" name="_csrf" value="${cookie['XSRF-TOKEN'].getValue()}" />
+          </form>
+        </div>
       </sec:authorize>
       <h1><img src="css/images/open_analytics_logo.png" style="vertical-align:middle;" title="Open Analytics" />&nbsp;<span id="formTitle"></span></h1>
 
