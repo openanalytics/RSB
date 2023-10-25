@@ -30,7 +30,7 @@
     <author email="rsb.development@openanalytics.eu">RSB Development</author>
   </properties>
   <head>
-    <script src="http://code.jquery.com/jquery-1.6.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
   </head>
   <body>
     <section name="Installation">
@@ -38,7 +38,7 @@
         <p>Should you want to get started with the latest RSB snapshot and have all the required packages and dependencies installed in a convenient manner, simply run the following command:</p>
         <source>sudo apt-get install rsb-snapshot r-properties r-rsbxml r-rsbjson</source>
         <p>These packages are found in this repository: <a href="http://deb.openanalytics.eu">deb.openanalytics.eu</a>.
-        Follow <a href="http://deb.openanalytics.eu/howto.html">this guide</a> to add this repository to your system.</p>
+        Follow <a href="https://deb.openanalytics.eu/howto.html">this guide</a> to add this repository to your system.</p>
      </subsection>
      <subsection name="Prerequisites">
         <p>RSB needs R, several R packages and also relies on RPooli for interacting with R.</p>
@@ -97,7 +97,7 @@
         <p>If RSB generates such a default configuration file in<code>WEB-INF/classes</code>, it is recommended to review it so it uses the desired values and move it to <code>/etc/rsb</code>, as discussed in the previous section.</p>
       </subsection>
       <subsection name="Description">
-        <p>Configuration attributes are documented on the <a href="./apidocs/index.html?eu/openanalytics/rsb/config/PersistedConfiguration.html">persisted configuration classes</a>.</p>
+        <p>Configuration attributes are documented on the <a href="apidocs/index.html?eu/openanalytics/rsb/config/PersistedConfiguration.html">persisted configuration classes</a>.</p>
       </subsection>
       <script type="text/javascript">
         //<![CDATA[

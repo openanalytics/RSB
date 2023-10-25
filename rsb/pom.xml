@@ -503,6 +503,8 @@
 
                         <exclude>src/it/config/rsb-it-soapui-*.xml</exclude>
 
+                        <exclude>src/site/resources/js/jquery*.js</exclude>
+
                         <exclude>.idea/*.xml</exclude>
                     </excludes>
                 </configuration>
