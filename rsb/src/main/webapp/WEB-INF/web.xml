@@ -52,6 +52,8 @@
   <jsp-config>
     <jsp-property-group>
       <url-pattern>*.html</url-pattern>
+      <page-encoding>UTF-8</page-encoding>
+      <default-content-type>text/html; charset=UTF-8</default-content-type>
     </jsp-property-group>
   </jsp-config>
 </web-app>
