@@ -52,7 +52,7 @@
     Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />. </font>
    </c:if>
   
-   <form action="<c:url value='j_spring_openid_security_check'/>"
+   <form action="<c:url value='/login'/>"
     method="post" id="openid_form">
     <input type="hidden" name="action" value="verify" />
   

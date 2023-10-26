@@ -42,16 +42,16 @@
     Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />. </font>
    </c:if>
   
-   <form action="<c:url value='j_spring_security_check'/>"  method="post" id="login_form">
+   <form action="<c:url value='/login'/>"  method="post" id="login_form">
     <fieldset>
      <legend>Sign-in to use RSB</legend>
      <div>
-      <label for="j_username">Username:</label>
-      <input name="j_username" type="text"  required autofocus>
+      <label for="username">Username:</label>
+      <input name="username" type="text"  required autofocus>
      </div>
      <div>
-      <label for="j_password">Password:</label>
-      <input name="j_password" type="password" />
+      <label for="password">Password:</label>
+      <input name="password" type="password" />
      </div>
      <input type="hidden" name="_csrf" value="${cookie['XSRF-TOKEN'].getValue()}" />
      <div>

@@ -71,16 +71,13 @@
         <!--
         <form-login login-page="/login.html"
                 authentication-failure-url="/login.html?login_error=true"
-                login-processing-url="/j_spring_security_check"
-                username-parameter="j_username"
-                password-parameter="j_password"
                 default-target-url="/rsb.html" /> 
-
-        <openid-login login-page="/openid.html"
-                      authentication-failure-url="/openid.html?login_error=true"
-                      default-target-url="/index.html" />
         -->
-
+        <!--
+        <openid-login login-page="/openid.html"
+                authentication-failure-url="/openid.html?login_error=true"
+                default-target-url="/rsb.html" />
+        -->
         <!--
         <custom-filter ref="x509Filter" position="PRE_AUTH_FILTER" /> 
          -->
