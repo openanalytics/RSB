@@ -42,9 +42,9 @@
     <authentication-manager alias="authenticationManager">
         <authentication-provider>
             <user-service>
-                <user name="user" password="user" authorities="ROLE_APP_USER" />
-                <user name="admin" password="admin" authorities="ROLE_APP_ADMIN" />
-                <user name="boss" password="boss" authorities="ROLE_RSB_ADMIN" />
+                <user name="user" password="{noop}user" authorities="ROLE_APP_USER" />
+                <user name="admin" password="{noop}admin" authorities="ROLE_APP_ADMIN" />
+                <user name="boss" password="{noop}boss" authorities="ROLE_RSB_ADMIN" />
             </user-service>
         </authentication-provider>
     </authentication-manager>
