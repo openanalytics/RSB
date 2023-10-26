@@ -50,6 +50,7 @@
     </authentication-manager>
 
     <http realm="RSB" use-expressions="true">
+        <csrf token-repository-ref="tokenRepository"/>
         <expression-handler ref="webExpressionHandler" />
         <intercept-url pattern="/admin/**"
             access="isAuthenticated() and hasPermission(T(eu.openanalytics.rsb.Constants).ADMIN_PATH, 'RSB_RESOURCE')" />
@@ -69,8 +70,11 @@
         <http-basic />
         <!--
         <form-login login-page="/login.html"
-                    authentication-failure-url="/login.html?login_error=true"
-                    default-target-url="/index.html" />
+                authentication-failure-url="/login.html?login_error=true"
+                login-processing-url="/j_spring_security_check"
+                    username-parameter="j_username"
+                password-parameter="j_password"
+                default-target-url="/rsb.html" /> 
 
         <openid-login login-page="/openid.html"
                       authentication-failure-url="/openid.html?login_error=true"
@@ -82,6 +86,10 @@
          -->
     </http>
 
+    <beans:bean id="tokenRepository"
+	    class="org.springframework.security.web.csrf.CookieCsrfTokenRepository"
+	    p:cookieHttpOnly="false"/>
+    
     <beans:bean id="expressionHandler"
         class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler"
         p:permissionEvaluator-ref="applicationPermissionEvaluator" />

@@ -38,6 +38,11 @@
         <p><label>R Script: </label><input type="text" name="X-RSB-Meta-rScript" /></p>
         <p><label>Sweave File: </label><input type="text" name="X-RSB-Meta-sweaveFile" /></p>
       </div>
+      <input
+        type="hidden"
+        name="_csrf"
+        value="${cookie['XSRF-TOKEN'].getValue()}"
+      />
     </div>
 
     <input type="submit" name="jobSubmitButton" value="Upload Job" /> 
