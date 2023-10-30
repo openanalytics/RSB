@@ -72,6 +72,7 @@
           <c:set var="uploadFormFragment">
             <c:out value="${param.form}" default="default-upload-form"/>
           </c:set>
+          <input type="hidden" name="_csrf" value="${cookie['XSRF-TOKEN'].getValue()}" />
           <jsp:include page="fragments/${uploadFormFragment}.html" /> 
         </form>
 
