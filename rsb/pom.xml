@@ -760,35 +760,7 @@
 						</exclusion>
 						<exclusion>
 							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-cli-picocli</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-groovysh</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-console</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-ant</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-groovydoc</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-docgenerator</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-sql</artifactId>
-						</exclusion>
-						<exclusion>
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-testng</artifactId>
+							<artifactId>*</artifactId>
 						</exclusion>
 						<exclusion><!-- not used -->
 							<groupId>org.apache.xmlbeans</groupId>
@@ -822,11 +794,17 @@
 							<groupId>org.sonatype.install4j</groupId>
 							<artifactId>*</artifactId>
 						</exclusion>
-						<exclusion><!-- not used -->
-							<groupId>org.codehaus.groovy</groupId>
-							<artifactId>groovy-swing</artifactId>
-						</exclusion>
 					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.groovy</groupId>
+					<artifactId>groovy</artifactId>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.groovy</groupId>
+					<artifactId>groovy-xml</artifactId>
+					<scope>test</scope>
 				</dependency>
 				<dependency><!-- for httpunit, soapui // newer version incompatible with httpunit -->
 					<groupId>org.mozilla</groupId>
