@@ -276,11 +276,11 @@
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-jaxb-annotations</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>stringtemplate</artifactId>
-            <version>4.0.2</version>
-        </dependency>
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>ST4</artifactId>
+			<version>4.3.4</version>
+		</dependency>
 		<dependency>
 			<groupId>com.narupley</groupId>
 			<artifactId>not-going-to-be-commons-ssl</artifactId>
