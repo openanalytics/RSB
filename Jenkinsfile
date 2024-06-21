@@ -42,7 +42,7 @@ pipeline {
 				sh "export JENKINS_NODE_COOKIE=dontKillMe R_HOME=/usr/lib/R &&\
 					mvn -f it-rpooli/ jetty:run-war\
 						--batch-mode > it-rpooli/jetty-rpooli.out 2>&1 &"
-				sh "sleep 2 && wget --tries=60 --waitretry=1 --retry-connrefused --output-document /dev/null\
+				sh "sleep 2 && curl --retry 60 --retry-delay 1 --retry-connrefused --output /dev/null\
 						http://127.0.0.1:8889/rpooli/"
 				
 				sh "mvn verify -P it,javax-dependencies\

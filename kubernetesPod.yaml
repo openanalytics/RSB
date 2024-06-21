@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
   - name: rpooli-build
-    image: 196229073436.dkr.ecr.eu-west-1.amazonaws.com/openanalytics/rpooli-build
+    image: registry.openanalytics.eu/openanalytics/rpooli-build:J-11_R-4.1
     resources:
       requests:
         memory: "2Gi"
